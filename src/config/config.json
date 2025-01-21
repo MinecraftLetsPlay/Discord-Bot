@@ -1,5 +1,6 @@
 {
 	"token": "YOUR_DISCORD_BOT_TOKEN",
 	"prefix": "!",
-	"log_file": "logs/01.log"
+	"log_file": "logs/bot_01.log",
+	"whitelist": ["YOUR_DISCORD_ID"]
 }
