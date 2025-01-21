@@ -1,0 +1,7 @@
+### python
+.env
+__pycache__/
+*.log
+logs/
+#### other
+.vscode/

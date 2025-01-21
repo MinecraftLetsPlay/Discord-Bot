@@ -1,0 +1,5 @@
+{
+	"token": "YOUR_DISCORD_BOT_TOKEN",
+	"prefix": "!",
+	"log_file": "logs/01.log"
+}
