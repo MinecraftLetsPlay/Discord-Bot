@@ -1,4 +1,5 @@
 import random
+import discord
 import os
 import sys
 from internal import utils  # Assuming utils.py is in the internal directory
@@ -19,7 +20,14 @@ async def handle_command(client, message):
     
     # !help command
     if user_message == '!help':
-        return 'Possible Commands: [System]: !shutdown, !restart [Public]: !Roll, !test.'
+        embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
+        embed.add_field(name="[System]", value="!shutdown, !restart", inline=False)
+        embed.add_field(name="[Public]", value="!roll, !test, !info, !ping", inline=False)
+        return embed
+    
+    if user_message == '!info':
+        embed = discord.Embed(title="Info", description="This is a Discord bot created for demonstration purposes.", color=0x00ff00)
+        return embed
 
     # !test command
     if user_message == '!test':
@@ -43,7 +51,12 @@ async def handle_command(client, message):
             await message.channel.send("Restarting...")
             os.execv(sys.executable, ['python'] + sys.argv)
         else:
-            return "You don't have the permission to execute this command."
+            embed = discord.Embed(
+                title="Error", 
+                description=f"{message.author} You don't have the permission to execute this command.", 
+                color=0xff0000
+            )
+            return embed
 
     # Return None for unhandled commands
     return None
