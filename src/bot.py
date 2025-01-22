@@ -1,11 +1,12 @@
 import discord
-from internal import responses, utils
+from internal import commands, utils
 import os
 
 async def send_message(message, user_message, is_private):
     try:
-        response = responses.get_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
+        response = await commands.handle_command(client, message)
+        if response:
+            await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
         print(e)
@@ -36,10 +37,10 @@ def run_discord_bot():
         
         print(f'{username} said: "{user_message}" ({channel})')
 
-        # Process responses from responses.py
-        response = responses.get_response(user_message)
+        # Pass the message to commands.py
+        response = await commands.handle_command(client, message)
         if response:
-                print(f'{client.user} said: "{response}" ({channel})')
-                await message.channel.send(response)
+            print(f'{client.user} said: "{response}" ({channel})')
+            await message.channel.send(response)
 
     client.run(TOKEN)
