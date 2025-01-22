@@ -1,5 +1,5 @@
 {
-	"token": "YOUR_DISCORD_BOT_TOKEN",
+	"token": "MTExMDkzMjg4MzY1MDExNzY0Mg.GKg69F.yRQ7DLKPW9e13dYrItd2tBAvOGIdKvSRUtXv8E",
 	"prefix": "!",
 	"log_file": "logs/bot_01.log",
 	"whitelist": ["YOUR_DISCORD_ID"]
