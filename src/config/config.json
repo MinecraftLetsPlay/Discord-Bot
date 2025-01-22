@@ -2,5 +2,5 @@
 	"token": "MTExMDkzMjg4MzY1MDExNzY0Mg.GKg69F.yRQ7DLKPW9e13dYrItd2tBAvOGIdKvSRUtXv8E",
 	"prefix": "!",
 	"log_file": "logs/bot_01.log",
-	"whitelist": ["minecraftletsplay2912#0", "little_fox_e"]
+	"whitelist": ["minecraftletsplay2912", "little_fox_e"]
 }
