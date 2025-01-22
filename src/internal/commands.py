@@ -20,6 +20,9 @@ async def handle_command(client, message):
     
     username = message.author
     
+    # Use message.author.mention to get the @username ping
+    username_mention = message.author.mention  # This gives @username
+    
     # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
@@ -47,7 +50,7 @@ async def handle_command(client, message):
         else:
             embed = discord.Embed(
                 title="Permission denied", 
-                description=f"@{username} You don't have the permission to execute this command.", 
+                description=f"{username_mention} You don't have the permission to execute this command.", 
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
@@ -60,7 +63,7 @@ async def handle_command(client, message):
         else:
             embed = discord.Embed(
                 title="Permission denied", 
-                description=f"@{username} You don't have the permission to execute this command.", 
+                description=f"{username_mention} You don't have the permission to execute this command.", 
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
