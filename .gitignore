@@ -3,6 +3,6 @@
 __pycache__/
 logs/
 config/
-venv/
+.venv/
 #### other
 .vscode/

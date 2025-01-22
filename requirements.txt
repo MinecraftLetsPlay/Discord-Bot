@@ -1,3 +1,3 @@
-#### import necessary libraries to run
+# import necessary libraries to run
 discord.py
 python-dotenv
