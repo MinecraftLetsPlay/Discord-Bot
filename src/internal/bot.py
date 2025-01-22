@@ -5,6 +5,7 @@ import sys
 from internal import events, utils, responses, commands
 from internal.commands import general, system
 
+
 def run_discord_bot():
     config = utils.load_config()
     TOKEN = config['token']
