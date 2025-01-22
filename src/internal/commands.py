@@ -40,5 +40,5 @@ async def handle_command(client, message):
 def is_authorized(user):
     """Checks if the user is authorized for system commands."""
     # Replace with your authorized user logic
-    authorized_users = ["minecraftletsplay#0"]
+    authorized_users = ["minecraftletsplay2912#0"]
     return str(user) in authorized_users
