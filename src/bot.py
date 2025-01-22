@@ -1,6 +1,7 @@
 import discord
-import events, responses, utils
-from config import config
+from .internal import responses
+from .internal import utils
+from .config import config
 import os
 import sys
 
