@@ -1,3 +1,4 @@
 #### import necessary libraries to run
 # pip v.24.3.1
 discord.py
+python-dotenv

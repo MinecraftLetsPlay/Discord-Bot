@@ -1,7 +1,8 @@
-### python
+#### python
 .env
 __pycache__/
-*.log
 logs/
+config/
+venv/
 #### other
 .vscode/
