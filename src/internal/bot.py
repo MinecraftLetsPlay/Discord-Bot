@@ -2,8 +2,7 @@
 import discord
 import os
 import sys
-import responses
-from internal import events, utils, commands
+from internal import responses, events, utils, commands
 
 def run_discord_bot():
     config = utils.load_config()
