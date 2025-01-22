@@ -1,6 +1,24 @@
 import random
 import os
 import sys
+import json
+
+# Load the whitelist from config.json
+def load_whitelist():
+    """Loads the whitelist from the configuration file."""
+    try:
+        with open("internal/config/config.json", "r") as file:
+            config = json.load(file)
+            return config.get("whitelist", [])
+    except Exception as e:
+        print(f"Error loading config file: {e}")
+        return []
+
+# Authorization check using the whitelist
+def is_authorized(user):
+    """Checks if the user is authorized for system commands."""
+    whitelist = load_whitelist()
+    return str(user) in whitelist
 
 async def handle_command(client, message):
     """Handles user commands."""
@@ -36,9 +54,3 @@ async def handle_command(client, message):
 
     # Return None for unhandled commands
     return None
-
-def is_authorized(user):
-    """Checks if the user is authorized for system commands."""
-    # Replace with your authorized user logic
-    authorized_users = ["minecraftletsplay2912"]
-    return str(user) in authorized_users
