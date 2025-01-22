@@ -18,7 +18,9 @@ def get_response(message: str) -> discord.Embed:
         return str(random.randint(1, 6))
     
     if p_message == '!info':
-        embed = discord.Embed(title="Info", description="This is a Discord bot created for demonstration purposes.", color=0x00ff00)
+        embed = discord.Embed(title="Info", description="This is a Discord bot created ny Minecraft Lets Play.", color=0x00ff00)
+        embed.add_field("Its purpose is to provide information and entertainment to the community.", inline=False)
+        embed.add_field("It is currently in development and will be updated regularly.", inline=False)
         return embed
 
     if p_message == '!ping':
