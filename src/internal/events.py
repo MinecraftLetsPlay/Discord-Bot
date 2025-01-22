@@ -20,5 +20,5 @@ async def on_message(client, message, responses, commands, sys, os):
     else:
         response = responses.get_response(user_message)
         if response:
-            print(f'{client.user} said: "{response}" ({channel})')
-            await message.channel.send(response)
+            print(f'{client.user} said: "{response.title}" ({channel})')
+            await message.channel.send(embed=response)

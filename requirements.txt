@@ -1,1 +1,3 @@
-TOKEN=MTExMDkzMjg4MzY1MDExNzY0Mg.GKg69F.yRQ7DLKPW9e13dYrItd2tBAvOGIdKvSRUtXv8E
+#### import necessary libraries to run
+# pip v.24.3.1
+discord.py
