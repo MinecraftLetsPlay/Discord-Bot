@@ -1,9 +1,6 @@
 import discord
-from .internal import responses
-from .internal import utils
-from .config import config
+from internal import responses, utils
 import os
-import sys
 
 async def send_message(message, user_message, is_private):
     try:
@@ -21,6 +18,7 @@ def run_discord_bot():
     intents.message_content = True
     intents.members = True
     intents.presences = True
+    
     client = discord.Client(intents=intents)
     
     @client.event
