@@ -15,16 +15,14 @@ def get_response(message: str) -> discord.Embed:
         return embed
 
     if p_message == '!roll':
-        embed = discord.Embed(title="Roll", description=str(random.randint(1, 6)), color=0x00ff00)
-        return embed
-
+        return str(random.randint(1, 6))
+    
     if p_message == '!info':
         embed = discord.Embed(title="Info", description="This is a Discord bot created for demonstration purposes.", color=0x00ff00)
         return embed
 
     if p_message == '!ping':
-        embed = discord.Embed(title="Ping", description="Pong!", color=0x00ff00)
-        return embed
+        return str("Pong!")
 
     embed = discord.Embed(title="Error", description="I do not understand that command.", color=0xff0000)
     return embed
