@@ -1,24 +1,17 @@
 import random
 import os
 import sys
-import json
+from internal import utils  # Assuming utils.py is in the internal directory
 
-# Load the whitelist from config.json
-def load_whitelist():
-    """Loads the whitelist from the configuration file."""
-    try:
-        with open("internal/config/config.json", "r") as file:
-            config = json.load(file)
-            return config.get("whitelist", [])
-    except Exception as e:
-        print(f"Error loading config file: {e}")
-        return []
-
-# Authorization check using the whitelist
 def is_authorized(user):
     """Checks if the user is authorized for system commands."""
-    whitelist = load_whitelist()
-    return str(user) in whitelist
+    try:
+        config = utils.load_config()  # Load config using utils
+        whitelist = config.get("whitelist", [])
+        return str(user) in whitelist
+    except Exception as e:
+        print(f"Error checking authorization: {e}")
+        return False
 
 async def handle_command(client, message):
     """Handles user commands."""
