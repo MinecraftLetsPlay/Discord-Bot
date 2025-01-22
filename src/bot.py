@@ -1,7 +1,7 @@
 import discord
 import os
 import sys
-from bot import events, commands, utils
+from internal import events, commands, utils
 import responses
 
 def run_discord_bot():
