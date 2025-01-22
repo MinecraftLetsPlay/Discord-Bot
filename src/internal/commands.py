@@ -18,16 +18,18 @@ async def handle_command(client, message):
     """Handles user commands."""
     user_message = message.content.lower()
     
+    username = message.author
+    
     # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="!shutdown, !restart", inline=False)
         embed.add_field(name="[Public]", value="!roll, !test, !info, !ping", inline=False)
-        return embed
+        await message.channel.send(embed=embed)
     
     if user_message == '!info':
         embed = discord.Embed(title="Info", description="This is a Discord bot created for demonstration purposes.", color=0x00ff00)
-        return embed
+        await message.channel.send(embed=embed)
 
     # !test command
     if user_message == '!test':
@@ -52,11 +54,11 @@ async def handle_command(client, message):
             os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(
-                title="Error", 
-                description=f"{message.author} You don't have the permission to execute this command.", 
+                title="Permission denied", 
+                description=f"@{username} You don't have the permission to execute this command.", 
                 color=0xff0000
             )
-            return embed
+            await message.channel.send(embed=embed)
 
     # Return None for unhandled commands
     return None
