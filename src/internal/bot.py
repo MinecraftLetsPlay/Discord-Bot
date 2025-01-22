@@ -1,5 +1,5 @@
 import discord
-import commands
+import events, responses, utils
 from config import config
 import os
 import sys
@@ -37,9 +37,9 @@ def run_discord_bot():
         
         print(f'{username} said: "{user_message}" ({channel})')
 
-            # Process responses from responses.py
-            response = commands.get_response(user_message)
-            if response:
+        # Process responses from responses.py
+        response = responses.get_response(user_message)
+        if response:
                 print(f'{client.user} said: "{response}" ({channel})')
                 await message.channel.send(response)
 
