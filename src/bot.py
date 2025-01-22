@@ -2,15 +2,6 @@ import discord
 from internal import commands, utils
 import os
 
-async def send_message(message, user_message, is_private):
-    try:
-        response = await commands.handle_command(client, message)
-        if response:
-            await message.author.send(response) if is_private else await message.channel.send(response)
-
-    except Exception as e:
-        print(e)
-
 def run_discord_bot():
     config = utils.load_config()
     TOKEN = os.getenv('DISCORD_BOT_TOKEN', config['token'])
@@ -37,7 +28,7 @@ def run_discord_bot():
         
         print(f'{username} said: "{user_message}" ({channel})')
 
-        # Pass the message to commands.py
+        # Pass the client object to handle_command
         response = await commands.handle_command(client, message)
         if response:
             print(f'{client.user} said: "{response}" ({channel})')
