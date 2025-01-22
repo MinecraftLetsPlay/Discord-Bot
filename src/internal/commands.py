@@ -45,7 +45,12 @@ async def handle_command(client, message):
             await message.channel.send("Shutting down...")
             await client.close()
         else:
-            return "You don't have the permission to execute this command."
+            embed = discord.Embed(
+                title="Permission denied", 
+                description=f"@{username} You don't have the permission to execute this command.", 
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
 
     # !restart command
     if user_message == '!restart':
