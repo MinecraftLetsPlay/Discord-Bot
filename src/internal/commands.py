@@ -54,6 +54,19 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
+            
+    if user_message == '!full-shutdown':
+        if is_authorized(message.author):
+            await message.channel.send("Shutting down the bot and the Raspberry Pi...")
+            await client.close()
+            os.system("sudo shutdown now")
+        else:
+            embed = discord.Embed(
+                title="Permission denied", 
+                description=f"{username_mention} You don't have the permission to execute this command.", 
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
 
     # !restart command
     if user_message == '!restart':
