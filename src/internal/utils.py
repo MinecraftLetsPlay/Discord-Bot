@@ -1,6 +1,7 @@
 import json
 import os
 
+# get config from config.json
 def load_config(path='config/config.json'):
     base_path = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_path, '..', path)
