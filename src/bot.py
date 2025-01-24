@@ -3,20 +3,24 @@ from internal import commands, utils
 import os
 
 def run_discord_bot():
+    # load config and get the token from the config file
     config = utils.load_config()
     TOKEN = os.getenv('DISCORD_BOT_TOKEN', config['token'])
-    
+
+    # get discord types
     intents = discord.Intents.default()
     intents.message_content = True
     intents.members = True
     intents.presences = True
-    
+
     client = discord.Client(intents=intents)
-    
+
+    # check for the bot to be ready
     @client.event
     async def on_ready():
         print(f'{client.user} is now running!')
 
+    # check for messages
     @client.event
     async def on_message(message):
         if message.author == client.user:
@@ -25,10 +29,10 @@ def run_discord_bot():
         username = str(message.author)
         user_message = str(message.content)
         channel = str(message.channel)
-        
+
         print(f'{username} said: "{user_message}" ({channel})')
 
-        # Pass the client object to handle_command
+        # pass the client object to handle_command
         response = await commands.handle_command(client, message)
         if response:
             print(f'{client.user} said: "{response}" ({channel})')
