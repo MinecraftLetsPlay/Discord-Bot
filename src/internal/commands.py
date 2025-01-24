@@ -182,7 +182,7 @@ async def handle_command(client, message):
 
                 # Apply timeout
                 timeout_duration = timedelta(minutes=duration)
-                await member.timeout_for(timeout_duration, reason=reason)
+                await member.timeout(timeout_duration, reason=reason)
 
                 await message.channel.send(f"{member.mention} has been timed out for {duration} minutes. Reason: {reason}")
 
