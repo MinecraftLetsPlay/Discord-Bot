@@ -2,7 +2,6 @@ import aiohttp # Asynchronous HTTP client library
 from datetime import timedelta # For handling timeouts
 import discord # discord.py library
 import random
-import requests
 import json
 import os
 import sys
@@ -387,14 +386,34 @@ async def handle_command(client, message):
             pressure = weather_data['main']['pressure']
             wind_speed = weather_data['wind']['speed']
             wind_deg = weather_data['wind']['deg']
+            
+            # Determine embed color based on weather description
+            if 'clear' in description or 'sun' in description:
+                embed_color = discord.Color.gold()  # Sunny or clear
+            elif 'rain' in description:
+                embed_color = discord.Color.blue()  # Rainy
+            elif 'storm' in description or 'thunder' in description:
+                embed_color = discord.Color.dark_gray()  # Thunderstorm
+            elif 'cloud' in description:
+                embed_color = discord.Color.light_gray()  # Cloudy weather
+            elif 'snow' in description:
+                embed_color = discord.Color.white()  # Snow
+            elif 'fog' in description or 'mist' in description:
+                embed_color = discord.Color.light_gray()  # Foggy or misty
+            elif 'drizzle' in description:
+                embed_color = discord.Color.sky_blue()  # Drizzle
+            elif 'extreme' in description or 'hurricane' in description or 'tornado' in description:
+                embed_color = discord.Color.purple()  # Extreme weather
+            else:
+                embed_color = discord.Color.default()  # Default color
 
             # Sending formatted message
-            await message.channel.send(f"Weather in {city_name}:\n"
-                                    f"Temperature: {temp}°C\n"
-                                    f"Description: {description.capitalize()}\n"
-                                    f"Humidity: {humidity}%\n"
-                                    f"Pressure: {pressure} hPa\n"
-                                    f"Wind: {wind_speed} m/s, Direction: {wind_deg}°")
+            embed = discord.Embed(title=f"Weather in {city_name}", color=embed_color)
+            embed.add_field(name="Temperature", value=f"{temp}°C", inline=False)
+            embed.add_field(name="Description", value=description.capitalize(), inline=False)
+            embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
+            embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
+            embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}°", inline=False)
         else:
             await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
 
