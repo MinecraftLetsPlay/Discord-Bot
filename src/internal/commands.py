@@ -1,9 +1,9 @@
+import aiohttp # Asynchronous HTTP client library
+from datetime import timedelta # For handling timeouts
+import discord # discord.py library
 import random
-import discord
 import os
 import sys
-import aiohttp
-from datetime import timedelta
 from . import utils
 
 def is_authorized(user):
@@ -17,14 +17,14 @@ def is_authorized(user):
         return False
 
 async def handle_command(client, message):
-    #Handles user commands
+    # Handles user commands
     user_message = message.content.lower()
 
     username = message.author
 
     # Use message.author.mention to get the @username ping
-    username_mention = message.author.mention  # This gives @username
-    
+    username_mention = message.author.mention  # Gives @username
+
     #
     #
     # Public commands
@@ -40,7 +40,7 @@ async def handle_command(client, message):
         embed.add_field(name="[Utils]", value="!ping, !weather, !download", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps", inline=False)
         await message.channel.send(embed=embed)
-        
+
     # !info command
     if user_message == '!info':
         embed = discord.Embed(title="Info", color=0x00ff00)
@@ -48,7 +48,7 @@ async def handle_command(client, message):
         embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
         embed.add_field(name="", value="Planned features will include: Moderation, different utilities, minigames and more.", inline=False)
         await message.channel.send(embed=embed)
-        
+
     # !rules command
     if user_message == '!rules':
         rules_channel = discord.utils.get(message.guild.text_channels, name="rules")  # Replace "rules" with the actual name of your rules channel
@@ -56,7 +56,7 @@ async def handle_command(client, message):
             await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
         else:
             await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
-            
+
     # !userinfo command
     if user_message.startswith('!userinfo'):
         # Get the username after the command
@@ -69,7 +69,7 @@ async def handle_command(client, message):
             if user:
                 embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
                 embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
-            
+
                 # Format the roles with backticks
                 roles = " • ".join([f"{role.name}" for role in user.roles if role.name != "@everyone"])
                 embed.add_field(name="Roles", value=roles)
@@ -80,12 +80,12 @@ async def handle_command(client, message):
                 await message.channel.send("Could not find a user with that username.")
         else:
             await message.channel.send("Please provide a valid username.")
-            
+
     # !serverinfo command
     if user_message.startswith('!serverinfo'):
         guild = message.guild  # Get the guild (server)
         embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
-    
+
         # Add server details to the embed
         embed.add_field(name="Server ID", value=guild.id)
         embed.add_field(name="Created At", value=guild.created_at.strftime("%B %d, %Y"))
@@ -97,7 +97,7 @@ async def handle_command(client, message):
         # Set server icon (if available)
         if guild.icon:
             embed.set_thumbnail(url=guild.icon.url)
-    
+
         # Send the embed message
         await message.channel.send(embed=embed)
 
@@ -117,13 +117,13 @@ async def handle_command(client, message):
             await message.channel.send(meme_url)
         else:
             await message.channel.send("Sorry, I couldn't fetch a meme right now.")
-    
+
     #
     #
     # Moderation commands
     #
     #
-    
+
     # !kick command
     if user_message.startswith('!kick'):
         if is_authorized(message.author):
@@ -139,11 +139,11 @@ async def handle_command(client, message):
                 # Search for the member by mention or username
                 member = message.guild.get_member_named(username_to_kick) or \
                      discord.utils.get(message.guild.members, mention=username_to_kick)
-            
+
                 if member is None:
                     await message.channel.send(f"User `{username_to_kick}` not found.")
                     return
-            
+
                 # Kick the member
                 await member.kick(reason=f"Kicked by {message.author}")
                 await message.channel.send(f"{member.mention} has been kicked.")
@@ -157,7 +157,7 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-    
+
     # !ban command
     if user_message.startswith('!ban'):
         if is_authorized(message.author):
@@ -173,11 +173,11 @@ async def handle_command(client, message):
                 # Search for the member by mention or username
                 member = message.guild.get_member_named(username_to_ban) or \
                      discord.utils.get(message.guild.members, mention=username_to_ban)
-            
+
                 if member is None:
                     await message.channel.send(f"User `{username_to_ban}` not found.")
                     return
-            
+
                 # Ban the member with the provided reason
                 await member.ban(reason=reason)
                 await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
@@ -191,7 +191,7 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-        
+
     # !unban command
     if user_message.startswith('!unban'):
         if is_authorized(message.author):
@@ -234,8 +234,8 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-       
-    # !timeout command     
+
+    # !timeout command
     if user_message.startswith('!timeout'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)  # Split the command into parts
@@ -269,8 +269,8 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-         
-    # !untimeout command   
+
+    # !untimeout command
     if user_message.startswith('!untimeout'):
         if is_authorized(message.author):
             try:
@@ -297,7 +297,7 @@ async def handle_command(client, message):
     # System commands
     #
     #
-    
+
     # !shutdown command
     if user_message == '!shutdown':
         if is_authorized(message.author):
@@ -310,7 +310,7 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-    
+
     # !full-shutdown command
     if user_message == '!full-shutdown':
         if is_authorized(message.author):

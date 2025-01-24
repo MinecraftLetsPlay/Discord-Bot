@@ -1,4 +1,4 @@
 # import necessary libraries to run
 discord.py
 python-dotenv
-audioop
+aiohttp
