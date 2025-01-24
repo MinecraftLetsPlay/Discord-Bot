@@ -65,7 +65,7 @@ async def handle_command(client, message):
             if user:
                 embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
                 embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
-                embed.add_field(name="Roles", value=", ".join([role.name for role in user.roles if role.name != "@everyone"]))
+                embed.add_field(name="Roles", value="• ".join([role.name for role in user.roles if role.name != "@everyone"]))
                 embed.set_thumbnail(url=user.avatar.url)
                 await message.channel.send(embed=embed)
             else:
