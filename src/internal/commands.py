@@ -73,13 +73,23 @@ async def handle_command(client, message):
         else:
             await message.channel.send("Please provide a valid username.")
             
-    if user_message == '!serverinfo':
-        server = message.guild
-        embed = discord.Embed(title=f"Server Info: {server.name}", color=discord.Color.green())
-        embed.add_field(name="Server Created", value=server.created_at.strftime("%B %d, %Y"))
-        embed.add_field(name="Member Count", value=server.member_count)
-        embed.add_field(name="Region", value=server.region)
-        embed.set_thumbnail(url=server.icon.url)
+    if user_message.startswith('!serverinfo'):
+        guild = message.guild  # Get the guild (server)
+        embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
+    
+        # Add server details to the embed
+        embed.add_field(name="Server ID", value=guild.id)
+        embed.add_field(name="Created At", value=guild.created_at.strftime("%B %d, %Y"))
+        embed.add_field(name="Owner", value=guild.owner)
+        embed.add_field(name="Member Count", value=guild.member_count)
+        embed.add_field(name="Total Channels", value=len(guild.channels))
+        embed.add_field(name="Roles", value=len(guild.roles))
+
+        # Set server icon (if available)
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon.url)
+    
+        # Send the embed message
         await message.channel.send(embed=embed)
     
     #
