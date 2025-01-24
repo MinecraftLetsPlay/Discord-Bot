@@ -399,7 +399,7 @@ async def handle_command(client, message):
             elif 'cloud' in description:
                 embed_color = discord.Color.light_gray()  # Cloudy weather
             elif 'snow' in description:
-                embed_color = discord.Color.white()  # Snow
+                embed_color = discord.Color.from_rgb(255, 255, 255)  # Snow
             elif 'fog' in description or 'mist' in description:
                 embed_color = discord.Color.light_gray()  # Foggy or misty
             elif 'drizzle' in description:
