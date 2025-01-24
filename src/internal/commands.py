@@ -7,7 +7,7 @@ from . import utils
 def is_authorized(user):
     # Checks if the user is authorized for system commands
     try:
-        config = utils.load_config()  # Load config using utils
+        config = utils.load_config()  # Load config using utils.py
         whitelist = config.get("whitelist", [])
         return str(user) in whitelist
     except Exception as e:
@@ -27,16 +27,13 @@ async def handle_command(client, message):
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="!shutdown, !restart", inline=False)
-        embed.add_field(name="[Public]", value="!roll, !test, !info, !ping", inline=False)
+        embed.add_field(name="[Public]", value="!roll, !info, !ping", inline=False)
         await message.channel.send(embed=embed)
-
+        
+    # !info command
     if user_message == '!info':
         embed = discord.Embed(title="Info", description="This is a Discord bot created for demonstration purposes.", color=0x00ff00)
         await message.channel.send(embed=embed)
-
-    # !test command
-    if user_message == '!test':
-        return 'Hello! I am online and ready...'
 
     # !roll command
     if user_message == '!roll':
@@ -54,7 +51,8 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-
+    
+    # !full-shutdown command
     if user_message == '!full-shutdown':
         if is_authorized(message.author):
             await message.channel.send("Shutting down the bot and the Raspberry Pi...")
