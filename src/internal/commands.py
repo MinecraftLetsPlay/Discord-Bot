@@ -2,6 +2,7 @@ import random
 import discord
 import os
 import sys
+import aiohttp
 from datetime import timedelta
 from . import utils
 
@@ -56,6 +57,7 @@ async def handle_command(client, message):
         else:
             await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
             
+    # !userinfo command
     if user_message.startswith('!userinfo'):
         # Get the username after the command
         username = user_message[len('!userinfo '):].strip()
@@ -79,6 +81,7 @@ async def handle_command(client, message):
         else:
             await message.channel.send("Please provide a valid username.")
             
+    # !serverinfo command
     if user_message.startswith('!serverinfo'):
         guild = message.guild  # Get the guild (server)
         embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
@@ -97,6 +100,23 @@ async def handle_command(client, message):
     
         # Send the embed message
         await message.channel.send(embed=embed)
+
+    # Asynchronous function to get meme
+        async def get_meme():
+            async with aiohttp.ClientSession() as session:
+                async with session.get('https://meme-api.herokuapp.com/gimme') as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return data.get('url')
+        return None
+
+    # Handling the '!meme' command
+    if user_message == '!meme':
+        meme_url = await get_meme()  # Await the asynchronous function
+        if meme_url:
+            await message.channel.send(meme_url)
+        else:
+            await message.channel.send("Sorry, I couldn't fetch a meme right now.")
     
     #
     #
