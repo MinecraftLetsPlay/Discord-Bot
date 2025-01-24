@@ -55,15 +55,23 @@ async def handle_command(client, message):
             await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
             
     if user_message.startswith('!userinfo'):
-        if len(message.mentions) > 0:
-            user = message.mentions[0]
-            embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
-            embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
-            embed.add_field(name="Roles", value=", ".join([role.name for role in user.roles if role.name != "@everyone"]))
-            embed.set_thumbnail(url=user.avatar.url)
-            await message.channel.send(embed=embed)
+        # Get the username after the command
+        username = user_message[len('!userinfo '):].strip()
+
+        if username:
+            # Search for the user by username in the guild (server)
+            user = discord.utils.get(message.guild.members, name=username)
+        
+            if user:
+                embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
+                embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
+                embed.add_field(name="Roles", value=", ".join([role.name for role in user.roles if role.name != "@everyone"]))
+                embed.set_thumbnail(url=user.avatar.url)
+                await message.channel.send(embed=embed)
+            else:
+                await message.channel.send("Could not find a user with that username.")
         else:
-            await message.channel.send("Please mention a valid user.")
+            await message.channel.send("Please provide a valid username.")
             
     if user_message == '!serverinfo':
         server = message.guild
