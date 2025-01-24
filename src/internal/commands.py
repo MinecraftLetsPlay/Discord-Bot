@@ -2,7 +2,7 @@ import random
 import discord
 import os
 import sys
-from internal import utils  # Assuming utils.py is in the internal directory
+from . import utils  # Assuming utils.py is in the internal directory
 
 def is_authorized(user):
     """Checks if the user is authorized for system commands."""
