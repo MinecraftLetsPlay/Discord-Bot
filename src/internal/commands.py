@@ -35,6 +35,7 @@ async def handle_command(client, message):
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="!shutdown, !restart", inline=False)
         embed.add_field(name="[Public]", value="!roll, !info, !ping", inline=False)
+        embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout", inline=False)
         await message.channel.send(embed=embed)
         
     # !info command
