@@ -2,6 +2,8 @@ import aiohttp # Asynchronous HTTP client library
 from datetime import timedelta # For handling timeouts
 import discord # discord.py library
 import random
+import requests
+import json
 import os
 import sys
 from . import utils
@@ -34,7 +36,7 @@ async def handle_command(client, message):
     # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
-        embed.add_field(name="[System]", value="!shutdown, !restart", inline=False)
+        embed.add_field(name="[System]", value="!shutdown, !full-shutdown, !restart", inline=False)
         embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout", inline=False)
         embed.add_field(name="[Utils]", value="!ping, !weather, !download", inline=False)
@@ -337,6 +339,52 @@ async def handle_command(client, message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
+            
+    #
+    #
+    # Utility commands
+    #
+    #
+    
+    # !ping command
+    if user_message == '!ping':
+        latency = round(client.latency * 1000)  # Latency in milliseconds
+        await message.channel.send(f'Pong! Latency is {latency}ms')
+        
+    # !weather command
+    
+    def load_config():
+        try:
+            with open('config.json', 'r') as file:
+                return json.load(file)
+        except Exception as e:
+            print(f"Error loading config file: {e}")
+            return {}
+    
+    async def get_weather(location):
+        config = utils.load_config()  # Load the config
+        api_key = config.get('api_key')  # Get the API key
+    
+        if not api_key:
+            print("API key is missing in the config.")
+            return None
+
+        base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(base_url) as response:
+                return await response.json()
+
+    if user_message.startswith('!weather'):
+        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'Friedberg'
+        weather_data = await get_weather(location)
+ 
+        if weather_data and weather_data['cod'] == 200:
+            city_name = weather_data['name']
+            temp = weather_data['main']['temp']
+            description = weather_data['weather'][0]['description']
+            await message.channel.send(f"Weather in {city_name}: {temp}°C, {description}")
+        else:
+            await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
 
     # Return None for unhandled commands
     return None
