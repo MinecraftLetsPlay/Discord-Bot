@@ -61,11 +61,15 @@ async def handle_command(client, message):
         if username:
             # Search for the user by username in the guild (server)
             user = discord.utils.get(message.guild.members, name=username)
-        
+
             if user:
                 embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
                 embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
-                embed.add_field(name="Roles", value="• ".join([role.name for role in user.roles if role.name != "@everyone"]))
+            
+                # Format the roles with backticks
+                roles = " • ".join([f"{role.name}" for role in user.roles if role.name != "@everyone"])
+                embed.add_field(name="Roles", value=roles)
+
                 embed.set_thumbnail(url=user.avatar.url)
                 await message.channel.send(embed=embed)
             else:
