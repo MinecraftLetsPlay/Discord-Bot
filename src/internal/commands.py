@@ -58,70 +58,70 @@ async def handle_command(client, message):
     # !kick command
     if user_message.startswith('!kick'):
         if is_authorized(message.author):
-        # Check if a username or mention is provided
+             # Check if a username or mention is provided
             args = user_message.split()
             if len(args) < 2:  # No username/mention provided
                 await message.channel.send("Please specify a user to kick. Usage: `!kick <username>`")
                 return
 
-        username_to_kick = args[1]  # The username or mention passed as an argument
+            username_to_kick = args[1]  # The username or mention passed as an argument
 
-        try:
-            # Search for the member by mention or username
-            member = message.guild.get_member_named(username_to_kick) or \
+            try:
+                # Search for the member by mention or username
+                member = message.guild.get_member_named(username_to_kick) or \
                      discord.utils.get(message.guild.members, mention=username_to_kick)
             
-            if member is None:
-                await message.channel.send(f"User `{username_to_kick}` not found.")
-                return
+                if member is None:
+                    await message.channel.send(f"User `{username_to_kick}` not found.")
+                    return
             
-            # Kick the member
-            await member.kick(reason=f"Kicked by {message.author}")
-            await message.channel.send(f"{member.mention} has been kicked.")
-        except Exception as e:
-            await message.channel.send("Error kicking member. Make sure I have the proper permissions.")
-            print(f"Error: {e}")  # Log the error for debugging
-    else:
-        embed = discord.Embed(
-            title="Permission denied",
-            description=f"{username_mention} You don't have the permission to execute this command.",
-            color=0xff0000
-        )
-        await message.channel.send(embed=embed)
+                # Kick the member
+                await member.kick(reason=f"Kicked by {message.author}")
+                await message.channel.send(f"{member.mention} has been kicked.")
+            except Exception as e:
+                await message.channel.send("Error kicking member. Make sure I have the proper permissions.")
+                print(f"Error: {e}")  # Log the error for debugging
+        else:
+            embed = discord.Embed(
+                title="Permission denied",
+                description=f"{username_mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
     
     # !ban command
     if user_message.startswith('!ban'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=2)  # Split command into parts
-        if len(args) < 2:  # Check if a user mention/username is provided
-            await message.channel.send("Please specify a user to ban. Usage: `!ban <username> [reason]`")
-            return
+            if len(args) < 2:  # Check if a user mention/username is provided
+                await message.channel.send("Please specify a user to ban. Usage: `!ban <username> [reason]`")
+                return
 
-        username_to_ban = args[1]  # Extract the username/mention
-        reason = args[2] if len(args) > 2 else f"Banned by {message.author}"  # Extract reason or use default
+            username_to_ban = args[1]  # Extract the username/mention
+            reason = args[2] if len(args) > 2 else f"Banned by {message.author}"  # Extract reason or use default
 
-        try:
-            # Search for the member by mention or username
-            member = message.guild.get_member_named(username_to_ban) or \
+            try:
+                # Search for the member by mention or username
+                member = message.guild.get_member_named(username_to_ban) or \
                      discord.utils.get(message.guild.members, mention=username_to_ban)
             
-            if member is None:
-                await message.channel.send(f"User `{username_to_ban}` not found.")
-                return
+                if member is None:
+                    await message.channel.send(f"User `{username_to_ban}` not found.")
+                    return
             
-            # Ban the member with the provided reason
-            await member.ban(reason=reason)
-            await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
-        except Exception as e:
-            await message.channel.send("Error banning member. Make sure I have the proper permissions.")
-            print(f"Error: {e}")  # Log the error for debugging
-    else:
-        embed = discord.Embed(
-            title="Permission denied",
-            description=f"{username_mention} You don't have the permission to execute this command.",
-            color=0xff0000
-        )
-        await message.channel.send(embed=embed)
+                # Ban the member with the provided reason
+                await member.ban(reason=reason)
+                await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
+            except Exception as e:
+                await message.channel.send("Error banning member. Make sure I have the proper permissions.")
+                print(f"Error: {e}")  # Log the error for debugging
+        else:
+            embed = discord.Embed(
+                title="Permission denied",
+                description=f"{username_mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
         
     # !unban command
     if user_message.startswith('!unban'):
