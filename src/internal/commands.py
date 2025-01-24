@@ -102,12 +102,12 @@ async def handle_command(client, message):
         await message.channel.send(embed=embed)
 
     # Asynchronous function to get meme
-        async def get_meme():
-            async with aiohttp.ClientSession() as session:
-                async with session.get('https://meme-api.herokuapp.com/gimme') as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return data.get('url')
+    async def get_meme():
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://meme-api.herokuapp.com/gimme') as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get('url')
         return None
 
     # Handling the '!meme' command
