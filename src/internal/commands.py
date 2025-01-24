@@ -35,7 +35,7 @@ async def handle_command(client, message):
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="!shutdown, !restart", inline=False)
-        embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !meme", inline=False)
+        embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout", inline=False)
         embed.add_field(name="[Utils]", value="!ping, !weather, !download", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps", inline=False)
@@ -104,19 +104,19 @@ async def handle_command(client, message):
     # Asynchronous function to get meme
     async def get_meme():
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://meme-api.herokuapp.com/gimme') as response:
+            async with session.get('https://catfact.ninja/fact') as response:
                 if response.status == 200:
                     data = await response.json()
                     return data.get('url')
         return None
 
     # Handling the '!meme' command
-    if user_message == '!meme':
+    if user_message == '!catfact':
         meme_url = await get_meme()  # Await the asynchronous function
         if meme_url:
             await message.channel.send(meme_url)
         else:
-            await message.channel.send("Sorry, I couldn't fetch a meme right now.")
+            await message.channel.send("Sorry, I couldn't fetch data.")
     
     #
     #
