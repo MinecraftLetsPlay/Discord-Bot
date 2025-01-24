@@ -442,21 +442,24 @@ async def handle_command(client, message):
     #
     
     # !roll command
-    def roll_dice(dice_str):
-        try:
-            num, sides = map(int, dice_str.split('d'))
-            rolls = [random.randint(1, sides) for _ in range(num)]
-            return rolls, sum(rolls)
-        except ValueError:
-            return None, 0
-
     if user_message.startswith('!roll'):
-        dice_str = user_message.split(' ', 1)[1]
-        rolls, total = roll_dice(dice_str)
-        if rolls:
-            await message.channel.send(f"Rolling {dice_str}: {rolls} (Total: {total})")
-        else:
-            await message.channel.send("Invalid dice format. Use format 'XdY' (e.g., '2d6').")
+        # Extract the dice roll command or fallback to a default
+        try:
+            dice_str = user_message.split(' ', 1)[1]  # Get the dice string after "!roll"
+            # Parse the dice string (e.g., "1d6")
+            count, sides = map(int, dice_str.lower().split('d'))
+            if count <= 0 or sides <= 0:
+                raise ValueError("Invalid dice format")
+            # Roll the dice
+            rolls = [random.randint(1, sides) for _ in range(count)]
+            total = sum(rolls)
+            await message.channel.send(f"🎲 You rolled: {rolls} (Total: {total})")
+        except IndexError:
+            # No additional argument, fallback to 1d6
+            roll = random.randint(1, 6)
+            await message.channel.send(f"🎲 You rolled a {roll}!")
+        except ValueError:
+            await message.channel.send("Invalid dice format. Use `!roll XdY` (e.g., `!roll 2d6`).")
             
     # !rps command
     choices = ["rock", "paper", "scissors"]
