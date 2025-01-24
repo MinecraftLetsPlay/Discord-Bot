@@ -379,10 +379,22 @@ async def handle_command(client, message):
         weather_data = await get_weather(location)
  
         if weather_data and weather_data['cod'] == 200:
+            	# Extract data from the weather response
             city_name = weather_data['name']
             temp = weather_data['main']['temp']
             description = weather_data['weather'][0]['description']
-            await message.channel.send(f"Weather in {city_name}: {temp}°C, {description}")
+            humidity = weather_data['main']['humidity']
+            pressure = weather_data['main']['pressure']
+            wind_speed = weather_data['wind']['speed']
+            wind_deg = weather_data['wind']['deg']
+
+            # Sending formatted message
+            await message.channel.send(f"Weather in {city_name}:\n"
+                                    f"Temperature: {temp}°C\n"
+                                    f"Description: {description.capitalize()}\n"
+                                    f"Humidity: {humidity}%\n"
+                                    f"Pressure: {pressure} hPa\n"
+                                    f"Wind: {wind_speed} m/s, Direction: {wind_deg}°")
         else:
             await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
 
