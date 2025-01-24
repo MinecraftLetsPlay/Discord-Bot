@@ -101,22 +101,22 @@ async def handle_command(client, message):
         # Send the embed message
         await message.channel.send(embed=embed)
 
-    # Asynchronous function to get meme
-    async def get_meme():
+    # Asynchronous function to get a random cat fact
+    async def get_catfact():
         async with aiohttp.ClientSession() as session:
             async with session.get('https://catfact.ninja/fact') as response:
                 if response.status == 200:
                     data = await response.json()
-                    return data.get('url')
+                    return data.get('fact')  # Return the cat fact
         return None
 
-    # Handling the '!meme' command
+    # Handling the '!catfact' command
     if user_message == '!catfact':
-        meme_url = await get_meme()  # Await the asynchronous function
-        if meme_url:
-            await message.channel.send(meme_url)
+        catfact = await get_catfact()  # Await the asynchronous function
+        if catfact:
+            await message.channel.send(catfact)  # Send the cat fact to the channel
         else:
-            await message.channel.send("Sorry, I couldn't fetch data.")
+            await message.channel.send("Sorry, I couldn't fetch a cat fact right now.")
     
     #
     #
