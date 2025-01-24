@@ -32,7 +32,10 @@ async def handle_command(client, message):
         
     # !info command
     if user_message == '!info':
-        embed = discord.Embed(title="Info", description="This is a Discord bot created for demonstration purposes.", color=0x00ff00)
+        embed = discord.Embed(title="Info", color=0x00ff00)
+        embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
+        embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
+        embed.add_field(name="", value="Planned features will include: Moderation, different utilities, minigames and more.", inline=False)
         await message.channel.send(embed=embed)
 
     # !roll command
