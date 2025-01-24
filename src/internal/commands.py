@@ -192,7 +192,7 @@ async def handle_command(client, message):
                 await message.channel.send("Please provide a valid duration in minutes.")
             except Exception as e:
                 await message.channel.send("An error occurred while applying the timeout.")
-            print(f"Error: {e}")
+                print(f"Error: {e}")
         else:
             embed = discord.Embed(
                 title="Permission denied",
