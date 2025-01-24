@@ -421,6 +421,61 @@ async def handle_command(client, message):
             await message.channel.send(embed=embed)
         else:
             await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
+            
+    # !download command
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    #
+    #
+    # Minigame commands
+    #
+    #
+    
+    # !roll command
+    def roll_dice(dice_str):
+        try:
+            num, sides = map(int, dice_str.split('d'))
+            rolls = [random.randint(1, sides) for _ in range(num)]
+            return rolls, sum(rolls)
+        except ValueError:
+            return None, 0
+
+    if user_message.startswith('!roll'):
+        dice_str = user_message.split(' ', 1)[1]
+        rolls, total = roll_dice(dice_str)
+        if rolls:
+            await message.channel.send(f"Rolling {dice_str}: {rolls} (Total: {total})")
+        else:
+            await message.channel.send("Invalid dice format. Use format 'XdY' (e.g., '2d6').")
+            
+    # !rps command
+    choices = ["rock", "paper", "scissors"]
+
+    if user_message.startswith('!rps'):
+        user_choice = user_message.split(' ')[1].lower()
+        bot_choice = random.choice(choices)
+
+        if user_choice not in choices:
+            await message.channel.send("Invalid choice. Please choose rock, paper, or scissors.")
+        else:
+            if user_choice == bot_choice:
+                result = "It's a tie!"
+            elif (user_choice == "rock" and bot_choice == "scissors") or (user_choice == "paper" and bot_choice == "rock") or (user_choice == "scissors" and bot_choice == "paper"):
+                result = "You win!"
+            else:
+                result = "Bot wins!"
+
+        await message.channel.send(f"You chose {user_choice}, bot chose {bot_choice}. {result}")
 
     # Return None for unhandled commands
     return None
