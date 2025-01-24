@@ -360,6 +360,7 @@ async def handle_command(client, message):
             print(f"Error loading config file: {e}")
             return {}
     
+    # Asynchronous function to get weather data
     async def get_weather(location):
         config = utils.load_config()  # Load the config
         api_key = config.get('api_key')  # Get the API key
@@ -373,12 +374,13 @@ async def handle_command(client, message):
             async with session.get(base_url) as response:
                 return await response.json()
 
+    # Handling the '!weather' command
     if user_message.startswith('!weather'):
-        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'Friedberg'
+        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
- 
+
         if weather_data and weather_data['cod'] == 200:
-            	# Extract data from the weather response
+            # Extract data from the weather response
             city_name = weather_data['name']
             temp = weather_data['main']['temp']
             description = weather_data['weather'][0]['description']
@@ -386,7 +388,7 @@ async def handle_command(client, message):
             pressure = weather_data['main']['pressure']
             wind_speed = weather_data['wind']['speed']
             wind_deg = weather_data['wind']['deg']
-            
+
             # Determine embed color based on weather description
             if 'clear' in description or 'sun' in description:
                 embed_color = discord.Color.gold()  # Sunny or clear
@@ -407,13 +409,16 @@ async def handle_command(client, message):
             else:
                 embed_color = discord.Color.default()  # Default color
 
-            # Sending formatted message
+            # Create an embed message
             embed = discord.Embed(title=f"Weather in {city_name}", color=embed_color)
             embed.add_field(name="Temperature", value=f"{temp}°C", inline=False)
             embed.add_field(name="Description", value=description.capitalize(), inline=False)
             embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
             embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
             embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}°", inline=False)
+
+            # Send the embed message
+            await message.channel.send(embed=embed)
         else:
             await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
 
