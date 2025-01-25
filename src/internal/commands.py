@@ -1,17 +1,17 @@
 import aiohttp # Asynchronous HTTP client library
 from datetime import timedelta # For handling timeouts
 import discord # discord.py library
-import random
-import json
-import os
-import sys
-from . import utils
+import random # For generating random numbers
+import json # For working with JSON data
+import os # For interacting with the operating system
+import sys # For system-specific parameters and functions
+from . import utils # Import the utils module
 
 def is_authorized(user):
     # Checks if the user is on the whitelist
     try:
         config = utils.load_config()  # Load config using utils.py
-        whitelist = config.get("whitelist", [])
+        whitelist = config.get("whitelist", []) # Get the whitelist from the config
         return str(user) in whitelist
     except Exception as e:
         print(f"Error checking authorization: {e}")
@@ -24,7 +24,7 @@ async def handle_command(client, message):
     username = message.author
 
     # Use message.author.mention to get the @username ping
-    username_mention = message.author.mention  # Gives @username
+    username_mention = message.author.mention  # @username
 
     #
     #

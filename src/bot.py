@@ -7,7 +7,7 @@ def run_discord_bot():
     config = utils.load_config()
     TOKEN = os.getenv('DISCORD_BOT_TOKEN', config['token'])
 
-    # Get discord types
+    # Get discord intents (rights for the bot)
     intents = discord.Intents.default()
     intents.message_content = True
     intents.members = True
