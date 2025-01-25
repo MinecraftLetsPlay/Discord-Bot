@@ -8,7 +8,7 @@
 	"log_file": "logs/01.txt",
 
 	"download_folders": {
-		"pack": "/home/Discord-Bot/Storage/Modpacks",
-		"documents": "/home/Discord-Bot/Storage/Documents"
+		"pack": "/home/Dennis/Desktop/Storage/Modpacks",
+		"documents": "/home/Dennis/Desktop/Storage/Documents"
 	}
 }
