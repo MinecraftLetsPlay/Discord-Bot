@@ -394,11 +394,13 @@ async def handle_command(client, message):
                 await message.channel.send("Restarting the bot...")
                 print(f"[System] Restart command executed by: {message.author}")
             
-                # Restart the bot using subprocess.Popen
+                # Start a new process for the bot
                 subprocess.Popen([sys.executable, sys.argv[0]])
 
-                # Close the current bot instance
-                await client.close()
+                # Wait for the new process to start and then exit the current process
+                await client.close()  # Close the bot connection
+                os._exit(0)  # Ensure the current Python process exits immediately
+
         else:
             embed = discord.Embed(
                 title="Permission denied",
