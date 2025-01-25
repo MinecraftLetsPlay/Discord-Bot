@@ -1,13 +1,15 @@
 import aiohttp # Asynchronous HTTP client library
-import datetime # For handling dates and times
-from datetime import timedelta # For handling timeouts
+from datetime import datetime, timedelta # For handling timeouts
 import asyncio # For asynchronous programming
 import discord # discord.py library
 import random # For generating random numbers
 import json # For working with JSON data
+import subprocess # For running shell commands
 import os # For interacting with the operating system
 import sys # For system-specific parameters and functions
 from . import utils # Import the utils module
+
+last_restart_time = None
 
 def is_authorized(user):
     # Checks if the user is on the whitelist
@@ -103,11 +105,6 @@ async def handle_command(client, message):
         # Set server icon (if available)
         if guild.icon:
             embed.set_thumbnail(url=guild.icon.url)
-
-        # Add top 3 roles by member count
-        top_roles = sorted(guild.roles, key=lambda r: len(r.members), reverse=True)[:3]
-        role_info = "\n".join([f"{role.name} ({len(role.members)} members)" for role in top_roles])
-        embed.add_field(name="Most Popular Roles", value=role_info if role_info else "No roles", inline=False)
 
         await message.channel.send(embed=embed)
 
@@ -396,7 +393,8 @@ async def handle_command(client, message):
                 last_restart_time = current_time  # Update the last restart time
                 await message.channel.send("Restarting the bot...")
                 print(f"[System] Restart command executed by: {message.author}")
-                os.execv(sys.executable, ['python'] + sys.argv)
+                # Restart the bot using subprocess.Popen
+                subprocess.Popen([sys.executable, sys.argv[0]])
         else:
             embed = discord.Embed(
                 title="Permission denied",
@@ -546,10 +544,10 @@ async def handle_command(client, message):
     if user_message.startswith('!download'):
         response = await handle_download_command(user_message)
 
-    if os.path.isfile(response):  # If the response is a valid file path
-        await message.channel.send(file=discord.File(response))  # Send the file
-    else:
-        await message.channel.send(response)  # Send the error message
+        if os.path.isfile(response):  # If the response is a valid file path
+            await message.channel.send(file=discord.File(response))  # Send the file
+        else:
+            await message.channel.send(response)  # Send the error message
     
     #
     #
