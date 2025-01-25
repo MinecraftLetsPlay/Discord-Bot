@@ -516,23 +516,40 @@ async def handle_command(client, message):
             return f"File `{file_name}` not found in folder `{folder_key}`."
 
     # !download command
+    async def handle_download_command(user_message):
+        config = utils.load_config()
+        download_folders = config.get("download_folders", {})
+
+        # Split the command into parts
+        parts = user_message.split(' ', 2)  # Split into 3 parts: command, folder, filename
+        if len(parts) < 3:
+            return "Usage: `!download <folder> <filename>` (e.g., `!download pack Betterminecraft.zip`)"
+
+        folder_key = parts[1].lower()  # Folder (e.g., pack)
+        file_name = parts[2]  # File name (e.g., Betterminecraft.zip)
+
+        # Validate the folder
+        if folder_key not in download_folders:
+            return f"Unknown folder: `{folder_key}`. Available folders: {', '.join(download_folders.keys())}"
+
+        # Build the full file path
+        folder_path = download_folders[folder_key]
+        file_path = os.path.join(folder_path, file_name)
+
+        # Check if the file exists
+        if os.path.isfile(file_path):
+            return file_path  # Return the file path for sending
+        else:
+            return f"File `{file_name}` not found in folder `{folder_key}`."
+        
+    # Command Handler
     if user_message.startswith('!download'):
         response = await handle_download_command(user_message)
 
-        if os.path.isfile(response):  # If the response is a valid file path
-            await message.channel.send(file=discord.File(response))  # Send the file
-        else:
-            await message.channel.send(response)  # Send the error message
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    if os.path.isfile(response):  # If the response is a valid file path
+        await message.channel.send(file=discord.File(response))  # Send the file
+    else:
+        await message.channel.send(response)  # Send the error message
     
     #
     #
@@ -560,24 +577,28 @@ async def handle_command(client, message):
         except ValueError:
             await message.channel.send("Invalid dice format. Use `!roll XdY` (e.g., `!roll 2d6`).")
             
-    # !rps command
     choices = ["rock", "paper", "scissors"]
-
+            
     if user_message.startswith('!rps'):
-        user_choice = user_message.split(' ')[1].lower()
-        bot_choice = random.choice(choices)
+        try:
+            user_choice = user_message.split(' ')[1].lower()
+            bot_choice = random.choice(choices)
 
-        if user_choice not in choices:
-            await message.channel.send("Invalid choice. Please choose rock, paper, or scissors.")
-        else:
+            if user_choice not in choices:
+                raise ValueError("Invalid choice")
+
             if user_choice == bot_choice:
                 result = "It's a tie!"
             elif (user_choice == "rock" and bot_choice == "scissors") or (user_choice == "paper" and bot_choice == "rock") or (user_choice == "scissors" and bot_choice == "paper"):
                 result = "You win!"
             else:
                 result = "Bot wins!"
-
-        await message.channel.send(f"You chose {user_choice}, bot chose {bot_choice}. {result}")
+        
+            await message.channel.send(f"You chose {user_choice}, bot chose {bot_choice}. {result}")
+        except IndexError:
+            await message.channel.send("Please specify your choice: `rock`, `paper`, or `scissors`. Example: `!rps rock`.")
+        except ValueError:
+            await message.channel.send("Invalid choice. Please choose `rock`, `paper`, or `scissors`.")
 
     # Return None for unhandled commands
     return None
