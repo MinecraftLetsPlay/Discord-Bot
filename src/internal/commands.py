@@ -57,49 +57,56 @@ async def handle_command(client, message):
             await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
         else:
             await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
-
+        
     # !userinfo command
     if user_message.startswith('!userinfo'):
-        # Get the username after the command
-        username = user_message[len('!userinfo '):].strip()
+        # Remove the command part
+        user_identifier = user_message[len('!userinfo '):].strip()
 
-        if username:
-            # Search for the user by username in the guild (server)
-            user = discord.utils.get(message.guild.members, name=username)
-
-            if user:
-                embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
-                embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
-
-                # Format the roles with backticks
-                roles = " • ".join([f"{role.name}" for role in user.roles if role.name != "@everyone"])
-                embed.add_field(name="Roles", value=roles)
-
-                embed.set_thumbnail(url=user.avatar.url)
-                await message.channel.send(embed=embed)
+        if user_identifier:
+            # Check if the identifier is a mention
+            if user_identifier.startswith('<@') and user_identifier.endswith('>'):
+                user_id = int(user_identifier[2:-1].replace('!', ''))  # Extract ID
+                user = message.guild.get_member(user_id)
             else:
-                await message.channel.send("Could not find a user with that username.")
+                # Fallback to search by name
+                user = discord.utils.get(message.guild.members, name=user_identifier)
         else:
-            await message.channel.send("Please provide a valid username.")
+            user = message.author  # Default to the author if no input is provided
 
+        if user:
+            embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
+            embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
+            embed.add_field(name="Bot?", value="Yes" if user.bot else "No")
+            roles = " • ".join([role.name for role in user.roles if role.name != "@everyone"])
+            embed.add_field(name="Roles", value=roles if roles else "No roles")
+            embed.set_thumbnail(url=user.avatar.url)
+            await message.channel.send(embed=embed)
+        else:
+            await message.channel.send("User not found. Please provide a valid username, mention, or ID.")
+            
     # !serverinfo command
     if user_message.startswith('!serverinfo'):
         guild = message.guild  # Get the guild (server)
         embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
 
-        # Add server details to the embed
+        # Server details
         embed.add_field(name="Server ID", value=guild.id)
         embed.add_field(name="Created At", value=guild.created_at.strftime("%B %d, %Y"))
         embed.add_field(name="Owner", value=guild.owner)
         embed.add_field(name="Member Count", value=guild.member_count)
-        embed.add_field(name="Total Channels", value=len(guild.channels))
+        embed.add_field(name="Total Channels", value=f"Text: {len(guild.text_channels)}, Voice: {len(guild.voice_channels)}")
         embed.add_field(name="Roles", value=len(guild.roles))
 
         # Set server icon (if available)
         if guild.icon:
             embed.set_thumbnail(url=guild.icon.url)
 
-        # Send the embed message
+        # Add top 3 roles by member count
+        top_roles = sorted(guild.roles, key=lambda r: len(r.members), reverse=True)[:3]
+        role_info = "\n".join([f"{role.name} ({len(role.members)} members)" for role in top_roles])
+        embed.add_field(name="Most Popular Roles", value=role_info if role_info else "No roles", inline=False)
+
         await message.channel.send(embed=embed)
 
     # Asynchronous function to get a random cat fact
@@ -144,10 +151,23 @@ async def handle_command(client, message):
                 if member is None:
                     await message.channel.send(f"User `{username_to_kick}` not found.")
                     return
+                
+                # Prevent kicking yourself or the bot
+                if member == message.author:
+                    await message.channel.send("You cannot kick yourself.")
+                    return
+                
+                if member == message.guild.me:
+                    await message.channel.send("I cannot kick myself.")
+                    return
 
                 # Kick the member
                 await member.kick(reason=f"Kicked by {message.author}")
                 await message.channel.send(f"{member.mention} has been kicked.")
+            except IndexError:
+                await message.channel.send("Please mention a valid user.")
+            except discord.Forbidden:
+                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
             except Exception as e:
                 await message.channel.send("Error kicking member. Make sure I have the proper permissions.")
                 print(f"Error: {e}")  # Log the error for debugging
@@ -178,10 +198,23 @@ async def handle_command(client, message):
                 if member is None:
                     await message.channel.send(f"User `{username_to_ban}` not found.")
                     return
-
+                
+                # Prevent banning yourself or the bot
+                if member == message.author:
+                    await message.channel.send("You cannot ban yourself.")
+                    return
+                
+                if member == message.guild.me:
+                    await message.channel.send("I cannot ban myself.")
+                    return
+            
                 # Ban the member with the provided reason
                 await member.ban(reason=reason)
                 await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
+            except discord.Forbidden:
+                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
+            except IndexError:
+                await message.channel.send("Please mention a valid user.")
             except Exception as e:
                 await message.channel.send("Error banning member. Make sure I have the proper permissions.")
                 print(f"Error: {e}")  # Log the error for debugging
@@ -260,6 +293,8 @@ async def handle_command(client, message):
                 await message.channel.send("Please mention a valid user.")
             except ValueError:
                 await message.channel.send("Please provide a valid duration in minutes.")
+            except discord.Forbidden:
+                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
             except Exception as e:
                 await message.channel.send("An error occurred while applying the timeout.")
                 print(f"Error: {e}")
@@ -282,6 +317,8 @@ async def handle_command(client, message):
                 await message.channel.send(f"{member.mention}'s timeout has been removed.")
             except IndexError:
                 await message.channel.send("Please mention a valid user.")
+            except discord.Forbidden:
+                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
             except Exception as e:
                 await message.channel.send("An error occurred while removing the timeout.")
                 print(f"Error: {e}")
