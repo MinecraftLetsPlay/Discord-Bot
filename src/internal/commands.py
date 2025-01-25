@@ -1,5 +1,7 @@
 import aiohttp # Asynchronous HTTP client library
+import datetime # For handling dates and times
 from datetime import timedelta # For handling timeouts
+import asyncio # For asynchronous programming
 import discord # discord.py library
 import random # For generating random numbers
 import json # For working with JSON data
@@ -339,12 +341,13 @@ async def handle_command(client, message):
     # !shutdown command
     if user_message == '!shutdown':
         if is_authorized(message.author):
-            await message.channel.send("Shutting down...")
+            await message.channel.send("Shutting down the bot...")
+            print(f"[System] Shutdown command executed by: {message.author}")
             await client.close()
         else:
             embed = discord.Embed(
                 title="Permission denied",
-                description=f"{username_mention} You don't have the permission to execute this command.",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
@@ -352,26 +355,52 @@ async def handle_command(client, message):
     # !full-shutdown command
     if user_message == '!full-shutdown':
         if is_authorized(message.author):
-            await message.channel.send("Shutting down the bot and the Raspberry Pi...")
-            await client.close()
-            os.system("sudo shutdown now")
+            # Add a confirmation step to prevent accidental shutdown
+            confirm_message = await message.channel.send(
+                f"{message.author.mention}, are you sure you want to **shut down the Raspberry Pi**? React with ✅ to confirm."
+            )
+
+            def check(reaction, user):
+                return user == message.author and str(reaction.emoji) == '✅'
+
+            try:
+                await client.wait_for("reaction_add", timeout=30.0, check=check)
+                await message.channel.send("Shutting down the bot and the Raspberry Pi...")
+                print(f"[System] Full shutdown command executed by: {message.author}")
+                await client.close()
+                os.system("sudo shutdown now")
+            except asyncio.TimeoutError:
+                await message.channel.send(f"{message.author.mention}, shutdown canceled due to no confirmation.")
         else:
             embed = discord.Embed(
                 title="Permission denied",
-                description=f"{username_mention} You don't have the permission to execute this command.",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
 
     # !restart command
     if user_message == '!restart':
+        global last_restart_time
+
         if is_authorized(message.author):
-            await message.channel.send("Restarting...")
-            os.execv(sys.executable, ['python'] + sys.argv)
+            current_time = datetime.now()
+
+            # Check if the last restart was within the cooldown period
+            if last_restart_time and current_time - last_restart_time < timedelta(seconds=60):
+                remaining_time = 60 - (current_time - last_restart_time).seconds
+                await message.channel.send(
+                    f"The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again."
+                )
+            else:
+                last_restart_time = current_time  # Update the last restart time
+                await message.channel.send("Restarting the bot...")
+                print(f"[System] Restart command executed by: {message.author}")
+                os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(
                 title="Permission denied",
-                description=f"{username_mention} You don't have the permission to execute this command.",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
@@ -486,7 +515,7 @@ async def handle_command(client, message):
         else:
             return f"File `{file_name}` not found in folder `{folder_key}`."
 
-    # Command Handler
+    # !download command
     if user_message.startswith('!download'):
         response = await handle_download_command(user_message)
 
