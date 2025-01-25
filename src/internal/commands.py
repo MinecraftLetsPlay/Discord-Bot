@@ -62,6 +62,7 @@ async def handle_command(client, message):
         else:
             await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
         
+    # !userinfo command
     if user_message.startswith('!userinfo'):
         # Remove the command part
         user_identifier = user_message[len('!userinfo '):].strip()
@@ -80,12 +81,13 @@ async def handle_command(client, message):
                 user = message.guild.get_member(user_id)
 
             else:
-                # Fallback to search by name + discriminator (e.g., "Dyno#386")
-                user = discord.utils.get(message.guild.members, name=user_identifier.split('#')[0])
-
-                # If no exact match, check for name with discriminator (e.g., "Dyno#386")
-                if not user:
-                    user = discord.utils.get(message.guild.members, name=user_identifier.split('#')[0], discriminator=user_identifier.split('#')[1])
+                # If the identifier has a '#', split into username and discriminator
+                if '#' in user_identifier:
+                    username, discriminator = user_identifier.split('#', 1)
+                    user = discord.utils.get(message.guild.members, name=username, discriminator=discriminator)
+                else:
+                    # Fallback to search by name only if there's no discriminator
+                    user = discord.utils.get(message.guild.members, name=user_identifier)
 
         else:
             user = message.author  # Default to the author if no input is provided
