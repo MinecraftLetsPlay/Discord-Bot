@@ -378,26 +378,13 @@ async def handle_command(client, message):
 
     # !restart command
     if user_message == '!restart':
-        global last_restart_time
-
         if is_authorized(message.author):
-            current_time = datetime.now()
-
-            # Check if the last restart was within the cooldown period
-            if last_restart_time and current_time - last_restart_time < timedelta(seconds=60):
-                remaining_time = 60 - (current_time - last_restart_time).seconds
-                await message.channel.send(
-                    f"The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again."
-                )
-            else:
-                last_restart_time = current_time  # Update the last restart time
-                await message.channel.send("Restarting the bot...")
-                print(f"[System] Restart command executed by: {message.author}")
-                os.execv(sys.executable, ['python'] + sys.argv)
+            await message.channel.send("Restarting...")
+            os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(
                 title="Permission denied",
-                description=f"{message.author.mention} You don't have the permission to execute this command.",
+                description=f"{username_mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
