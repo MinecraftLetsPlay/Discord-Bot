@@ -18,7 +18,6 @@ command_groups = {
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'utility': ['!ping', '!weather', '!city', '!download'],
-    'minigames': ['!roll', '!rps'],
 }
 
 async def handle_minigames(client, message, user_message):
