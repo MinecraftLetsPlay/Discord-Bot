@@ -2,6 +2,7 @@ import discord
 import aiohttp
 import json
 import os
+from datetime import datetime, timezone
 from internal import utils
 
     #
@@ -48,6 +49,8 @@ async def handle_utility_commands(client, message, user_message):
 
         if weather_data and weather_data['cod'] == 200:
             # Extract data from the weather response
+            last_updated_unix = weather_data['dt']  # Last updated (unix timestamp)
+            last_updated = datetime.fromtimestamp(last_updated_unix, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
             city_name = weather_data['name']
             country = weather_data['sys']['country']  # Country code
             temp = weather_data['main']['temp']
@@ -87,11 +90,52 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
             embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
             embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}°", inline=False)
+            embed.add_field(name="Last Updated", value=f"{last_updated} UTC", inline=False)
 
             # Send the embed message
             await message.channel.send(embed=embed)
         else:
             await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
+            
+    from datetime import datetime, timezone
+
+    if user_message.startswith('!city'):
+        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
+        weather_data = await get_weather(location)
+
+        if weather_data and weather_data['cod'] == 200:
+            # Extract data from the weather response
+            city_name = weather_data['name']
+            country = weather_data['sys']['country']
+            coords = weather_data['coord']
+            sea_level = weather_data['main'].get('sea_level', 'N/A')  # Use 'N/A' if sea_level is not provided
+            ground_level = weather_data['main'].get('grnd_level', 'N/A')  # Use 'N/A' if grnd_level is not provided
+            timezone_offset = weather_data['timezone']
+            timezone_offset_hours = timezone_offset / 3600  # Divide by 3600 to convert seconds to hours
+            timezone_offset_formatted = f"{timezone_offset_hours:+.1f} hours"  # Add "+" for positive offsets
+
+            # Convert sunrise and sunset timestamps to readable times
+            sunrise_unix = weather_data['sys']['sunrise']
+            sunset_unix = weather_data['sys']['sunset']
+            sunrise_time = datetime.fromtimestamp(sunrise_unix, tz=timezone.utc).strftime('%H:%M:%S UTC')
+            sunset_time = datetime.fromtimestamp(sunset_unix, tz=timezone.utc).strftime('%H:%M:%S UTC')
+
+            # Create the embed message
+            embed = discord.Embed(title=f"City Information", color=discord.Color.blue())
+            embed.add_field(name="City", value=city_name, inline=False)
+            embed.add_field(name="Country", value=country, inline=False)
+            embed.add_field(name="Latitude", value=coords['lat'], inline=False)
+            embed.add_field(name="Longitude", value=coords['lon'], inline=False)
+            embed.add_field(name="Sea Level", value=f"{sea_level} m", inline=False)
+            embed.add_field(name="Ground Level", value=f"{ground_level} m", inline=False)
+            embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
+            embed.add_field(name="Sunrise", value=sunrise_time, inline=False)
+            embed.add_field(name="Sunset", value=sunset_time, inline=False)
+
+            # Send the embed message
+            await message.channel.send(embed=embed)
+        else:
+            await message.channel.send("Could not retrieve city information. Make sure the location is valid.")
 
     # !download command
     async def handle_download_command(user_message):
