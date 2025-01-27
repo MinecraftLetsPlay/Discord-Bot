@@ -99,7 +99,7 @@ async def handle_moderation_commands(client, message, user_message):
                 await member.ban(reason=reason)
                 await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
+                await message.channel.send("I don't have permission to ban members. Please check my role permissions.")
             except IndexError:
                 await message.channel.send("Please mention a valid user.")
             except Exception as e:
@@ -181,7 +181,7 @@ async def handle_moderation_commands(client, message, user_message):
             except ValueError:
                 await message.channel.send("Please provide a valid duration in minutes.")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
+                await message.channel.send("I don't have permission to timeout members. Please check my role permissions.")
             except Exception as e:
                 await message.channel.send("An error occurred while applying the timeout.")
                 print(f"Error: {e}")
@@ -205,7 +205,7 @@ async def handle_moderation_commands(client, message, user_message):
             except IndexError:
                 await message.channel.send("Please mention a valid user.")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
+                await message.channel.send("I don't have permission to untimeout members. Please check my role permissions.")
             except Exception as e:
                 await message.channel.send("An error occurred while removing the timeout.")
                 print(f"Error: {e}")
