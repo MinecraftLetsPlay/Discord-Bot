@@ -1,4 +1,4 @@
-from internal.commands.minigames import handle_minigames
+from internal.commands.minigames import Minigames, handle_minigames
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.public_commands import handle_public_commands
 from internal.commands.system_commands import handle_system_commands
@@ -21,6 +21,18 @@ command_groups = {
     'utility': ['!ping', '!weather', '!city', '!download'],
     'minigames': ['!roll', '!rps'],
 }
+
+async def handle_minigames(client, message, user_message):
+    minigames = Minigames()
+
+    if user_message.startswith('!rps'):
+        await minigames.play("rps", client, message)
+
+    elif user_message.startswith('!guess'):
+        await minigames.play("guess", client, message)
+
+    elif user_message.startswith('!hangman'):
+        await minigames.play("hangman", client, message)
 
 # Function to handle the commands
 async def handle_command(client, message):
