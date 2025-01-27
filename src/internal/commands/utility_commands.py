@@ -48,9 +48,14 @@ async def handle_utility_commands(client, message, user_message):
         weather_data = await get_weather(location)
 
         if weather_data and weather_data['cod'] == 200:
+            
             # Extract data from the weather response
             last_updated_unix = weather_data['dt']  # Last updated (unix timestamp)
-            last_updated = datetime.fromtimestamp(last_updated_unix, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+
+            # Use explicit datetime reference
+            last_updated = datetime.utcfromtimestamp(last_updated_unix).strftime('%Y-%m-%d %H:%M:%S')
+            # Extract data from the weather response
+
             city_name = weather_data['name']
             country = weather_data['sys']['country']  # Country code
             temp = weather_data['main']['temp']
