@@ -1,4 +1,4 @@
-from internal.commands.minigames import Minigames, handle_minigames
+from internal.commands.minigames import Minigames
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.public_commands import handle_public_commands
 from internal.commands.system_commands import handle_system_commands
@@ -10,7 +10,6 @@ command_handlers = {
     'moderation': handle_moderation_commands,
     'public': handle_public_commands,
     'utility': handle_utility_commands,
-    'minigames': handle_minigames,
 }
 
 # To specify the command groups and their commands
