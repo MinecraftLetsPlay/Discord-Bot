@@ -6,8 +6,6 @@ from internal.commands.public_commands import handle_public_commands
 from internal.commands.system_commands import handle_system_commands
 from internal.commands.utility_commands import handle_utility_commands
 
-last_restart_time = None
-
 command_handlers = {
     'system': handle_system_commands,
     'moderation': handle_moderation_commands,

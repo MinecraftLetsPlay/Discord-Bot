@@ -11,6 +11,8 @@ from internal import utils
     #
     #
     
+last_restart_time = None
+    
 def is_authorized(user):
     # Checks if the user is on the whitelist
     try:
