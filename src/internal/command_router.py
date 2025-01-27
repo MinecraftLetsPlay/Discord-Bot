@@ -1,11 +1,4 @@
-import aiohttp # Asynchronous HTTP client library
 from datetime import datetime, timedelta # For handling timeouts
-import asyncio # For asynchronous programming
-import discord # discord.py library
-import random # For generating random numbers
-import json # For working with JSON data
-import os # For interacting with the operating system
-import sys # For system-specific parameters and functions
 from . import utils # Import the utils module
 from internal.commands.minigames import handle_minigames
 from internal.commands.moderation_commands import handle_moderation_commands
