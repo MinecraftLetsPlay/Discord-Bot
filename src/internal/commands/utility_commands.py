@@ -121,7 +121,7 @@ async def handle_utility_commands(client, message, user_message):
             sunset_time = datetime.fromtimestamp(sunset_unix, tz=timezone.utc).strftime('%H:%M:%S UTC')
 
             # Create the embed message
-            embed = discord.Embed(title=f"City Information", color=discord.Color.blue())
+            embed = discord.Embed(title=f"Information for: {city_name}, {country}", color=embed_color)
             embed.add_field(name="City", value=city_name, inline=False)
             embed.add_field(name="Country", value=country, inline=False)
             embed.add_field(name="Latitude", value=coords['lat'], inline=False)
