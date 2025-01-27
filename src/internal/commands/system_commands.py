@@ -23,6 +23,7 @@ def is_authorized(user):
         print(f"Error checking authorization: {e}")
         return False
     
+# Main def for handling system commands
 async def handle_system_commands(client, message, user_message):
     # !shutdown command
     if user_message == '!shutdown':

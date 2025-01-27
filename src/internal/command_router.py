@@ -6,6 +6,7 @@ from internal.commands.public_commands import handle_public_commands
 from internal.commands.system_commands import handle_system_commands
 from internal.commands.utility_commands import handle_utility_commands
 
+# Grouped commands into files... Those are the command handlers
 command_handlers = {
     'system': handle_system_commands,
     'moderation': handle_moderation_commands,
@@ -14,6 +15,7 @@ command_handlers = {
     'minigames': handle_minigames,
 }
 
+# To specify the command groups and their commands
 command_groups = {
     'system': ['!shutdown', '!restart', '!full-shutdown'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
@@ -22,7 +24,7 @@ command_groups = {
     'minigames': ['!roll', '!rps'],
 }
 
-
+# Function to handle the commands
 async def handle_command(client, message):
     user_message = message.content.lower()
 

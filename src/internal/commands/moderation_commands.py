@@ -18,6 +18,7 @@ def is_authorized(user):
         print(f"Error checking authorization: {e}")
         return False
     
+# Main def for handling moderation commands
 async def handle_moderation_commands(client, message, user_message):
     # !kick command
     if user_message.startswith('!kick'):

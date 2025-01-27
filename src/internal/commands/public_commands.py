@@ -7,6 +7,7 @@ import aiohttp
     #
     #
     
+# Main def for handling public commands
 async def handle_public_commands(client, message, user_message):
     # !help command
     if user_message == '!help':

@@ -10,6 +10,7 @@ from internal import utils
     #
     #
     
+# Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
     
     # !ping command

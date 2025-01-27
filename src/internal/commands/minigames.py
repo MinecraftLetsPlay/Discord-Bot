@@ -5,7 +5,8 @@ import random
     # Minigame commands
     #
     #
-    
+
+# Main def for handling minigame commands
 async def handle_minigames(client, message, user_message):
     
     # !roll command
