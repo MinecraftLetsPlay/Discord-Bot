@@ -6,8 +6,9 @@ import aiohttp
     # Public commands
     #
     #
-    
+
 async def handle_public_commands(client, message, user_message):
+
     # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
@@ -33,7 +34,7 @@ async def handle_public_commands(client, message, user_message):
             await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
         else:
             await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
-        
+
     # !userinfo command
     if user_message.startswith('!userinfo'):
         # Remove the command part
@@ -73,7 +74,7 @@ async def handle_public_commands(client, message, user_message):
             await message.channel.send(embed=embed)
         else:
             await message.channel.send("User not found. Please provide a valid username, mention, or ID.")
-            
+
     # !serverinfo command
     if user_message.startswith('!serverinfo'):
         guild = message.guild  # Get the guild (server)

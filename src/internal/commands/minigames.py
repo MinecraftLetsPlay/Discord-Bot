@@ -1,13 +1,14 @@
 import discord
 import random
+
     #
     #
     # Minigame commands
     #
     #
-    
+
 async def handle_minigames(client, message, user_message):
-    
+
     # !roll command
     if user_message.startswith('!roll'):
         # Extract the dice roll command or fallback to a default
@@ -27,9 +28,9 @@ async def handle_minigames(client, message, user_message):
             await message.channel.send(f"🎲 You rolled a {roll}!")
         except ValueError:
             await message.channel.send("Invalid dice format. Use `!roll XdY` (e.g., `!roll 2d6`).")
-            
+
     choices = ["rock", "paper", "scissors"]
-            
+
     if user_message.startswith('!rps'):
         try:
             user_choice = user_message.split(' ')[1].lower()
@@ -44,7 +45,7 @@ async def handle_minigames(client, message, user_message):
                 result = "You win!"
             else:
                 result = "Bot wins!"
-        
+
             await message.channel.send(f"You chose {user_choice}, bot chose {bot_choice}. {result}")
         except IndexError:
             await message.channel.send("Please specify your choice: `rock`, `paper`, or `scissors`. Example: `!rps rock`.")
