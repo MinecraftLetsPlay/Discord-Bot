@@ -4,34 +4,37 @@ import asyncio
 
 class Minigames:
     def __init__(self):
+        self._bot_choices = ['rock', 'paper', 'scissors']
+        random.shuffle(self._bot_choices)  # Shuffle once during initialization
         self.games = {
             "rps": self.rock_paper_scissors,
             "guess": self.guess_the_number,
             "hangman": self.hangman
         }
-        self.bot_choices = ['rock', 'paper', 'scissors']
 
     @property
     def bot_choices(self):
-        random.shuffle(self._bot_choices)
         return self._bot_choices
 
     @bot_choices.setter
     def bot_choices(self, value):
         self._bot_choices = value
 
+    async def wait_for_message(self, client, message, check_func, timeout=30.0):
+        try:
+            user_message = await client.wait_for('message', check=check_func, timeout=timeout)
+            return user_message.content
+        except asyncio.TimeoutError:
+            await message.channel.send("You took too long to respond.")
+            return None
+
     async def rock_paper_scissors(self, message, client):
-        await message.channel.send("Let's play Rock Paper Scissors!")
-        await message.channel.send("Enter your choice (rock/paper/scissors):")
-        
+        await message.channel.send("Let's play Rock Paper Scissors! Enter your choice (rock/paper/scissors):")
         def check(msg):
             return msg.author == message.author and msg.content.lower() in ['rock', 'paper', 'scissors']
         
-        try:
-            player_message = await client.wait_for('message', check=check, timeout=30.0)
-            player_choice = player_message.content.lower()
-        except asyncio.TimeoutError:
-            await message.channel.send("You took too long to respond.")
+        player_choice = await self.wait_for_message(client, message, check)
+        if player_choice is None:
             return
 
         bot_choice = self.bot_choices[0]
@@ -47,26 +50,30 @@ class Minigames:
             await message.channel.send("Bot wins!")
 
     async def guess_the_number(self, message, client):
-        await message.channel.send("I'm thinking of a number between 1 and 100.")
-        secret_number = random.randint(1, 100)
+        await message.channel.send("I'm thinking of a number. Enter the range (e.g., 1-100):")
+        def check(msg):
+            return msg.author == message.author and '-' in msg.content and msg.content.replace('-', '').isdigit()
+        
+        range_message = await self.wait_for_message(client, message, check)
+        if range_message is None:
+            return
+        
+        try:
+            low, high = map(int, range_message.split('-'))
+        except ValueError:
+            await message.channel.send("Invalid range. Please use a format like 1-100.")
+            return
+        
+        secret_number = random.randint(low, high)
         attempts = 0
 
         while True:
             await message.channel.send("Enter your guess:")
-            
-            def check(msg):
-                return msg.author == message.author and msg.content.isdigit()
-            
-            try:
-                guess_message = await client.wait_for('message', check=check, timeout=30.0)
-                guess = int(guess_message.content)
-            except asyncio.TimeoutError:
-                await message.channel.send("You took too long to respond.")
+            guess = await self.wait_for_message(client, message, check)
+            if guess is None:
                 return
-            except ValueError:
-                await message.channel.send("Please enter a valid number.")
-                continue
 
+            guess = int(guess)
             attempts += 1
 
             if guess < secret_number:
@@ -88,7 +95,6 @@ class Minigames:
 
         while len(word_letters) > 0 and lives > 0:
             await message.channel.send(f'You have {lives} lives left and you have used these letters: {", ".join(used_letters)}')
-
             word_list = [letter if letter in used_letters else '-' for letter in word]
             await message.channel.send(f'Current word: {" ".join(word_list)}')
 
@@ -96,11 +102,8 @@ class Minigames:
                 return msg.author == message.author and len(msg.content) == 1 and msg.content.isalpha()
 
             await message.channel.send('Guess a letter:')
-            try:
-                user_message = await client.wait_for('message', check=check, timeout=30.0)
-                user_letter = user_message.content.lower()
-            except asyncio.TimeoutError:
-                await message.channel.send("You took too long to respond.")
+            user_letter = await self.wait_for_message(client, message, check)
+            if user_letter is None:
                 return
 
             if user_letter in alphabet - used_letters:
@@ -124,17 +127,5 @@ class Minigames:
         if game_name in self.games:
             await self.games[game_name](message, client)
         else:
-            await message.channel.send(f"Game '{game_name}' not found.")
-
-# Handler for minigames commands
-async def handle_minigames(client, message, user_message):
-    minigames = Minigames()
-
-    if user_message.startswith('!rps'):
-        await minigames.play("rps", client, message)
-
-    elif user_message.startswith('!guess'):
-        await minigames.play("guess", client, message)
-
-    elif user_message.startswith('!hangman'):
-        await minigames.play("hangman", client, message)
+            available_games = ', '.join(self.games.keys())
+            await message.channel.send(f"Game '{game_name}' not found. Available games are: {available_games}.")

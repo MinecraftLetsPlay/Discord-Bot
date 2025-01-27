@@ -2,7 +2,6 @@ import discord
 import aiohttp
 import json
 import os
-from datetime import datetime, timezone
 from internal import utils
 
     #
@@ -48,12 +47,6 @@ async def handle_utility_commands(client, message, user_message):
         weather_data = await get_weather(location)
 
         if weather_data and weather_data['cod'] == 200:
-            
-            # Extract data from the weather response
-            last_updated_unix = weather_data['dt']  # Last updated (unix timestamp)
-
-            # Use explicit datetime reference
-            last_updated = datetime.utcfromtimestamp(last_updated_unix).strftime('%Y-%m-%d %H:%M:%S')
             # Extract data from the weather response
 
             city_name = weather_data['name']
@@ -95,7 +88,6 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
             embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
             embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}°", inline=False)
-            embed.add_field(name="Last Updated", value=f"{last_updated} UTC", inline=False)
 
             # Send the embed message
             await message.channel.send(embed=embed)
@@ -126,7 +118,7 @@ async def handle_utility_commands(client, message, user_message):
             sunset_time = datetime.fromtimestamp(sunset_unix, tz=timezone.utc).strftime('%H:%M:%S UTC')
 
             # Create the embed message
-            embed = discord.Embed(title=f"Information for: {city_name}, {country}", color=embed_color)
+            embed = discord.Embed(title=f"Information for: {city_name}, {country}", color=discord.Color.blue())
             embed.add_field(name="City", value=city_name, inline=False)
             embed.add_field(name="Country", value=country, inline=False)
             embed.add_field(name="Latitude", value=coords['lat'], inline=False)
