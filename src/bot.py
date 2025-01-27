@@ -1,5 +1,6 @@
 import discord
 from internal import get_config
+from internal import command_router
 import os
 
 def run_discord_bot():
@@ -33,7 +34,7 @@ def run_discord_bot():
         print(f'{username} said: "{user_message}" ({channel})')
 
         # Pass the client object to handle_command
-        response = await commands.handle_command(client, message)
+        response = await command_router.handle_command(client, message)
         if response:
             print(f'{client.user} said: "{response}" ({channel})')
             await message.channel.send(response)
