@@ -10,10 +10,11 @@ from internal import utils
     # System commands
     #
     #
-    
+
 last_restart_time = None
-    
+
 def is_authorized(user):
+
     # Checks if the user is on the whitelist
     try:
         config = utils.load_config()  # Load config using utils.py
@@ -25,6 +26,7 @@ def is_authorized(user):
     
 # Main def for handling system commands
 async def handle_system_commands(client, message, user_message):
+
     # !shutdown command
     if user_message == '!shutdown':
         if is_authorized(message.author):

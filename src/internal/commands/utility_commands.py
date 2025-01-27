@@ -12,14 +12,13 @@ from internal import utils
     
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
-    
+
     # !ping command
     if user_message == '!ping':
         latency = round(client.latency * 1000)  # Latency in milliseconds
         await message.channel.send(f'Pong! Latency is {latency}ms')
-        
+
     # !weather command
-    
     def load_config():
         try:
             with open('config.json', 'r') as file:
@@ -27,12 +26,12 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             print(f"Error loading config file: {e}")
             return {}
-    
+
     # Asynchronous function to get weather data
     async def get_weather(location):
         config = utils.load_config()  # Load the config
         api_key = config.get('api_key')  # Get the API key
-    
+
         if not api_key:
             print("API key is missing in the config.")
             return None
@@ -116,7 +115,7 @@ async def handle_utility_commands(client, message, user_message):
             return file_path  # Return the file path for sending
         else:
             return f"File `{file_name}` not found in folder `{folder_key}`."
-        
+
     # Command Handler
     if user_message.startswith('!download'):
         response = await handle_download_command(user_message)

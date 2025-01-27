@@ -7,8 +7,9 @@ from internal import utils
     # Moderation commands
     #
     #
-    
+
 def is_authorized(user):
+
     # Checks if the user is on the whitelist
     try:
         config = utils.load_config()  # Load config using utils.py
@@ -20,6 +21,7 @@ def is_authorized(user):
     
 # Main def for handling moderation commands
 async def handle_moderation_commands(client, message, user_message):
+
     # !kick command
     if user_message.startswith('!kick'):
         if is_authorized(message.author):
@@ -39,12 +41,12 @@ async def handle_moderation_commands(client, message, user_message):
                 if member is None:
                     await message.channel.send(f"User `{username_to_kick}` not found.")
                     return
-                
+
                 # Prevent kicking yourself or the bot
                 if member == message.author:
                     await message.channel.send("You cannot kick yourself.")
                     return
-                
+
                 if member == message.guild.me:
                     await message.channel.send("I cannot kick myself.")
                     return
@@ -86,16 +88,16 @@ async def handle_moderation_commands(client, message, user_message):
                 if member is None:
                     await message.channel.send(f"User `{username_to_ban}` not found.")
                     return
-                
+
                 # Prevent banning yourself or the bot
                 if member == message.author:
                     await message.channel.send("You cannot ban yourself.")
                     return
-                
+
                 if member == message.guild.me:
                     await message.channel.send("I cannot ban myself.")
                     return
-            
+
                 # Ban the member with the provided reason
                 await member.ban(reason=reason)
                 await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
