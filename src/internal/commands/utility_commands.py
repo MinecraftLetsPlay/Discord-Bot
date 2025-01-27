@@ -49,7 +49,10 @@ async def handle_utility_commands(client, message, user_message):
         if weather_data and weather_data['cod'] == 200:
             # Extract data from the weather response
             city_name = weather_data['name']
+            country = weather_data['sys']['country']  # Country code
             temp = weather_data['main']['temp']
+            temp_min = weather_data['main']['temp_min']  # Minimum temperature
+            temp_max = weather_data['main']['temp_max']  # Maximum temperature
             description = weather_data['weather'][0]['description']
             humidity = weather_data['main']['humidity']
             pressure = weather_data['main']['pressure']
@@ -77,8 +80,9 @@ async def handle_utility_commands(client, message, user_message):
                 embed_color = discord.Color.default()  # Default color
 
             # Create an embed message
-            embed = discord.Embed(title=f"Weather in {city_name}", color=embed_color)
+            embed = discord.Embed(title=f"Weather in {city_name}, {country}", color=embed_color)
             embed.add_field(name="Temperature", value=f"{temp}°C", inline=False)
+            embed.add_field(name="Min / Max Temperature", value=f"{temp_min}°C / {temp_max}°C", inline=False)
             embed.add_field(name="Description", value=description.capitalize(), inline=False)
             embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
             embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
