@@ -1,5 +1,5 @@
 import discord
-from internal import get_config
+from internal import utils
 from internal import command_router
 import os
 
