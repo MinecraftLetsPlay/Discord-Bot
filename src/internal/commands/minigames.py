@@ -174,6 +174,12 @@ class Minigames:
         if quiz_size not in [10, 20, 30]:
             await message.channel.send("Invalid quiz size. Please choose 10, 20, or 30 questions.")
             return
+        
+        # If no category is specified, list all available categories
+        if category is None or category == "":
+            available_categories = ", ".join(quiz_data.keys())
+            await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
+            return
 
         if category not in quiz_data:
             await message.channel.send(f"Category '{category}' not found.")
