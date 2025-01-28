@@ -162,26 +162,51 @@ class Minigames:
             await message.channel.send("Quiz data could not be loaded.")
             return
 
+        # Split the command to extract the size (e.g., !quiz tech 10)
+        parts = category.split()
+        if len(parts) < 2 or not parts[1].isdigit():
+            await message.channel.send("Please specify the quiz size (e.g., `!quiz tech 10`).")
+            return
+        
+        category = parts[0]
+        quiz_size = int(parts[1])
+
+        if quiz_size not in [10, 20, 30]:
+            await message.channel.send("Invalid quiz size. Please choose 10, 20, or 30 questions.")
+            return
+
         if category not in quiz_data:
             await message.channel.send(f"Category '{category}' not found.")
             return
 
-        # Select a random question from the category
+        # Get questions and shuffle them
         questions = quiz_data[category]
-        question = random.choice(questions)
+        random.shuffle(questions)
 
-        await message.channel.send(f"Category: {category}\nQuestion: {question['question']}")
+        # Ensure we don't ask more questions than available
+        quiz_size = min(quiz_size, len(questions))
+        selected_questions = questions[:quiz_size]
 
-        def check(msg):
-            return msg.author == message.author
+        score = 0
 
-        try:
-            # Wait for the user's response
-            answer_message = await client.wait_for('message', check=check, timeout=30.0)
-            if answer_message.content.lower() == question['answer'].lower():
-                await message.channel.send("Correct!")
-            else:
-                await message.channel.send(f"Wrong! The correct answer was: {question['answer']}")
-        except Exception as e:
-            await message.channel.send("You took too long to respond!")
+        # Loop through the selected questions
+        for idx, question in enumerate(selected_questions, 1):
+            await message.channel.send(f"Question {idx}/{quiz_size}: {question['question']}")
+
+            def check(msg):
+                return msg.author == message.author
+
+            try:
+                # Wait for the user's response
+                answer_message = await client.wait_for('message', check=check, timeout=30.0)
+                if answer_message.content.lower() == question['answer'].lower():
+                    await message.channel.send("Correct!")
+                    score += 1
+                else:
+                    await message.channel.send(f"Wrong! The correct answer was: {question['answer']}")
+            except Exception:
+                await message.channel.send("You took too long to respond!")
+
+        # Show the final score
+        await message.channel.send(f"Quiz complete! You scored {score}/{quiz_size}.")
         
