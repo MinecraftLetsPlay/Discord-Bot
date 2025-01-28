@@ -162,26 +162,22 @@ class Minigames:
             await message.channel.send("Quiz data could not be loaded.")
             return
 
-        # Split the command to extract the size (e.g., !quiz tech 10)
+        # Check if the user provided a category and quiz size
         parts = category.split()
+    
+        # If no category is provided
+        if len(parts) < 1:
+            available_categories = ", ".join(quiz_data.keys())
+            await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
+            await message.channel.send("Available quiz sizes: 10, 20, 30.")
+            return
+    
+        # If no quiz size is provided, or it's invalid
         if len(parts) < 2 or not parts[1].isdigit():
-            await message.channel.send("Please specify thecategory and quiz size (e.g., `!quiz tech 10`).")
+            await message.channel.send("Please specify the category and quiz size (e.g., `!quiz tech 10`).")
             available_categories = ", ".join(quiz_data.keys())
             await message.channel.send(f"Available categories: {available_categories}")
             await message.channel.send("Available quiz sizes: 10, 20, 30.")
-            return
-        
-        category = parts[0]
-        quiz_size = int(parts[1])
-
-        if quiz_size not in [10, 20, 30]:
-            await message.channel.send("Invalid quiz size. Please choose 10, 20, or 30 questions.")
-            return
-
-        if category not in quiz_data:
-            await message.channel.send(f"Category '{category}' not found.")
-            available_categories = ", ".join(quiz_data.keys())
-            await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
             return
 
         # Get questions and shuffle them
