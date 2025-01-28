@@ -1,6 +1,15 @@
 import random
 import discord
 import asyncio
+import json
+
+def load_config():
+        try:
+            with open('quiz.json', 'r') as file:
+                return json.load(file)
+        except Exception as e:
+            print(f"Error loading config file: {e}")
+            return {}
 
 class Minigames:
     def __init__(self):
@@ -9,7 +18,8 @@ class Minigames:
         self.games = {
             "rps": self.rock_paper_scissors,
             "guess": self.guess_the_number,
-            "hangman": self.hangman
+            "hangman": self.hangman,
+            "quiz": self.quiz
         }
 
     @property
@@ -131,9 +141,38 @@ class Minigames:
         else:
             await message.channel.send(f'Congratulations! You guessed the word {word}!!')
 
-    async def play(self, game_name, client, message):
-        if game_name in self.games:
+    async def play(self, game_name, client, message, category=None):
+        if game_name == "quiz":
+            if category:
+                await self.quiz(message, client, category)
+            else:
+                await message.channel.send("Please provide a category for the quiz!")
+        elif game_name in self.games:
             await self.games[game_name](message, client)
         else:
             available_games = ', '.join(self.games.keys())
             await message.channel.send(f"Game '{game_name}' not found. Available games are: {available_games}.")
+            
+    async def quiz(self, message, client, category):
+        config = load_config()
+        if category not in config:
+            await message.channel.send(f"Category '{category}' not found.")
+            return
+
+        questions = config[category]
+        question = random.choice(questions)
+    
+        await message.channel.send(f"Category: {category}\nQuestion: {question['question']}")
+
+        def check(msg):
+            return msg.author == message.author
+
+        answer_message = await self.wait_for_message(client, message, check)
+        if answer_message is None:
+            return
+
+        if answer_message.content.lower() == question['answer'].lower():
+            await message.channel.send("Correct!")
+        else:
+            await message.channel.send(f"Wrong! The correct answer was: {question['answer']}")
+        

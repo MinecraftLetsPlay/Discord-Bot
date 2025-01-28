@@ -12,14 +12,26 @@ async def handle_minigames(client, message, user_message):
     game_map = {
         "!rps": "rps",
         "!guess": "guess",
-        "!hangman": "hangman"
+        "!hangman": "hangman",
+        "!quiz": "quiz"
     }
     
-     # Loop through the game_map to find the corresponding minigame
+    # Loop through the game_map to find the corresponding minigame
     for cmd, game_name in game_map.items():
         if user_message.startswith(cmd):
-            await minigames.play(game_name, client, message)
-            return  # Stop after the game is played
+            if game_name == "quiz":
+                # Extract the category after the command
+                parts = user_message.split(" ", 1)
+                category = parts[1] if len(parts) > 1 else None
+
+                if not category:
+                    await message.channel.send("Please specify a quiz category. Example: `!quiz tech`")
+                    return
+                
+                await minigames.play(game_name, client, message, category=category)
+            else:
+                await minigames.play(game_name, client, message)
+            return
         
 # Grouped commands into files... Those are the command handlers
 command_handlers = {
@@ -36,7 +48,7 @@ command_groups = {
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'utility': ['!ping', '!weather', '!city', '!download'],
-    'minigames': ['!rps', '!guess', '!hangman']
+    'minigames': ['!rps', '!guess', '!hangman', "!quiz"]
 }
 
 # Function to handle the commands
