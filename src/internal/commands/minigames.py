@@ -165,7 +165,10 @@ class Minigames:
         # Split the command to extract the size (e.g., !quiz tech 10)
         parts = category.split()
         if len(parts) < 2 or not parts[1].isdigit():
-            await message.channel.send("Please specify the quiz size (e.g., `!quiz tech 10`).")
+            await message.channel.send("Please specify thecategory and quiz size (e.g., `!quiz tech 10`).")
+            available_categories = ", ".join(quiz_data.keys())
+            await message.channel.send(f"Available categories: {available_categories}")
+            await message.channel.send("Available quiz sizes: 10, 20, 30.")
             return
         
         category = parts[0]
@@ -173,12 +176,6 @@ class Minigames:
 
         if quiz_size not in [10, 20, 30]:
             await message.channel.send("Invalid quiz size. Please choose 10, 20, or 30 questions.")
-            return
-        
-        # If no category is specified, list all available categories
-        if category is None or category == "":
-            available_categories = ", ".join(quiz_data.keys())
-            await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
             return
 
         if category not in quiz_data:
