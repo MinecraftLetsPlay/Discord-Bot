@@ -147,7 +147,14 @@ class Minigames:
             if category:
                 await self.quiz(message, client, category)
             else:
-                await message.channel.send("Please provide a category for the quiz!")
+                # No category provided, show available categories
+                quiz_data = utils.load_quiz()
+                if quiz_data:
+                    available_categories = ", ".join(quiz_data.keys())
+                    await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
+                    await message.channel.send("Available quiz sizes: 10, 20, 30.")
+                else:
+                    await message.channel.send("Quiz data could not be loaded.")
         elif game_name in self.games:
             await self.games[game_name](message, client)
         else:
@@ -162,30 +169,12 @@ class Minigames:
             await message.channel.send("Quiz data could not be loaded.")
             return
 
-        # Check if the user provided a category and quiz size
-        parts = category.split()
-    
-        # If no category is provided
-        if len(parts) < 1:
-            available_categories = ", ".join(quiz_data.keys())
-            await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
-            await message.channel.send("Available quiz sizes: 10, 20, 30.")
-            return
-    
-        # If no quiz size is provided, or it's invalid
-        if len(parts) < 2 or not parts[1].isdigit():
-            await message.channel.send("Please specify the category and quiz size (e.g., `!quiz tech 10`).")
-            available_categories = ", ".join(quiz_data.keys())
-            await message.channel.send(f"Available categories: {available_categories}")
-            await message.channel.send("Available quiz sizes: 10, 20, 30.")
-            return
-
         # Get questions and shuffle them
         questions = quiz_data[category]
         random.shuffle(questions)
 
         # Ensure we don't ask more questions than available
-        quiz_size = min(quiz_size, len(questions))
+        quiz_size = 10  # default quiz size
         selected_questions = questions[:quiz_size]
 
         score = 0
