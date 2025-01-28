@@ -51,37 +51,45 @@ class Minigames:
 
     async def guess_the_number(self, message, client):
         await message.channel.send("I'm thinking of a number. Enter the range (e.g., 1-100):")
-        def check(msg):
-            return msg.author == message.author and '-' in msg.content and msg.content.replace('-', '').isdigit()
-        
-        range_message = await self.wait_for_message(client, message, check)
+    
+        def range_check(msg):
+            return msg.author == message.author and '-' in msg.content and \
+               all(part.strip().isdigit() for part in msg.content.split('-'))
+    
+        range_message = await self.wait_for_message(client, message, range_check)
         if range_message is None:
             return
-        
+    
         try:
             low, high = map(int, range_message.split('-'))
+            if low >= high:
+                await message.channel.send("Invalid range! Please ensure the lower bound is less than the upper bound.")
+                return
         except ValueError:
-            await message.channel.send("Invalid range. Please use a format like 1-100.")
+            await message.channel.send("Invalid range format. Please use the format: 1-100.")
             return
-        
+    
         secret_number = random.randint(low, high)
         attempts = 0
 
+        async def guess_check(msg):
+            return msg.author == message.author and msg.content.isdigit()
+
         while True:
             await message.channel.send("Enter your guess:")
-            guess = await self.wait_for_message(client, message, check)
-            if guess is None:
+            guess_message = await self.wait_for_message(client, message, guess_check)
+            if guess_message is None:
                 return
-
-            guess = int(guess)
+        
+            guess = int(guess_message)
             attempts += 1
 
             if guess < secret_number:
-                await message.channel.send("Too low!")
+                await message.channel.send("Too low! Try again.")
             elif guess > secret_number:
-                await message.channel.send("Too high!")
+                await message.channel.send("Too high! Try again.")
             else:
-                await message.channel.send(f"Congratulations! You guessed the number in {attempts} attempts!")
+                await message.channel.send(f"Congratulations! You guessed the number {secret_number} in {attempts} attempts!")
                 break
 
     async def hangman(self, message, client):
