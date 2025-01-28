@@ -23,10 +23,6 @@ async def handle_minigames(client, message, user_message):
                 # Extract the category after the command
                 parts = user_message.split(" ", 1)
                 category = parts[1] if len(parts) > 1 else None
-
-                if not category:
-                    await message.channel.send("Please specify a quiz category. Example: `!quiz tech`")
-                    return
                 
                 await minigames.play(game_name, client, message, category=category)
             else:
