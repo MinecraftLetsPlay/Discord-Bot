@@ -2,6 +2,7 @@ import random
 import discord
 import asyncio
 import json
+from internal import utils
 
 def load_config():
         try:
@@ -154,25 +155,33 @@ class Minigames:
             await message.channel.send(f"Game '{game_name}' not found. Available games are: {available_games}.")
             
     async def quiz(self, message, client, category):
-        config = load_config()
-        if category not in config:
+        # Load quiz data using the dedicated function
+        quiz_data = utils.load_quiz()
+
+        if not quiz_data:
+            await message.channel.send("Quiz data could not be loaded.")
+            return
+
+        if category not in quiz_data:
             await message.channel.send(f"Category '{category}' not found.")
             return
 
-        questions = config[category]
+        # Select a random question from the category
+        questions = quiz_data[category]
         question = random.choice(questions)
-    
+
         await message.channel.send(f"Category: {category}\nQuestion: {question['question']}")
 
         def check(msg):
             return msg.author == message.author
 
-        answer_message = await self.wait_for_message(client, message, check)
-        if answer_message is None:
-            return
-
-        if answer_message.content.lower() == question['answer'].lower():
-            await message.channel.send("Correct!")
-        else:
-            await message.channel.send(f"Wrong! The correct answer was: {question['answer']}")
+        try:
+            # Wait for the user's response
+            answer_message = await client.wait_for('message', check=check, timeout=30.0)
+            if answer_message.content.lower() == question['answer'].lower():
+                await message.channel.send("Correct!")
+            else:
+                await message.channel.send(f"Wrong! The correct answer was: {question['answer']}")
+        except Exception as e:
+            await message.channel.send("You took too long to respond!")
         
