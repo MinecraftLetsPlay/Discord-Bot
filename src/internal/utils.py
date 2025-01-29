@@ -2,7 +2,7 @@ import json
 import os
 
 # Get config from ./data/config.json
-def load_config(path='internal/data/config.json'):
+def load_config(path='internal/data/config.jsonc'):
     base_path = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_path, '..', path)
     with open(full_path, 'r') as file:
