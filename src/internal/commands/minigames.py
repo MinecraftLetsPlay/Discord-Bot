@@ -8,11 +8,11 @@ async def get_hangman_word(difficulty=None):
     if not difficulty:
         difficulty = random.choice(['easy', 'medium', 'hard'])
 
-    words = hangman_data.get('words', {}).get(difficulty, [])
-    if not words:
+    word = hangman_data.get('word', {}).get(difficulty, [])
+    if not word:
         return None, None
 
-    return random.choice(words), difficulty
+    return random.choice(word), difficulty
 
 async def get_quiz_question(category=None):
     quiz_data = utils.load_quiz()
