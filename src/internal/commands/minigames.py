@@ -85,7 +85,7 @@ async def handle_minigames_commands(client, message, user_message):
 
         while tries < max_tries:
             try:
-                guess_message = await message.client.wait_for(
+                guess_message = await client.wait_for(
                     'message',
                     timeout=30.0,
                     check=lambda m: m.author == message.author and m.content.isdigit()
@@ -172,7 +172,7 @@ async def handle_minigames_commands(client, message, user_message):
         await message.channel.send(embed=embed)
 
         try:
-            answer_message = await message.client.wait_for(
+            answer_message = await client.wait_for(
                 'message',
                 timeout=30.0,
                 check=lambda m: m.author == message.author
