@@ -184,3 +184,50 @@ async def handle_minigames_commands(client, message, user_message):
 
         except asyncio.TimeoutError:
             await message.channel.send("Zeitüberschreitung - Quiz beendet!")
+
+    # !roll command
+    if user_message.startswith('!roll'):
+        try:
+            args = user_message.split()[1:] if len(user_message.split()) > 1 else ['s6']
+            results = []
+            total = 0
+            valid_sides = [4, 6, 8, 10, 12, 20, 100]
+
+            for arg in args:
+                # Parse argument (e.g., "3s6" or "s20")
+                count = 1
+                if arg[0].isdigit():
+                    count = int(arg[0])
+                    sides = int(arg[2:])
+                else:
+                    sides = int(arg[1:])
+
+                if sides not in valid_sides:
+                    await message.channel.send(f"Ungültiger Würfel d{sides}! Verfügbar: d4, d6, d8, d10, d12, d20, d100")
+                    return
+
+                # Roll dice
+                rolls = [random.randint(1, sides) for _ in range(count)]
+                results.append((sides, rolls))
+                total += sum(rolls)
+
+            # Create embed
+            embed = discord.Embed(title="🎲 Würfelwurf", color=0x00ff00)
+
+            # Add results for each dice type
+            for sides, rolls in results:
+                roll_str = ", ".join(str(r) for r in rolls)
+                embed.add_field(
+                    name=f"d{sides} ({len(rolls)}x)",
+                    value=f"Würfe: {roll_str}\nSumme: {sum(rolls)}",
+                    inline=False
+                )
+
+            # Add total if multiple dice were rolled
+            if len(results) > 1:
+                embed.add_field(name="Gesamt", value=str(total), inline=False)
+
+            await message.channel.send(embed=embed)
+
+        except (ValueError, IndexError):
+            await message.channel.send("Ungültiges Format! Beispiele: !roll s20, !roll 3s6, !roll s20 s8")

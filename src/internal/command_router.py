@@ -23,7 +23,7 @@ command_groups = {
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'utility': ['!ping', '!weather', '!city', '!download'],
-    'minigames': ['!rps', '!guess', '!hangman', '!quiz']
+    'minigames': ['!rps', '!guess', '!hangman', '!quiz', '!roll']
 }
 
 async def handle_command(client, message):
