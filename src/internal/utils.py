@@ -9,7 +9,7 @@ def load_config(path='internal/data/config.json'):
         return json.load(file)
 
 # Get quiz data from ./data/quiz.jsonc
-def load_quiz(path='config/quiz.json'):
+def load_quiz(path='internal/data/quiz.jsonc'):
     base_path = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_path, '..', path)
     try:
@@ -20,7 +20,7 @@ def load_quiz(path='config/quiz.json'):
         return {}
 
 # Get hangman words from ./data/hangman.jsonc
-def load_hangman(path='config/hangman.jsonc'):
+def load_hangman(path='internal/data/hangman.jsonc'):
     base_path = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_path, '..', path)
     try:
