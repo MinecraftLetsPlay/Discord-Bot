@@ -52,11 +52,11 @@ async def handle_minigames_commands(client, message, user_message):
             await game_message.add_reaction(choice)
 
         try:
-            reaction, user = await message.guild.wait_for(
-                'reaction_add',
-                timeout=30.0,
-                check=lambda reaction, user: user == message.author and str(reaction.emoji) in choices
-            )
+            reaction, user = await client.wait_for(
+            'reaction_add',
+            timeout=30.0,
+            check=lambda reaction, user: user == message.author and str(reaction.emoji) in choices
+        )
 
             bot_choice = random.choice(choices)
             user_choice = str(reaction.emoji)

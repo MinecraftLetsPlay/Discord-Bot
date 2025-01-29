@@ -5,9 +5,6 @@ from internal.commands.public_commands import handle_public_commands
 from internal.commands.system_commands import handle_system_commands
 from internal.commands.utility_commands import handle_utility_commands
 
-# Set up logging for debugging
-logging.basicConfig(level=logging.INFO)
-
 # Command handlers for each group
 command_handlers = {
     'system': handle_system_commands,
