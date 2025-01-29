@@ -2,7 +2,7 @@
 .env
 __pycache__/
 logs/
-config/
+config.json
 .venv/
 #### other
 .vscode/

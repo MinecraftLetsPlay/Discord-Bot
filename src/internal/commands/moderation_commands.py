@@ -18,7 +18,7 @@ def is_authorized(user):
     except Exception as e:
         print(f"Error checking authorization: {e}")
         return False
-    
+
 # Main def for handling moderation commands
 async def handle_moderation_commands(client, message, user_message):
 
@@ -36,7 +36,7 @@ async def handle_moderation_commands(client, message, user_message):
             try:
                 # Search for the member by mention or username
                 member = message.guild.get_member_named(username_to_kick) or \
-                     discord.utils.get(message.guild.members, mention=username_to_kick)
+                    discord.utils.get(message.guild.members, mention=username_to_kick)
 
                 if member is None:
                     await message.channel.send(f"User `{username_to_kick}` not found.")

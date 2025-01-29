@@ -1,0 +1,153 @@
+{
+    "programming": {
+        "easy": [
+            "java",
+            "html",
+            "css",
+            "php",
+            "rust",
+            "ruby",
+            "perl",
+            "bash",
+            "lua"
+        ],
+        "medium": [
+            "python",
+            "javascript",
+            "typescript",
+            "mongodb",
+            "discord",
+            "angular",
+            "django",
+            "docker",
+            "flutter"
+        ],
+        "hard": [
+            "kubernetes",
+            "postgresql",
+            "tensorflow",
+            "microservices",
+            "javascript",
+            "development",
+            "blockchain",
+            "artificial",
+            "framework"
+        ]
+    },
+    "animals": {
+        "easy": [
+            "cat",
+            "dog",
+            "rat",
+            "pig",
+            "cow",
+            "hen",
+            "owl",
+            "ant"
+        ],
+        "medium": [
+            "rabbit",
+            "monkey",
+            "turtle",
+            "falcon",
+            "spider",
+            "donkey",
+            "jaguar",
+            "python"
+        ],
+        "hard": [
+            "elephant",
+            "crocodile",
+            "butterfly",
+            "hippopotamus",
+            "rhinoceros",
+            "chimpanzee",
+            "orangutan"
+        ]
+    },
+    "countries": {
+        "easy": [
+            "usa",
+            "uk",
+            "spain",
+            "iran",
+            "iraq",
+            "peru",
+            "cuba",
+            "mali"
+        ],
+        "medium": [
+            "germany",
+            "france",
+            "canada",
+            "mexico",
+            "brazil",
+            "japan",
+            "china",
+            "india"
+        ],
+        "hard": [
+            "australia",
+            "argentina",
+            "kazakhstan",
+            "switzerland",
+            "netherlands",
+            "bangladesh",
+            "madagascar"
+        ]
+    },
+    "gaming": {
+        "easy": [
+            "wow",
+            "cod",
+            "cs",
+            "dota",
+            "fifa",
+            "mario"
+        ],
+        "medium": [
+            "minecraft",
+            "fortnite",
+            "pokemon",
+            "zelda",
+            "portal",
+            "skyrim"
+        ],
+        "hard": [
+            "playstation",
+            "counterstrike",
+            "assassins creed",
+            "final fantasy",
+            "world of warcraft"
+        ]
+    },
+    "food": {
+        "easy": [
+            "pie",
+            "cake",
+            "fish",
+            "meat",
+            "egg",
+            "rice",
+            "milk"
+        ],
+        "medium": [
+            "pizza",
+            "burger",
+            "cheese",
+            "salad",
+            "cookie",
+            "pasta",
+            "sushi"
+        ],
+        "hard": [
+            "spaghetti",
+            "lasagna",
+            "croissant",
+            "chocolate",
+            "strawberry",
+            "vegetables",
+            "pineapple"
+        ]
+    }
+}

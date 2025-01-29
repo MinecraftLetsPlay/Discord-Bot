@@ -1,202 +1,186 @@
-import random
 import discord
+import random
 import asyncio
-import json
 from internal import utils
 
-def load_config():
+async def get_hangman_word(difficulty=None):
+    hangman_data = utils.load_hangman()
+    if not difficulty:
+        difficulty = random.choice(['easy', 'medium', 'hard'])
+
+    words = hangman_data.get('words', {}).get(difficulty, [])
+    if not words:
+        return None, None
+
+    return random.choice(words), difficulty
+
+async def get_quiz_question(category=None):
+    quiz_data = utils.load_quiz()
+    if not quiz_data:
+        return None, None
+
+    categories = list(quiz_data.keys())
+    if not category or category not in categories:
+        category = random.choice(categories)
+
+    questions = quiz_data.get(category, [])
+    if not questions:
+        return None, None
+
+    return random.choice(questions), category
+
+def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
+    if user_choice == bot_choice:
+        return "Unentschieden!"
+    elif ((user_choice == '🪨' and bot_choice == '✂️') or
+          (user_choice == '📄' and bot_choice == '🪨') or
+          (user_choice == '✂️' and bot_choice == '📄')):
+        return "Du gewinnst!"
+    else:
+        return "Bot gewinnt!"
+
+async def handle_minigames_commands(client, message, user_message):
+    # !rps command
+    if user_message == '!rps':
+        choices = ['🪨', '📄', '✂️']
+        embed = discord.Embed(title="Rock Paper Scissors",
+                            description="Wähle: 🪨, 📄 oder ✂️",
+                            color=0x00ff00)
+        game_message = await message.channel.send(embed=embed)
+
+        for choice in choices:
+            await game_message.add_reaction(choice)
+
         try:
-            with open('quiz.json', 'r') as file:
-                return json.load(file)
-        except Exception as e:
-            print(f"Error loading config file: {e}")
-            return {}
+            reaction, user = await message.guild.wait_for(
+                'reaction_add',
+                timeout=30.0,
+                check=lambda reaction, user: user == message.author and str(reaction.emoji) in choices
+            )
 
-class Minigames:
-    def __init__(self):
-        self._bot_choices = ['rock', 'paper', 'scissors']
-        random.shuffle(self._bot_choices)  # Shuffle once during initialization
-        self.games = {
-            "rps": self.rock_paper_scissors,
-            "guess": self.guess_the_number,
-            "hangman": self.hangman,
-            "quiz": self.quiz
-        }
+            bot_choice = random.choice(choices)
+            user_choice = str(reaction.emoji)
 
-    @property
-    def bot_choices(self):
-        return self._bot_choices
+            result = determine_rps_winner(user_choice, bot_choice)
 
-    @bot_choices.setter
-    def bot_choices(self, value):
-        self._bot_choices = value
+            result_embed = discord.Embed(title="Ergebnis",
+                                    description=f"Du: {user_choice}\nBot: {bot_choice}\n{result}",
+                                    color=0x00ff00)
+            await message.channel.send(embed=result_embed)
 
-    async def wait_for_message(self, client, message, check_func, timeout=30.0):
-        try:
-            user_message = await client.wait_for('message', check=check_func, timeout=timeout)
-            return user_message.content
         except asyncio.TimeoutError:
-            await message.channel.send("You took too long to respond.")
-            return None
+            await message.channel.send("Zeitüberschreitung - Spiel abgebrochen!")
 
-    async def rock_paper_scissors(self, message, client):
-        await message.channel.send("Let's play Rock Paper Scissors! Enter your choice (rock/paper/scissors):")
-        def check(msg):
-            return msg.author == message.author and msg.content.lower() in ['rock', 'paper', 'scissors']
-        
-        player_choice = await self.wait_for_message(client, message, check)
-        if player_choice is None:
-            return
+    # !guess command
+    if user_message == '!guess':
+        number = random.randint(1, 100)
+        tries = 0
+        max_tries = 7
 
-        bot_choice = self.bot_choices[0]
-        await message.channel.send(f"Bot chose: {bot_choice}")
+        embed = discord.Embed(title="Zahlenraten",
+                            description="Rate eine Zahl zwischen 1 und 100!",
+                            color=0x00ff00)
+        await message.channel.send(embed=embed)
 
-        if player_choice == bot_choice:
-            await message.channel.send("It's a tie!")
-        elif (player_choice == 'rock' and bot_choice == 'scissors') or \
-             (player_choice == 'paper' and bot_choice == 'rock') or \
-             (player_choice == 'scissors' and bot_choice == 'paper'):
-            await message.channel.send("You win!")
-        else:
-            await message.channel.send("Bot wins!")
+        while tries < max_tries:
+            try:
+                guess_message = await message.guild.wait_for(
+                    'message',
+                    timeout=30.0,
+                    check=lambda m: m.author == message.author and m.content.isdigit()
+                )
 
-    async def guess_the_number(self, message, client):
-        await message.channel.send("I'm thinking of a number. Enter the range (e.g., 1-100):")
-    
-        def range_check(msg):
-            return msg.author == message.author and '-' in msg.content and \
-               all(part.strip().isdigit() for part in msg.content.split('-'))
-    
-        range_message = await self.wait_for_message(client, message, range_check)
-        if range_message is None:
-            return
-    
-        try:
-            low, high = map(int, range_message.split('-'))
-            if low >= high:
-                await message.channel.send("Invalid range! Please ensure the lower bound is less than the upper bound.")
-                return
-        except ValueError:
-            await message.channel.send("Invalid range format. Please use the format: 1-100.")
-            return
-    
-        secret_number = random.randint(low, high)
-        attempts = 0
+                guess = int(guess_message.content)
+                tries += 1
 
-        async def guess_check(msg):
-            return msg.author == message.author and msg.content.isdigit()
-
-        while True:
-            await message.channel.send("Enter your guess:")
-            guess_message = await self.wait_for_message(client, message, guess_check)
-            if guess_message is None:
-                return
-        
-            guess = int(guess_message)
-            attempts += 1
-
-            if guess < secret_number:
-                await message.channel.send("Too low! Try again.")
-            elif guess > secret_number:
-                await message.channel.send("Too high! Try again.")
-            else:
-                await message.channel.send(f"Congratulations! You guessed the number {secret_number} in {attempts} attempts!")
-                break
-
-    async def hangman(self, message, client):
-        words = ['python', 'programming', 'computer', 'algorithm', 'database']
-        word = random.choice(words)
-        word_letters = set(word)
-        alphabet = set('abcdefghijklmnopqrstuvwxyz')
-        used_letters = set()
-
-        lives = 6
-
-        while len(word_letters) > 0 and lives > 0:
-            await message.channel.send(f'You have {lives} lives left and you have used these letters: {", ".join(used_letters)}')
-            word_list = [letter if letter in used_letters else '-' for letter in word]
-            await message.channel.send(f'Current word: {" ".join(word_list)}')
-
-            def check(msg):
-                return msg.author == message.author and len(msg.content) == 1 and msg.content.isalpha()
-
-            await message.channel.send('Guess a letter:')
-            user_letter = await self.wait_for_message(client, message, check)
-            if user_letter is None:
-                return
-
-            if user_letter in alphabet - used_letters:
-                used_letters.add(user_letter)
-                if user_letter in word_letters:
-                    word_letters.remove(user_letter)
+                if guess == number:
+                    await message.channel.send(f"Richtig! Die Zahl war {number}. Du hast {tries} Versuche gebraucht!")
+                    return
+                elif guess < number:
+                    await message.channel.send("Höher!")
                 else:
-                    lives -= 1
-                    await message.channel.send(f'Your letter, {user_letter}, is not in the word.')
-            elif user_letter in used_letters:
-                await message.channel.send('You have already used that letter. Please try again.')
-            else:
-                await message.channel.send('Invalid character. Please try again.')
+                    await message.channel.send("Niedriger!")
 
-        if lives == 0:
-            await message.channel.send(f'Sorry, you lost. The word was {word}.')
-        else:
-            await message.channel.send(f'Congratulations! You guessed the word {word}!!')
+            except asyncio.TimeoutError:
+                await message.channel.send("Zeitüberschreitung - Spiel abgebrochen!")
+                return
 
-    async def play(self, game_name, client, message, category=None):
-        if game_name == "quiz":
-            if category:
-                await self.quiz(message, client, category)
-            else:
-                # No category provided, show available categories
-                quiz_data = utils.load_quiz()
-                if quiz_data:
-                    available_categories = ", ".join(quiz_data.keys())
-                    await message.channel.send(f"Please specify a category for the quiz. Available categories: {available_categories}")
-                    await message.channel.send("Available quiz sizes: 10, 20, 30.")
-                else:
-                    await message.channel.send("Quiz data could not be loaded.")
-        elif game_name in self.games:
-            await self.games[game_name](message, client)
-        else:
-            available_games = ', '.join(self.games.keys())
-            await message.channel.send(f"Game '{game_name}' not found. Available games are: {available_games}.")
-            
-    async def quiz(self, message, client, category):
-        # Load quiz data using the dedicated function
-        quiz_data = utils.load_quiz()
+        await message.channel.send(f"Game Over! Die Zahl war {number}")
 
-        if not quiz_data:
-            await message.channel.send("Quiz data could not be loaded.")
+    # !hangman command
+    if user_message == '!hangman':
+        word, difficulty = await get_hangman_word()
+        if not word:
+            await message.channel.send("Fehler beim Laden der Wörter!")
             return
 
-        # Get questions and shuffle them
-        questions = quiz_data[category]
-        random.shuffle(questions)
+        guessed = set()
+        tries = 6
 
-        # Ensure we don't ask more questions than available
-        quiz_size = 10  # default quiz size
-        selected_questions = questions[:quiz_size]
+        embed = discord.Embed(title="Hangman",
+                            description=f"Rate das Wort! (Schwierigkeit: {difficulty})\nEin Buchstabe pro Nachricht.",
+                            color=0x00ff00)
+        await message.channel.send(embed=embed)
 
-        score = 0
+        while tries > 0:
+            display = "".join(letter if letter in guessed else "_" for letter in word)
+            status_embed = discord.Embed(title="Hangman",
+                                    description=f"Wort: {display}\nVerbleibende Versuche: {tries}",
+                                    color=0x00ff00)
+            await message.channel.send(embed=status_embed)
 
-        # Loop through the selected questions
-        for idx, question in enumerate(selected_questions, 1):
-            await message.channel.send(f"Question {idx}/{quiz_size}: {question['question']}")
-
-            def check(msg):
-                return msg.author == message.author
+            if "_" not in display:
+                await message.channel.send("Gewonnen! Das Wort wurde erraten!")
+                return
 
             try:
-                # Wait for the user's response
-                answer_message = await client.wait_for('message', check=check, timeout=30.0)
-                if answer_message.content.lower() == question['answer'].lower():
-                    await message.channel.send("Correct!")
-                    score += 1
-                else:
-                    await message.channel.send(f"Wrong! The correct answer was: {question['answer']}")
-            except Exception:
-                await message.channel.send("You took too long to respond!")
+                guess_message = await message.guild.wait_for(
+                    'message',
+                    timeout=30.0,
+                    check=lambda m: m.author == message.author and len(m.content) == 1
+                )
 
-        # Show the final score
-        await message.channel.send(f"Quiz complete! You scored {score}/{quiz_size}.")
-        
+                letter = guess_message.content.lower()
+
+                if letter in guessed:
+                    await message.channel.send("Diesen Buchstaben hast du bereits geraten!")
+                    continue
+
+                guessed.add(letter)
+
+                if letter not in word:
+                    tries -= 1
+                    if tries == 0:
+                        await message.channel.send(f"Game Over! Das Wort war: {word}")
+                        return
+
+            except asyncio.TimeoutError:
+                await message.channel.send("Zeitüberschreitung - Spiel abgebrochen!")
+                return
+
+    # !quiz command
+    if user_message == '!quiz':
+        question_data, category = await get_quiz_question()
+        if not question_data:
+            await message.channel.send("Fehler beim Laden der Quiz-Fragen!")
+            return
+
+        embed = discord.Embed(title=f"Quiz - {category}",
+                            description=question_data["question"],
+                            color=0x00ff00)
+        await message.channel.send(embed=embed)
+
+        try:
+            answer_message = await message.guild.wait_for(
+                'message',
+                timeout=30.0,
+                check=lambda m: m.author == message.author
+            )
+
+            if answer_message.content.lower() == question_data["answer"].lower():
+                await message.channel.send("Richtig!")
+            else:
+                await message.channel.send(f"Falsch! Die richtige Antwort war: {question_data['answer']}")
+
+        except asyncio.TimeoutError:
+            await message.channel.send("Zeitüberschreitung - Quiz beendet!")
