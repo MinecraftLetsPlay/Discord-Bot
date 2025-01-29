@@ -28,7 +28,7 @@ async def get_hangman_word(difficulty=None):
         print(f"No words found for {category}/{difficulty}")
         return None, None
 
-    return random.choice(word), difficulty
+    return random.choice(words), difficulty
 
 async def get_quiz_question(category=None):
     quiz_data = utils.load_quiz()
