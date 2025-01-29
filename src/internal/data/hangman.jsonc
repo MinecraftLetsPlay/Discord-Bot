@@ -1,4 +1,6 @@
 {
+    "words":
+    {
     "programming": {
         "easy": [
             "java",
@@ -150,4 +152,5 @@
             "pineapple"
         ]
     }
+}
 }
