@@ -191,31 +191,31 @@ async def handle_minigames_commands(client, message, user_message):
             args = user_message.split()[1:] if len(user_message.split()) > 1 else []
 
             # Default values
-            num_dice = 1
-            num_sides = 6
+            default_num_dice = 1
+            default_num_sides = 6
             valid_sides = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 36, 48, 50, 60, 100]
 
             # Parse arguments
             for arg in args:
                 if arg.startswith('d'):
-                    num_dice = int(arg[1:])
-                    if not 1 <= num_dice <= 10:
+                    default_num_dice = int(arg[1:])
+                    if not 1 <= default_num_dice <= 10:
                         await message.channel.send("Du kannst nur 1-100 Würfel gleichzeitig würfeln!")
                         return
                 elif arg.startswith('s'):
-                    num_sides = int(arg[1:])
-                    if num_sides not in valid_sides:
+                    default_num_sides = int(arg[1:])
+                    if default_num_sides not in valid_sides:
                         await message.channel.send(f"Ungültige Seitenzahl! Verfügbar: {', '.join(map(str, valid_sides))}")
                         return
 
             # Roll dice
-            rolls = [random.randint(1, num_sides) for _ in range(num_dice)]
+            rolls = [random.randint(1, default_num_sides) for _ in range(default_num_dice)]
             total = sum(rolls)
 
             # Create embed
             embed = discord.Embed(
                 title="🎲 Würfelwurf",
-                description=f"Argumente: {num_dice}d{num_sides}",
+                description=f"Argumente: {default_num_dice}d{default_num_sides}",
                 color=0x00ff00
             )
 
@@ -235,8 +235,8 @@ async def handle_minigames_commands(client, message, user_message):
             )
 
             # Add average if multiple dice
-            if num_dice > 1:
-                avg = total / num_dice
+            if default_num_dice > 1:
+                avg = total / default_num_dice
                 embed.add_field(
                     name="Durchschnitt",
                     value=f"{avg:.2f}",
