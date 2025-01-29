@@ -31,7 +31,7 @@ async def get_quiz_question(category=None):
 
 def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
     if user_choice == bot_choice:
-        return "Draw!"
+        return "It's a tie!"
     elif ((user_choice == '🪨' and bot_choice == '✂️') or
           (user_choice == '📄' and bot_choice == '🪨') or
           (user_choice == '✂️' and bot_choice == '📄')):
@@ -44,7 +44,7 @@ async def handle_minigames_commands(client, message, user_message):
     if user_message == '!rps':
         choices = ['🪨', '📄', '✂️']
         embed = discord.Embed(title="Rock Paper Scissors",
-                            description="Choose: 🪨, 📄 oder ✂️",
+                            description="Choose: 🪨, 📄, or ✂️",
                             color=0x00ff00)
         game_message = await message.channel.send(embed=embed)
 
@@ -77,7 +77,7 @@ async def handle_minigames_commands(client, message, user_message):
         tries = 0
         max_tries = 7
 
-        embed = discord.Embed(title="Number-guessing",
+        embed = discord.Embed(title="Guess the Number",
                             description="Guess a number between 1 and 100!",
                             color=0x00ff00)
         await message.channel.send(embed=embed)
@@ -94,7 +94,7 @@ async def handle_minigames_commands(client, message, user_message):
                 tries += 1
 
                 if guess == number:
-                    await message.channel.send(f"Right! The number was {number}. You needed {tries} tries!")
+                    await message.channel.send(f"Correct! The number was {number}. You took {tries} tries!")
                     return
                 elif guess < number:
                     await message.channel.send("Higher!")
@@ -111,14 +111,14 @@ async def handle_minigames_commands(client, message, user_message):
     if user_message == '!hangman':
         word, difficulty = await get_hangman_word()
         if not word:
-            await message.channel.send("Error loading hangman words!")
+            await message.channel.send("Error loading words!")
             return
 
         guessed = set()
         tries = 6
 
         embed = discord.Embed(title="Hangman",
-                            description=f"Guess the word (Difficulty: {difficulty})\nOne letter per message.",
+                            description=f"Guess the word! (Difficulty: {difficulty})\nOne letter per message.",
                             color=0x00ff00)
         await message.channel.send(embed=embed)
 
@@ -130,7 +130,7 @@ async def handle_minigames_commands(client, message, user_message):
             await message.channel.send(embed=status_embed)
 
             if "_" not in display:
-                await message.channel.send("Won! The word has been guessed!")
+                await message.channel.send("You win! The word has been guessed!")
                 return
 
             try:
@@ -143,7 +143,7 @@ async def handle_minigames_commands(client, message, user_message):
                 letter = guess_message.content.lower()
 
                 if letter in guessed:
-                    await message.channel.send("You already tried this letter!")
+                    await message.channel.send("You've already guessed this letter!")
                     continue
 
                 guessed.add(letter)
@@ -162,7 +162,7 @@ async def handle_minigames_commands(client, message, user_message):
     if user_message == '!quiz':
         question_data, category = await get_quiz_question()
         if not question_data:
-            await message.channel.send("Error loading quiz-questions!")
+            await message.channel.send("Error loading quiz questions!")
             return
 
         embed = discord.Embed(title=f"Quiz - {category}",
@@ -178,12 +178,12 @@ async def handle_minigames_commands(client, message, user_message):
             )
 
             if answer_message.content.lower() == question_data["answer"].lower():
-                await message.channel.send("Right!")
+                await message.channel.send("Correct!")
             else:
-                await message.channel.send(f"Wrong! The right answer was: {question_data['answer']}")
+                await message.channel.send(f"Incorrect! The correct answer was: {question_data['answer']}")
 
         except asyncio.TimeoutError:
-            await message.channel.send("Timeout - Game cancelled!")
+            await message.channel.send("Timeout - Quiz finished!")
 
     # !roll command
     if user_message.startswith('!roll'):
@@ -200,12 +200,12 @@ async def handle_minigames_commands(client, message, user_message):
                 if arg.startswith('d'):
                     default_num_dice = int(arg[1:])
                     if not 1 <= default_num_dice <= 10:
-                        await message.channel.send("Du kannst nur 1-100 Würfel gleichzeitig würfeln!")
+                        await message.channel.send("You can only roll between 1 and 10 dice at a time!")
                         return
                 elif arg.startswith('s'):
                     default_num_sides = int(arg[1:])
                     if default_num_sides not in valid_sides:
-                        await message.channel.send(f"Ungültige Seitenzahl! Verfügbar: {', '.join(map(str, valid_sides))}")
+                        await message.channel.send(f"Invalid number of sides! Available: {', '.join(map(str, valid_sides))}")
                         return
 
             # Roll dice
@@ -213,19 +213,23 @@ async def handle_minigames_commands(client, message, user_message):
             total = sum(rolls)
 
             # Create embed
-            embed = discord.Embed(title="🎲 Würfelwurf", color=0x00ff00)
+            embed = discord.Embed(
+                title="🎲 Dice Roll",
+                description=f"Arguments: {default_num_dice}d{default_num_sides}",
+                color=0x00ff00
+            )
 
             # Add roll results
             roll_str = ", ".join(str(r) for r in rolls)
             embed.add_field(
-                name="Würfe",
+                name="Rolls",
                 value=roll_str,
                 inline=False
             )
 
             # Add total
             embed.add_field(
-                name="Summe",
+                name="Total",
                 value=str(total),
                 inline=False
             )
@@ -234,16 +238,12 @@ async def handle_minigames_commands(client, message, user_message):
             if default_num_dice > 1:
                 avg = total / default_num_dice
                 embed.add_field(
-                    name=f"d{sides} ({len(rolls)}x)",
-                    value=f"Würfe: {roll_str}\nSumme: {sum(rolls)}",
+                    name="Average",
+                    value=f"{avg:.2f}",
                     inline=False
                 )
-
-            # Add total if multiple dice were rolled
-            if len(results) > 1:
-                embed.add_field(name="Gesamt", value=str(total), inline=False)
 
             await message.channel.send(embed=embed)
 
         except (ValueError, IndexError):
-            await message.channel.send("Ungültiges Format! Beispiele: !roll s20, !roll 3s6, !roll s20 s8")
+            await message.channel.send("Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
