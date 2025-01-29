@@ -27,5 +27,5 @@ def load_hangman(path='internal/data/hangman.jsonc'):
         with open(full_path, 'r') as file:
             return json.load(file)
     except Exception as e:
-        print(f"Error loading hangman file: {e}")
+        print(f"Error loading hangman file at {full_path}: {e}")
         return {}
