@@ -4,12 +4,28 @@ import asyncio
 from internal import utils
 
 async def get_hangman_word(difficulty=None):
+    # Load hangman data
     hangman_data = utils.load_hangman()
+    if not hangman_data:
+        print("Failed to load hangman data")
+        return None, None
+
+    # Get random category
+    categories = list(hangman_data.keys())
+    if not categories:
+        print("No categories found")
+        return None, None
+
+    category = random.choice(categories)
+
+    # Get random difficulty if not specified
     if not difficulty:
         difficulty = random.choice(['easy', 'medium', 'hard'])
 
-    words = hangman_data.get('words', {}).get(difficulty, [])
+    # Get words for category and difficulty
+    words = hangman_data[category].get(difficulty, [])
     if not words:
+        print(f"No words found for {category}/{difficulty}")
         return None, None
 
     return random.choice(words), difficulty
