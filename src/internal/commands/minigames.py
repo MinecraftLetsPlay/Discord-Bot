@@ -3,6 +3,18 @@ import random
 import asyncio
 from internal import utils
 
+    #
+    #
+    # Minigame Commands
+    #
+    #
+
+
+# ----------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------
+
+# get data from hangman.jsonc for hangman game
 async def get_hangman_word(difficulty=None):
     # Load hangman data
     hangman_data = utils.load_hangman()
@@ -30,6 +42,10 @@ async def get_hangman_word(difficulty=None):
 
     return random.choice(words), difficulty
 
+# List to keep track of asked question IDs
+asked_questions = []
+
+# get data from quiz.jsonc for quiz game
 async def get_quiz_question(category=None):
     quiz_data = utils.load_quiz()
     if not quiz_data:
@@ -43,8 +59,24 @@ async def get_quiz_question(category=None):
     if not questions:
         return None, None
 
-    return random.choice(questions), category
+    # Filter out questions that have already been asked
+    available_questions = [q for q in questions if q['id'] not in asked_questions]
 
+    if not available_questions:
+        # If all questions have been asked, reset the list and start over
+        asked_questions.clear()
+        available_questions = questions
+
+    # Select a random question from the available ones
+    question = random.choice(available_questions)
+    asked_questions.append(question['id'])
+
+    # Debugging: Print the list of asked question IDs
+    print(f"Asked questions: {asked_questions}")
+
+    return question, category
+
+# determine the winner of a rock-paper-scissors game
 def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
     if user_choice == bot_choice:
         return "It's a tie!"
@@ -55,6 +87,10 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
     else:
         return "Bot wins!"
 
+
+# ----------------------------------------------------------------
+# main command handler
+# ----------------------------------------------------------------
 async def handle_minigames_commands(client, message, user_message):
     # !rps command
     if user_message == '!rps':
@@ -70,7 +106,7 @@ async def handle_minigames_commands(client, message, user_message):
         try:
             reaction, user = await client.wait_for(
             'reaction_add',
-            timeout=30.0,
+            timeout=60.0,
             check=lambda reaction, user: user == message.author and str(reaction.emoji) in choices
         )
 
@@ -175,31 +211,58 @@ async def handle_minigames_commands(client, message, user_message):
                 return
 
     # !quiz command
-    if user_message == '!quiz':
-        question_data, category = await get_quiz_question()
-        if not question_data:
-            await message.channel.send("Error loading quiz questions!")
+    if user_message.startswith('!quiz'):
+        parts = user_message.split()
+        if len(parts) != 3 or not parts[2].isdigit():
+            await message.channel.send("Please use the format: `!quiz <category> <number of questions>`")
+
+        elif len(parts) == 2 and parts[1].lower() == 'end':
+            # Handle ending the quiz early
+            await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
             return
 
-        embed = discord.Embed(title=f"Quiz - {category}",
-                            description=question_data["question"],
-                            color=0x00ff00)
-        await message.channel.send(embed=embed)
+        category = parts[1]
+        quiz_size = int(parts[2])
 
-        try:
-            answer_message = await client.wait_for(
-                'message',
-                timeout=30.0,
-                check=lambda m: m.author == message.author
-            )
+        if quiz_size not in [10, 20, 30]:
+            await message.channel.send("Invalid quiz size. Please choose 10, 20, or 30 questions.")
+            return
 
-            if answer_message.content.lower() == question_data["answer"].lower():
-                await message.channel.send("Correct!")
-            else:
-                await message.channel.send(f"Incorrect! The correct answer was: {question_data['answer']}")
+        score = 0
 
-        except asyncio.TimeoutError:
-            await message.channel.send("Timeout - Quiz finished!")
+        for idx in range(1, quiz_size + 1):
+            question_data, actual_category = await get_quiz_question(category)
+            if not question_data:
+                await message.channel.send(f"Error loading quiz questions for category '{category}'!")
+                return
+
+            embed = discord.Embed(title=f"Quiz - {actual_category}",
+                                  description=f"Question {idx}/{quiz_size}: {question_data['question']}",
+                                  color=0x00ff00)
+            await message.channel.send(embed=embed)
+
+            try:
+                answer_message = await client.wait_for(
+                    'message',
+                    timeout=90.0,
+                    check=lambda m: m.author == message.author
+                )
+
+                # Check if the user wants to end the quiz
+                if answer_message.content.lower() == '!quiz end':
+                    await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
+                    return
+
+                if answer_message.content.lower() == question_data["answer"].lower():
+                    await message.channel.send("Correct!")
+                    score += 1
+                else:
+                    await message.channel.send(f"Incorrect! The correct answer was: {question_data['answer']}")
+
+            except asyncio.TimeoutError:
+                await message.channel.send("Timeout - Moving to the next question!")
+
+        await message.channel.send(f"Quiz complete! You scored {score}/{quiz_size}.")
 
     # !roll command
     if user_message.startswith('!roll'):
