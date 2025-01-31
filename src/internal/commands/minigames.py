@@ -9,7 +9,6 @@ from internal import utils
     #
     #
 
-
 # ----------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------
@@ -21,6 +20,8 @@ async def get_hangman_word(difficulty=None):
     if not hangman_data:
         print("Failed to load hangman data")
         return None, None
+    
+    print("Loaded hangman data:", hangman_data)
 
     # Get random category
     categories = list(hangman_data.keys())
