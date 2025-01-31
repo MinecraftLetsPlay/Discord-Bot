@@ -20,8 +20,6 @@ async def get_hangman_word(difficulty=None):
     if not hangman_data:
         print("Failed to load hangman data")
         return None, None
-    
-    print("Loaded hangman data:", hangman_data)
 
     # Get random category
     categories = list(hangman_data.keys())
@@ -169,17 +167,21 @@ async def handle_minigames_commands(client, message, user_message):
 
         guessed = set()
         tries = 6
+        alphabet = set('abcdefghijklmnopqrstuvwxyz')
 
+        # Initial embed showing the length of the word with underscores
+        word_length = "_" * len(word)  # Create a string with underscores equal to the length of the word
         embed = discord.Embed(title="Hangman",
-                            description=f"Guess the word! (Difficulty: {difficulty})\nOne letter per message.",
-                            color=0x00ff00)
+                              description=f"Guess the word! (Difficulty: {difficulty})\nWord length: {len(word)} letters\nOne letter per message.",
+                              color=0x00ff00)
         await message.channel.send(embed=embed)
 
         while tries > 0:
+            # Display the current word with guessed letters
             display = "".join(letter if letter in guessed else "_" for letter in word)
             status_embed = discord.Embed(title="Hangman",
-                                    description=f"Word: {display}\nRemaining tries: {tries}",
-                                    color=0x00ff00)
+                                         description=f"Word: {display}\nGuessed Letters: {' '.join(guessed)}\nRemaining tries: {tries}",
+                                         color=0x00ff00)
             await message.channel.send(embed=status_embed)
 
             if "_" not in display:
@@ -196,13 +198,18 @@ async def handle_minigames_commands(client, message, user_message):
                 letter = guess_message.content.lower()
 
                 if letter in guessed:
-                    await message.channel.send("You've already guessed this letter!")
+                    await message.channel.send("You've already guessed this letter! Please try another one.")
+                    continue
+
+                if letter not in alphabet:
+                    await message.channel.send("Invalid character. Please guess a letter (a-z).")
                     continue
 
                 guessed.add(letter)
 
                 if letter not in word:
                     tries -= 1
+                    await message.channel.send(f"Your letter, '{letter}', is not in the word.")
                     if tries == 0:
                         await message.channel.send(f"Game Over! The word was: {word}")
                         return
