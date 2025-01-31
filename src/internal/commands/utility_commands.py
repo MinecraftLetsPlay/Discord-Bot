@@ -96,6 +96,7 @@ async def handle_utility_commands(client, message, user_message):
             
     from datetime import datetime, timezone
 
+    # !city command
     if user_message.startswith('!city'):
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
