@@ -169,22 +169,24 @@ async def handle_minigames_commands(client, message, user_message):
         tries = 6
         alphabet = set('abcdefghijklmnopqrstuvwxyz')
 
-        # Initial embed showing the length of the word with underscores
-        word_length = "_" * len(word)  # Create a string with underscores equal to the length of the word
+        # Initial display with hyphens
+        word_length = "-" * len(word)  # Create a string with hyphens equal to the length of the word
         embed = discord.Embed(title="Hangman",
-                              description=f"Guess the word! (Difficulty: {difficulty})\nWord length: {len(word)} letters\nOne letter per message.",
+                              description=f"Guess the word! (Difficulty: {difficulty})\nWord: {word_length}\nOne letter per message.",
                               color=0x00ff00)
+        embed.add_field(name="Word length", value=f"{len(word)} letters", inline=False)
+        embed.add_field(name="Remaining tries", value=str(tries), inline=False)
         await message.channel.send(embed=embed)
 
         while tries > 0:
             # Display the current word with guessed letters
-            display = "".join(letter if letter in guessed else "_" for letter in word)
+            display = "".join(letter if letter in guessed else "-" for letter in word)
             status_embed = discord.Embed(title="Hangman",
                                          description=f"Word: {display}\nGuessed Letters: {' '.join(guessed)}\nRemaining tries: {tries}",
                                          color=0x00ff00)
             await message.channel.send(embed=status_embed)
 
-            if "_" not in display:
+            if display == word:  # Check if the word has been fully guessed
                 await message.channel.send("You win! The word has been guessed!")
                 return
 
