@@ -4,5 +4,6 @@ __pycache__/
 logs/
 config.json
 .venv/
+console_to_discord.py
 #### other
 .vscode/
