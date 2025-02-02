@@ -16,7 +16,7 @@ def load_quiz(path='internal/data/quiz.jsonc'):
         with open(full_path, 'r') as file:
             return json.load(file)
     except Exception as e:
-        print(f"Error loading quiz file: {e}")
+        print(f"❌ Error loading quiz file: {e}")
         return {}
 
 # src/internal/utils.py
@@ -27,5 +27,5 @@ def load_hangman(path='internal/data/hangman.jsonc'):
         with open(full_path, 'r', encoding='utf-8') as file:
             return json.load(file)
     except Exception as e:
-        print(f"Error loading hangman file: {e}")
+        print(f"❌ Error loading hangman file: {e}")
         return {}

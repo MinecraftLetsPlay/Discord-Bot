@@ -16,7 +16,7 @@ def is_authorized(user):
         whitelist = config.get("whitelist", []) # Get the whitelist from the config
         return str(user) in whitelist
     except Exception as e:
-        print(f"Error checking authorization: {e}")
+        print(f"❌ Error checking authorization: {e}")
         return False
 
 # Main def for handling moderation commands
@@ -28,7 +28,7 @@ async def handle_moderation_commands(client, message, user_message):
              # Check if a username or mention is provided
             args = user_message.split()
             if len(args) < 2:  # No username/mention provided
-                await message.channel.send("Please specify a user to kick. Usage: `!kick <username>`")
+                await message.channel.send("ℹ️ Please specify a user to kick. Usage: `!kick <username>`")
                 return
 
             username_to_kick = args[1]  # The username or mention passed as an argument
@@ -39,31 +39,31 @@ async def handle_moderation_commands(client, message, user_message):
                     discord.utils.get(message.guild.members, mention=username_to_kick)
 
                 if member is None:
-                    await message.channel.send(f"User `{username_to_kick}` not found.")
+                    await message.channel.send(f"⚠️ User `{username_to_kick}` not found.")
                     return
 
                 # Prevent kicking yourself or the bot
                 if member == message.author:
-                    await message.channel.send("You cannot kick yourself.")
+                    await message.channel.send("⚠️ You cannot kick yourself.")
                     return
 
                 if member == message.guild.me:
-                    await message.channel.send("I cannot kick myself.")
+                    await message.channel.send("⚠️ I cannot kick myself.")
                     return
 
                 # Kick the member
                 await member.kick(reason=f"Kicked by {message.author}")
                 await message.channel.send(f"{member.mention} has been kicked.")
             except IndexError:
-                await message.channel.send("Please mention a valid user.")
+                await message.channel.send("ℹ️ Please mention a valid user.")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to kick members. Please check my role permissions.")
+                await message.channel.send("⚠️ I don't have permission to kick members. Please check my role permissions.")
             except Exception as e:
-                await message.channel.send("Error kicking member. Make sure I have the proper permissions.")
+                await message.channel.send("❌ Error kicking member. Make sure I have the proper permissions.")
                 print(f"Error: {e}")  # Log the error for debugging
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{username_mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
@@ -74,7 +74,7 @@ async def handle_moderation_commands(client, message, user_message):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=2)  # Split command into parts
             if len(args) < 2:  # Check if a user mention/username is provided
-                await message.channel.send("Please specify a user to ban. Usage: `!ban <username> [reason]`")
+                await message.channel.send("ℹ️ Please specify a user to ban. Usage: `!ban <username> [reason]`")
                 return
 
             username_to_ban = args[1]  # Extract the username/mention
@@ -86,31 +86,31 @@ async def handle_moderation_commands(client, message, user_message):
                      discord.utils.get(message.guild.members, mention=username_to_ban)
 
                 if member is None:
-                    await message.channel.send(f"User `{username_to_ban}` not found.")
+                    await message.channel.send(f"⚠️ User `{username_to_ban}` not found.")
                     return
 
                 # Prevent banning yourself or the bot
                 if member == message.author:
-                    await message.channel.send("You cannot ban yourself.")
+                    await message.channel.send("⚠️ You cannot ban yourself.")
                     return
 
                 if member == message.guild.me:
-                    await message.channel.send("I cannot ban myself.")
+                    await message.channel.send("⚠️ I cannot ban myself.")
                     return
 
                 # Ban the member with the provided reason
                 await member.ban(reason=reason)
                 await message.channel.send(f"{member.mention} has been banned. Reason: {reason}")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to ban members. Please check my role permissions.")
+                await message.channel.send("⚠️ I don't have permission to ban members. Please check my role permissions.")
             except IndexError:
-                await message.channel.send("Please mention a valid user.")
+                await message.channel.send("ℹ️ Please mention a valid user.")
             except Exception as e:
-                await message.channel.send("Error banning member. Make sure I have the proper permissions.")
+                await message.channel.send("❌ Error banning member. Make sure I have the proper permissions.")
                 print(f"Error: {e}")  # Log the error for debugging
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{username_mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
@@ -122,7 +122,7 @@ async def handle_moderation_commands(client, message, user_message):
             try:
                 args = user_message.split(maxsplit=2)  # Split the command into parts
                 if len(args) < 2:
-                    await message.channel.send("Usage: `!unban <username#discriminator> [reason]`")
+                    await message.channel.send("ℹ️ Usage: `!unban <username> [reason]`")
                     return
 
                 # Extract the username and discriminator
@@ -144,16 +144,16 @@ async def handle_moderation_commands(client, message, user_message):
                     await message.guild.unban(user_to_unban, reason=reason)
                     await message.channel.send(f"{user_to_unban.mention} has been unbanned. Reason: {reason}")
                 else:
-                    await message.channel.send(f"User `{username_discriminator}` not found in the ban list.")
+                    await message.channel.send(f"⚠️ User `{username_discriminator}` not found in the ban list.")
 
             except Exception as e:
-                await message.channel.send("An error occurred while unbanning the user.")
+                await message.channel.send("❌ An error occurred while unbanning the user.")
                 print(f"Error: {e}")
         else:
             # Permission denied embed
             username_mention = message.author.mention
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{username_mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
@@ -164,7 +164,7 @@ async def handle_moderation_commands(client, message, user_message):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)  # Split the command into parts
             if len(args) < 3:
-                await message.channel.send("Usage: `!timeout @username <duration_in_minutes> [reason]`")
+                await message.channel.send("ℹ️ Usage: `!timeout @username <duration_in_minutes> [reason]`")
                 return
 
             try:
@@ -180,17 +180,17 @@ async def handle_moderation_commands(client, message, user_message):
                 await message.channel.send(f"{member.mention} has been timed out for {duration} minutes. Reason: {reason}")
 
             except IndexError:
-                await message.channel.send("Please mention a valid user.")
+                await message.channel.send("ℹ️ Please mention a valid user.")
             except ValueError:
-                await message.channel.send("Please provide a valid duration in minutes.")
+                await message.channel.send("ℹ️ Please provide a valid duration in minutes.")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to timeout members. Please check my role permissions.")
+                await message.channel.send("⚠️ I don't have permission to timeout members. Please check my role permissions.")
             except Exception as e:
-                await message.channel.send("An error occurred while applying the timeout.")
+                await message.channel.send("❌ An error occurred while applying the timeout.")
                 print(f"Error: {e}")
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{username_mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
@@ -206,15 +206,15 @@ async def handle_moderation_commands(client, message, user_message):
 
                 await message.channel.send(f"{member.mention}'s timeout has been removed.")
             except IndexError:
-                await message.channel.send("Please mention a valid user.")
+                await message.channel.send("ℹ️ Please mention a valid user.")
             except discord.Forbidden:
-                await message.channel.send("I don't have permission to untimeout members. Please check my role permissions.")
+                await message.channel.send("⚠️ I don't have permission to untimeout members. Please check my role permissions.")
             except Exception as e:
-                await message.channel.send("An error occurred while removing the timeout.")
+                await message.channel.send("❌ An error occurred while removing the timeout.")
                 print(f"Error: {e}")
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{username_mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )

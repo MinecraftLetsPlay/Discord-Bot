@@ -24,7 +24,7 @@ async def handle_utility_commands(client, message, user_message):
             with open('config.json', 'r') as file:
                 return json.load(file)
         except Exception as e:
-            print(f"Error loading config file: {e}")
+            print(f"❌ Error loading config file: {e}")
             return {}
 
     # Asynchronous function to get weather data
@@ -33,7 +33,7 @@ async def handle_utility_commands(client, message, user_message):
         api_key = config.get('api_key')  # Get the API key
 
         if not api_key:
-            print("API key is missing in the config.")
+            print("❌ API key is missing in the config.")
             return None
 
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
@@ -92,7 +92,7 @@ async def handle_utility_commands(client, message, user_message):
             # Send the embed message
             await message.channel.send(embed=embed)
         else:
-            await message.channel.send("Could not retrieve weather information. Make sure the location is valid.")
+            await message.channel.send("⚠️ Could not retrieve weather information. Make sure the location is valid.")
             
     from datetime import datetime, timezone
 
@@ -133,7 +133,7 @@ async def handle_utility_commands(client, message, user_message):
             # Send the embed message
             await message.channel.send(embed=embed)
         else:
-            await message.channel.send("Could not retrieve city information. Make sure the location is valid.")
+            await message.channel.send("⚠️ Could not retrieve city information. Make sure the location is valid.")
 
     # !download command
     async def handle_download_command(user_message):
@@ -143,14 +143,14 @@ async def handle_utility_commands(client, message, user_message):
         # Split the command into parts
         parts = user_message.split(' ', 2)  # Split into 3 parts: command, folder, filename
         if len(parts) < 3:
-            return "Usage: `!download <folder> <filename>` (e.g., `!download pack Betterminecraft.zip`)"
+            return "ℹ️ Usage: `!download <folder> <filename>` (e.g., `!download pack Betterminecraft.zip`)"
 
         folder_key = parts[1].lower()  # Folder (e.g., pack)
         file_name = parts[2]  # File name (e.g., Betterminecraft.zip)
 
         # Validate the folder
         if folder_key not in download_folders:
-            return f"Unknown folder: `{folder_key}`. Available folders: {', '.join(download_folders.keys())}"
+            return f"ℹ️ Unknown folder: `{folder_key}`. Available folders: {', '.join(download_folders.keys())}"
 
         # Build the full file path
         folder_path = download_folders[folder_key]
@@ -160,7 +160,7 @@ async def handle_utility_commands(client, message, user_message):
         if os.path.isfile(file_path):
             return file_path  # Return the file path for sending
         else:
-            return f"File `{file_name}` not found in folder `{folder_key}`."
+            return f"⚠️ File `{file_name}` not found in folder `{folder_key}`."
 
     # Command Handler
     if user_message.startswith('!download'):

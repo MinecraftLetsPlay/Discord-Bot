@@ -18,13 +18,13 @@ async def get_hangman_word(difficulty=None):
     # Load hangman data
     hangman_data = utils.load_hangman()
     if not hangman_data:
-        print("Failed to load hangman data")
+        print("❌ Failed to load hangman data")
         return None, None
 
     # Get random category
     categories = list(hangman_data.keys())
     if not categories:
-        print("No categories found")
+        print("❌ No categories found")
         return None, None
 
     category = random.choice(categories)
@@ -36,7 +36,7 @@ async def get_hangman_word(difficulty=None):
     # Get words for category and difficulty
     words = hangman_data[category].get(difficulty, [])
     if not words:
-        print(f"No words found for {category}/{difficulty}")
+        print(f"❌ No words found for {category}/{difficulty}")
         return None, None
 
     return random.choice(words), difficulty
@@ -120,7 +120,7 @@ async def handle_minigames_commands(client, message, user_message):
             await message.channel.send(embed=result_embed)
 
         except asyncio.TimeoutError:
-            await message.channel.send("Timeout - Game cancelled!")
+            await message.channel.send("⚠️ Timeout - Game cancelled!")
 
     # !guess command
     if user_message == '!guess':
@@ -153,7 +153,7 @@ async def handle_minigames_commands(client, message, user_message):
                     await message.channel.send("Lower!")
 
             except asyncio.TimeoutError:
-                await message.channel.send("Timeout - Game cancelled!")
+                await message.channel.send("⚠️ Timeout - Game cancelled!")
                 return
 
         await message.channel.send(f"Game Over! The number was {number}")
@@ -162,7 +162,7 @@ async def handle_minigames_commands(client, message, user_message):
     if user_message == '!hangman':
         word, difficulty = await get_hangman_word()
         if not word:
-            await message.channel.send("Error loading words!")
+            await message.channel.send("❌ Error loading words!")
             return
 
         guessed = set()
@@ -200,11 +200,11 @@ async def handle_minigames_commands(client, message, user_message):
                 letter = guess_message.content.lower()
 
                 if letter in guessed:
-                    await message.channel.send("You've already guessed this letter! Please try another one.")
+                    await message.channel.send("ℹ️ You've already guessed this letter! Please try another one.")
                     continue
 
                 if letter not in alphabet:
-                    await message.channel.send("Invalid character. Please guess a letter (a-z).")
+                    await message.channel.send("ℹ️ Invalid character. Please guess a letter (a-z).")
                     continue
 
                 guessed.add(letter)
@@ -217,14 +217,14 @@ async def handle_minigames_commands(client, message, user_message):
                         return
 
             except asyncio.TimeoutError:
-                await message.channel.send("Timeout - Game cancelled!")
+                await message.channel.send("⚠️ Timeout - Game cancelled!")
                 return
 
     # !quiz command
     if user_message.startswith('!quiz'):
         parts = user_message.split()
         if len(parts) != 3 or not parts[2].isdigit():
-            await message.channel.send("Please use the format: `!quiz <category> <number of questions>`")
+            await message.channel.send("ℹ️ Please use the format: `!quiz <category> <number of questions>`")
 
         elif len(parts) == 2 and parts[1].lower() == 'end':
             # Handle ending the quiz early
@@ -235,7 +235,7 @@ async def handle_minigames_commands(client, message, user_message):
         quiz_size = int(parts[2])
 
         if quiz_size not in [10, 20, 30]:
-            await message.channel.send("Invalid quiz size. Please choose 10, 20, or 30 questions.")
+            await message.channel.send("ℹ️ Invalid quiz size. Please choose 10, 20, or 30 questions.")
             return
 
         score = 0
@@ -243,7 +243,7 @@ async def handle_minigames_commands(client, message, user_message):
         for idx in range(1, quiz_size + 1):
             question_data, actual_category = await get_quiz_question(category)
             if not question_data:
-                await message.channel.send(f"Error loading quiz questions for category '{category}'!")
+                await message.channel.send(f"❌ Error loading quiz questions for category '{category}'!")
                 return
 
             embed = discord.Embed(title=f"Quiz - {actual_category}",
@@ -289,12 +289,12 @@ async def handle_minigames_commands(client, message, user_message):
                 if arg.startswith('d'):
                     default_num_dice = int(arg[1:])
                     if not 1 <= default_num_dice <= 10:
-                        await message.channel.send("You can only roll between 1 and 10 dice at a time!")
+                        await message.channel.send("ℹ️ You can only roll between 1 and 10 dice at a time!")
                         return
                 elif arg.startswith('s'):
                     default_num_sides = int(arg[1:])
                     if default_num_sides not in valid_sides:
-                        await message.channel.send(f"Invalid number of sides! Available: {', '.join(map(str, valid_sides))}")
+                        await message.channel.send(f"ℹ️ Invalid number of sides! Available: {', '.join(map(str, valid_sides))}")
                         return
 
             # Roll dice
@@ -335,4 +335,4 @@ async def handle_minigames_commands(client, message, user_message):
             await message.channel.send(embed=embed)
 
         except (ValueError, IndexError):
-            await message.channel.send("Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
+            await message.channel.send("ℹ️ Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")

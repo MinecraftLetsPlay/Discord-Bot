@@ -34,7 +34,7 @@ async def handle_public_commands(client, message, user_message):
         if rules_channel:
             await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
         else:
-            await message.channel.send("Sorry, I couldn't find a channel named 'rules'.")
+            await message.channel.send("ℹ️ Sorry, I couldn't find a channel named 'rules'.")
 
     # !userinfo command
     if user_message.startswith('!userinfo'):
@@ -74,7 +74,7 @@ async def handle_public_commands(client, message, user_message):
             embed.set_thumbnail(url=user.avatar.url)
             await message.channel.send(embed=embed)
         else:
-            await message.channel.send("User not found. Please provide a valid username, mention, or ID.")
+            await message.channel.send("⚠️ User not found. Please provide a valid username, mention, or ID.")
 
     # !serverinfo command
     if user_message.startswith('!serverinfo'):
@@ -110,4 +110,4 @@ async def handle_public_commands(client, message, user_message):
         if catfact:
             await message.channel.send(catfact)  # Send the cat fact to the channel
         else:
-            await message.channel.send("Sorry, I couldn't fetch a cat fact right now.")
+            await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")

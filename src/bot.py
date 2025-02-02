@@ -19,7 +19,7 @@ def run_discord_bot():
     # Check for the bot to be ready
     @client.event
     async def on_ready():
-        print(f'{client.user} is now running!')
+        print(f'✅ {client.user} is now running!')
 
     # Check for messages
     @client.event

@@ -21,7 +21,7 @@ def is_authorized(user):
         whitelist = config.get("whitelist", []) # Get the whitelist from the config
         return str(user) in whitelist
     except Exception as e:
-        print(f"Error checking authorization: {e}")
+        print(f"❌ Error checking authorization: {e}")
         return False
     
 # Main def for handling system commands
@@ -31,11 +31,11 @@ async def handle_system_commands(client, message, user_message):
     if user_message == '!shutdown':
         if is_authorized(message.author):
             await message.channel.send("Shutting down the bot...")
-            print(f"[System] Shutdown command executed by: {message.author}")
+            print(f"ℹ️ [System] Shutdown command executed by: {message.author}")
             await client.close()
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{message.author.mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
@@ -55,14 +55,14 @@ async def handle_system_commands(client, message, user_message):
             try:
                 await client.wait_for("reaction_add", timeout=30.0, check=check)
                 await message.channel.send("Shutting down the bot and the Raspberry Pi...")
-                print(f"[System] Full shutdown command executed by: {message.author}")
+                print(f"ℹ️ [System] Full shutdown command executed by: {message.author}")
                 await client.close()
                 os.system("sudo shutdown now")
             except asyncio.TimeoutError:
-                await message.channel.send(f"{message.author.mention}, shutdown canceled due to no confirmation.")
+                await message.channel.send(f"❌ {message.author.mention}, shutdown canceled due to no confirmation.")
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{message.author.mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
@@ -79,16 +79,16 @@ async def handle_system_commands(client, message, user_message):
             if last_restart_time and current_time - last_restart_time < timedelta(seconds=60):
                 remaining_time = 60 - (current_time - last_restart_time).seconds
                 await message.channel.send(
-                    f"The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again."
+                    f"⚠️ The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again."
                 )
             else:
                 last_restart_time = current_time  # Update the last restart time
                 await message.channel.send("Restarting the bot...")
-                print(f"[System] Restart command executed by: {message.author}")
+                print(f"ℹ️ [System] Restart command executed by: {message.author}")
                 os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(
-                title="Permission denied",
+                title="❌ Permission denied",
                 description=f"{message.author.mention} You don't have the permission to execute this command.",
                 color=0xff0000
             )
