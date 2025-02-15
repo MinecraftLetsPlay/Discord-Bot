@@ -6,12 +6,12 @@ from datetime import datetime, timezone
 from internal import utils
 from dotenv import load_dotenv
 
-    #
-    #
-    # Utility commands
-    #
-    #
-    
+#
+#
+# Utility commands
+#
+#
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -25,7 +25,7 @@ async def handle_utility_commands(client, message, user_message):
     if user_message == '!ping':
         latency = round(client.latency * 1000)  # Latency in milliseconds
         await message.channel.send(f'Pong! Latency is {latency}ms')
-        
+
     # !uptime command
     if user_message == '!uptime':
         current_time = datetime.now(timezone.utc)
@@ -66,7 +66,6 @@ async def handle_utility_commands(client, message, user_message):
 
         if weather_data and weather_data['cod'] == 200:
             # Extract data from the weather response
-
             city_name = weather_data['name']
             country = weather_data['sys']['country']  # Country code
             temp = weather_data['main']['temp']
@@ -111,8 +110,6 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send(embed=embed)
         else:
             await message.channel.send("⚠️ Could not retrieve weather information. Make sure the location is valid.")
-            
-    from datetime import datetime, timezone
 
     # !city command
     if user_message.startswith('!city'):
