@@ -27,7 +27,7 @@ def rotate_logs():
 rotate_logs()
 
 # Create a new log file with a timestamp
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+timestamp = datetime.now().strftime("%d.%m.%Y %H.%M.%S")
 log_file = os.path.normpath(os.path.join(log_directory, f'log_{timestamp}.txt'))
 
 # Setup logging
