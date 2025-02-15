@@ -1,14 +1,16 @@
 import discord
 import aiohttp
+import logging
 
-    #
-    #
-    # Public commands
-    #
-    #
-    
+#
+#
+# Public commands
+#
+#
+
 # Main def for handling public commands
 async def handle_public_commands(client, message, user_message):
+    logging.info(f"User message from {message.author}: {user_message}")
 
     # !help command
     if user_message == '!help':
@@ -19,6 +21,7 @@ async def handle_public_commands(client, message, user_message):
         embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !download", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman", inline=False)
         await message.channel.send(embed=embed)
+        logging.info("Displayed help message.")
 
     # !info command
     if user_message == '!info':
@@ -27,14 +30,17 @@ async def handle_public_commands(client, message, user_message):
         embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
         embed.add_field(name="", value="Planned features will include: Moderation, different utilities, minigames and more.", inline=False)
         await message.channel.send(embed=embed)
+        logging.info("Displayed info message.")
 
     # !rules command
     if user_message == '!rules':
         rules_channel = discord.utils.get(message.guild.text_channels, name="rules")  # Replace "rules" with the actual name of your rules channel
         if rules_channel:
             await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
+            logging.info("Displayed rules channel mention.")
         else:
             await message.channel.send("ℹ️ Sorry, I couldn't find a channel named 'rules'.")
+            logging.warning("Rules channel not found.")
 
     # !userinfo command
     if user_message.startswith('!userinfo'):
@@ -73,8 +79,10 @@ async def handle_public_commands(client, message, user_message):
             embed.add_field(name="Roles", value=roles if roles else "No roles")
             embed.set_thumbnail(url=user.avatar.url)
             await message.channel.send(embed=embed)
+            logging.info(f"Displayed user info for {user.name}.")
         else:
             await message.channel.send("⚠️ User not found. Please provide a valid username, mention, or ID.")
+            logging.warning("User not found for userinfo command.")
 
     # !serverinfo command
     if user_message.startswith('!serverinfo'):
@@ -94,6 +102,7 @@ async def handle_public_commands(client, message, user_message):
             embed.set_thumbnail(url=guild.icon.url)
 
         await message.channel.send(embed=embed)
+        logging.info(f"Displayed server info for {guild.name}.")
 
     # Asynchronous function to get a random cat fact
     async def get_catfact():
@@ -109,5 +118,7 @@ async def handle_public_commands(client, message, user_message):
         catfact = await get_catfact()  # Await the asynchronous function
         if catfact:
             await message.channel.send(catfact)  # Send the cat fact to the channel
+            logging.info("Displayed a cat fact.")
         else:
             await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")
+            logging.warning("Failed to fetch a cat fact.")

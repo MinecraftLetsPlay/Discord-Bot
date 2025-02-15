@@ -1,6 +1,7 @@
 import discord
 import random
 import asyncio
+import logging
 from internal import utils
 
     #
@@ -18,13 +19,13 @@ async def get_hangman_word(difficulty=None):
     # Load hangman data
     hangman_data = utils.load_hangman()
     if not hangman_data:
-        print("❌ Failed to load hangman data")
+        logging.error("❌ Failed to load hangman data")
         return None, None
 
     # Get random category
     categories = list(hangman_data.keys())
     if not categories:
-        print("❌ No categories found")
+        logging.error("❌ No categories found")
         return None, None
 
     category = random.choice(categories)
@@ -36,7 +37,7 @@ async def get_hangman_word(difficulty=None):
     # Get words for category and difficulty
     words = hangman_data[category].get(difficulty, [])
     if not words:
-        print(f"❌ No words found for {category}/{difficulty}")
+        logging.error(f"❌ No words found for {category}/{difficulty}")
         return None, None
 
     return random.choice(words), difficulty
@@ -71,7 +72,7 @@ async def get_quiz_question(category=None):
     asked_questions.append(question['id'])
 
     # Debugging: Print the list of asked question IDs
-    print(f"Asked questions: {asked_questions}")
+    logging.debug(f"Asked questions: {asked_questions}")
 
     return question, category
 
@@ -91,6 +92,8 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
 # main command handler
 # ----------------------------------------------------------------
 async def handle_minigames_commands(client, message, user_message):
+    logging.info(f"User message from {message.author}: {user_message}")
+
     # !rps command
     if user_message == '!rps':
         choices = ['🪨', '📄', '✂️']
@@ -121,6 +124,7 @@ async def handle_minigames_commands(client, message, user_message):
 
         except asyncio.TimeoutError:
             await message.channel.send("⚠️ Timeout - Game cancelled!")
+            logging.warning("⚠️ Timeout - Game cancelled!")
 
     # !guess command
     if user_message == '!guess':
@@ -146,6 +150,7 @@ async def handle_minigames_commands(client, message, user_message):
 
                 if guess == number:
                     await message.channel.send(f"Correct! The number was {number}. You took {tries} tries!")
+                    logging.info(f"Correct! The number was {number}. User took {tries} tries!")
                     return
                 elif guess < number:
                     await message.channel.send("Higher!")
@@ -154,15 +159,18 @@ async def handle_minigames_commands(client, message, user_message):
 
             except asyncio.TimeoutError:
                 await message.channel.send("⚠️ Timeout - Game cancelled!")
+                logging.warning("⚠️ Timeout - Game cancelled!")
                 return
 
         await message.channel.send(f"Game Over! The number was {number}")
+        logging.info(f"Game Over! The number was {number}")
 
     # !hangman command
     if user_message == '!hangman':
         word, difficulty = await get_hangman_word()
         if not word:
             await message.channel.send("❌ Error loading words!")
+            logging.error("❌ Error loading words!")
             return
 
         guessed = set()
@@ -188,6 +196,7 @@ async def handle_minigames_commands(client, message, user_message):
 
             if display == word:  # Check if the word has been fully guessed
                 await message.channel.send("You win! The word has been guessed!")
+                logging.info("You win! The word has been guessed!")
                 return
 
             try:
@@ -214,10 +223,12 @@ async def handle_minigames_commands(client, message, user_message):
                     await message.channel.send(f"Your letter, '{letter}', is not in the word.")
                     if tries == 0:
                         await message.channel.send(f"Game Over! The word was: {word}")
+                        logging.info(f"Game Over! The word was: {word}")
                         return
 
             except asyncio.TimeoutError:
                 await message.channel.send("⚠️ Timeout - Game cancelled!")
+                logging.warning("⚠️ Timeout - Game cancelled!")
                 return
 
     # !quiz command
@@ -229,6 +240,7 @@ async def handle_minigames_commands(client, message, user_message):
         elif len(parts) == 2 and parts[1].lower() == 'end':
             # Handle ending the quiz early
             await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
+            logging.info(f"Quiz ended early. User scored {score}/{quiz_size}.")
             return
 
         category = parts[1]
@@ -244,6 +256,7 @@ async def handle_minigames_commands(client, message, user_message):
             question_data, actual_category = await get_quiz_question(category)
             if not question_data:
                 await message.channel.send(f"❌ Error loading quiz questions for category '{category}'!")
+                logging.error(f"❌ Error loading quiz questions for category '{category}'!")
                 return
 
             embed = discord.Embed(title=f"Quiz - {actual_category}",
@@ -261,6 +274,7 @@ async def handle_minigames_commands(client, message, user_message):
                 # Check if the user wants to end the quiz
                 if answer_message.content.lower() == '!quiz end':
                     await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
+                    logging.info(f"Quiz ended early. User scored {score}/{quiz_size}.")
                     return
 
                 if answer_message.content.lower() == question_data["answer"].lower():
@@ -271,8 +285,10 @@ async def handle_minigames_commands(client, message, user_message):
 
             except asyncio.TimeoutError:
                 await message.channel.send("Timeout - Moving to the next question!")
+                logging.warning("Timeout - Moving to the next question!")
 
         await message.channel.send(f"Quiz complete! You scored {score}/{quiz_size}.")
+        logging.info(f"Quiz complete! User scored {score}/{quiz_size}.")
 
     # !roll command
     if user_message.startswith('!roll'):
@@ -333,6 +349,8 @@ async def handle_minigames_commands(client, message, user_message):
                 )
 
             await message.channel.send(embed=embed)
+            logging.info(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}, Average: {avg:.2f}")
 
         except (ValueError, IndexError):
             await message.channel.send("ℹ️ Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
+            logging.warning("ℹ️ Invalid format for dice roll command!")

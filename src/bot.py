@@ -3,6 +3,7 @@ from internal import utils
 from internal import command_router
 import os
 from dotenv import load_dotenv
+import logging
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -23,7 +24,7 @@ def run_discord_bot():
     # Check for the bot to be ready
     @client.event
     async def on_ready():
-        print(f'✅ {client.user} is now running!')
+        logging.info(f'✅ {client.user} is now running!')
 
     # Check for messages
     @client.event
@@ -35,12 +36,12 @@ def run_discord_bot():
         user_message = str(message.content)
         channel = str(message.channel)
 
-        print(f'{username} said: "{user_message}" ({channel})')
+        logging.info(f'{username} said: "{user_message}" ({channel})')
 
         # Pass the client object to handle_command
         response = await command_router.handle_command(client, message)
         if response:
-            print(f'{client.user} said: "{response}" ({channel})')
+            logging.info(f'{client.user} said: "{response}" ({channel})')
             await message.channel.send(response)
 
     client.run(TOKEN)

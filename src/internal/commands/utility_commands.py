@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone
 from internal import utils
 from dotenv import load_dotenv
+import logging
 
 #
 #
@@ -20,11 +21,13 @@ bot_start_time = datetime.now(timezone.utc)
 
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
+    logging.info(f"User message from {message.author}: {user_message}")
 
     # !ping command
     if user_message == '!ping':
         latency = round(client.latency * 1000)  # Latency in milliseconds
         await message.channel.send(f'Pong! Latency is {latency}ms')
+        logging.info(f"Pong! Latency is {latency}ms")
 
     # !uptime command
     if user_message == '!uptime':
@@ -36,6 +39,7 @@ async def handle_utility_commands(client, message, user_message):
         seconds = seconds % 60
         uptime_message = f"Uptime: {days}d {hours}h {minutes}m {seconds}s"
         await message.channel.send(uptime_message)
+        logging.info(f"Uptime: {days}d {hours}h {minutes}m {seconds}s")
 
     # !weather command
     def load_config():
@@ -43,7 +47,7 @@ async def handle_utility_commands(client, message, user_message):
             with open('config.json', 'r') as file:
                 return json.load(file)
         except Exception as e:
-            print(f"❌ Error loading config file: {e}")
+            logging.error(f"❌ Error loading config file: {e}")
             return {}
 
     # Asynchronous function to get weather data
@@ -51,7 +55,7 @@ async def handle_utility_commands(client, message, user_message):
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
 
         if not api_key:
-            print("❌ API key is missing in the config.")
+            logging.error("❌ API key is missing in the config.")
             return None
 
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
@@ -108,8 +112,10 @@ async def handle_utility_commands(client, message, user_message):
 
             # Send the embed message
             await message.channel.send(embed=embed)
+            logging.info(f"Displayed weather information for {city_name}, {country}.")
         else:
             await message.channel.send("⚠️ Could not retrieve weather information. Make sure the location is valid.")
+            logging.warning("⚠️ Could not retrieve weather information. Invalid location.")
 
     # !city command
     if user_message.startswith('!city'):
@@ -147,8 +153,10 @@ async def handle_utility_commands(client, message, user_message):
 
             # Send the embed message
             await message.channel.send(embed=embed)
+            logging.info(f"Displayed city information for {city_name}, {country}.")
         else:
             await message.channel.send("⚠️ Could not retrieve city information. Make sure the location is valid.")
+            logging.warning("⚠️ Could not retrieve city information. Invalid location.")
 
     # !download command
     async def handle_download_command(user_message):
@@ -183,5 +191,7 @@ async def handle_utility_commands(client, message, user_message):
 
         if os.path.isfile(response):  # If the response is a valid file path
             await message.channel.send(file=discord.File(response))  # Send the file
+            logging.info(f"File `{response}` sent to {message.author}.")
         else:
             await message.channel.send(response)  # Send the error message
+            logging.warning(f"File not found: {response}")
