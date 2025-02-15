@@ -15,7 +15,7 @@ async def handle_public_commands(client, message, user_message):
     # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
-        embed.add_field(name="[System]", value="!shutdown, !full-shutdown, !restart", inline=False)
+        embed.add_field(name="[System]", value="!shutdown, !full-shutdown, !restart, !log", inline=False)
         embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout", inline=False)
         embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !download", inline=False)
