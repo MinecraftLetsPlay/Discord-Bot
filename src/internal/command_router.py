@@ -16,7 +16,7 @@ command_handlers = {
 
 # Command groups and their commands
 command_groups = {
-    'system': ['!shutdown', '!restart', '!full-shutdown'],
+    'system': ['!shutdown', '!restart', '!full-shutdown', '!log'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'utility': ['!ping', '!uptime', '!weather', '!city', '!download'],
