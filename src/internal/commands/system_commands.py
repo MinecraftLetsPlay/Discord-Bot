@@ -121,6 +121,26 @@ async def handle_system_commands(client, message, user_message):
             )
             await message.channel.send(embed=embed)
             logging.info(f"System: Permission denied for restart command by: {message.author}")
+            
+    # !log command
+    if user_message.startswith('!log'):
+        if is_authorized(message.author):
+            log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
+            if log_files:
+                latest_log_file = os.path.join(log_directory, log_files[-1])
+                await message.channel.send(file=discord.File(latest_log_file))
+                logging.info(f"System: Log file {latest_log_file} sent to {message.author}")
+            else:
+                await message.channel.send("⚠️ No log files found.")
+                logging.info(f"System: No log files found for {message.author}")
+        else:
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
+            logging.info(f"System: Permission denied for log command by: {message.author}")
 
 # Example of logging bot messages
 async def send_bot_message(channel, content):
