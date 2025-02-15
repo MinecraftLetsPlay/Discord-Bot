@@ -3,6 +3,7 @@ import aiohttp
 import json
 import os
 from internal import utils
+from dotenv import load_dotenv
 
     #
     #
@@ -10,6 +11,9 @@ from internal import utils
     #
     #
     
+# Load environment variables from .env file
+load_dotenv()
+
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
 
@@ -29,8 +33,7 @@ async def handle_utility_commands(client, message, user_message):
 
     # Asynchronous function to get weather data
     async def get_weather(location):
-        config = utils.load_config()  # Load the config
-        api_key = config.get('api_key')  # Get the API key
+        api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
 
         if not api_key:
             print("❌ API key is missing in the config.")
