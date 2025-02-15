@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 from internal import utils
 
 # Load config
@@ -18,8 +18,8 @@ if not os.path.exists(log_directory):
 # Setup logging
 log_file = os.path.join(log_directory, 'log01.txt')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler(log_file),
-    logging.StreamHandler()
+    logging.FileHandler(log_file, encoding='utf-8'),
+    logging.StreamHandler(sys.stdout)
 ])
 
 # Function to rotate logs
