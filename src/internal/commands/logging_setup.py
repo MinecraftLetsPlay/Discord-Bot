@@ -5,7 +5,8 @@ from internal import utils
 
 # Load config
 config = utils.load_config()
-log_directory = config.get("log_file_location", "/home/Dennis/Desktop/Storage/Logs")
+log_directory = config.get("log_file_location")
+print (log_directory)
 
 # Ensure log directory exists
 if not os.path.exists(log_directory):
@@ -16,11 +17,20 @@ if not os.path.exists(log_directory):
         sys.exit(1)
 
 # Setup logging
-log_file = os.path.join(log_directory, 'log01.txt')
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler(log_file, encoding='utf-8'),
-    logging.StreamHandler(sys.stdout)
-])
+log_file = os.path.normpath(os.path.join(log_directory, 'log01.txt'))
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_file, encoding="utf-8"),
+        logging.StreamHandler(sys.stdout),
+    ]
+)
+
+# Discord-Logger auf WARNING setzen, damit er nicht in "bot.log" schreibt
+discord_logger = logging.getLogger("discord")
+discord_logger.setLevel(logging.WARNING)
 
 # Function to rotate logs
 def rotate_logs():

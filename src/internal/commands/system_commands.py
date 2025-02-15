@@ -17,13 +17,18 @@ log_directory = config.get("log_file_location")
 
 # Ensure log directory exists
 if not os.path.exists(log_directory):
-    os.makedirs(log_directory)
+    try:
+        os.makedirs(log_directory)
+    except PermissionError as e:
+        print(f"Permission denied: {e}")
+        sys.exit(1)
 
 # Setup logging
 log_file = os.path.join(log_directory, 'log01.txt')
+print (log_file)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler(log_file),
-    logging.StreamHandler()
+    logging.FileHandler(log_file, encoding='utf-8'),
+    logging.StreamHandler(sys.stdout)
 ])
 
 # Function to rotate logs
