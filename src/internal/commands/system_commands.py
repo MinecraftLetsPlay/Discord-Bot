@@ -6,6 +6,7 @@ import logging
 from datetime import datetime, timedelta
 from internal import utils
 from dotenv import load_dotenv
+import logging_setup  # Import the logging setup
 
 # Load environment variables from .env file
 load_dotenv()
