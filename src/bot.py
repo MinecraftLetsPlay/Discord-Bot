@@ -10,7 +10,7 @@ def run_discord_bot():
 
     # Load config and get the token from the environment variable or config file
     config = utils.load_config()
-    TOKEN = os.getenv('DISCORD_BOT_TOKEN', config['token'])
+    TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
     # Get discord intents (rights for the bot)
     intents = discord.Intents.default()
