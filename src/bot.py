@@ -2,9 +2,13 @@ import discord
 from internal import utils
 from internal import command_router
 import os
+from dotenv import load_dotenv
 
 def run_discord_bot():
-    # Load config and get the token from the config file
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Load config and get the token from the environment variable or config file
     config = utils.load_config()
     TOKEN = os.getenv('DISCORD_BOT_TOKEN', config['token'])
 
