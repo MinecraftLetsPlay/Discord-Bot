@@ -16,7 +16,7 @@ async def handle_public_commands(client, message, user_message):
         embed.add_field(name="[System]", value="!shutdown, !full-shutdown, !restart", inline=False)
         embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout", inline=False)
-        embed.add_field(name="[Utils]", value="!ping, !weather, !city, !download", inline=False)
+        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !download", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman", inline=False)
         await message.channel.send(embed=embed)
 

@@ -2,6 +2,7 @@ import discord
 import aiohttp
 import json
 import os
+from datetime import datetime, timezone
 from internal import utils
 from dotenv import load_dotenv
 
@@ -14,6 +15,9 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+# Store the bot start time
+bot_start_time = datetime.now(timezone.utc)
+
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
 
@@ -21,6 +25,17 @@ async def handle_utility_commands(client, message, user_message):
     if user_message == '!ping':
         latency = round(client.latency * 1000)  # Latency in milliseconds
         await message.channel.send(f'Pong! Latency is {latency}ms')
+        
+    # !uptime command
+    if user_message == '!uptime':
+        current_time = datetime.now(timezone.utc)
+        uptime_duration = current_time - bot_start_time
+        days, seconds = uptime_duration.days, uptime_duration.seconds
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        uptime_message = f"Uptime: {days}d {hours}h {minutes}m {seconds}s"
+        await message.channel.send(uptime_message)
 
     # !weather command
     def load_config():
