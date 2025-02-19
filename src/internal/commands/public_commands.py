@@ -82,7 +82,7 @@ async def handle_public_commands(client, message, user_message):
             logging.info(f"Displayed user info for {user.name}.")
         else:
             await message.channel.send("⚠️ User not found. Please provide a valid username, mention, or ID.")
-            logging.warning("User not found for userinfo command.")
+            logging.warning("User not found !userinfo command.")
 
     # !serverinfo command
     if user_message.startswith('!serverinfo'):

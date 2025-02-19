@@ -71,7 +71,7 @@ async def handle_system_commands(client, message, user_message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-            logging.info(f"System: Permission denied for shutdown command by: {message.author}")
+            logging.info(f"System: Permission denied for shutdown command. User: {message.author}")
 
     # !full-shutdown command
     if user_message == '!full-shutdown':
@@ -91,7 +91,7 @@ async def handle_system_commands(client, message, user_message):
                 os.system("sudo shutdown now")
             except asyncio.TimeoutError:
                 await message.channel.send(f"❌ {message.author.mention}, shutdown canceled due to no confirmation.")
-                logging.info(f"System: Full shutdown canceled due to no confirmation by: {message.author}")
+                logging.info(f"System: Full shutdown canceled due to no confirmation. User: {message.author}")
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",
@@ -99,7 +99,7 @@ async def handle_system_commands(client, message, user_message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-            logging.info(f"System: Permission denied for full shutdown command by: {message.author}")
+            logging.info(f"System: Permission denied for full shutdown command. User: {message.author}")
 
     # !restart command
     if user_message == '!restart':
@@ -126,7 +126,7 @@ async def handle_system_commands(client, message, user_message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-            logging.info(f"System: Permission denied for restart command by: {message.author}")
+            logging.info(f"System: Permission denied for restart command. User: {message.author}")
             
     # !log command
     if user_message.startswith('!log'):
@@ -146,4 +146,4 @@ async def handle_system_commands(client, message, user_message):
                 color=0xff0000
             )
             await message.channel.send(embed=embed)
-            logging.info(f"System: Permission denied for log command by: {message.author}")
+            logging.info(f"System: Permission denied for log command. User: {message.author}")

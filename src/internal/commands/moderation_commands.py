@@ -45,11 +45,11 @@ async def handle_moderation_commands(client, message, user_message):
 
                 # Prevent kicking yourself or the bot
                 if member == message.author:
-                    await message.channel.send("⚠️ You cannot kick yourself.")
+                    await message.channel.send("❌ You cannot kick yourself.")
                     return
 
                 if member == message.guild.me:
-                    await message.channel.send("⚠️ I cannot kick myself.")
+                    await message.channel.send("❌ I cannot kick myself.")
                     return
 
                 # Kick the member
@@ -96,11 +96,11 @@ async def handle_moderation_commands(client, message, user_message):
 
                 # Prevent banning yourself or the bot
                 if member == message.author:
-                    await message.channel.send("⚠️ You cannot ban yourself.")
+                    await message.channel.send("❌ You cannot ban yourself.")
                     return
 
                 if member == message.guild.me:
-                    await message.channel.send("⚠️ I cannot ban myself.")
+                    await message.channel.send("❌ I cannot ban myself.")
                     return
 
                 # Ban the member with the provided reason

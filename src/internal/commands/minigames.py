@@ -274,7 +274,6 @@ async def handle_minigames_commands(client, message, user_message):
                 # Check if the user wants to end the quiz
                 if answer_message.content.lower() == '!quiz end':
                     await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
-                    logging.info(f"Quiz ended early. User scored {score}/{quiz_size}.")
                     return
 
                 if answer_message.content.lower() == question_data["answer"].lower():
@@ -288,7 +287,6 @@ async def handle_minigames_commands(client, message, user_message):
                 logging.warning("Timeout - Moving to the next question!")
 
         await message.channel.send(f"Quiz complete! You scored {score}/{quiz_size}.")
-        logging.info(f"Quiz complete! User scored {score}/{quiz_size}.")
 
     # !roll command
     if user_message.startswith('!roll'):
