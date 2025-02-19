@@ -147,8 +147,3 @@ async def handle_system_commands(client, message, user_message):
             )
             await message.channel.send(embed=embed)
             logging.info(f"System: Permission denied for log command by: {message.author}")
-
-# Example of logging bot messages
-async def send_bot_message(channel, content):
-    await channel.send(content)
-    logging.info(f"Bot message: {content}")
