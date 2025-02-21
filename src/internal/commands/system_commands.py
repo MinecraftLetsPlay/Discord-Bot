@@ -25,7 +25,7 @@ if not os.path.exists(log_directory):
 
 # Setup logging
 log_file = os.path.join(log_directory, 'log01.txt')
-print (log_file)
+print(log_file)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler(log_file, encoding='utf-8'),
     logging.StreamHandler(sys.stdout)
@@ -56,8 +56,6 @@ def is_authorized(user):
 
 # Main def for handling system commands
 async def handle_system_commands(client, message, user_message):
-    logging.info(f"User message from {message.author}: {user_message}")
-
     # !shutdown command
     if user_message == '!shutdown':
         if is_authorized(message.author):
