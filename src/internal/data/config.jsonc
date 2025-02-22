@@ -1,8 +1,10 @@
 {
-    "whitelist": ["minecraftletsplay2912", "minecraftletsplay2912#0", "little_fox_e", "little_fox_e#0"],
-
+    "whitelist": [
+        "minecraftletsplay2912",
+        "minecraftletsplay2912#0",
+        "little_fox_e#0"
+    ],
     "log_file_location": "/home/dennis/Desktop/Storage/Logs",
-
     "download_folders": {
         "pack": "/home/dennis/Desktop/Storage/Modpacks",
         "documents": "/home/dennis/Desktop/Storage/Documents"

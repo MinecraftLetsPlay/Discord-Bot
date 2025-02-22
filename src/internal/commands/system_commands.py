@@ -15,6 +15,7 @@ load_dotenv()
 # Load config
 config = utils.load_config()
 log_directory = config.get("log_file_location")
+config_file_path = 'src/internal/data/config.jsonc'  # Ensure the correct path to the config file
 
 # Ensure log directory exists
 if not os.path.exists(log_directory):
@@ -61,7 +62,7 @@ def add_to_whitelist(user):
         if str(user) not in whitelist:
             whitelist.append(str(user))
             config["whitelist"] = whitelist
-            with open('config.jsonc', 'w') as f:
+            with open(config_file_path, 'w') as f:
                 json.dump(config, f, indent=4)
             logging.info(f"Added {user} to whitelist.")
             return True
@@ -78,7 +79,7 @@ def remove_from_whitelist(user):
         if str(user) in whitelist:
             whitelist.remove(str(user))
             config["whitelist"] = whitelist
-            with open('config.jsonc', 'w') as f:
+            with open(config_file_path, 'w') as f:
                 json.dump(config, f, indent=4)
             logging.info(f"Removed {user} from whitelist.")
             return True
