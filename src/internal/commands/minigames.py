@@ -92,7 +92,6 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
 # main command handler
 # ----------------------------------------------------------------
 async def handle_minigames_commands(client, message, user_message):
-    logging.info(f"User message from {message.author}: {user_message}")
 
     # !rps command
     if user_message == '!rps':

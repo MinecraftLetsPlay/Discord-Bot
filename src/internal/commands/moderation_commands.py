@@ -21,7 +21,6 @@ def is_authorized(user):
 
 # Main def for handling moderation commands
 async def handle_moderation_commands(client, message, user_message):
-    logging.info(f"User message from {message.author}: {user_message}")
 
     # !kick command
     if user_message.startswith('!kick'):

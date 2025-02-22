@@ -21,7 +21,6 @@ bot_start_time = datetime.now(timezone.utc)
 
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
-    logging.info(f"User message from {message.author}: {user_message}")
 
     # !ping command
     if user_message == '!ping':
