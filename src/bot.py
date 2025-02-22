@@ -39,7 +39,7 @@ def run_discord_bot():
         user_message = str(message.content)
         channel = str(message.channel)
 
-        logging.info(f'{username} said: "{user_message}" ({channel})')
+        logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
 
         # Pass the client object to handle_command
         response = await command_router.handle_command(client, message)
