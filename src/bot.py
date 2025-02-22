@@ -34,17 +34,23 @@ def run_discord_bot():
         
         if message.guild is None:  # This means it's a DM
             logging.info(f"📩 DM from {message.author}: {message.content}")
-
-        username = str(message.author)
-        user_message = str(message.content)
-        channel = str(message.channel)
-
-        logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
+            username = str(message.author)
+            user_message = str(message.content)
+            channel = str(message.channel)
+            logging.info(f'{username} said: "{user_message}" (DM / {channel})')
+        else:
+            username = str(message.author)
+            user_message = str(message.content)
+            channel = str(message.channel)
+            logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
 
         # Pass the client object to handle_command
         response = await command_router.handle_command(client, message)
         if response:
-            logging.info(f'{client.user} said: "{response}" ({message.guild.name} / {channel})')
+            if message.guild is None:
+                logging.info(f'{client.user} said: "{response}" (DM / {channel})')
+            else:
+                logging.info(f'{client.user} said: "{response}" ({message.guild.name} / {channel})')
             await message.channel.send(response)
 
     client.run(TOKEN) # Start the Bot
