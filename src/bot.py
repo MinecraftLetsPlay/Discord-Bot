@@ -33,7 +33,7 @@ def run_discord_bot():
             return
         
         if message.guild is None:  # This means it's a DM
-            logging.info(f"📩 DM from {message.author}: {message.guild.name} / {message.content}")
+            logging.info(f"📩 DM from {message.author}: {message.content}")
 
         username = str(message.author)
         user_message = str(message.content)
@@ -44,7 +44,7 @@ def run_discord_bot():
         # Pass the client object to handle_command
         response = await command_router.handle_command(client, message)
         if response:
-            logging.info(f'{client.user} said: "{response}" ({channel})')
+            logging.info(f'{client.user} said: "{response}" ({message.guild.name} / {channel})')
             await message.channel.send(response)
 
     client.run(TOKEN) # Start the Bot
