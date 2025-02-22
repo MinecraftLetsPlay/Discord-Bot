@@ -31,6 +31,9 @@ def run_discord_bot():
     async def on_message(message):
         if message.author == client.user:
             return
+        
+        if message.guild is None:  # This means it's a DM
+            logging.info(f"📩 DM from {message.author}: {message.guild.name} / {message.content}")
 
         username = str(message.author)
         user_message = str(message.content)
