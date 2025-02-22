@@ -44,7 +44,6 @@ async def handle_public_commands(client, message, user_message):
 
     # !userinfo command
     if user_message.startswith('!userinfo'):
-        # Remove the command part
         user_identifier = user_message[len('!userinfo '):].strip()
 
         user = None

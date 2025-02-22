@@ -44,4 +44,4 @@ def run_discord_bot():
             logging.info(f'{client.user} said: "{response}" ({channel})')
             await message.channel.send(response)
 
-    client.run(TOKEN)
+    client.run(TOKEN) # Start the Bot
