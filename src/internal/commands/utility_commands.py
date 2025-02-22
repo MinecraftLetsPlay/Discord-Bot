@@ -2,7 +2,7 @@ import discord
 import aiohttp
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
 import logging
@@ -195,3 +195,33 @@ async def handle_utility_commands(client, message, user_message):
         else:
             await message.channel.send(response)  # Send the error message
             logging.warning(f"File not found: {response}")
+            
+    # !time command
+    if user_message.startswith('!time'):
+        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
+        weather_data = await get_weather(location)
+
+        if weather_data and weather_data['cod'] == 200:
+            # Extract data from the weather response
+            city_name = weather_data['name']
+            country = weather_data['sys']['country']
+            timezone_offset = weather_data['timezone']
+            timezone_offset_hours = timezone_offset / 3600  # Divide by 3600 to convert seconds to hours
+            timezone_offset_formatted = f"{timezone_offset_hours:+.1f} hours"  # Add "+" for positive offsets
+
+            # Calculate the local time
+            local_time = datetime.now(timezone.utc) + timedelta(seconds=timezone_offset)
+            local_time_formatted = local_time.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Create the embed message
+            embed = discord.Embed(title=f"Time in {city_name}, {country}", color=discord.Color.green())
+            embed.add_field(name="Local Time", value=local_time_formatted, inline=False)
+            embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
+            embed.add_field(name="UTC Time", value=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+
+            # Send the embed message
+            await message.channel.send(embed=embed)
+            logging.info(f"Displayed time information for {city_name}, {country}.")
+        else:
+            await message.channel.send("⚠️ Could not retrieve time information. Make sure the location is valid.")
+            logging.warning("⚠️ Could not retrieve time information. Invalid location.")

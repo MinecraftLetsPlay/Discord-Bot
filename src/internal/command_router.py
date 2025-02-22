@@ -19,7 +19,7 @@ command_groups = {
     'system': ['!shutdown', '!restart', '!full-shutdown', '!log'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
-    'utility': ['!ping', '!uptime', '!weather', '!city', '!download'],
+    'utility': ['!ping', '!uptime', '!weather', '!city', '!download', '!time'],
     'minigames': ['!rps', '!guess', '!hangman', '!quiz', '!roll']
 }
 
