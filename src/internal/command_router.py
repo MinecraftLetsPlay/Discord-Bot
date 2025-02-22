@@ -23,8 +23,22 @@ command_groups = {
     'minigames': ['!rps', '!guess', '!hangman', '!quiz', '!roll']
 }
 
+# Commands that cannot be executed in a DM
+no_dm_commands = [
+    '!kick', '!ban', '!unban', '!timeout', '!untimeout',
+    '!userinfo', '!rules', '!serverinfo',
+    '!whitelist add', '!whitelist remove'
+]
+
 async def handle_command(client, message):
     user_message = message.content.lower()
+
+    # Check if the message is in a DM
+    if message.guild is None:
+        # Check if the command is not allowed in a DM
+        if any(user_message.startswith(cmd) for cmd in no_dm_commands):
+            await message.channel.send("⚠️ This command cannot be executed in a DM.")
+            return
 
     for group, commands in command_groups.items():
         if any(user_message.startswith(cmd) for cmd in commands):
