@@ -3,6 +3,7 @@ import os
 import sys
 import asyncio
 import logging
+import json
 from datetime import datetime, timedelta
 from internal import utils
 from dotenv import load_dotenv
@@ -24,7 +25,7 @@ if not os.path.exists(log_directory):
         sys.exit(1)
 
 # Setup logging
-log_file = os.path.join(log_directory, 'log01.txt')
+log_file = os.path.join(log_directory, 'initlog.txt')
 print(log_file)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler(log_file, encoding='utf-8'),
@@ -52,6 +53,40 @@ def is_authorized(user):
         return str(user) in whitelist
     except Exception as e:
         logging.error(f"Error checking authorization: {e}")
+        return False
+
+def add_to_whitelist(user):
+    try:
+        whitelist = config.get("whitelist", [])
+        if str(user) not in whitelist:
+            whitelist.append(str(user))
+            config["whitelist"] = whitelist
+            with open('config.jsonc', 'w') as f:
+                json.dump(config, f, indent=4)
+            logging.info(f"Added {user} to whitelist.")
+            return True
+        else:
+            logging.info(f"{user} is already in the whitelist.")
+            return False
+    except Exception as e:
+        logging.error(f"Error adding to whitelist: {e}")
+        return False
+
+def remove_from_whitelist(user):
+    try:
+        whitelist = config.get("whitelist", [])
+        if str(user) in whitelist:
+            whitelist.remove(str(user))
+            config["whitelist"] = whitelist
+            with open('config.jsonc', 'w') as f:
+                json.dump(config, f, indent=4)
+            logging.info(f"Removed {user} from whitelist.")
+            return True
+        else:
+            logging.info(f"{user} is not in the whitelist.")
+            return False
+    except Exception as e:
+        logging.error(f"Error removing from whitelist: {e}")
         return False
 
 # Main def for handling system commands
@@ -145,3 +180,45 @@ async def handle_system_commands(client, message, user_message):
             )
             await message.channel.send(embed=embed)
             logging.info(f"System: Permission denied for log command. User: {message.author}")
+
+    # !whitelist add <username> command
+    if user_message.startswith('!whitelist add'):
+        if is_authorized(message.author):
+            try:
+                user_to_add = user_message.split()[2]
+                if add_to_whitelist(user_to_add):
+                    await message.channel.send(f"✅ {user_to_add} has been added to the whitelist.")
+                else:
+                    await message.channel.send(f"ℹ️ {user_to_add} is already in the whitelist.")
+            except IndexError:
+                await message.channel.send("ℹ️ Please specify a user to add to the whitelist.")
+                logging.warning("ℹ️ No user specified for whitelist add command.")
+        else:
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
+            logging.info(f"System: Permission denied for whitelist add command. User: {message.author}")
+
+    # !whitelist remove <username> command
+    if user_message.startswith('!whitelist remove'):
+        if is_authorized(message.author):
+            try:
+                user_to_remove = user_message.split()[2]
+                if remove_from_whitelist(user_to_remove):
+                    await message.channel.send(f"✅ {user_to_remove} has been removed from the whitelist.")
+                else:
+                    await message.channel.send(f"ℹ️ {user_to_remove} is not in the whitelist.")
+            except IndexError:
+                await message.channel.send("ℹ️ Please specify a user to remove from the whitelist.")
+                logging.warning("ℹ️ No user specified for whitelist remove command.")
+        else:
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
+            logging.info(f"System: Permission denied for whitelist remove command. User: {message.author}")
