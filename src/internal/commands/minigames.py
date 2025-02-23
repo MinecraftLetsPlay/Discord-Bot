@@ -4,11 +4,11 @@ import asyncio
 import logging
 from internal import utils
 
-    #
-    #
-    # Minigame Commands
-    #
-    #
+#
+#
+# Minigame Commands
+#
+#
 
 # ----------------------------------------------------------------
 # Helper functions
@@ -351,9 +351,11 @@ async def handle_minigames_commands(client, message, user_message):
                     value=f"{avg:.2f}",
                     inline=False
                 )
+                logging.info(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}, Average: {avg:.2f}")
+            else:
+                logging.info(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}")
 
             await message.channel.send(embed=embed)
-            logging.info(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}, Average: {avg:.2f}")
 
         except (ValueError, IndexError):
             await message.channel.send("ℹ️ Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
