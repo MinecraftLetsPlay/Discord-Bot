@@ -173,8 +173,15 @@ async def handle_minigames_commands(client, message, user_message):
             return
 
         guessed = set()
-        tries = 6
         alphabet = set('abcdefghijklmnopqrstuvwxyz')
+
+        # Set tries based on difficulty
+        if difficulty == 'easy':
+            tries = 6
+        elif difficulty == 'medium':
+            tries = 10
+        else:  # hard
+            tries = 16
 
         # Initial display with hyphens
         word_length = "-" * len(word)  # Create a string with hyphens equal to the length of the word
@@ -201,7 +208,7 @@ async def handle_minigames_commands(client, message, user_message):
             try:
                 guess_message = await client.wait_for(
                     'message',
-                    timeout=30.0,
+                    timeout=60.0,
                     check=lambda m: m.author == message.author and len(m.content) == 1
                 )
 
