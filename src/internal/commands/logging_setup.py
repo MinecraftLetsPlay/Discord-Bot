@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 
 # Load config
@@ -16,7 +17,7 @@ if not os.path.exists(log_directory):
         print(f"Permission denied: {e}")
         sys.exit(1)
 
-# Function to rotate logs
+# Function to rotate logs manually (if needed)
 def rotate_logs():
     log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
     if len(log_files) >= 10:
@@ -30,12 +31,15 @@ rotate_logs()
 timestamp = datetime.now().strftime("%d.%m.%Y %H.%M.%S")
 log_file = os.path.normpath(os.path.join(log_directory, f'log_{timestamp}.txt'))
 
-# Setup logging
+# Setup logging with TimedRotatingFileHandler
+handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
+handler.suffix = "%d.%m.%Y %H.%M.%S"
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(log_file, encoding="utf-8"),
+        handler,
         logging.StreamHandler(sys.stdout),
     ]
 )

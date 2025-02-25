@@ -5,6 +5,7 @@ import asyncio
 import logging
 import json
 from datetime import datetime, timedelta
+from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 from dotenv import load_dotenv
 from internal.commands import logging_setup
@@ -25,11 +26,13 @@ if not os.path.exists(log_directory):
         print(f"Permission denied: {e}")
         sys.exit(1)
 
-# Setup logging
-log_file = os.path.join(log_directory, 'initlog.txt')
-print(log_file)
+# Setup logging with TimedRotatingFileHandler
+log_file = os.path.join(log_directory, 'bot.log')
+handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
+handler.suffix = "%Y-%m-%d"
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler(log_file, encoding='utf-8'),
+    handler,
     logging.StreamHandler(sys.stdout)
 ])
 
