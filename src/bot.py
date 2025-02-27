@@ -21,10 +21,14 @@ def run_discord_bot():
 
     client = discord.Client(intents=intents)
 
+    # Global variable to control logging
+    LoggingActivated = config.get("LoggingActivated", True)
+
     # Check for the bot to be ready
     @client.event
     async def on_ready():
-        logging.info(f'✅ {client.user} is now running!')
+        if LoggingActivated:
+            logging.info(f'✅ {client.user} is now running!')
 
     # Check for messages
     @client.event
@@ -33,24 +37,29 @@ def run_discord_bot():
             return
         
         if message.guild is None:  # This means it's a DM
-            logging.info(f"📩 DM from {message.author}: {message.content}")
+            if LoggingActivated:
+                logging.info(f"📩 DM from {message.author}: {message.content}")
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
-            logging.info(f'{username} said: "{user_message}" (DM / {channel})')
+            if LoggingActivated:
+                logging.info(f'{username} said: "{user_message}" (DM / {channel})')
         else:
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
-            logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
+            if LoggingActivated:
+                logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
 
         # Pass the client object to handle_command
         response = await command_router.handle_command(client, message)
         if response:
             if message.guild is None:
-                logging.info(f'{client.user} said: "{response}" (DM / {channel})')
+                if LoggingActivated:
+                    logging.info(f'{client.user} said: "{response}" (DM / {channel})')
             else:
-                logging.info(f'{client.user} said: "{response}" ({message.guild.name} / {channel})')
+                if LoggingActivated:
+                    logging.info(f'{client.user} said: "{response}" ({message.guild.name} / {channel})')
             await message.channel.send(response)
 
     client.run(TOKEN) # Start the Bot
