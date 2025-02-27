@@ -172,7 +172,7 @@ async def handle_system_commands(client, message, user_message):
             logging.info(f"System: Permission denied for restart command. User: {message.author}")
             
     # !log command
-    if user_message.startswith('!log'):
+    if user_message == ('!log'):
         if is_authorized(message.author):
             log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
             if log_files:
