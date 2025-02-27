@@ -26,6 +26,9 @@ if not os.path.exists(log_directory):
         print(f"Permission denied: {e}")
         sys.exit(1)
 
+# Global variable to control logging
+LoggingActivated = config.get("LoggingActivated")
+
 # Setup logging with TimedRotatingFileHandler
 log_file = os.path.join(log_directory, 'bot.log')
 handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
@@ -95,6 +98,8 @@ def remove_from_whitelist(user):
 
 # Main def for handling system commands
 async def handle_system_commands(client, message, user_message):
+    global LoggingActivated
+
     # !shutdown command
     if user_message == '!shutdown':
         if is_authorized(message.author):
@@ -154,7 +159,8 @@ async def handle_system_commands(client, message, user_message):
             else:
                 last_restart_time = current_time
                 await message.channel.send("Restarting the bot...")
-                logging.info(f"System: Restart command executed by: {message.author}")
+                if LoggingActivated:
+                    logging.info(f"System: Restart command executed by: {message.author}")
                 os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(
@@ -172,10 +178,12 @@ async def handle_system_commands(client, message, user_message):
             if log_files:
                 latest_log_file = os.path.join(log_directory, log_files[-1])
                 await message.channel.send(file=discord.File(latest_log_file))
-                logging.info(f"System: Log file {latest_log_file} sent to {message.author}")
+                if LoggingActivated:
+                    logging.info(f"System: Log file {latest_log_file} sent to {message.author}")
             else:
                 await message.channel.send("⚠️ No log files found.")
-                logging.info(f"System: No log files found for {message.author}")
+                if LoggingActivated:
+                    logging.info(f"System: No log files found. User: {message.author}")
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",
@@ -217,7 +225,8 @@ async def handle_system_commands(client, message, user_message):
                     await message.channel.send(f"ℹ️ {user_to_remove} is not in the whitelist.")
             except IndexError:
                 await message.channel.send("ℹ️ Please specify a user to remove from the whitelist.")
-                logging.warning("ℹ️ No user specified for whitelist remove command.")
+                if LoggingActivated:
+                    logging.warning("ℹ️ No user specified for whitelist remove command.")
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",
@@ -226,3 +235,35 @@ async def handle_system_commands(client, message, user_message):
             )
             await message.channel.send(embed=embed)
             logging.info(f"System: Permission denied for whitelist remove command. User: {message.author}")
+
+    # !logging command
+    if user_message.startswith('!logging'):
+        if is_authorized(message.author):
+            try:
+                action = user_message.split()[1].lower()
+                if action == 'on':
+                    LoggingActivated = True
+                    config["LoggingActivated"] = True
+                    with open(config_file_path, 'w') as f:
+                        json.dump(config, f, indent=4)
+                    await message.channel.send("✅ Logging has been enabled.")
+                    logging.info(f"System: Logging enabled by {message.author}")
+                elif action == 'off':
+                    LoggingActivated = False
+                    config["LoggingActivated"] = False
+                    with open(config_file_path, 'w') as f:
+                        json.dump(config, f, indent=4)
+                    await message.channel.send("✅ Logging has been disabled.")
+                else:
+                    await message.channel.send("ℹ️ Usage: `!logging on` or `!logging off`")
+            except IndexError:
+                await message.channel.send("ℹ️ Usage: `!logging on` or `!logging off`")
+        else:
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
+            if LoggingActivated:
+                logging.info(f"System: Permission denied for logging command. User: {message.author}")
