@@ -32,7 +32,7 @@ LoggingActivated = config.get("LoggingActivated")
 # Setup logging with TimedRotatingFileHandler
 log_file = os.path.join(log_directory, 'bot.log')
 handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
-handler.suffix = "%Y-%m-%d"
+handler.suffix = "%d.%m.%Y %H.%M.%S"
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     handler,
@@ -42,10 +42,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Function to rotate logs
 def rotate_logs():
     log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
-    if len(log_files) >= 10:
+    if len(log_files) > 10:
         os.remove(os.path.join(log_directory, log_files[0]))
-        for i, log_file in enumerate(log_files[1:], start=1):
-            os.rename(os.path.join(log_directory, log_file), os.path.join(log_directory, f'log{i:02d}.txt'))
 
 rotate_logs()
 

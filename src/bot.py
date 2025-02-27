@@ -22,7 +22,7 @@ def run_discord_bot():
     client = discord.Client(intents=intents)
 
     # Global variable to control logging
-    LoggingActivated = config.get("LoggingActivated", True)
+    LoggingActivated = config.get("LoggingActivated")
 
     # Check for the bot to be ready
     @client.event
