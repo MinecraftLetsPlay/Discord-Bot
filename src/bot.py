@@ -30,7 +30,7 @@ def run_discord_bot():
     @client.event
     async def on_message(message):
         config = utils.load_config()
-        LoggingActivated = config.get("LoggingActivated", True)
+        LoggingActivated = config.get("LoggingActivated")
         
         if message.author == client.user:
             return
