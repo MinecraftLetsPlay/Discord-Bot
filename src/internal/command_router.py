@@ -38,6 +38,7 @@ async def handle_command(client, message):
         # Check if the command is not allowed in a DM
         if any(user_message.startswith(cmd) for cmd in no_dm_commands):
             await message.channel.send("⚠️ This command cannot be executed in a DM.")
+            logging.warning(f"Command '{user_message}' cannot be executed in a DM. User: (DM) / {message.author}")
             return
 
     for group, commands in command_groups.items():
