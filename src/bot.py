@@ -25,7 +25,9 @@ def run_discord_bot():
     @client.event
     async def on_ready():
         logging.info(f'✅ {client.user} is now running!')
-        await client.change_presence(activity=discord.Game(name="Hört euren Befehlen zu."))
+        # Set the bot's status to "listening to euren Befehlen zu"
+        activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen zu")
+        await client.change_presence(activity=activity)
 
     # Check for messages
     @client.event
