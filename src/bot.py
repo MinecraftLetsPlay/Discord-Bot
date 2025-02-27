@@ -24,10 +24,7 @@ def run_discord_bot():
     # Check for the bot to be ready
     @client.event
     async def on_ready():
-        config = utils.load_config()
-        LoggingActivated = config.get("LoggingActivated", True)
-        if LoggingActivated:
-            logging.info(f'✅ {client.user} is now running!')
+        logging.info(f'✅ {client.user} is now running!')
 
     # Check for messages
     @client.event
