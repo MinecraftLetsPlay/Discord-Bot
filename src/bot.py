@@ -21,44 +21,46 @@ def run_discord_bot():
 
     client = discord.Client(intents=intents)
 
-    # Global variable to control logging
-    LoggingActivated = config.get("LoggingActivated")
-
     # Check for the bot to be ready
     @client.event
     async def on_ready():
+        config = utils.load_config()
+        LoggingActivated = config.get("LoggingActivated", True)
         if LoggingActivated:
             logging.info(f'✅ {client.user} is now running!')
 
     # Check for messages
     @client.event
     async def on_message(message):
+        config = utils.load_config()
+        LoggingActivated = config.get("LoggingActivated", True)
+        
         if message.author == client.user:
             return
         
         if message.guild is None:  # This means it's a DM
-            if LoggingActivated==True:
+            if LoggingActivated:
                 logging.info(f"📩 DM from {message.author}: {message.content}")
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
-            if LoggingActivated==True:
+            if LoggingActivated:
                 logging.info(f'{username} said: "{user_message}" (DM / {channel})')
         else:
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
-            if LoggingActivated==True:
+            if LoggingActivated:
                 logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
 
         # Pass the client object to handle_command
         response = await command_router.handle_command(client, message)
         if response:
             if message.guild is None:
-                if LoggingActivated==True:
+                if LoggingActivated:
                     logging.info(f'{client.user} said: "{response}" (DM / {channel})')
             else:
-                if LoggingActivated==True:
+                if LoggingActivated:
                     logging.info(f'{client.user} said: "{response}" ({message.guild.name} / {channel})')
             await message.channel.send(response)
 
