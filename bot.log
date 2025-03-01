@@ -1,0 +1,124 @@
+2025-03-01 15:28:32,278 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 15:28:32,283 - INFO - logging in using static token
+2025-03-01 15:28:33,384 - INFO - Shard ID None has connected to Gateway (Session ID: 36574999d72e463d4d606764f9f0f6ca).
+2025-03-01 15:28:35,397 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 15:30:49,499 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 15:30:49,512 - INFO - logging in using static token
+2025-03-01 15:30:50,666 - INFO - Shard ID None has connected to Gateway (Session ID: 42291ca60397ad32f159caf3559a6a22).
+2025-03-01 15:30:52,678 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:24:32,459 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:27:50,338 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:27:50,350 - INFO - logging in using static token
+2025-03-01 16:27:51,346 - INFO - Shard ID None has connected to Gateway (Session ID: 3b38d380c9e0205d236415d99d89352f).
+2025-03-01 16:27:53,368 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:28:41,057 - INFO - Displayed a cat fact.
+2025-03-01 16:36:23,215 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:36:23,230 - INFO - logging in using static token
+2025-03-01 16:36:24,373 - INFO - Shard ID None has connected to Gateway (Session ID: 87ffdf20435a07b48a88202236ce9c46).
+2025-03-01 16:36:26,394 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:36:26,746 - INFO - Slash commands synchronized.
+2025-03-01 16:39:57,403 - ERROR - Ignoring exception in command 'log'
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dplis\OneDrive\Dokumente\GitHub\Discord-Bot\src\internal\commands\system_commands.py", line 172, in log
+    if is_authorized(ctx.author):
+                     ^^^^^^^^^^
+AttributeError: 'Interaction' object has no attribute 'author'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'log' raised an exception: AttributeError: 'Interaction' object has no attribute 'author'
+2025-03-01 16:42:11,798 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:42:11,810 - INFO - logging in using static token
+2025-03-01 16:42:12,999 - INFO - Shard ID None has connected to Gateway (Session ID: ab7014c3b29b51e90bf1f3be1f10e767).
+2025-03-01 16:42:15,020 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:42:15,290 - INFO - Slash commands synchronized.
+2025-03-01 16:43:22,305 - INFO - Displayed a cat fact.
+2025-03-01 16:49:31,396 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:49:31,408 - INFO - logging in using static token
+2025-03-01 16:49:32,412 - INFO - Shard ID None has connected to Gateway (Session ID: 9c925640343d2ce276dc4e2c6fc9e4f6).
+2025-03-01 16:49:34,420 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:49:34,751 - INFO - Slash commands synchronized.
+2025-03-01 16:49:59,114 - ERROR - Ignoring exception in command 'logging'
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dplis\OneDrive\Dokumente\GitHub\Discord-Bot\src\internal\commands\system_commands.py", line 234, in logging
+    logging.info(f"System: Logging enabled by {interaction.user}")
+    ^^^^^^^^^^^^
+AttributeError: 'Command' object has no attribute 'info'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'logging' raised an exception: AttributeError: 'Command' object has no attribute 'info'
+2025-03-01 16:52:06,691 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:52:06,704 - INFO - logging in using static token
+2025-03-01 16:52:08,014 - INFO - Shard ID None has connected to Gateway (Session ID: 4252c66bd32e65459bda3ac201624c09).
+2025-03-01 16:52:10,039 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:52:11,732 - INFO - Slash commands synchronized.
+2025-03-01 16:52:28,723 - ERROR - Ignoring exception in command 'logging'
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dplis\OneDrive\Dokumente\GitHub\Discord-Bot\src\internal\commands\system_commands.py", line 234, in logging
+    log.info(f"System: Logging enabled by {interaction.user}")
+    ^^^^^^^^
+AttributeError: 'Command' object has no attribute 'info'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'logging' raised an exception: AttributeError: 'Command' object has no attribute 'info'
+2025-03-01 16:55:44,271 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-03-01 16:55:44,283 - INFO - logging in using static token
+2025-03-01 16:55:45,530 - INFO - Shard ID None has connected to Gateway (Session ID: 2c25ce1e259f5144d944d42abaeb686c).
+2025-03-01 16:55:47,548 - INFO - ✅ MCLP Bot#2020 is now running!
+2025-03-01 16:55:47,890 - INFO - Slash commands synchronized.
+2025-03-01 16:55:57,585 - ERROR - Ignoring exception in command 'logging'
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dplis\OneDrive\Dokumente\GitHub\Discord-Bot\src\internal\commands\system_commands.py", line 234, in logging
+    logging.info(f"System: Logging enabled by {interaction.user}")
+    ^^^^^^^^^^^^
+AttributeError: 'Command' object has no attribute 'info'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\dplis\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'logging' raised an exception: AttributeError: 'Command' object has no attribute 'info'

@@ -2,12 +2,10 @@ import logging
 from internal.commands.minigames import handle_minigames_commands
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.public_commands import handle_public_commands
-from internal.commands.system_commands import handle_system_commands
 from internal.commands.utility_commands import handle_utility_commands
 
 # Command handlers for each group
 command_handlers = {
-    'system': handle_system_commands,
     'moderation': handle_moderation_commands,
     'public': handle_public_commands,
     'utility': handle_utility_commands,
@@ -16,7 +14,6 @@ command_handlers = {
 
 # Command groups and their commands
 command_groups = {
-    'system': ['!shutdown', '!restart', '!full-shutdown', '!log', '!whitelist add', '!whitelist remove', '!logging'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'utility': ['!ping', '!uptime', '!weather', '!city', '!download', '!time'],
