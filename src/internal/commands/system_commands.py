@@ -156,8 +156,7 @@ def setup_system_commands(bot):
             else:
                 last_restart_time = current_time
                 await interaction.response.send_message("Restarting the bot...")
-                if LoggingActivated:
-                    log_.info(f"System: Restart command executed by: {interaction.user}")
+                log_.info(f"System: Restart command executed by: {interaction.user}")
                 os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(
@@ -170,17 +169,16 @@ def setup_system_commands(bot):
 
     @bot.tree.command(name="log", description="Get the latest log file")
     async def log(interaction: discord.Interaction):
+        channel = interaction.channel
         if is_authorized(interaction.user):
             log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
             if log_files:
                 latest_log_file = os.path.join(log_directory, log_files[-1])
                 await interaction.response.send_message(file=discord.File(latest_log_file))
-                if LoggingActivated:
-                    log_.info(f"System: Log file {latest_log_file} sent to {interaction.user}")
+                log_.info(f"System: Latest log file sent to {channel} for {interaction.user}")
             else:
                 await interaction.response.send_message("⚠️ No log files found.")
-                if LoggingActivated:
-                    log_.info(f"System: No log files found. User: {interaction.user}")
+                log_.info(f"System: No log files found. User: {interaction.user}")
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",
@@ -195,6 +193,7 @@ def setup_system_commands(bot):
         if is_authorized(interaction.user):
             if add_to_whitelist(user):
                 await interaction.response.send_message(f"✅ {user} has been added to the whitelist.")
+                log_.info(f"System: {user} has been added to whitelist by {interaction.user}")
             else:
                 await interaction.response.send_message(f"ℹ️ {user} is already in the whitelist.")
         else:
@@ -211,6 +210,7 @@ def setup_system_commands(bot):
         if is_authorized(interaction.user):
             if remove_from_whitelist(user):
                 await interaction.response.send_message(f"✅ {user} has been removed from the whitelist.")
+                log_.info(f"System: {user} has been removed from whitelist by {interaction.user}")
             else:
                 await interaction.response.send_message(f"ℹ️ {user} is not in the whitelist.")
         else:
@@ -239,6 +239,7 @@ def setup_system_commands(bot):
                 with open(config_file_path, 'w') as f:
                     json.dump(config, f, indent=4)
                 await interaction.response.send_message("✅ Logging has been disabled.")
+                log_.info(f"System: Logging disabled by {interaction.user}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`")
         else:
