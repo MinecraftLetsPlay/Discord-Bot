@@ -62,6 +62,12 @@ async def handle_utility_commands(client, message, user_message):
             async with session.get(base_url) as response:
                 return await response.json()
 
+    # Function to convert wind direction in degrees to compass direction
+    def wind_direction(degrees):
+        directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+        index = round(degrees / 22.5) % 16
+        return directions[index]
+
     # Handling the '!weather' command
     if user_message.startswith('!weather'):
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
@@ -79,6 +85,7 @@ async def handle_utility_commands(client, message, user_message):
             pressure = weather_data['main']['pressure']
             wind_speed = weather_data['wind']['speed']
             wind_deg = weather_data['wind']['deg']
+            wind_dir = wind_direction(wind_deg)  # Convert wind degrees to compass direction
 
             # Determine embed color based on weather description
             if 'clear' in description or 'sun' in description:
@@ -107,7 +114,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Description", value=description.capitalize(), inline=False)
             embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
             embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
-            embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}°", inline=False)
+            embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}° ({wind_dir})", inline=False)
 
             # Send the embed message
             await message.channel.send(embed=embed)
@@ -138,6 +145,13 @@ async def handle_utility_commands(client, message, user_message):
             sunrise_time = datetime.fromtimestamp(sunrise_unix, tz=timezone.utc).strftime('%H:%M:%S UTC')
             sunset_time = datetime.fromtimestamp(sunset_unix, tz=timezone.utc).strftime('%H:%M:%S UTC')
 
+            # Calculate the local time of the city
+            local_time = datetime.now(timezone.utc) + timedelta(seconds=timezone_offset)
+            local_time_formatted = local_time.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Get the local time of the user
+            user_local_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
             # Create the embed message
             embed = discord.Embed(title=f"Information for: {city_name}, {country}", color=discord.Color.blue())
             embed.add_field(name="City", value=city_name, inline=False)
@@ -147,6 +161,8 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Sea Level", value=f"{sea_level} m", inline=False)
             embed.add_field(name="Ground Level", value=f"{ground_level} m", inline=False)
             embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
+            embed.add_field(name="Local Time (City)", value=local_time_formatted, inline=False)
+            embed.add_field(name="Your Local Time", value=user_local_time, inline=False)
             embed.add_field(name="Sunrise", value=sunrise_time, inline=False)
             embed.add_field(name="Sunset", value=sunset_time, inline=False)
 
