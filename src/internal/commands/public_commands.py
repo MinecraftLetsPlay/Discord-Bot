@@ -34,8 +34,8 @@ async def handle_public_commands(client, message, user_message):
 
         # Create buttons
         view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="Creator's Github", url="https://github.com/creator"))
-        view.add_item(discord.ui.Button(label="Contributer's Github", url="https://github.com/contributer"))
+        view.add_item(discord.ui.Button(label="Creator's Github", url="https://github.com/MinecraftLetsPlay"))
+        view.add_item(discord.ui.Button(label="Contributer's Github", url="https://github.com/olittlefoxE"))
         view.add_item(discord.ui.Button(label="Discord.py API Wrapper", url="https://discordpy.readthedocs.io/en/stable/"))
 
         await message.channel.send(embed=embed, view=view)
