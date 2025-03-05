@@ -181,7 +181,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Sea Level", value=f"{sea_level} m", inline=False)
             embed.add_field(name="Ground Level", value=f"{ground_level} m", inline=False)
             embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
-            embed.add_field(name="Local Time (City)", value=local_time_formatted, inline=False)
+            embed.add_field(name="Local Date/Time (City)", value=local_time_formatted, inline=False)
             embed.add_field(name="Sunrise", value=sunrise_time, inline=False)
             embed.add_field(name="Sunset", value=sunset_time, inline=False)
 
