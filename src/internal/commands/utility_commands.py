@@ -250,10 +250,10 @@ async def handle_utility_commands(client, message, user_message):
 
             # Create the embed message
             embed = discord.Embed(title=f"Time in {city_name}, {country}", color=discord.Color.green())
-            embed.add_field(name="Local Time", value=local_time_formatted, inline=False)
+            embed.add_field(name="Local Date/Time", value=local_time_formatted, inline=False)
             embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
-            embed.add_field(name="UTC Time", value=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), inline=False)
-            embed.add_field(name="Your Time", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+            embed.add_field(name="UTC Date/Time", value=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+            embed.add_field(name="Your Date/Time", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
 
             # Send the embed message
             await message.channel.send(embed=embed)
