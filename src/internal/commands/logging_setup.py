@@ -17,16 +17,6 @@ if not os.path.exists(log_directory):
         print(f"Permission denied: {e}")
         sys.exit(1)
 
-# Function to rotate logs manually (if needed)
-def rotate_logs():
-    log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
-    if len(log_files) >= 10:
-        os.remove(os.path.join(log_directory, log_files[0]))
-        for i, log_file in enumerate(log_files[1:], start=1):
-            os.rename(os.path.join(log_directory, log_file), os.path.join(log_directory, f'log{i:02d}.txt'))
-
-rotate_logs()
-
 # Create a new log file with a timestamp
 timestamp = datetime.now().strftime("%d.%m.%Y %H.%M.%S")
 log_file = os.path.normpath(os.path.join(log_directory, f'log_{timestamp}.txt'))
