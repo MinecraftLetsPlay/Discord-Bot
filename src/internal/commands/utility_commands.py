@@ -19,6 +19,28 @@ load_dotenv()
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
 
+# Dictionary to map country codes to full country names
+country_names = {
+    
+    "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AD": "Andorra", "AO": "Angola", "AR": "Argentina", "AU": "Australia", "AT": "Austria", "BD": "Bangladesh", "BY": "Belarus",
+    
+    "BE": "Belgium", "BR": "Brazil", "BG": "Bulgaria", "CA": "Canada", "CN": "China", "CO": "Colombia", "HR": "Croatia", "CZ": "Czech Republic", "DK": "Denmark", "EG": "Egypt",
+    
+    "FI": "Finland", "FR": "France", "GE": "Georgia", "DE": "Germany", "GR": "Greece", "GL": "Greenland", "GT": "Guatemala", "HN": "Honduras", "HU": "Hungary", "IS": "Iceland",
+    
+    "IN": "India", "ID": "Indonesia", "IR": "Iran", "IQ": "Iraq", "IE": "Ireland", "IL": "Israel", "IT": "Italy", "JP": "Japan", "KZ": "Kazakhstan", "KE": "Kenya", "MY": "Malaysia",
+    
+    "MX": "Mexico", "NL": "Netherlands", "NZ": "New Zealand", "NO": "Norway", "PH": "Philippines", "PL": "Poland", "PT": "Portugal", "QA": "Qatar", "RO": "Romania", "RU": "Russia",
+    
+    "SA": "Saudi Arabia", "RS": "Serbia", "SG": "Singapore", "SK": "Slovakia", "SI": "Slovenia", "ZA": "South Africa", "KR": "South Korea", "ES": "Spain", "SE": "Sweden", 
+    
+    "CH": "Switzerland", "TH": "Thailand", "TR": "Turkey", "UA": "Ukraine", "AE": "United Arab Emirates", "GB": "United Kingdom", "US": "United States", "UZ": "Uzbekistan",
+    
+    "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe",
+    
+    # Add more country codes and names as needed
+}
+
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
 
@@ -76,13 +98,13 @@ async def handle_utility_commands(client, message, user_message):
         if weather_data and weather_data['cod'] == 200:
             # Extract data from the weather response
             city_name = weather_data['name']
-            country = weather_data['sys']['country']  # Country code
+            country = weather_data['sys']['country']
             temp = weather_data['main']['temp']
-            temp_min = weather_data['main']['temp_min']  # Minimum temperature
-            temp_max = weather_data['main']['temp_max']  # Maximum temperature
+            temp_min = weather_data['main']['temp_min']
+            temp_max = weather_data['main']['temp_max']
             description = weather_data['weather'][0]['description']
             humidity = weather_data['main']['humidity']
-            pressure = weather_data['main']['pressure']
+            pressure = weather_data['main']['pressure'] 
             wind_speed = weather_data['wind']['speed']
             wind_deg = weather_data['wind']['deg']
             wind_dir = wind_direction(wind_deg)  # Convert wind degrees to compass direction
@@ -131,7 +153,8 @@ async def handle_utility_commands(client, message, user_message):
         if weather_data and weather_data['cod'] == 200:
             # Extract data from the weather response
             city_name = weather_data['name']
-            country = weather_data['sys']['country']
+            country_code = weather_data['sys']['country']  # Country code
+            country = country_names.get(country_code, country_code)  # Get full country name or use code if not found
             coords = weather_data['coord']
             sea_level = weather_data['main'].get('sea_level', 'N/A')  # Use 'N/A' if sea_level is not provided
             ground_level = weather_data['main'].get('grnd_level', 'N/A')  # Use 'N/A' if grnd_level is not provided
@@ -149,9 +172,6 @@ async def handle_utility_commands(client, message, user_message):
             local_time = datetime.now(timezone.utc) + timedelta(seconds=timezone_offset)
             local_time_formatted = local_time.strftime('%Y-%m-%d %H:%M:%S')
 
-            # Get the local time of the user
-            user_local_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
             # Create the embed message
             embed = discord.Embed(title=f"Information for: {city_name}, {country}", color=discord.Color.blue())
             embed.add_field(name="City", value=city_name, inline=False)
@@ -162,7 +182,6 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Ground Level", value=f"{ground_level} m", inline=False)
             embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
             embed.add_field(name="Local Time (City)", value=local_time_formatted, inline=False)
-            embed.add_field(name="Your Local Time", value=user_local_time, inline=False)
             embed.add_field(name="Sunrise", value=sunrise_time, inline=False)
             embed.add_field(name="Sunset", value=sunset_time, inline=False)
 
@@ -219,7 +238,8 @@ async def handle_utility_commands(client, message, user_message):
         if weather_data and weather_data['cod'] == 200:
             # Extract data from the weather response
             city_name = weather_data['name']
-            country = weather_data['sys']['country']
+            country_code = weather_data['sys']['country']  # Country code
+            country = country_names.get(country_code, country_code)  # Get full country name or use code if not found
             timezone_offset = weather_data['timezone']
             timezone_offset_hours = timezone_offset / 3600  # Divide by 3600 to convert seconds to hours
             timezone_offset_formatted = f"{timezone_offset_hours:+.1f} hours"  # Add "+" for positive offsets
@@ -233,6 +253,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Local Time", value=local_time_formatted, inline=False)
             embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
             embed.add_field(name="UTC Time", value=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+            embed.add_field(name="Your Time", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
 
             # Send the embed message
             await message.channel.send(embed=embed)
