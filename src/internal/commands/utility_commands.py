@@ -76,7 +76,7 @@ async def handle_utility_commands(client, message, user_message):
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
 
         if not api_key:
-            logging.error("❌ API key is missing in the config.")
+            logging.error("❌ API key is missing.")
             return None
 
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"

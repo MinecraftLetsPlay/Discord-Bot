@@ -58,7 +58,7 @@ def is_authorized(user):
         whitelist = config.get("whitelist", [])
         return str(user) in whitelist
     except Exception as e:
-        log_.error(f"Error checking authorization: {e}")
+        log_.error(f"❌ Error checking authorization: {e}")
         return False
 
 def add_to_whitelist(user):
@@ -75,7 +75,7 @@ def add_to_whitelist(user):
             log_.info(f"{user} is already in the whitelist.")
             return False
     except Exception as e:
-        log_.error(f"Error adding to whitelist: {e}")
+        log_.error(f"❌ Error adding to whitelist: {e}")
         return False
 
 def remove_from_whitelist(user):
@@ -92,7 +92,7 @@ def remove_from_whitelist(user):
             log_.info(f"{user} is not in the whitelist.")
             return False
     except Exception as e:
-        log_.error(f"Error removing from whitelist: {e}")
+        log_.error(f"❌ Error removing from whitelist: {e}")
         return False
 
 # Setup system commands
