@@ -1,7 +1,12 @@
 import discord
 import asyncio
+import os
+from dotenv import load_dotenv
 
-TOKEN = "MTExMDkzMjg4MzY1MDExNzY0Mg.GKg69F.yRQ7DLKPW9e13dYrItd2tBAvOGIdKvSRUtXv8E"  # Replace with your bot token
+# Load environment variables from .env file
+load_dotenv()
+
+TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
