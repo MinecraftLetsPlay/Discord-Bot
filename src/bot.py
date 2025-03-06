@@ -40,6 +40,7 @@ def run_discord_bot():
         # Sync the slash commands with Discord
         await bot.tree.sync()
         logging.info('Slash commands synchronized.')
+        print()
 
     # Check for messages
     @bot.event
