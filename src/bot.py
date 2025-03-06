@@ -52,8 +52,6 @@ def run_discord_bot():
             return
         
         if message.guild is None:  # This means it's a DM
-            if LoggingActivated:
-                logging.info(f"📩 DM from {message.author}: {message.content}")
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
