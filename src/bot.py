@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from internal.commands import logging_setup
 import logging
+import nacl  # PyNaCl for voice support
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -23,13 +24,20 @@ def run_discord_bot():
 
     bot = commands.Bot(command_prefix='!', intents=intents)
 
+    # Print debug information
+    logging.debug(f"Discord.py version: {discord.__version__}")
+    logging.debug(f"PyNaCl version: {nacl.__version__}")
+    logging.debug(f"Application ID: {bot.application_id}")
+    logging.debug(f"Logging activated: {config.get('LoggingActivated', True)}")
+
     # Check for the bot to be ready
     @bot.event
     async def on_ready():
         logging.info(f'✅ {bot.user} is now running!')
-        # Set the bot's status to "listening to euren Befehlen zu"
+        # Set the bot's status to "hört euren Befehlen zu"
         activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
         await bot.change_presence(activity=activity)
+        logging.debug(f"Number of Servers: {len(bot.guilds)}")
         # Sync the slash commands with Discord
         await bot.tree.sync()
         logging.info('Slash commands synchronized.')
@@ -38,9 +46,9 @@ def run_discord_bot():
     @bot.event
     async def on_message(message):
         config = utils.load_config()
-        LoggingActivated = config.get("LoggingActivated", True)
+        LoggingActivated = config.get("LoggingActivated", True) # Check if logging is activated in the config file
         
-        if message.author == bot.user:
+        if message.author == bot.user: # Ignore messages from the bot itself
             return
         
         if message.guild is None:  # This means it's a DM
@@ -51,7 +59,7 @@ def run_discord_bot():
             channel = str(message.channel)
             if LoggingActivated:
                 logging.info(f'{username} said: "{user_message}" (DM / {channel})')
-        else:
+        else: # Server enviroment
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
