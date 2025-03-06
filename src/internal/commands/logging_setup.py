@@ -26,7 +26,7 @@ handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backup
 handler.suffix = "%d.%m.%Y %H.%M.%S"
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Set logging level to DEBUG
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         handler,
