@@ -19,7 +19,7 @@ def load_quiz(path='internal/data/quiz.json'):
         print(f"❌ Error loading quiz file: {e}")
         return {}
 
-# src/internal/utils.py
+# Get hangman data from ./data/hangman.json
 def load_hangman(path='internal/data/hangman.json'):
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     full_path = os.path.join(base_path, path)
@@ -30,10 +30,12 @@ def load_hangman(path='internal/data/hangman.json'):
         print(f"❌ Error loading hangman file: {e}")
         return {}
 
+# Get reaction role data from ./data/reactionrole.json
 def load_reaction_role_data():
     with open('src/internal/data/reactionrole.json', 'r') as f:
         return json.load(f)
 
+# Save reaction role data to ./data/reactionrole.json
 def save_reaction_role_data(data):
     with open('src/internal/data/reactionrole.json', 'w') as f:
         json.dump(data, f, indent=4)

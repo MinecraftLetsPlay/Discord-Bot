@@ -88,7 +88,7 @@ def run_discord_bot():
 
         if str(payload.message_id) == reaction_role_data["messageID"]:
             guild = bot.get_guild(int(reaction_role_data["guildID"]))
-            # Finde den passenden Rollen-Eintrag
+            # Find the matching role entry
             role_entry = next((role for role in reaction_role_data["roles"] if role["roleID"] and str(payload.emoji) == role["emoji"]), None)
         
             if role_entry:
@@ -110,7 +110,7 @@ def run_discord_bot():
 
         if str(payload.message_id) == reaction_role_data["messageID"]:
             guild = bot.get_guild(int(reaction_role_data["guildID"]))
-            # Finde den passenden Rollen-Eintrag
+            # Find the matching role entry
             role_entry = next((role for role in reaction_role_data["roles"] if role["roleID"] and str(payload.emoji) == role["emoji"]), None)
         
             if role_entry:
