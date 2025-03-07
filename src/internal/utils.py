@@ -29,3 +29,11 @@ def load_hangman(path='internal/data/hangman.json'):
     except Exception as e:
         print(f"❌ Error loading hangman file: {e}")
         return {}
+
+def load_reaction_role_data():
+    with open('src/internal/data/reactionrole.json', 'r') as f:
+        return json.load(f)
+
+def save_reaction_role_data(data):
+    with open('src/internal/data/reactionrole.json', 'w') as f:
+        json.dump(data, f, indent=4)

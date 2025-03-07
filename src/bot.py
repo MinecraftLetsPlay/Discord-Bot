@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
+from internal.commands.moderation_commands import handle_moderation_commands, on_raw_reaction_add, on_raw_reaction_remove
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -74,6 +75,15 @@ def run_discord_bot():
                 if LoggingActivated:
                     logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
             await message.channel.send(response)
+            
+    # Register event listeners for reaction roles
+    @bot.event
+    async def on_raw_reaction_add(payload):
+        await on_raw_reaction_add(bot, payload)
+
+    @bot.event
+    async def on_raw_reaction_remove(payload):
+        await on_raw_reaction_remove(bot, payload)
 
     # Load system commands
     from internal.commands.system_commands import setup_system_commands

@@ -1,6 +1,7 @@
 import discord
 from datetime import timedelta
 import logging
+import json
 from internal import utils
 
 #
@@ -240,8 +241,89 @@ async def handle_moderation_commands(client, message, user_message):
     # !reactionrole command
     if user_message.startswith('!reactionrole'):
         if is_authorized(message.author):
-            args = user_message.split(maxsplit=2)  # Split the command into parts
-            if len(args) < 2:
+            args = user_message.split(maxsplit=3)  # Split the command into parts
+            if len(args) < 4:
                 await message.channel.send("ℹ️ Usage: `!reactionrole <message_id> <emoji> <role_id>`")
                 return
-            
+
+            message_id = args[1]
+            emoji = args[2]
+            role_id = args[3]
+
+            try:
+                # Fetch the message
+                channel = message.channel
+                target_message = await channel.fetch_message(message_id)
+
+                # React to the message with the specified emoji
+                await target_message.add_reaction(emoji)
+
+                # Load the existing reaction role data
+                reaction_role_data = utils.load_reaction_role_data()
+
+                # Update the reaction role data
+                reaction_role_data["messageID"] = message_id
+                reaction_role_data["channelID"] = str(channel.id)
+                reaction_role_data["guildID"] = str(message.guild.id)
+                reaction_role_data["roles"].append({
+                    "emoji": emoji,
+                    "roleID": role_id
+                })
+
+                # Save the updated reaction role data
+                utils.save_reaction_role_data(reaction_role_data)
+
+                await message.channel.send(f"✅ Reaction role set up successfully for message ID {message_id} with emoji {emoji} and role ID {role_id}.")
+                logging.info(f"✅ Reaction role set up successfully for message ID {message_id} with emoji {emoji} and role ID {role_id} by {message.author}.")
+            except discord.NotFound:
+                await message.channel.send("❌ Message not found. Please provide a valid message ID.")
+                logging.error("❌ Message not found for reaction role setup.")
+            except discord.Forbidden:
+                await message.channel.send("⚠️ I don't have permission to add reactions. Please check my role permissions.")
+                logging.warning("⚠️ Permission denied for adding reaction.")
+            except Exception as e:
+                await message.channel.send("❌ An error occurred while setting up the reaction role.")
+                logging.error(f"❌ Error setting up reaction role: {e}")
+        else:
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{message.author.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await message.channel.send(embed=embed)
+            logging.warning(f"❌ Permission denied for reaction role command by {message.author}.")
+
+# Event listener for reaction add
+async def on_raw_reaction_add(client, payload):
+    if payload.user_id == client.user.id:
+        return
+
+    # Load the reaction role data
+    reaction_role_data = utils.load_reaction_role_data()
+
+    if str(payload.message_id) == reaction_role_data["messageID"]:
+        guild = client.get_guild(int(reaction_role_data["guildID"]))
+        role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
+        member = guild.get_member(payload.user_id)
+
+        if role and member:
+            await member.add_roles(role)
+            logging.info(f"✅ Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
+
+# Event listener for reaction remove
+async def on_raw_reaction_remove(client, payload):
+    if payload.user_id == client.user.id:
+        return
+
+    # Load the reaction role data
+    reaction_role_data = utils.load_reaction_role_data()
+
+    if str(payload.message_id) == reaction_role_data["messageID"]:
+        guild = client.get_guild(int(reaction_role_data["guildID"]))
+        role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
+        member = guild.get_member(payload.user_id)
+
+        if role and member:
+            await member.remove_roles(role)
+            logging.info(f"✅ Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
+
