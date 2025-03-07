@@ -236,3 +236,12 @@ async def handle_moderation_commands(client, message, user_message):
             )
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for untimeout command by {message.author}.")
+            
+    # !reactionrole command
+    if user_message.startswith('!reactionrole'):
+        if is_authorized(message.author):
+            args = user_message.split(maxsplit=2)  # Split the command into parts
+            if len(args) < 2:
+                await message.channel.send("ℹ️ Usage: `!reactionrole <message_id> <emoji> <role_id>`")
+                return
+            

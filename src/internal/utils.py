@@ -2,14 +2,14 @@ import json
 import os
 
 # Get config from ./data/config.json
-def load_config(path='internal/data/config.jsonc'):
+def load_config(path='internal/data/config.json'):
     base_path = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_path, '..', path)
     with open(full_path, 'r') as file:
         return json.load(file)
 
 # Get quiz data from ./data/quiz.jsonc
-def load_quiz(path='internal/data/quiz.jsonc'):
+def load_quiz(path='internal/data/quiz.json'):
     base_path = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_path, '..', path)
     try:
@@ -20,7 +20,7 @@ def load_quiz(path='internal/data/quiz.jsonc'):
         return {}
 
 # src/internal/utils.py
-def load_hangman(path='internal/data/hangman.jsonc'):
+def load_hangman(path='internal/data/hangman.json'):
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     full_path = os.path.join(base_path, path)
     try:
