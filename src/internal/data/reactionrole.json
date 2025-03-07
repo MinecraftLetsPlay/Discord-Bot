@@ -1,11 +1,6 @@
 {
-    "messageID": "1347646612750733353",
-    "channelID": "1331341040673751124",
-    "guildID": "952525019500646462",
-    "roles": [
-        {
-            "emoji": "\u2764\ufe0f",
-            "roleID": "1347646759165235280"
-        }
-    ]
+    "messageID": "",
+    "channelID": "",
+    "guildID": "",
+    "roles": []
 }
