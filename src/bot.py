@@ -88,12 +88,16 @@ def run_discord_bot():
 
         if str(payload.message_id) == reaction_role_data["messageID"]:
             guild = bot.get_guild(int(reaction_role_data["guildID"]))
-            role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
-            member = guild.get_member(payload.user_id)
+            # Finde den passenden Rollen-Eintrag
+            role_entry = next((role for role in reaction_role_data["roles"] if role["roleID"] and str(payload.emoji) == role["emoji"]), None)
+        
+            if role_entry:
+                role = guild.get_role(int(role_entry["roleID"]))
+                member = guild.get_member(payload.user_id)
 
-            if role and member:
-                await member.add_roles(role)
-                logging.info(f"✅ Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
+                if role and member:
+                    await member.add_roles(role)
+                    logging.info(f"✅ Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
 
     @bot.event
     async def on_raw_reaction_remove(payload):
@@ -106,12 +110,16 @@ def run_discord_bot():
 
         if str(payload.message_id) == reaction_role_data["messageID"]:
             guild = bot.get_guild(int(reaction_role_data["guildID"]))
-            role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
-            member = guild.get_member(payload.user_id)
+            # Finde den passenden Rollen-Eintrag
+            role_entry = next((role for role in reaction_role_data["roles"] if role["roleID"] and str(payload.emoji) == role["emoji"]), None)
+        
+            if role_entry:
+                role = guild.get_role(int(role_entry["roleID"]))
+                member = guild.get_member(payload.user_id)
 
-            if role and member:
-                await member.remove_roles(role)
-                logging.info(f"✅ Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
+                if role and member:
+                    await member.remove_roles(role)
+                    logging.info(f"✅ Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
 
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
