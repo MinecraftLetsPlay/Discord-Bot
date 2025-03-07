@@ -23,7 +23,7 @@ command_groups = {
 # Commands that cannot be executed in a DM
 no_dm_commands = [
     '!kick', '!ban', '!unban', '!timeout', '!untimeout',
-    '!userinfo', '!rules', '!serverinfo', '!reactionrole'
+    '!userinfo', '!rules', '!serverinfo', '!reactionrole',
     '!whitelist add', '!whitelist remove'
 ]
 
