@@ -242,6 +242,42 @@ async def handle_moderation_commands(client, message, user_message):
     if user_message.startswith('!reactionrole'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)  # Split the command into parts
+            
+            # Check for clear command
+            if len(args) == 2 and args[1].lower() == "clear":
+                try:
+                    # Load the existing reaction role data
+                    reaction_role_data = utils.load_reaction_role_data()
+                    
+                    if "messageID" in reaction_role_data:
+                        # Get the message and remove all reactions
+                        try:
+                            channel = client.get_channel(int(reaction_role_data["channelID"]))
+                            if channel:
+                                message = await channel.fetch_message(int(reaction_role_data["messageID"]))
+                                await message.clear_reactions()
+                        except:
+                            logging.warning("Could not clear reactions from the message.")
+
+                    # Reset reaction role data
+                    reaction_role_data = {
+                        "messageID": "",
+                        "channelID": "",
+                        "guildID": "",
+                        "roles": []
+                    }
+                    
+                    # Save the cleared data
+                    utils.save_reaction_role_data(reaction_role_data)
+                    
+                    await message.channel.send("✅ All reaction roles have been cleared.")
+                    logging.info(f"✅ Reaction roles cleared by {message.author}.")
+                    return
+                except Exception as e:
+                    await message.channel.send("❌ An error occurred while clearing reaction roles.")
+                    logging.error(f"❌ Error clearing reaction roles: {e}")
+                    return
+                
             if len(args) < 4:
                 await message.channel.send("ℹ️ Usage: `!reactionrole <message_id> <emoji> <role_id>`")
                 return
