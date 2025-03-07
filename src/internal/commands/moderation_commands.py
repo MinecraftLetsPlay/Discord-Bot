@@ -293,37 +293,3 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for reaction role command by {message.author}.")
 
-# Event listener for reaction add
-async def on_raw_reaction_add(client, payload):
-    if payload.user_id == client.user.id:
-        return
-
-    # Load the reaction role data
-    reaction_role_data = utils.load_reaction_role_data()
-
-    if str(payload.message_id) == reaction_role_data["messageID"]:
-        guild = client.get_guild(int(reaction_role_data["guildID"]))
-        role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
-        member = guild.get_member(payload.user_id)
-
-        if role and member:
-            await member.add_roles(role)
-            logging.info(f"✅ Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
-
-# Event listener for reaction remove
-async def on_raw_reaction_remove(client, payload):
-    if payload.user_id == client.user.id:
-        return
-
-    # Load the reaction role data
-    reaction_role_data = utils.load_reaction_role_data()
-
-    if str(payload.message_id) == reaction_role_data["messageID"]:
-        guild = client.get_guild(int(reaction_role_data["guildID"]))
-        role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
-        member = guild.get_member(payload.user_id)
-
-        if role and member:
-            await member.remove_roles(role)
-            logging.info(f"✅ Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
-

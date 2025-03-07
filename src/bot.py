@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
-from internal.commands.moderation_commands import handle_moderation_commands, on_raw_reaction_add, on_raw_reaction_remove
+from internal.commands.moderation_commands import handle_moderation_commands
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -79,11 +79,39 @@ def run_discord_bot():
     # Register event listeners for reaction roles
     @bot.event
     async def on_raw_reaction_add(payload):
-        await on_raw_reaction_add(bot, payload)
+        # Ignore reactions from the bot itself
+        if payload.user_id == bot.user.id:
+            return
+
+        # Load the reaction role data
+        reaction_role_data = utils.load_reaction_role_data()
+
+        if str(payload.message_id) == reaction_role_data["messageID"]:
+            guild = bot.get_guild(int(reaction_role_data["guildID"]))
+            role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
+            member = guild.get_member(payload.user_id)
+
+            if role and member:
+                await member.add_roles(role)
+                logging.info(f"✅ Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
 
     @bot.event
     async def on_raw_reaction_remove(payload):
-        await on_raw_reaction_remove(bot, payload)
+        # Ignore reactions from the bot itself
+        if payload.user_id == bot.user.id:
+            return
+
+        # Load the reaction role data
+        reaction_role_data = utils.load_reaction_role_data()
+
+        if str(payload.message_id) == reaction_role_data["messageID"]:
+            guild = bot.get_guild(int(reaction_role_data["guildID"]))
+            role = guild.get_role(int(reaction_role_data["roles"][0]["roleID"]))
+            member = guild.get_member(payload.user_id)
+
+            if role and member:
+                await member.remove_roles(role)
+                logging.info(f"✅ Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
 
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
