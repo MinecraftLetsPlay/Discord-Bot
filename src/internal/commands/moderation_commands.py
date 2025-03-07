@@ -274,7 +274,7 @@ async def handle_moderation_commands(client, message, user_message):
                 utils.save_reaction_role_data(reaction_role_data)
 
                 await message.channel.send(f"✅ Reaction role set up successfully for message ID {message_id} with emoji {emoji} and role ID {role_id}.")
-                logging.info(f"✅ Reaction role set up successfully for message ID {message_id} with emoji {emoji} and role ID {role_id} by {message.author}.")
+                logging.info(f"✅ Reaction role set up successfully for message ID {message_id} with emoji {emoji}    and role ID {role_id} by {message.author}.")
             except discord.NotFound:
                 await message.channel.send("❌ Message not found. Please provide a valid message ID.")
                 logging.error("❌ Message not found for reaction role setup.")
