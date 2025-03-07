@@ -97,7 +97,7 @@ def run_discord_bot():
 
                 if role and member:
                     await member.add_roles(role)
-                    logging.info(f"✅ Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
+                    logging.info(f"Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
 
     @bot.event
     async def on_raw_reaction_remove(payload):
@@ -119,7 +119,7 @@ def run_discord_bot():
 
                 if role and member:
                     await member.remove_roles(role)
-                    logging.info(f"✅ Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
+                    logging.info(f"Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
 
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
