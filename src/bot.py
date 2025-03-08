@@ -25,8 +25,26 @@ def run_discord_bot():
     intents.members = True
     intents.presences = True
     intents.voice_states = True  # Wichtig für Musik-Bot
+    
+    class CustomBot(commands.Bot):
+        async def setup_hook(self) -> None:
+            """Called when the bot is starting up"""
+            try:
+                # Create Lavalink node
+                node: wavelink.Node = wavelink.Node(
+                    uri='http://127.0.0.1:2333',
+                    password='youshallnotpass'
+                )
+                await wavelink.NodePool.connect(
+                    client=self,
+                    nodes=[node]
+                )
+                await self.load_extension("internal.commands.musicbot")
+                logging.info("✅ Music extension loaded successfully")
+            except Exception as e:
+                logging.error(f"❌ Error setting up music: {e}")
 
-    bot = commands.Bot(command_prefix='!', intents=intents)
+    bot = CustomBot(command_prefix='!', intents=intents)
 
     # Check for the bot to be ready
     @bot.event
@@ -131,9 +149,5 @@ def run_discord_bot():
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
     setup_system_commands(bot)
-
-    # Load music bot
-    from internal.commands.musicbot import setup
-    setup(bot)
 
     bot.run(TOKEN)

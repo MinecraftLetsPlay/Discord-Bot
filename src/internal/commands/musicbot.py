@@ -7,6 +7,18 @@ class MusicBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.lavalink_online = False
+        
+    @commands.Cog.listener()
+    async def on_wavelink_node_ready(self, node: wavelink.Node):
+        """Event fired when a node has finished connecting"""
+        self.bot.lavalink_online = True
+        logging.info(f"✅ Wavelink node '{node.identifier}' is ready!")
+
+    @commands.Cog.listener()
+    async def on_wavelink_node_disconnect(self, node: wavelink.Node):
+        """Event fired when a node disconnects"""
+        self.bot.lavalink_online = False
+        logging.warning(f"⚠️ Wavelink node '{node.identifier}' disconnected!")
 
     # Connect to the Lavalink nodes
     async def cog_load(self): 
