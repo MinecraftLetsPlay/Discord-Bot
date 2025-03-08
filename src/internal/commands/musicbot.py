@@ -56,7 +56,6 @@ class MusicBot(commands.Cog):
             await ctx.send(f"Error disconnecting: {str(e)}")
             logging.error(f"Error disconnecting: {e}")
 
-    # Play a song with the given search query
     @commands.command()
     async def play(self, ctx, *, search: str):
         """Play a song with the given search query."""
@@ -79,17 +78,17 @@ class MusicBot(commands.Cog):
                     album_id = search.split('/album/')[1].split('?')[0]
                     search = f"spotify:album:{album_id}"
             else:
-                # Normale Spotify-Suche
+                # Direkte Spotify-Suche ohne YouTube
                 search = f"spotify:search:{search}"
         
             # Suche nach dem Track
             try:
-                tracks = await wavelink.Playable.search(search)
+                tracks = await wavelink.Playable.search(search, source="spotify")
             
                 if not tracks:
                     await searching_msg.edit(content="❌ Keine Tracks in Spotify gefunden.")
                     return
-                
+            
                 track = tracks[0]
                 await ctx.voice_client.play(track)
             
