@@ -27,16 +27,7 @@ def run_discord_bot():
 
     bot = commands.Bot(command_prefix='!', intents=intents)
     
-    # Load modules before starting the bot
-    @bot.event
-    async def setup_hook():
-        """This is called when the bot is starting up"""
-        try:
-            # Load music bot
-            await bot.load_extension("internal.commands.musicbot")
-            logging.info("✅ Music extension loaded successfully")
-        except Exception as e:
-            logging.error(f"❌ Error loading music extension: {e}")
+    
 
     # Check for the bot to be ready
     @bot.event
@@ -54,6 +45,17 @@ def run_discord_bot():
         # Set the bot's status to "hört euren Befehlen zu"
         activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
         await bot.change_presence(activity=activity)
+        
+    # Load modules before starting the bot
+    @bot.event
+    async def setup_hook():
+        """This is called when the bot is starting up"""
+        try:
+            # Load music bot
+            await bot.load_extension("internal.commands.musicbot")
+            logging.info("✅ Music extension loaded successfully")
+        except Exception as e:
+            logging.error(f"❌ Error loading music extension: {e}")
 
     # Check for messages
     @bot.event
