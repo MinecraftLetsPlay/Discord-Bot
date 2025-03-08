@@ -35,7 +35,7 @@ def run_discord_bot():
                     uri='http://127.0.0.1:2333',
                     password='youshallnotpass'
                 )
-                await wavelink.NodePool.connect(
+                await wavelink.Pool.connect(  # Changed from NodePool to Pool
                     client=self,
                     nodes=[node]
                 )
