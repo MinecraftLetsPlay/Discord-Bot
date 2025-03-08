@@ -26,24 +26,24 @@ class MusicBot(commands.Cog):
         try:
             if not channel:
                 if not ctx.author.voice:
-                    await ctx.send("Du bist in keinem Voice-Channel!")
+                    await ctx.send("You are not connected to a voice channel.")
                     return
                 channel = ctx.author.voice.channel
 
             # Prüfe, ob der Bot bereits in einem Voice-Channel ist
             if ctx.voice_client:
                 if ctx.voice_client.channel.id == channel.id:
-                    await ctx.send(f"Ich bin bereits in {channel.name}!")
+                    await ctx.send(f"I am already connected to {channel.name}!")
                     return
                 await ctx.voice_client.disconnect()
 
             # Verbinde mit dem Voice-Channel
             await channel.connect(cls=wavelink.Player)
-            await ctx.send(f"Verbunden mit {channel.name}!")
+            await ctx.send(f"Connected to {channel.name}!")
             
         except Exception as e:
-            logging.error(f"Fehler beim Verbinden mit Voice-Channel: {e}")
-            await ctx.send(f"❌ Fehler beim Verbinden mit dem Voice-Channel: {str(e)}")
+            logging.error(f"Error connecting to voice channel: {e}")
+            await ctx.send(f"❌ Error connecting to voice channel: {e}")
 
     # Disconnect from a voice channel
     @commands.command()
@@ -61,11 +61,11 @@ class MusicBot(commands.Cog):
     async def play(self, ctx, *, search: str):
         """Play a song with the given search query."""
         if not ctx.voice_client:
-            await ctx.invoke(self.join)
+            await ctx.invoke(self.join_command)
 
         try:
-            # Search for the track
-            tracks = await wavelink.YouTubeTrack.search(query=search)
+            # Search for the track using the new API
+            tracks = await wavelink.Playable.search(search)
             if not tracks:
                 await ctx.send("No tracks found.")
                 return
