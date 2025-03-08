@@ -96,6 +96,12 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("ℹ️ Usage: `!music <command> [arguments]`")
             return
 
+        # Prüfe zuerst ob Lavalink verfügbar ist
+        if not getattr(client, 'lavalink_available', False):
+            await message.channel.send("⚠️ Music system is not available right now.")
+            logging.warning("Music command attempted but Lavalink is not available")
+            return
+
         music_cog = client.get_cog('MusicBot')
         if not music_cog:
             await message.channel.send("⚠️ Music system is not available right now.")

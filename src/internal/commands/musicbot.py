@@ -64,18 +64,37 @@ class MusicBot(commands.Cog):
             await ctx.invoke(self.join_command)
 
         try:
-            # Search for the track using the new API
-            tracks = await wavelink.Playable.search(search)
+            # Prüfe ob es ein Spotify-Link ist
+            if "spotify.com" in search:
+                # Spotify-Links direkt verwenden
+                tracks = await wavelink.Playable.search(search)
+            else:
+                # Suche in Spotify
+                tracks = await wavelink.Playable.search(f"spsearch:{search}")
+            
             if not tracks:
-                await ctx.send("No tracks found.")
+                await ctx.send("❌ Keine Tracks gefunden.")
                 return
 
             track = tracks[0]
             await ctx.voice_client.play(track)
-            await ctx.send(f"Now playing: {track.title}")
+        
+            # Erstelle ein schönes Embed für den aktuellen Song
+            embed = discord.Embed(
+                title="🎵 Jetzt spielt",
+                description=f"**{track.title}**",
+                color=discord.Color.green()
+            )
+            if hasattr(track, 'artwork'):
+                embed.set_thumbnail(url=track.artwork)
+                embed.add_field(name="Künstler", value=track.author, inline=True)
+                embed.add_field(name="Dauer", value=f"{int(track.length/60000)}:{int((track.length/1000)%60):02d}", inline=True)
+        
+            await ctx.send(embed=embed)
+        
         except Exception as e:
-            await ctx.send(f"Error playing track: {str(e)}")
-            logging.error(f"Error playing track: {e}")
+            await ctx.send(f"❌ Fehler beim Abspielen: {str(e)}")
+            logging.error(f"Fehler beim Abspielen: {e}")
 
     # Stop the current song
     @commands.command()

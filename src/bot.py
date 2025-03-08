@@ -31,18 +31,21 @@ def run_discord_bot():
             """Called when the bot is starting up"""
             try:
                 # Create Lavalink node
-                node: wavelink.Node = wavelink.Node(
+                node = wavelink.Node(
                     uri='http://127.0.0.1:2333',
                     password='youshallnotpass'
                 )
-                await wavelink.Pool.connect(  # Changed from NodePool to Pool
-                    client=self,
+                await wavelink.NodePool.connect(
+                    bot=self,
                     nodes=[node]
                 )
                 await self.load_extension("internal.commands.musicbot")
                 logging.info("✅ Music extension loaded successfully")
+                self.lavalink_available = True
             except Exception as e:
                 logging.error(f"❌ Error setting up music: {e}")
+                self.lavalink_available = False
+                # Bot startet trotzdem weiter
 
     bot = CustomBot(command_prefix='!', intents=intents)
 
