@@ -30,14 +30,14 @@ class MusicBot(commands.Cog):
                     return
                 channel = ctx.author.voice.channel
 
-            # Prüfe, ob der Bot bereits in einem Voice-Channel ist
+            # Check if the bot is already in a voice channel
             if ctx.voice_client:
                 if ctx.voice_client.channel.id == channel.id:
                     await ctx.send(f"I am already connected to {channel.name}!")
                     return
                 await ctx.voice_client.disconnect()
 
-            # Verbinde mit dem Voice-Channel
+            # Connect to the voice channel
             await channel.connect(cls=wavelink.Player)
             await ctx.send(f"Connected to {channel.name}!")
             
@@ -45,7 +45,6 @@ class MusicBot(commands.Cog):
             logging.error(f"Error connecting to voice channel: {e}")
             await ctx.send(f"❌ Error connecting to voice channel: {e}")
 
-    # Disconnect from a voice channel
     @commands.command()
     async def disconnect(self, ctx):
         """Disconnect from a voice channel."""
@@ -63,11 +62,12 @@ class MusicBot(commands.Cog):
             await ctx.invoke(self.join_command)
 
         try:
-            # Temporäre Nachricht während der Suche
-            searching_msg = await ctx.send("🔍 Searching in Spotify...")
+            # Temporary message while searching
+            searching_msg = await ctx.send("🔍 Searching for track...")
 
-            # Prüfe ob es ein Spotify-Link ist
+            # Check if it's a Spotify link
             if "spotify.com" in search:
+                # Extract track ID from Spotify URL
                 if "/track/" in search:
                     track_id = search.split('/track/')[1].split('?')[0]
                     search = f"spotify:track:{track_id}"
@@ -78,35 +78,42 @@ class MusicBot(commands.Cog):
                     album_id = search.split('/album/')[1].split('?')[0]
                     search = f"spotify:album:{album_id}"
             else:
-                # Direkte Spotify-Suche ohne YouTube
+                # Normal Spotify search
                 search = f"spotify:search:{search}"
             
-            # Suche nach dem Track
+            # Remove any duplicate "spotify:" prefix
+            search = search.replace("spotify:spotify:", "spotify:")
+
+            # Search for the track
             tracks = await wavelink.Playable.search(search, source="spotify")
-                
+            
             if not tracks:
-                await searching_msg.edit(content="❌ No tracks found in Spotify.")
+                await searching_msg.edit(content="❌ No tracks found on Spotify.")
                 return
-                
+
             track = tracks[0]
             await ctx.voice_client.play(track)
-            
-            # Erstelle ein schönes Embed für den aktuellen Song
+
+            # Create a nice embed for the current song
             embed = discord.Embed(
                 title="🎵 Now playing (Spotify)",
                 description=f"**{track.title}**",
                 color=discord.Color.green()
             )
             
+            # Add artwork if available
             if hasattr(track, 'artwork') and track.artwork:
                 embed.set_thumbnail(url=track.artwork)
-            if hasattr(track, 'author'):
+            
+            # Add metadata
+            if hasattr(track, 'author') and track.author:
                 embed.add_field(name="Artist", value=track.author, inline=True)
             if hasattr(track, 'length'):
-                minutes = int(track.length/60000)
-                seconds = int((track.length/1000)%60)
+                minutes = int(track.length / 60000)
+                seconds = int((track.length / 1000) % 60)
                 embed.add_field(name="Duration", value=f"{minutes}:{seconds:02d}", inline=True)
             
+            # Delete the search message and send the embed
             await searching_msg.delete()
             await ctx.send(embed=embed)
             
@@ -114,7 +121,6 @@ class MusicBot(commands.Cog):
             await ctx.send(f"❌ General error: {str(e)}")
             logging.error(f"General error: {e}")
 
-    # Stop the current song
     @commands.command()
     async def stop(self, ctx):
         """Stop the current song."""
@@ -125,7 +131,6 @@ class MusicBot(commands.Cog):
             await ctx.send(f"Error stopping track: {str(e)}")
             logging.error(f"Error stopping track: {e}")
 
-    # Skip the current song
     @commands.command()
     async def skip(self, ctx):
         """Skip the current song."""
@@ -136,7 +141,6 @@ class MusicBot(commands.Cog):
             await ctx.send(f"Error skipping track: {str(e)}")
             logging.error(f"Error skipping track: {e}")
 
-    # Show the current queue
     @commands.command()
     async def queue(self, ctx):
         """Show the current queue."""
