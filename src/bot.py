@@ -1,9 +1,9 @@
 import discord
+import os
+from dotenv import load_dotenv
 from discord.ext import commands
 from internal import utils
 from internal import command_router
-import os
-from dotenv import load_dotenv
 from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
@@ -132,7 +132,7 @@ def run_discord_bot():
     setup_system_commands(bot)
 
     # Load music bot
-    from internal.musicbot import setup
+    from internal.commands.musicbot import setup
     setup(bot)
 
     bot.run(TOKEN)

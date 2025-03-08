@@ -1,4 +1,4 @@
-import bot
+import bot as bot
 import logging
 import sys
 
