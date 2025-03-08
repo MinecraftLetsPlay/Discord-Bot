@@ -1,5 +1,6 @@
 import discord
 import os
+import asyncio
 from dotenv import load_dotenv
 from discord.ext import commands
 from internal import utils
@@ -35,17 +36,22 @@ def run_discord_bot():
                     uri='http://127.0.0.1:2333',
                     password='youshallnotpass'
                 )
-                await wavelink.NodePool.connect(
-                    bot=self,
-                    nodes=[node]
-                )
-                await self.load_extension("internal.commands.musicbot")
-                logging.info("✅ Music extension loaded successfully")
-                self.lavalink_available = True
+                try:
+                    # Versuch die Verbindung mit einem Timeout von 5 Sekunden herzustellen
+                    async with asyncio.timeout(5):
+                        await wavelink.Pool.connect(
+                            client=self,
+                            nodes=[node]
+                        )
+                    await self.load_extension("internal.commands.musicbot")
+                    logging.info("✅ Music extension loaded successfully")
+                    self.lavalink_available = True
+                except (asyncio.TimeoutError, ConnectionRefusedError):
+                    logging.warning("⚠️ Could not connect to Lavalink - continuing without music functionality")
+                    self.lavalink_available = False
             except Exception as e:
                 logging.error(f"❌ Error setting up music: {e}")
                 self.lavalink_available = False
-                # Bot startet trotzdem weiter
 
     bot = CustomBot(command_prefix='!', intents=intents)
 
