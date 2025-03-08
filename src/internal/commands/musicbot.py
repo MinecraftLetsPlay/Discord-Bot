@@ -66,58 +66,50 @@ class MusicBot(commands.Cog):
             # Temporäre Nachricht während der Suche
             searching_msg = await ctx.send("🔍 Suche in Spotify...")
 
-            try:
-                # Prüfe ob es ein Spotify-Link ist
-                if "spotify.com" in search:
-                    if "/track/" in search:
-                        track_id = search.split('/track/')[1].split('?')[0]
-                        search = f"spotify:track:{track_id}"
-                    elif "/playlist/" in search:
-                        playlist_id = search.split('/playlist/')[1].split('?')[0]
-                        search = f"spotify:playlist:{playlist_id}"
-                    elif "/album/" in search:
-                        album_id = search.split('/album/')[1].split('?')[0]
-                        search = f"spotify:album:{album_id}"
-                else:
-                    # Normale Suche ohne doppelten Prefix
-                    search = f"spsearch:{search}"
-
-                # Debug-Log
-                logging.debug(f"Suche mit Query: {search}")
+            # Prüfe ob es ein Spotify-Link ist
+            if "spotify.com" in search:
+                if "/track/" in search:
+                    track_id = search.split('/track/')[1].split('?')[0]
+                    search = f"spotify:track:{track_id}"
+                elif "/playlist/" in search:
+                    playlist_id = search.split('/playlist/')[1].split('?')[0]
+                    search = f"spotify:playlist:{playlist_id}"
+                elif "/album/" in search:
+                    album_id = search.split('/album/')[1].split('?')[0]
+                    search = f"spotify:album:{album_id}"
+            else:
+                # Direkte Spotify-Suche ohne YouTube
+                search = f"spotify:search:{search}"
+            
+            # Suche nach dem Track
+            tracks = await wavelink.Playable.search(search, source="spotify")
                 
-                # Suche nach dem Track
-                tracks = await wavelink.Playable.search(search)
+            if not tracks:
+                await searching_msg.edit(content="❌ Keine Tracks in Spotify gefunden.")
+                return
                 
-                if not tracks:
-                    await searching_msg.edit(content="❌ Keine Tracks in Spotify gefunden.")
-                    return
-                    
-                track = tracks[0]
-                await ctx.voice_client.play(track)
-                
-                # Erstelle ein schönes Embed für den aktuellen Song
-                embed = discord.Embed(
-                    title="🎵 Jetzt spielt (Spotify)",
-                    description=f"**{track.title}**",
-                    color=discord.Color.green()
-                )
-                
-                if hasattr(track, 'artwork') and track.artwork:
-                    embed.set_thumbnail(url=track.artwork)
-                if hasattr(track, 'author'):
-                    embed.add_field(name="Künstler", value=track.author, inline=True)
-                if hasattr(track, 'length'):
-                    minutes = int(track.length/60000)
-                    seconds = int((track.length/1000)%60)
-                    embed.add_field(name="Dauer", value=f"{minutes}:{seconds:02d}", inline=True)
-                
-                await searching_msg.delete()
-                await ctx.send(embed=embed)
-                
-            except Exception as e:
-                await searching_msg.edit(content=f"❌ Spotify-Suchfehler: {str(e)}")
-                logging.error(f"Spotify-Suchfehler: {e}")
-                
+            track = tracks[0]
+            await ctx.voice_client.play(track)
+            
+            # Erstelle ein schönes Embed für den aktuellen Song
+            embed = discord.Embed(
+                title="🎵 Jetzt spielt (Spotify)",
+                description=f"**{track.title}**",
+                color=discord.Color.green()
+            )
+            
+            if hasattr(track, 'artwork') and track.artwork:
+                embed.set_thumbnail(url=track.artwork)
+            if hasattr(track, 'author'):
+                embed.add_field(name="Künstler", value=track.author, inline=True)
+            if hasattr(track, 'length'):
+                minutes = int(track.length/60000)
+                seconds = int((track.length/1000)%60)
+                embed.add_field(name="Dauer", value=f"{minutes}:{seconds:02d}", inline=True)
+            
+            await searching_msg.delete()
+            await ctx.send(embed=embed)
+            
         except Exception as e:
             await ctx.send(f"❌ Allgemeiner Fehler: {str(e)}")
             logging.error(f"Allgemeiner Fehler: {e}")
