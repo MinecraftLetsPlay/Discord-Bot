@@ -1,5 +1,6 @@
 import wavelink
 import discord
+import logging
 from discord.ext import commands
 
 class MusicBot(commands.Cog):
@@ -115,5 +116,10 @@ class MusicBot(commands.Cog):
         await ctx.send(f"Current queue:\n{queue}")
 
 # Add the MusicBot cog to the bot
-def setup(bot):
-    bot.add_cog(MusicBot(bot))
+async def setup(bot):
+    """Setup function that is called when loading the cog"""
+    try:
+        await bot.add_cog(MusicBot(bot))
+        logging.info("✅ MusicBot cog loaded successfully")
+    except Exception as e:
+        logging.error(f"❌ Error loading MusicBot cog: {e}")

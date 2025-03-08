@@ -26,6 +26,21 @@ def run_discord_bot():
     intents.presences = True
 
     bot = commands.Bot(command_prefix='!', intents=intents)
+    
+    # Load modules before starting the bot
+    @bot.event
+    async def setup_hook():
+        """This is called when the bot is starting up"""
+        try:
+            # Load system commands
+            from internal.commands.system_commands import setup_system_commands
+            await bot.load_extension("internal.commands.system_commands")
+            
+            # Load music bot
+            await bot.load_extension("internal.commands.musicbot")
+            logging.info("✅ Extensions loaded successfully")
+        except Exception as e:
+            logging.error(f"❌ Error loading extensions: {e}")
 
     # Check for the bot to be ready
     @bot.event

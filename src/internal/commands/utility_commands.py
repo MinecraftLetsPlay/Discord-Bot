@@ -96,21 +96,33 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("ℹ️ Usage: `!music <command> [arguments]`")
             return
 
-        command = args[1].lower()
-        if command == 'join':
-            await client.get_cog('MusicBot').join(message, channel=args[2] if len(args) > 2 else None)
-        elif command == 'disconnect':
-            await client.get_cog('MusicBot').disconnect(message)
-        elif command == 'play':
-            await client.get_cog('MusicBot').play(message, search=" ".join(args[2:]))
-        elif command == 'stop':
-            await client.get_cog('MusicBot').stop(message)
-        elif command == 'skip':
-            await client.get_cog('MusicBot').skip(message)
-        elif command == 'queue':
-            await client.get_cog('MusicBot').queue(message)
-        else:
-            await message.channel.send("ℹ️ Unknown music command. Available commands: join, disconnect, play, stop, skip, queue")
+        music_cog = client.get_cog('MusicBot')
+        if not music_cog:
+            await message.channel.send("⚠️ Music system is not available right now.")
+            logging.error("MusicBot cog not found")
+            return
+
+        try:
+            command = args[1].lower()
+            ctx = await client.get_context(message)
+            
+            if command == 'join':
+                await music_cog.join(ctx, channel=args[2] if len(args) > 2 else None)
+            elif command == 'disconnect':
+                await music_cog.disconnect(ctx)
+            elif command == 'play':
+                await music_cog.play(ctx, search=" ".join(args[2:]))
+            elif command == 'stop':
+                await music_cog.stop(ctx)
+            elif command == 'skip':
+                await music_cog.skip(ctx)
+            elif command == 'queue':
+                await music_cog.queue(ctx)
+            else:
+                await message.channel.send("ℹ️ Unknown music command. Available commands: join, disconnect, play, stop, skip, queue")
+        except Exception as e:
+            await message.channel.send(f"❌ Error executing music command: {str(e)}")
+            logging.error(f"Error executing music command: {e}")
 
     # Handling the '!weather' command
     if user_message.startswith('!weather'):
