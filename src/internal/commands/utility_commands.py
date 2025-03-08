@@ -107,7 +107,15 @@ async def handle_utility_commands(client, message, user_message):
             ctx = await client.get_context(message)
             
             if command == 'join':
-                await music_cog.join(ctx, channel=args[2] if len(args) > 2 else None)
+                # Wenn eine Channel-ID angegeben wurde, hole den Channel
+                if len(args) > 2:
+                    channel = client.get_channel(int(args[2]))
+                    if not channel:
+                        await ctx.send("❌ Channel nicht gefunden!")
+                        return
+                    await music_cog.join_command(ctx, channel=channel)
+                else:
+                    await music_cog.join_command(ctx)
             elif command == 'disconnect':
                 await music_cog.disconnect(ctx)
             elif command == 'play':
@@ -120,6 +128,9 @@ async def handle_utility_commands(client, message, user_message):
                 await music_cog.queue(ctx)
             else:
                 await message.channel.send("ℹ️ Unknown music command. Available commands: join, disconnect, play, stop, skip, queue")
+        except ValueError:
+            await message.channel.send("❌ Ungültige Channel-ID!")
+            logging.error("Ungültige Channel-ID angegeben")
         except Exception as e:
             await message.channel.send(f"❌ Error executing music command: {str(e)}")
             logging.error(f"Error executing music command: {e}")
