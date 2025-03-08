@@ -67,24 +67,21 @@ class MusicBot(commands.Cog):
 
             # Check if it's a Spotify link
             if "spotify.com" in search:
-                # Extract track ID from Spotify URL
+                # Extract track ID from Spotify URL - preserve case sensitivity
                 if "/track/" in search:
                     track_id = search.split('/track/')[1].split('?')[0]
-                    search = f"spotify:track:{track_id}"
+                    search = f"track:{track_id}"
                 elif "/playlist/" in search:
                     playlist_id = search.split('/playlist/')[1].split('?')[0]
-                    search = f"spotify:playlist:{playlist_id}"
+                    search = f"playlist:{playlist_id}"
                 elif "/album/" in search:
                     album_id = search.split('/album/')[1].split('?')[0]
-                    search = f"spotify:album:{album_id}"
+                    search = f"album:{album_id}"
             else:
-                # Normal Spotify search
+                # Normal search
                 search = f"spotify:search:{search}"
-            
-            # Remove any duplicate "spotify:" prefix
-            search = search.replace("spotify:spotify:", "spotify:")
 
-            # Search for the track
+            # Search for the track 
             tracks = await wavelink.Playable.search(search, source="spotify")
             
             if not tracks:
