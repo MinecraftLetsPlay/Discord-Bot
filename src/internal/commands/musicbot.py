@@ -64,7 +64,7 @@ class MusicBot(commands.Cog):
 
         try:
             # Temporäre Nachricht während der Suche
-            searching_msg = await ctx.send("🔍 Suche in Spotify...")
+            searching_msg = await ctx.send("🔍 Searching in Spotify...")
 
             # Prüfe ob es ein Spotify-Link ist
             if "spotify.com" in search:
@@ -85,7 +85,7 @@ class MusicBot(commands.Cog):
             tracks = await wavelink.Playable.search(search, source="spotify")
                 
             if not tracks:
-                await searching_msg.edit(content="❌ Keine Tracks in Spotify gefunden.")
+                await searching_msg.edit(content="❌ No tracks found in Spotify.")
                 return
                 
             track = tracks[0]
@@ -93,7 +93,7 @@ class MusicBot(commands.Cog):
             
             # Erstelle ein schönes Embed für den aktuellen Song
             embed = discord.Embed(
-                title="🎵 Jetzt spielt (Spotify)",
+                title="🎵 Now playing (Spotify)",
                 description=f"**{track.title}**",
                 color=discord.Color.green()
             )
@@ -101,18 +101,18 @@ class MusicBot(commands.Cog):
             if hasattr(track, 'artwork') and track.artwork:
                 embed.set_thumbnail(url=track.artwork)
             if hasattr(track, 'author'):
-                embed.add_field(name="Künstler", value=track.author, inline=True)
+                embed.add_field(name="Artist", value=track.author, inline=True)
             if hasattr(track, 'length'):
                 minutes = int(track.length/60000)
                 seconds = int((track.length/1000)%60)
-                embed.add_field(name="Dauer", value=f"{minutes}:{seconds:02d}", inline=True)
+                embed.add_field(name="Duration", value=f"{minutes}:{seconds:02d}", inline=True)
             
             await searching_msg.delete()
             await ctx.send(embed=embed)
             
         except Exception as e:
-            await ctx.send(f"❌ Allgemeiner Fehler: {str(e)}")
-            logging.error(f"Allgemeiner Fehler: {e}")
+            await ctx.send(f"❌ General error: {str(e)}")
+            logging.error(f"General error: {e}")
 
     # Stop the current song
     @commands.command()

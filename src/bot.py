@@ -43,11 +43,14 @@ def run_discord_bot():
                             client=self,
                             nodes=[node]
                         )
-                    await self.load_extension("internal.commands.musicbot")
-                    logging.info("✅ Music extension loaded successfully")
-                    self.lavalink_available = True
-                except (asyncio.TimeoutError, ConnectionRefusedError):
-                    logging.warning("⚠️ Could not connect to Lavalink - continuing without music functionality")
+                        await self.load_extension("internal.commands.musicbot")
+                        logging.info("✅ Music extension loaded successfully")
+                        self.lavalink_available = True
+                except (asyncio.TimeoutError, ConnectionRefusedError) as e:
+                    logging.warning(f"⚠️ Could not connect to Lavalink - continuing without music functionality: {e}")
+                    self.lavalink_available = False
+                except Exception as e:
+                    logging.error(f"❌ Error connecting to Lavalink: {e}")
                     self.lavalink_available = False
             except Exception as e:
                 logging.error(f"❌ Error setting up music: {e}")
