@@ -72,16 +72,16 @@ class MusicBot(commands.Cog):
                 # Extrahiere Track-ID aus Spotify-URL
                 if "/track/" in search:
                     track_id = search.split('/track/')[1].split('?')[0]
-                    search = f"spotify:track:{track_id}"
+                    search = f"spsearch:spotify:track:{track_id}"
                 elif "/playlist/" in search:
                     playlist_id = search.split('/playlist/')[1].split('?')[0]
-                    search = f"spotify:playlist:{playlist_id}"
+                    search = f"spsearch:spotify:playlist:{playlist_id}"
                 elif "/album/" in search:
                     album_id = search.split('/album/')[1].split('?')[0]
-                    search = f"spotify:album:{album_id}"
+                    search = f"spsearch:spotify:album:{album_id}"
             else:
                 # Suche direkt in Spotify
-                search = f"spotify:search:{search}"
+                search = f"spsearch:{search}"
         
             # Suche nach dem Track
             tracks = await wavelink.Playable.search(search)
@@ -92,7 +92,7 @@ class MusicBot(commands.Cog):
 
             track = tracks[0]
             await ctx.voice_client.play(track)
-    
+
             # Erstelle ein schönes Embed für den aktuellen Song
             embed = discord.Embed(
                 title="🎵 Jetzt spielt",
