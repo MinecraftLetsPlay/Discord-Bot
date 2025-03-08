@@ -1,5 +1,6 @@
 import discord
 import os
+import sys
 from dotenv import load_dotenv
 from discord.ext import commands
 from internal import utils
@@ -7,7 +8,6 @@ from internal import command_router
 from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
-import wavelink  # Wavelink for music bot support
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -31,7 +31,7 @@ def run_discord_bot():
         logging.info(f'✅ {bot.user} is now running!')
         print()
         logging.debug("--------------------------")
-        logging.debug(f"Wavelink version: {wavelink.__version__}")
+        logging.debug(f"Python version: {sys.version.split()[0]}")
         logging.debug(f"Discord.py version: {discord.__version__}")
         logging.debug(f"PyNaCl version: {nacl.__version__}")
         logging.debug(f"Application ID: {bot.application_id}")
