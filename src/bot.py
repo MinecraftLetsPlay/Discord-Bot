@@ -8,8 +8,6 @@ from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
 import wavelink  # Wavelink for music bot support
-from internal.commands.moderation_commands import handle_moderation_commands
-from internal.commands.utility_commands import handle_utility_commands
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -130,9 +128,5 @@ def run_discord_bot():
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
     setup_system_commands(bot)
-
-    # Load music bot
-    from internal.commands.musicbot import setup
-    setup(bot)
 
     bot.run(TOKEN)
