@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
+import wavelink  # Wavelink for music bot support
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.utility_commands import handle_utility_commands
 
@@ -32,7 +33,7 @@ def run_discord_bot():
         logging.info(f'✅ {bot.user} is now running!')
         print()
         logging.debug("--------------------------")
-        logging.debug(f"Python version: {utils.get_python_version()}")
+        logging.debug(f"Wavelink version: {wavelink.__version__}")
         logging.debug(f"Discord.py version: {discord.__version__}")
         logging.debug(f"PyNaCl version: {nacl.__version__}")
         logging.debug(f"Application ID: {bot.application_id}")
