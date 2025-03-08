@@ -67,19 +67,20 @@ class MusicBot(commands.Cog):
 
             # Check if it's a Spotify link
             if "spotify.com" in search:
-                # Extract track ID from Spotify URL - preserve case sensitivity
                 if "/track/" in search:
-                    track_id = search.split('/track/')[1].split('?')[0]  # Keine Umwandlung in Kleinbuchstaben
-                    search = f"track:{track_id}"
+                    track_id = search.split('/track/')[1].split('?')[0]
+                    search = f"track:{track_id}"  # Entferne spotify: Prefix
                 elif "/playlist/" in search:
-                    playlist_id = search.split('/playlist/')[1].split('?')[0]  # Keine Umwandlung in Kleinbuchstaben
-                    search = f"playlist:{playlist_id}"
+                    playlist_id = search.split('/playlist/')[1].split('?')[0]
+                    search = f"playlist:{playlist_id}"  # Entferne spotify: Prefix
                 elif "/album/" in search:
-                    album_id = search.split('/album/')[1].split('?')[0]  # Keine Umwandlung in Kleinbuchstaben 
-                    search = f"album:{album_id}"
+                    album_id = search.split('/album/')[1].split('?')[0]
+                    search = f"album:{album_id}"  # Entferne spotify: Prefix
+                # Füge spotify: Prefix nur einmal hinzu
+                search = f"spotify:{search}"
             else:
-                # Normal search - hier können wir lowercase benutzen
-                search = f"spotify:search:{search.lower()}"
+                # Suche ohne Kleinbuchstaben-Umwandlung
+                search = f"spotify:search:{search}"
 
             # Search for the track 
             tracks = await wavelink.Playable.search(search, source="spotify")
