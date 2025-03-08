@@ -5,9 +5,9 @@ from discord.ext import commands
 class MusicBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.loop.create_task(self.start_nodes())
+        self.bot.lavalink_online = False
 
-    async def start_nodes(self):
+    async def cog_load(self):
         """Connect to our Lavalink nodes."""
         await self.bot.wait_until_ready()
         try:
