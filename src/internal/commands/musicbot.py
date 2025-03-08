@@ -14,7 +14,7 @@ class MusicBot(commands.Cog):
         await self.bot.wait_until_ready()
         try:
             await wavelink.NodePool.create_node(bot=self.bot,
-                                                host='127.0.0.1',
+                                                host='192.168.18.121',
                                                 port=2333,
                                                 password='youshallnotpass')
             self.bot.lavalink_online = True # Set the Lavalink status to online

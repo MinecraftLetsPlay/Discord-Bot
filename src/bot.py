@@ -27,18 +27,6 @@ def run_discord_bot():
     intents.voice_states = True  # Wichtig für Musik-Bot
 
     bot = commands.Bot(command_prefix='!', intents=intents)
-    
-    class CustomBot(commands.Bot):
-        async def setup_hook(self):
-            """This is called when the bot is starting up"""
-            try:
-                # Load music bot
-                await self.load_extension("internal.commands.musicbot")
-                logging.info("✅ Music extension loaded successfully")
-            except Exception as e:
-                logging.error(f"❌ Error loading music extension: {e}")
-
-    bot = CustomBot(command_prefix='!', intents=intents)
 
     # Check for the bot to be ready
     @bot.event
@@ -56,17 +44,20 @@ def run_discord_bot():
         # Set the bot's status to "hört euren Befehlen zu"
         activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
         await bot.change_presence(activity=activity)
+        # Sync the slash commands with Discord
+        await bot.tree.sync()
+        logging.info('Slash commands synchronized.')
 
     # Check for messages
     @bot.event
     async def on_message(message):
         config = utils.load_config()
-        LoggingActivated = config.get("LoggingActivated", True)
+        LoggingActivated = config.get("LoggingActivated", True) # Check if logging is activated in the config file
         
-        if message.author == bot.user:
+        if message.author == bot.user: # Ignore messages from the bot itself
             return
         
-        if message.guild is None:
+        if message.guild is None:  # This means it's a DM
             if LoggingActivated:
                 logging.info(f"📩 DM from {message.author}: {message.content}")
             username = str(message.author)
@@ -74,7 +65,7 @@ def run_discord_bot():
             channel = str(message.channel)
             if LoggingActivated:
                 logging.info(f'{username} said: "{user_message}" (DM / {channel})')
-        else:
+        else: # Server enviroment
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
@@ -136,5 +127,13 @@ def run_discord_bot():
                 if role and member:
                     await member.remove_roles(role)
                     logging.info(f"Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
+
+    # Load system commands
+    from internal.commands.system_commands import setup_system_commands
+    setup_system_commands(bot)
+
+    # Load music bot
+    from internal.commands.musicbot import setup
+    setup(bot)
 
     bot.run(TOKEN)
