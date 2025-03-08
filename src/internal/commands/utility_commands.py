@@ -6,7 +6,6 @@ from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
 import logging
-from discord.ext import commands
 
 #
 #
@@ -37,36 +36,10 @@ country_names = {
     
     "CH": "Switzerland", "TH": "Thailand", "TR": "Turkey", "UA": "Ukraine", "AE": "United Arab Emirates", "GB": "United Kingdom", "US": "United States", "UZ": "Uzbekistan",
     
-    "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe", "BO": "Bolivia", "CL": "Chile", "CR": "Costa Rica", "EC": "Ecuador", "SV": "El Salvador",
+    "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe",
+    
+    # Add more country codes and names as needed
 }
-
-# !weather command
-def load_config():
-    try:
-        with open('config.json', 'r') as file:
-            return json.load(file)
-    except Exception as e:
-        logging.error(f"❌ Error loading config file: {e}")
-        return {}
-
-# Asynchronous function to get weather data
-async def get_weather(location):
-    api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
-
-    if not api_key:
-        logging.error("❌ API key is missing.")
-        return None
-
-    base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(base_url) as response:
-            return await response.json()
-
-# Function to convert wind direction in degrees to compass direction
-def wind_direction(degrees):
-    directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-    index = round(degrees / 22.5) % 16
-    return directions[index]
 
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
@@ -89,57 +62,33 @@ async def handle_utility_commands(client, message, user_message):
         await message.channel.send(uptime_message)
         logging.info(f"Uptime: {days}d {hours}h {minutes}m {seconds}s")
 
-    # Music commands
-    if user_message.startswith('!music'):
-        args = user_message.split()
-        if len(args) < 2:
-            await message.channel.send("ℹ️ Usage: `!music <command> [arguments]`")
-            return
-
-        # Prüfe zuerst ob Lavalink verfügbar ist
-        if not getattr(client, 'lavalink_available', False):
-            await message.channel.send("⚠️ Music system is not available right now.")
-            logging.warning("Music command attempted but Lavalink is not available")
-            return
-
-        music_cog = client.get_cog('MusicBot')
-        if not music_cog:
-            await message.channel.send("⚠️ Music system is not available right now.")
-            logging.error("MusicBot cog not found")
-            return
-
+    # !weather command
+    def load_config():
         try:
-            command = args[1].lower()
-            ctx = await client.get_context(message)
-            
-            if command == 'join':
-                # Wenn eine Channel-ID angegeben wurde, hole den Channel
-                if len(args) > 2:
-                    channel = client.get_channel(int(args[2]))
-                    if not channel:
-                        await ctx.send("❌ Channel nicht gefunden!")
-                        return
-                    await music_cog.join_command(ctx, channel=channel)
-                else:
-                    await music_cog.join_command(ctx)
-            elif command == 'disconnect':
-                await music_cog.disconnect(ctx)
-            elif command == 'play':
-                await music_cog.play(ctx, search=" ".join(args[2:]))
-            elif command == 'stop':
-                await music_cog.stop(ctx)
-            elif command == 'skip':
-                await music_cog.skip(ctx)
-            elif command == 'queue':
-                await music_cog.queue(ctx)
-            else:
-                await message.channel.send("ℹ️ Unknown music command. Available commands: join, disconnect, play, stop, skip, queue")
-        except ValueError:
-            await message.channel.send("❌ Ungültige Channel-ID!")
-            logging.error("Ungültige Channel-ID angegeben")
+            with open('config.json', 'r') as file:
+                return json.load(file)
         except Exception as e:
-            await message.channel.send(f"❌ Error executing music command: {str(e)}")
-            logging.error(f"Error executing music command: {e}")
+            logging.error(f"❌ Error loading config file: {e}")
+            return {}
+
+    # Asynchronous function to get weather data
+    async def get_weather(location):
+        api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
+
+        if not api_key:
+            logging.error("❌ API key is missing.")
+            return None
+
+        base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(base_url) as response:
+                return await response.json()
+
+    # Function to convert wind direction in degrees to compass direction
+    def wind_direction(degrees):
+        directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+        index = round(degrees / 22.5) % 16
+        return directions[index]
 
     # Handling the '!weather' command
     if user_message.startswith('!weather'):

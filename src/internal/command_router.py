@@ -16,7 +16,7 @@ command_handlers = {
 command_groups = {
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
-    'utility': ['!ping', '!uptime', '!weather', '!city', '!download', '!time', '!music'],
+    'utility': ['!ping', '!uptime', '!weather', '!city', '!download', '!time'],
     'minigames': ['!rps', '!guess', '!hangman', '!quiz', '!roll']
 }
 
@@ -24,7 +24,7 @@ command_groups = {
 no_dm_commands = [
     '!kick', '!ban', '!unban', '!timeout', '!untimeout',
     '!userinfo', '!rules', '!serverinfo', '!reactionrole',
-    '!whitelist add', '!whitelist remove', '!music'
+    '!whitelist add', '!whitelist remove'
 ]
 
 async def handle_command(client, message):
