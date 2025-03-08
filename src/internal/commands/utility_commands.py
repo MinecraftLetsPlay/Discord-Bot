@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
 import logging
+from discord.ext import commands
 
 #
 #
@@ -36,10 +37,36 @@ country_names = {
     
     "CH": "Switzerland", "TH": "Thailand", "TR": "Turkey", "UA": "Ukraine", "AE": "United Arab Emirates", "GB": "United Kingdom", "US": "United States", "UZ": "Uzbekistan",
     
-    "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe",
-    
-    # Add more country codes and names as needed
+    "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe", "BO": "Bolivia", "CL": "Chile", "CR": "Costa Rica", "EC": "Ecuador", "SV": "El Salvador",
 }
+
+# !weather command
+def load_config():
+    try:
+        with open('config.json', 'r') as file:
+            return json.load(file)
+    except Exception as e:
+        logging.error(f"❌ Error loading config file: {e}")
+        return {}
+
+# Asynchronous function to get weather data
+async def get_weather(location):
+    api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
+
+    if not api_key:
+        logging.error("❌ API key is missing.")
+        return None
+
+    base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(base_url) as response:
+            return await response.json()
+
+# Function to convert wind direction in degrees to compass direction
+def wind_direction(degrees):
+    directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+    index = round(degrees / 22.5) % 16
+    return directions[index]
 
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
@@ -62,33 +89,28 @@ async def handle_utility_commands(client, message, user_message):
         await message.channel.send(uptime_message)
         logging.info(f"Uptime: {days}d {hours}h {minutes}m {seconds}s")
 
-    # !weather command
-    def load_config():
-        try:
-            with open('config.json', 'r') as file:
-                return json.load(file)
-        except Exception as e:
-            logging.error(f"❌ Error loading config file: {e}")
-            return {}
+    # Music commands
+    if user_message.startswith('!music'):
+        args = user_message.split()
+        if len(args) < 2:
+            await message.channel.send("ℹ️ Usage: `!music <command> [arguments]`")
+            return
 
-    # Asynchronous function to get weather data
-    async def get_weather(location):
-        api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
-
-        if not api_key:
-            logging.error("❌ API key is missing.")
-            return None
-
-        base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(base_url) as response:
-                return await response.json()
-
-    # Function to convert wind direction in degrees to compass direction
-    def wind_direction(degrees):
-        directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-        index = round(degrees / 22.5) % 16
-        return directions[index]
+        command = args[1].lower()
+        if command == 'join':
+            await client.get_cog('MusicBot').join(message, channel=args[2] if len(args) > 2 else None)
+        elif command == 'disconnect':
+            await client.get_cog('MusicBot').disconnect(message)
+        elif command == 'play':
+            await client.get_cog('MusicBot').play(message, search=" ".join(args[2:]))
+        elif command == 'stop':
+            await client.get_cog('MusicBot').stop(message)
+        elif command == 'skip':
+            await client.get_cog('MusicBot').skip(message)
+        elif command == 'queue':
+            await client.get_cog('MusicBot').queue(message)
+        else:
+            await message.channel.send("ℹ️ Unknown music command. Available commands: join, disconnect, play, stop, skip, queue")
 
     # Handling the '!weather' command
     if user_message.startswith('!weather'):

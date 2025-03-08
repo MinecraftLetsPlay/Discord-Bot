@@ -8,6 +8,7 @@ from internal.commands import logging_setup
 import logging
 import nacl  # PyNaCl for voice support
 from internal.commands.moderation_commands import handle_moderation_commands
+from internal.commands.utility_commands import handle_utility_commands
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -25,23 +26,22 @@ def run_discord_bot():
 
     bot = commands.Bot(command_prefix='!', intents=intents)
 
+    # Print debug information
+    logging.debug(f"Discord.py version: {discord.__version__}")
+    logging.debug(f"PyNaCl version: {nacl.__version__}")
+    logging.debug(f"Application ID: {bot.application_id}")
+    logging.debug(f"Logging activated: {config.get('LoggingActivated', True)}")
+
     # Check for the bot to be ready
     @bot.event
     async def on_ready():
         logging.info(f'✅ {bot.user} is now running!')
-        print()
-        logging.debug(f"Discord.py version: {discord.__version__}")
-        logging.debug(f"PyNaCl version: {nacl.__version__}")
-        logging.debug(f"Application ID: {bot.application_id}")
-        logging.debug(f"Number of Servers: {len(bot.guilds)}")
-        logging.debug(f"Logging activated: {config.get('LoggingActivated', True)}")
         # Set the bot's status to "hört euren Befehlen zu"
         activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
         await bot.change_presence(activity=activity)
         # Sync the slash commands with Discord
         await bot.tree.sync()
         logging.info('Slash commands synchronized.')
-        print()
 
     # Check for messages
     @bot.event
@@ -53,6 +53,8 @@ def run_discord_bot():
             return
         
         if message.guild is None:  # This means it's a DM
+            if LoggingActivated:
+                logging.info(f"📩 DM from {message.author}: {message.content}")
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
@@ -75,7 +77,7 @@ def run_discord_bot():
                 if LoggingActivated:
                     logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
             await message.channel.send(response)
-            
+
     # Register event listeners for reaction roles
     @bot.event
     async def on_raw_reaction_add(payload):
@@ -124,5 +126,9 @@ def run_discord_bot():
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
     setup_system_commands(bot)
+
+    # Load music bot
+    from internal.musicbot import setup
+    setup(bot)
 
     bot.run(TOKEN)
