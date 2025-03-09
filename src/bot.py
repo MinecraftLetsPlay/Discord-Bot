@@ -1,13 +1,13 @@
 import discord
+import logging
 import os
 import sys
+import nacl  # PyNaCl for voice support
 from dotenv import load_dotenv
 from discord.ext import commands
 from internal import utils
 from internal import command_router
 from internal.commands import logging_setup
-import logging
-import nacl  # PyNaCl for voice support
 
 def run_discord_bot():
     # Load environment variables from .env file

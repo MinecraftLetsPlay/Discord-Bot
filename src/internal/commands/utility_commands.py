@@ -6,6 +6,9 @@ from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
 import logging
+from discord.ext import commands
+from discord.ui import Button, View
+import asyncio
 
 #
 #
@@ -20,25 +23,47 @@ load_dotenv()
 bot_start_time = datetime.now(timezone.utc)
 
 # Dictionary to map country codes to full country names
+# Dictionary to map country codes to full country names
 country_names = {
+    "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AD": "Andorra", "AO": "Angola", "AG": "Antigua and Barbuda", "AR": "Argentina", "AM": "Armenia", "AU": "Australia", "AT": "Austria", 
     
-    "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AD": "Andorra", "AO": "Angola", "AR": "Argentina", "AU": "Australia", "AT": "Austria", "BD": "Bangladesh", "BY": "Belarus",
+    "AZ": "Azerbaijan", "BS": "Bahamas", "BH": "Bahrain", "BD": "Bangladesh", "BB": "Barbados", "BY": "Belarus", "BE": "Belgium", "BZ": "Belize", "BJ": "Benin", "BT": "Bhutan", "BO": "Bolivia",
     
-    "BE": "Belgium", "BR": "Brazil", "BG": "Bulgaria", "CA": "Canada", "CN": "China", "CO": "Colombia", "HR": "Croatia", "CZ": "Czech Republic", "DK": "Denmark", "EG": "Egypt",
+    "BA": "Bosnia and Herzegovina", "BW": "Botswana", "BR": "Brazil", "BN": "Brunei", "BG": "Bulgaria", "BF": "Burkina Faso", "BI": "Burundi", "CV": "Cabo Verde", "KH": "Cambodia", 
     
-    "FI": "Finland", "FR": "France", "GE": "Georgia", "DE": "Germany", "GR": "Greece", "GL": "Greenland", "GT": "Guatemala", "HN": "Honduras", "HU": "Hungary", "IS": "Iceland",
+    "CM": "Cameroon", "CA": "Canada", "CF": "Central African Republic", "TD": "Chad", "CL": "Chile", "CN": "China", "CO": "Colombia", "KM": "Comoros", "CG": "Congo",
     
-    "IN": "India", "ID": "Indonesia", "IR": "Iran", "IQ": "Iraq", "IE": "Ireland", "IL": "Israel", "IT": "Italy", "JP": "Japan", "KZ": "Kazakhstan", "KE": "Kenya", "MY": "Malaysia",
+    "CD": "Congo (Democratic Republic)", "CR": "Costa Rica", "CI": "Côte d'Ivoire", "HR": "Croatia", "CU": "Cuba", "CY": "Cyprus", "CZ": "Czech Republic", "DK": "Denmark", "DJ": "Djibouti",
     
-    "MX": "Mexico", "NL": "Netherlands", "NZ": "New Zealand", "NO": "Norway", "PH": "Philippines", "PL": "Poland", "PT": "Portugal", "QA": "Qatar", "RO": "Romania", "RU": "Russia",
+    "DM": "Dominica", "DO": "Dominican Republic", "EC": "Ecuador", "EG": "Egypt", "SV": "El Salvador", "GQ": "Equatorial Guinea", "ER": "Eritrea", "EE": "Estonia", "SZ": "Eswatini", 
     
-    "SA": "Saudi Arabia", "RS": "Serbia", "SG": "Singapore", "SK": "Slovakia", "SI": "Slovenia", "ZA": "South Africa", "KR": "South Korea", "ES": "Spain", "SE": "Sweden", 
+    "ET": "Ethiopia", "FJ": "Fiji", "FI": "Finland", "FR": "France", "GA": "Gabon", "GM": "Gambia", "GE": "Georgia", "DE": "Germany", "GH": "Ghana", "GR": "Greece", "GD": "Grenada",
     
-    "CH": "Switzerland", "TH": "Thailand", "TR": "Turkey", "UA": "Ukraine", "AE": "United Arab Emirates", "GB": "United Kingdom", "US": "United States", "UZ": "Uzbekistan",
+    "GT": "Guatemala", "GN": "Guinea", "GW": "Guinea-Bissau", "GY": "Guyana", "HT": "Haiti", "HN": "Honduras", "HU": "Hungary", "IS": "Iceland", "IN": "India", "ID": "Indonesia", "IR": "Iran", 
     
-    "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe",
+    "IQ": "Iraq", "IE": "Ireland", "IL": "Israel", "IT": "Italy", "JM": "Jamaica", "JP": "Japan", "JO": "Jordan", "KZ": "Kazakhstan", "KE": "Kenya", "KI": "Kiribati", "KP": "North Korea", 
     
-    # Add more country codes and names as needed
+    "KR": "South Korea", "KW": "Kuwait", "KG": "Kyrgyzstan", "LA": "Laos", "LV": "Latvia", "LB": "Lebanon", "LS": "Lesotho", "LR": "Liberia", "LY": "Libya", "LI": "Liechtenstein", 
+    
+    "LT": "Lithuania", "LU": "Luxembourg", "MG": "Madagascar", "MW": "Malawi", "MY": "Malaysia", "MV": "Maldives", "ML": "Mali", "MT": "Malta", "MH": "Marshall Islands", 
+    
+    "MR": "Mauritania", "MU": "Mauritius", "MX": "Mexico", "FM": "Micronesia", "MD": "Moldova", "MC": "Monaco", "MN": "Mongolia", "ME": "Montenegro", "MA": "Morocco", "MZ": "Mozambique",
+    
+    "MM": "Myanmar", "NA": "Namibia", "NR": "Nauru", "NP": "Nepal", "NL": "Netherlands", "NZ": "New Zealand", "NI": "Nicaragua", "NE": "Niger", "NG": "Nigeria", "MK": "North Macedonia", 
+    
+    "NO": "Norway", "OM": "Oman", "PK": "Pakistan", "PW": "Palau", "PA": "Panama", "PG": "Papua New Guinea", "PY": "Paraguay", "PE": "Peru", "PH": "Philippines", "PL": "Poland",
+    
+    "PT": "Portugal", "QA": "Qatar", "RO": "Romania", "RU": "Russia", "RW": "Rwanda", "KN": "Saint Kitts and Nevis", "LC": "Saint Lucia", "VC": "Saint Vincent and the Grenadines", 
+    
+    "WS": "Samoa", "SM": "San Marino", "ST": "São Tomé and Príncipe", "SA": "Saudi Arabia", "SN": "Senegal", "RS": "Serbia", "SC": "Seychelles", "SL": "Sierra Leone", "SG": "Singapore", 
+    
+    "SK": "Slovakia", "SI": "Slovenia", "SB": "Solomon Islands", "SO": "Somalia", "ZA": "South Africa", "SS": "South Sudan", "ES": "Spain", "LK": "Sri Lanka", "SD": "Sudan", "SR": "Suriname",
+    
+    "SE": "Sweden", "CH": "Switzerland", "SY": "Syria", "TJ": "Tajikistan", "TZ": "Tanzania", "TH": "Thailand", "TL": "Timor-Leste", "TG": "Togo", "TO": "Tonga", "TT": "Trinidad and Tobago",
+    
+    "TN": "Tunisia", "TR": "Turkey", "TM": "Turkmenistan", "TV": "Tuvalu", "UG": "Uganda", "UA": "Ukraine", "AE": "United Arab Emirates", "GB": "United Kingdom", "US": "United States", 
+    
+    "UY": "Uruguay", "UZ": "Uzbekistan", "VU": "Vanuatu", "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe"
 }
 
 # Main def for handling utility commands
@@ -104,7 +129,7 @@ async def handle_utility_commands(client, message, user_message):
             temp_max = weather_data['main']['temp_max']
             description = weather_data['weather'][0]['description']
             humidity = weather_data['main']['humidity']
-            pressure = weather_data['main']['pressure'] 
+            pressure = weather_data['main']['pressure']
             wind_speed = weather_data['wind']['speed']
             wind_deg = weather_data['wind']['deg']
             wind_dir = wind_direction(wind_deg)  # Convert wind degrees to compass direction
@@ -261,3 +286,52 @@ async def handle_utility_commands(client, message, user_message):
         else:
             await message.channel.send("⚠️ Could not retrieve time information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve time information. Invalid location.")
+            
+    # !poll command
+    if user_message.startswith('!poll'):
+        # Split the command into parts
+        parts = user_message.split('"')
+        if len(parts) < 3:
+            await message.channel.send("❌ Nutzung: !poll \"Frage\" \"Option1\" \"Option2\" ...")
+            return
+
+        question = parts[1]
+        options = [part.strip() for part in parts[2:] if part.strip()]
+
+        if len(options) < 2:
+            await message.channel.send("❌ Du musst mindestens zwei Optionen angeben.")
+            return
+        if len(options) > 10:
+            await message.channel.send("❌ Du kannst maximal zehn Optionen angeben.")
+            return
+
+        class PollView(View):
+            def __init__(self, options):
+                super().__init__(timeout=None)
+                self.votes = {option: 0 for option in options}
+                self.total_votes = 0
+                for i, option in enumerate(options):
+                    button = Button(label=option, custom_id=f"poll_option_{i}")
+                    button.callback = self.vote_callback
+                    self.add_item(button)
+
+            async def vote_callback(self, interaction: discord.Interaction):
+                custom_id = interaction.data['custom_id']
+                option = next((opt for opt in self.votes if f"poll_option_{list(self.votes.keys()).index(opt)}" == custom_id), None)
+                if option:
+                    self.votes[option] += 1
+                    self.total_votes += 1
+                    await interaction.response.send_message(f"Du hast für **{option}** gestimmt!", ephemeral=True)
+                    await self.update_poll_message(interaction.message)
+
+            async def update_poll_message(self, message):
+                results = "\n".join([f"{option}: {votes} Stimmen ({votes / self.total_votes * 100:.1f}%)" for option, votes in self.votes.items()])
+                embed = message.embeds[0]
+                embed.set_field_at(0, name="Ergebnisse", value=results, inline=False)
+                await message.edit(embed=embed, view=self)
+
+        embed = discord.Embed(title="📊 Umfrage", description=f"**{question}**", color=discord.Color.blue())
+        embed.add_field(name="Ergebnisse", value="Noch keine Stimmen", inline=False)
+        view = PollView(options)
+        await message.channel.send(embed=embed, view=view)
+
