@@ -292,17 +292,20 @@ async def handle_utility_commands(client, message, user_message):
         # Split the command into parts
         parts = user_message.split('"')
         if len(parts) < 3:
-            await message.channel.send("❌ Nutzung: !poll \"Frage\" \"Option1\" \"Option2\" ...")
+            await message.channel.send("❌ Usage: !poll \"Question\" \"Option1\" \"Option2\" ...")
+            logging.info(f"User {message.author} tried to create a poll without correct parameters")
             return
 
         question = parts[1]
         options = [part.strip() for part in parts[2:] if part.strip()]
 
         if len(options) < 2:
-            await message.channel.send("❌ Du musst mindestens zwei Optionen angeben.")
+            await message.channel.send("❌ You must provide at least two options.")
+            logging.info(f"User {message.author} tried to create a poll with less than 2 options")
             return
         if len(options) > 10:
-            await message.channel.send("❌ Du kannst maximal zehn Optionen angeben.")
+            await message.channel.send("❌ You can provide a maximum of ten options.")
+            logging.info(f"User {message.author} tried to create a poll with more than 10 options")
             return
 
         class PollView(View):
@@ -310,28 +313,56 @@ async def handle_utility_commands(client, message, user_message):
                 super().__init__(timeout=None)
                 self.votes = {option: 0 for option in options}
                 self.total_votes = 0
+                self.user_votes = {}  # Track user votes
                 for i, option in enumerate(options):
                     button = Button(label=option, custom_id=f"poll_option_{i}")
                     button.callback = self.vote_callback
                     self.add_item(button)
 
             async def vote_callback(self, interaction: discord.Interaction):
+                user_id = interaction.user.id
                 custom_id = interaction.data['custom_id']
                 option = next((opt for opt in self.votes if f"poll_option_{list(self.votes.keys()).index(opt)}" == custom_id), None)
+                
                 if option:
-                    self.votes[option] += 1
-                    self.total_votes += 1
-                    await interaction.response.send_message(f"Du hast für **{option}** gestimmt!", ephemeral=True)
+                    # If user clicks the same option again, remove the vote
+                    if user_id in self.user_votes and self.user_votes[user_id] == option:
+                        self.votes[option] -= 1
+                        self.total_votes -= 1
+                        del self.user_votes[user_id]
+                        await interaction.response.send_message(f"Your vote for **{option}** has been removed!", ephemeral=True)
+                        logging.info(f"User {interaction.user} removed their vote for {option}")
+                    else:
+                        # Remove previous vote if exists
+                        if user_id in self.user_votes:
+                            previous_option = self.user_votes[user_id]
+                            self.votes[previous_option] -= 1
+                            self.total_votes -= 1
+                            logging.info(f"User {interaction.user} changed their vote from {previous_option} to {option}")
+
+                        # Add new vote
+                        self.votes[option] += 1
+                        self.total_votes += 1
+                        self.user_votes[user_id] = option
+                        await interaction.response.send_message(f"You voted for **{option}**!", ephemeral=True)
+                        logging.info(f"User {interaction.user} voted for {option}")
+
                     await self.update_poll_message(interaction.message)
 
             async def update_poll_message(self, message):
-                results = "\n".join([f"{option}: {votes} Stimmen ({votes / self.total_votes * 100:.1f}%)" for option, votes in self.votes.items()])
+                if self.total_votes == 0:
+                    results = "No votes yet"
+                else:
+                    results = "\n".join([f"{option}: {votes} vote{'s' if votes != 1 else ''} ({votes / self.total_votes * 100:.1f}%)" 
+                                       for option, votes in self.votes.items()])
                 embed = message.embeds[0]
-                embed.set_field_at(0, name="Ergebnisse", value=results, inline=False)
+                embed.set_field_at(0, name="Results", value=results, inline=False)
+                embed.set_footer(text=f"Total: {self.total_votes} vote{'s' if self.total_votes != 1 else ''}")
                 await message.edit(embed=embed, view=self)
 
-        embed = discord.Embed(title="📊 Umfrage", description=f"**{question}**", color=discord.Color.blue())
-        embed.add_field(name="Ergebnisse", value="Noch keine Stimmen", inline=False)
+        embed = discord.Embed(title="📊 Poll", description=f"**{question}**", color=discord.Color.blue())
+        embed.add_field(name="Results", value="No votes yet", inline=False)
+        embed.set_footer(text="No votes yet")
         view = PollView(options)
-        await message.channel.send(embed=embed, view=view)
-
+        poll_message = await message.channel.send(embed=embed, view=view)
+        logging.info(f"Poll created by {message.author}: '{question}' with options: {', '.join(options)}")
