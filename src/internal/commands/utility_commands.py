@@ -424,7 +424,7 @@ async def handle_utility_commands(client, message, user_message):
             asyncio.create_task(send_reminder())
 
             # Bestätigung senden
-            location_text = "DM" if reminder_type == 'dm' else "diesem Channel"
+            location_text = "DM" if reminder_type == 'dm' else "Dieser Channel"
             embed = discord.Embed(
                 title="⏰ Reminder erstellt",
                 description=f"**Text:** {reminder_text}",
