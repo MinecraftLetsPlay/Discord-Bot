@@ -377,69 +377,69 @@ async def handle_utility_commands(client, message, user_message):
         parts = message.content.split('"')
 
         if len(parts) < 2:
-            await message.channel.send("❌ Nutzung: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel]\nBeispiel: !reminder \"Meeting\" 25.03.2024 14:30 dm")
-            logging.info(f"Nutzer {message.author} hat versucht einen Reminder ohne korrekte Parameter zu erstellen")
+            await message.channel.send("❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
+            logging.info(f"User {message.author} tried to create a reminder without correct parameters")
             return
 
         reminder_text = parts[1]
         try:
-            # Restliche Parameter nach dem Text extrahieren
+            # Extract remaining parameters after the text
             params = parts[2].strip().split()
             if len(params) < 2:
-                await message.channel.send("❌ Bitte gib ein Datum (DD.MM.YYYY) und eine Uhrzeit (HH:MM) an!")
+                await message.channel.send("❌ Please provide a date (DD.MM.YYYY) and time (HH:MM)!")
                 return
 
             date_str = params[0]
             time_str = params[1]
-            # Standard ist channel, wenn nicht anders angegeben
+            # Default is channel if not specified otherwise
             reminder_type = params[2].lower() if len(params) > 2 and params[2].lower() in ['dm', 'channel'] else 'channel'
 
-            # Datum und Zeit parsen
+            # Parse date and time
             reminder_datetime = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
             
-            # Prüfen ob der Zeitpunkt in der Zukunft liegt
+            # Check if the time is in the future
             if reminder_datetime <= datetime.now():
-                await message.channel.send("❌ Der Zeitpunkt muss in der Zukunft liegen!")
+                await message.channel.send("❌ The reminder time must be in the future!")
                 return
 
-            # Verzögerung bis zum Reminder berechnen
+            # Calculate delay until reminder
             delay = (reminder_datetime - datetime.now()).total_seconds()
 
-            # Reminder-Task erstellen
+            # Create reminder task
             async def send_reminder():
                 await asyncio.sleep(delay)
                 try:
                     if reminder_type == 'dm':
-                        await message.author.send(f"🔔 **Erinnerung:** {reminder_text}")
-                        logging.info(f"Reminder für {message.author} wurde als DM gesendet: {reminder_text}")
+                        await message.author.send(f"🔔 **Reminder:** {reminder_text}")
+                        logging.info(f"Reminder for {message.author} sent as DM: {reminder_text}")
                     else:
-                        await message.channel.send(f"🔔 Hey {message.author.mention}, hier ist deine Erinnerung: {reminder_text}")
-                        logging.info(f"Reminder für {message.author} wurde im Channel gesendet: {reminder_text}")
+                        await message.channel.send(f"🔔 Hey {message.author.mention}, here's your reminder: {reminder_text}")
+                        logging.info(f"Reminder for {message.author} sent in channel: {reminder_text}")
                 except Exception as e:
-                    logging.error(f"Fehler beim Senden des Reminders: {e}")
+                    logging.error(f"Error sending reminder: {e}")
                     if reminder_type == 'dm':
-                        await message.channel.send(f"⚠️ Konnte den Reminder nicht als DM senden an {message.author.mention}. Stelle sicher, dass DMs aktiviert sind.")
+                        await message.channel.send(f"⚠️ Could not send reminder as DM to {message.author.mention}. Make sure DMs are enabled.")
 
-            # Reminder-Task starten
+            # Start reminder task
             asyncio.create_task(send_reminder())
 
-            # Bestätigung senden
-            location_text = "DM" if reminder_type == 'dm' else "Dieser Channel"
+            # Send confirmation
+            location_text = "DM" if reminder_type == 'dm' else "This channel"
             embed = discord.Embed(
-                title="⏰ Reminder erstellt",
+                title="⏰ Reminder Created",
                 description=f"**Text:** {reminder_text}",
                 color=discord.Color.green()
             )
-            embed.add_field(name="Datum", value=date_str, inline=True)
-            embed.add_field(name="Uhrzeit", value=time_str, inline=True)
-            embed.add_field(name="Typ", value=location_text, inline=True)
+            embed.add_field(name="Date", value=date_str, inline=True)
+            embed.add_field(name="Time", value=time_str, inline=True)
+            embed.add_field(name="Type", value=location_text, inline=True)
             await message.channel.send(embed=embed)
             
-            logging.info(f"Reminder erstellt von {message.author} für {reminder_datetime}: {reminder_text} ({reminder_type})")
+            logging.info(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type})")
 
         except ValueError:
-            await message.channel.send("❌ Ungültiges Datum/Uhrzeit Format! Nutze DD.MM.YYYY HH:MM")
-            logging.warning(f"Ungültiges Datum/Uhrzeit Format bei Reminder von {message.author}")
+            await message.channel.send("❌ Invalid date/time format! Use DD.MM.YYYY HH:MM")
+            logging.warning(f"Invalid date/time format in reminder from {message.author}")
         except Exception as e:
-            await message.channel.send("❌ Ein Fehler ist aufgetreten beim Erstellen der Erinnerung.")
-            logging.error(f"Fehler beim Erstellen des Reminders von {message.author}: {e}")
+            await message.channel.send("❌ An error occurred while creating the reminder.")
+            logging.error(f"Error creating reminder from {message.author}: {e}")
