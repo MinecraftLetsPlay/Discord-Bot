@@ -289,15 +289,18 @@ async def handle_utility_commands(client, message, user_message):
             
     # !poll command
     if user_message.startswith('!poll'):
-        # Split the command into parts
-        parts = user_message.split('"')
+        # Split the command into parts while preserving original case
+        # Use message.content instead of user_message to preserve case
+        parts = message.content.split('"')
+
         if len(parts) < 3:
             await message.channel.send("❌ Usage: !poll \"Question\" \"Option1\" \"Option2\" ...")
             logging.info(f"User {message.author} tried to create a poll without correct parameters")
             return
 
-        question = parts[1]
-        options = [part.strip() for part in parts[2:] if part.strip()]
+        # Preserve original case for question and options
+        question = parts[1]  # Keep original case for question
+        options = [part for part in parts[2:] if part.strip()]  # Keep original case for options
 
         if len(options) < 2:
             await message.channel.send("❌ You must provide at least two options.")
@@ -311,11 +314,11 @@ async def handle_utility_commands(client, message, user_message):
         class PollView(View):
             def __init__(self, options):
                 super().__init__(timeout=None)
-                self.votes = {option: 0 for option in options}
+                self.votes = {option: 0 for option in options}  # Use original case for options
                 self.total_votes = 0
                 self.user_votes = {}  # Track user votes
                 for i, option in enumerate(options):
-                    button = Button(label=option, custom_id=f"poll_option_{i}")
+                    button = Button(label=option, custom_id=f"poll_option_{i}")  # Use original case for button labels
                     button.callback = self.vote_callback
                     self.add_item(button)
 
@@ -360,6 +363,7 @@ async def handle_utility_commands(client, message, user_message):
                 embed.set_footer(text=f"Total: {self.total_votes} vote{'s' if self.total_votes != 1 else ''}")
                 await message.edit(embed=embed, view=self)
 
+        # Create embed with original case for question
         embed = discord.Embed(title="📊 Poll", description=f"**{question}**", color=discord.Color.blue())
         embed.add_field(name="Results", value="No votes yet", inline=False)
         embed.set_footer(text="No votes yet")
