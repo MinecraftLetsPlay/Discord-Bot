@@ -48,7 +48,7 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 
 ## Setup Requirements
 
-See [`requirements.txt`](requirements) for detailed dependencies.
+See [`requirements`](./requirements.txt) for detailed dependencies.
 
 ## Contributing
 
