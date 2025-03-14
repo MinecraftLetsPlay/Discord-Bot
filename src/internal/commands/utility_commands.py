@@ -2,6 +2,9 @@ import discord
 import aiohttp
 import json
 import os
+import googletrans
+import math
+import re
 from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
@@ -22,7 +25,6 @@ load_dotenv()
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
 
-# Dictionary to map country codes to full country names
 # Dictionary to map country codes to full country names
 country_names = {
     "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AD": "Andorra", "AO": "Angola", "AG": "Antigua and Barbuda", "AR": "Argentina", "AM": "Armenia", "AU": "Australia", "AT": "Austria", 
@@ -443,3 +445,40 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             await message.channel.send("❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
+            
+    # !translate command
+    if user_message.startswith('!translate'):
+        parts = user_message.split(' ', 2)
+        if len(parts) < 3:
+            await message.channel.send("❌ Usage: !translate <language> <text>")
+            return
+        target_language = parts[1]
+        text = parts[2]
+        translator = googletrans.Translator()
+        try:
+            translated = translator.translate(text, dest=target_language)
+            await message.channel.send(f"Translation ({target_language}): {translated.text}")
+        except Exception as e:
+            await message.channel.send("⚠️ Error translating text. Please try again.")
+            logging.error(f"Error translating text: {e}")
+            
+    # !calc command
+    if user_message.startswith('!calc'):
+        expression = user_message[len('!calc '):].strip()
+        result = calculate_expression(expression)
+        await message.channel.send(f"Result: {result}")
+        
+    # Function to calculate a mathematical expression
+    def calculate_expression(expression):
+        try:
+            # Remove all non-numeric and non-operator characters
+            expression = re.sub(r'[^0-9+\-*/().^√]', '', expression)
+            # Replace '^' with '**' for exponentiation
+            expression = expression.replace('^', '**')
+            # Replace '√' with 'math.sqrt'
+            expression = expression.replace('√', 'math.sqrt')
+            # Evaluate the expression
+            result = eval(expression, {"__builtins__": None}, {"math": math})
+            return result
+        except Exception as e:
+            return str(e)
