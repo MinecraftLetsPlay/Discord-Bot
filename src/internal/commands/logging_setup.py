@@ -18,12 +18,11 @@ if not os.path.exists(log_directory):
         sys.exit(1)
 
 # Create a new log file with a timestamp
-timestamp = datetime.now().strftime("%d.%m.%Y %H.%M.%S")
-log_file = os.path.normpath(os.path.join(log_directory, f'log_{timestamp}.txt'))
+log_file = os.path.normpath(os.path.join(log_directory, f'bot.log'))
 
 # Setup logging with TimedRotatingFileHandler
 handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
-handler.suffix = "%d.%m.%Y %H.%M.%S"
+handler.suffix = "%d.%m.%Y_%H.%M.%S"
 
 logging.basicConfig(
     level=logging.DEBUG,  # Set logging level to DEBUG

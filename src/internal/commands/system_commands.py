@@ -33,7 +33,7 @@ LoggingActivated = config.get("LoggingActivated")
 # Setup logging with TimedRotatingFileHandler
 log_file = os.path.join(log_directory, 'bot.log')
 handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
-handler.suffix = "%d.%m.%Y %H.%M.%S"
+handler.suffix = "%d.%m.%Y_%H.%M.%S"
 
 log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     handler,
