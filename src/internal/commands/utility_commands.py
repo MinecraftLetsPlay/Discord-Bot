@@ -11,6 +11,8 @@ import logging
 from discord.ext import commands
 from discord.ui import Button, View
 import asyncio
+import sympy
+from sympy import solve, symbols, parse_expr
 
 #
 #
@@ -495,8 +497,39 @@ async def handle_utility_commands(client, message, user_message):
     # Add lambda functions to SAFE_FUNCTIONS
     SAFE_FUNCTIONS.update({
         'cbrt': lambda x: x**(1/3),  # Cubic root
-        'root4': lambda x: x**(1/4)   # Fourth root
+        'root4': lambda x: x**(1/4),  # Fourth root
+        'solve': lambda eq: solve_equation(eq),
+        'pq': lambda p, q: solve_pq(p, q),
+        'quad': lambda a, b, c: solve_quadratic(a, b, c),
     })
+
+    # Helper functions for the calculator
+    def solve_pq(p, q):
+        """Solves a PQ equation: x² + px + q = 0"""
+        x1 = -p/2 + math.sqrt((p/2)**2 - q)
+        x2 = -p/2 - math.sqrt((p/2)**2 - q)
+        return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
+
+    def solve_quadratic(a, b, c):
+        """Solves a quadratic equation: ax² + bx + c = 0"""
+        discriminant = b**2 - 4*a*c
+        if discriminant < 0:
+            return "No real solutions"
+        x1 = (-b + math.sqrt(discriminant))/(2*a)
+        x2 = (-b - math.sqrt(discriminant))/(2*a)
+        return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
+
+    def solve_equation(equation_str):
+        """Solves a general equation using sympy"""
+        x = symbols('x')
+        try:
+            equation = parse_expr(equation_str)
+            solutions = solve(equation, x)
+            if not solutions:
+                return "No solutions found!"
+            return "\n".join([f"x{i+1 if len(solutions)>1 else ''} = {sol}" for i, sol in enumerate(solutions)])
+        except Exception as e:
+            return f"Error solving equation: {str(e)}"
 
     if user_message.startswith('!calc'):
         try:
@@ -506,22 +539,36 @@ async def handle_utility_commands(client, message, user_message):
                 # Help message with available functions
                 help_msg = (
                     "📝 **Calculator Usage:**\n"
-                    "!calc <expression>\n\n"
-                    "**Available functions:**\n"
-                    "• Basic: +, -, *, /, ^, √, !, ()\n"
-                    "• Logs: ln(x), log(x), log2(x)\n"
-                    "• Trig: sin(x), cos(x), tan(x), asin(x), acos(x), atan(x)\n"
-                    "• Hyp: sinh(x), cosh(x), tanh(x)\n"
-                    "• Other: exp(x), abs(x), floor(x), ceil(x), round(x)\n"
-                    "• Constants: pi, e, tau, inf\n"
-                    "• Special: ans (last result)\n\n"
-                    "**Examples:**\n"
-                    "'!calc 2 + 2'\n"
-                    "'!calc sin(pi/2)'\n"
-                    "'!calc ln(e)'\n"
-                    "'!calc 2³ + √9'\n"
-                    "'!calc ans + 5'"
-                )
+                    "`!calc <expression>`\n\n"
+                    "**Available Functions:**\n"
+                    "• Basic Operations:\n"
+                    "  - Addition (+), Subtraction (-)\n"
+                    "  - Multiplication (×, *), Division (÷, /)\n"
+                    "  - Powers (^, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹)\n"
+                    "  - Square Root (√), Cubic Root (∛), Fourth Root (∜)\n"
+                    "\n• Mathematical Functions:\n"
+                    "  - Logarithms: ln(x), log(x), log2(x)\n"
+                    "  - Trigonometry: sin(x), cos(x), tan(x)\n"
+                    "  - Inverse Trig: asin(x), acos(x), atan(x)\n"
+                    "  - Hyperbolic: sinh(x), cosh(x), tanh(x)\n"
+                    "\n• Other Functions:\n"
+                    "  - exp(x), abs(x), factorial(x)\n"
+                    "  - floor(x), ceil(x), round(x)\n"
+                    "\n• Constants:\n"
+                    "  - π (pi), e, τ (tau), ∞ (inf)\n"
+                    "\n• Special Features:\n"
+                    "  - Previous result: ans\n"
+                    "  - Equation solving: solve(equation)\n"
+                    "  - PQ formula: pq(p,q)\n"
+                    "  - Quadratic: quad(a,b,c)\n"
+                    "\n**Examples:**\n"
+                    "• `!calc 2 + 2`\n"
+                    "• `!calc sin(45) + cos(30)`\n"
+                    "• `!calc √(16) + ∛(27)`\n"
+                    "• `!calc 2³ + π`\n"
+                    "• `!calc solve(x^2 + 2x + 1)`\n"
+                "• `!calc ans + 5`"
+            )
                 await message.channel.send(help_msg)
                 return
 
@@ -565,8 +612,8 @@ async def handle_utility_commands(client, message, user_message):
                 'ℯ': 'e',
 
                 # Other symbols
-                '±': '+/-',
-                '∓': '-/+',
+                '±': ' + [-]', # Plus or minus
+                '∓': ' - [+]',  # Minus or negative
                 '∑': 'sum',
                 '∏': 'prod',
                 '∆': 'delta',
