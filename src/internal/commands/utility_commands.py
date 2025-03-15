@@ -2,7 +2,6 @@ import discord
 import aiohttp
 import json
 import os
-import googletrans
 import math
 import re
 from datetime import datetime, timezone, timedelta
@@ -446,32 +445,11 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
             
-    # !translate command
-    if user_message.startswith('!translate'):
-        parts = user_message.split('"')
-        if len(parts) < 3:
-            await message.channel.send("❌ Usage: !translate \"language\" \"text\"")
-            logging.info(f"User {message.author} tried to use translate command with invalid parameters")
-            return
-
-        target_language = parts[1].strip()
-        text = parts[3].strip()
-        translator = googletrans.Translator()
-        
-        try:
-            translated = await translator.translate(text, dest=target_language)
-            await message.channel.send(f"Translation ({target_language}): {translated}")
-            logging.info(f"Translated text for {message.author}: '{text}' to {target_language}")
-        except Exception as e:
-            await message.channel.send("⚠️ Error translating text. Make sure to use valid language codes (e.g., 'en' for English, 'de' for German)")
-            logging.error(f"Error translating text: {e}")
-            
     # !calc command
     if user_message.startswith('!calc'):
-        expression = user_message[len('!calc '):].strip()
-        result = calculate_expression(expression)
-        await message.channel.send(f"Result: {result}")
-        
+        view = CalculatorView()
+        await message.channel.send("Calculator", view=view)
+
     # Function to calculate a mathematical expression
     def calculate_expression(expression):
         try:
@@ -481,8 +459,113 @@ async def handle_utility_commands(client, message, user_message):
             expression = expression.replace('^', '**')
             # Replace '√' with 'math.sqrt'
             expression = expression.replace('√', 'math.sqrt')
-            # Evaluate the expression
+            # Evaluate the expression safely
             result = eval(expression, {"__builtins__": None}, {"math": math})
             return result
         except Exception as e:
             return str(e)
+
+# Function to calculate a mathematical expression
+def calculate_expression(expression):
+    try:
+        # Remove all non-numeric and non-operator characters
+        expression = re.sub(r'[^0-9+\-*/().^√]', '', expression)
+        # Replace '^' with '**' for exponentiation
+        expression = expression.replace('^', '**')
+        # Replace '√' with 'math.sqrt'
+        expression = expression.replace('√', 'math.sqrt')
+        # Evaluate the expression safely
+        result = eval(expression, {"__builtins__": None}, {"math": math})
+        return result
+    except Exception as e:
+        return str(e)
+
+# Create a view for the calculator UI
+class CalculatorView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.expression = ""
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        return interaction.user == interaction.message.author
+
+    @discord.ui.button(label="1", style=discord.ButtonStyle.secondary)
+    async def one(self, button: Button, interaction: discord.Interaction):
+        self.expression += "1"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="2", style=discord.ButtonStyle.secondary)
+    async def two(self, button: Button, interaction: discord.Interaction):
+        self.expression += "2"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="3", style=discord.ButtonStyle.secondary)
+    async def three(self, button: Button, interaction: discord.Interaction):
+        self.expression += "3"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="+", style=discord.ButtonStyle.primary)
+    async def add(self, button: Button, interaction: discord.Interaction):
+        self.expression += "+"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="4", style=discord.ButtonStyle.secondary)
+    async def four(self, button: Button, interaction: discord.Interaction):
+        self.expression += "4"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="5", style=discord.ButtonStyle.secondary)
+    async def five(self, button: Button, interaction: discord.Interaction):
+        self.expression += "5"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="6", style=discord.ButtonStyle.secondary)
+    async def six(self, button: Button, interaction: discord.Interaction):
+        self.expression += "6"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="-", style=discord.ButtonStyle.primary)
+    async def subtract(self, button: Button, interaction: discord.Interaction):
+        self.expression += "-"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="7", style=discord.ButtonStyle.secondary)
+    async def seven(self, button: Button, interaction: discord.Interaction):
+        self.expression += "7"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="8", style=discord.ButtonStyle.secondary)
+    async def eight(self, button: Button, interaction: discord.Interaction):
+        self.expression += "8"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="9", style=discord.ButtonStyle.secondary)
+    async def nine(self, button: Button, interaction: discord.Interaction):
+        self.expression += "9"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="*", style=discord.ButtonStyle.primary)
+    async def multiply(self, button: Button, interaction: discord.Interaction):
+        self.expression += "*"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="0", style=discord.ButtonStyle.secondary)
+    async def zero(self, button: Button, interaction: discord.Interaction):
+        self.expression += "0"
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label=".", style=discord.ButtonStyle.secondary)
+    async def dot(self, button: Button, interaction: discord.Interaction):
+        self.expression += "."
+        await interaction.response.edit_message(content=self.expression)
+
+    @discord.ui.button(label="=", style=discord.ButtonStyle.success)
+    async def equals(self, button: Button, interaction: discord.Interaction):
+        result = calculate_expression(self.expression)
+        await interaction.response.edit_message(content=f"{self.expression} = {result}")
+        self.expression = ""
+
+    @discord.ui.button(label="C", style=discord.ButtonStyle.danger)
+    async def clear(self, button: Button, interaction: discord.Interaction):
+        self.expression = ""
+        await interaction.response.edit_message(content=self.expression)
