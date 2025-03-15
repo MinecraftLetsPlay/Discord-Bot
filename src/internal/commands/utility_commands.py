@@ -505,10 +505,34 @@ async def handle_utility_commands(client, message, user_message):
 
     # Helper functions for the calculator
     def solve_pq(p, q):
-        """Solves a PQ equation: x² + px + q = 0"""
-        x1 = -p/2 + math.sqrt((p/2)**2 - q)
-        x2 = -p/2 - math.sqrt((p/2)**2 - q)
-        return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
+        """Solves a PQ equation: x² + px + q = 0
+    
+        Args:
+            p: coefficient of x
+            q: constant term
+        
+        Returns:
+            str: formatted solution or error message
+        """
+        
+        if q > 0:
+            return "No real solutions (q must be ≤ 0 for real solutions)"
+        
+        # Calculate discriminant
+        discriminant = (p/2)**2 - q
+    
+        # Check if solutions are real
+        if discriminant < 0:
+            return "No real solutions (discriminant < 0)"
+        elif discriminant == 0:
+            # One solution (double root)
+            x = -p/2
+            return f"x = {x:.4g} (double root)"
+        else:
+            # Two distinct real solutions
+            x1 = -p/2 + math.sqrt(discriminant)
+            x2 = -p/2 - math.sqrt(discriminant)
+            return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
 
     def solve_quadratic(a, b, c):
         """Solves a quadratic equation: ax² + bx + c = 0"""
@@ -625,16 +649,10 @@ async def handle_utility_commands(client, message, user_message):
             # Apply all replacements for calculation
             for old, new in replacements.items():
                 expression = expression.replace(old, new)
-
-            # Debug log after replacements
-            logging.debug(f"After replacements: {expression}")
                 
             # Convert degrees to radians for trig functions
             if any(func in expression for func in ['sin(', 'cos(', 'tan(']):
                 expression = re.sub(r'(sin|cos|tan)\((.+?)\)', r'\1((\2) * pi / 180)', expression)
-
-            # Debug log after trig conversion
-            logging.debug(f"After trig conversion: {expression}")
 
             # Updated input validation to allow more characters
             if re.search(r'[^0-9+\-*/()., \w]', expression):
