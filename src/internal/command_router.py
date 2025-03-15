@@ -3,12 +3,14 @@ from internal.commands.minigames import handle_minigames_commands
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.public_commands import handle_public_commands
 from internal.commands.utility_commands import handle_utility_commands
+from internal.commands.calculator import handle_calc_command
 
 # Command handlers for each group
 command_handlers = {
     'moderation': handle_moderation_commands,
     'public': handle_public_commands,
     'utility': handle_utility_commands,
+    'calc': handle_calc_command,
     'minigames': handle_minigames_commands
 }
 

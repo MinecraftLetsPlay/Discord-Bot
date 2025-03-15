@@ -1,18 +1,16 @@
 import discord
 import aiohttp
+import asyncio
 import json
 import os
-import math
-import re
+import logging
 from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
-import logging
 from discord.ext import commands
 from discord.ui import Button, View
-import asyncio
-import sympy
-from sympy import solve, symbols, parse_expr
+from internal.commands.calculator import handle_calc_command
+
 
 #
 #
@@ -25,9 +23,6 @@ load_dotenv()
 
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
-
-# Store last result for 'ans' functionality
-LAST_RESULT = {}
     
 # Dictionary to map country codes to full country names
 country_names = {
@@ -450,255 +445,6 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
             
-    # !calc command
-    
-    # Safe math functions for the calculator
-    SAFE_FUNCTIONS = {
-        # Basic math operations
-        'sqrt': math.sqrt, 
-        'ln': math.log, 
-        'log': math.log10,
-        'log2': math.log2,
-        
-        # Trigonometric functions (in radians)
-        'sin': math.sin, 
-        'cos': math.cos, 
-        'tan': math.tan,
-        'asin': math.asin, 
-        'acos': math.acos, 
-        'atan': math.atan,
-        
-        # Hyperbolic functions
-        'sinh': math.sinh,
-        'cosh': math.cosh,
-        'tanh': math.tanh,
-        
-        # Other math functions
-        'exp': math.exp, 
-        'pow': math.pow,
-        'factorial': math.factorial,
-        'abs': abs,
-        'floor': math.floor,
-        'ceil': math.ceil,
-        'round': round,
-        
-        # Constants
-        'pi': math.pi, 
-        'e': math.e,
-        'tau': math.tau,
-        'inf': math.inf,
-        
-        # Root functions
-        'sqrt': math.sqrt,
-        'cbrt': lambda x: x**(1/3),  # Cubic root
-        'root4': lambda x: x**(1/4)   # Fourth root
-    }
-
-    # Add lambda functions to SAFE_FUNCTIONS
-    SAFE_FUNCTIONS.update({
-        'cbrt': lambda x: x**(1/3),  # Cubic root
-        'root4': lambda x: x**(1/4),  # Fourth root
-        'solve': lambda eq: solve_equation(eq),
-        'pq': lambda p, q: solve_pq(p, q),
-        'quad': lambda a, b, c: solve_quadratic(a, b, c),
-    })
-
-    # Helper functions for the calculator
-    def solve_pq(p, q):
-        """Solves a PQ equation: x² + px + q = 0
-    
-        Args:
-            p: coefficient of x
-            q: constant term
-        
-        Returns:
-            str: formatted solution or error message
-        """
-        
-        if q > 0:
-            return "No real solutions (q must be ≤ 0 for real solutions)"
-        
-        # Calculate discriminant
-        discriminant = (p/2)**2 - q
-    
-        # Check if solutions are real
-        if discriminant < 0:
-            return "No real solutions (discriminant < 0)"
-        elif discriminant == 0:
-            # One solution (double root)
-            x = -p/2
-            return f"x = {x:.4g} (double root)"
-        else:
-            # Two distinct real solutions
-            x1 = -p/2 + math.sqrt(discriminant)
-            x2 = -p/2 - math.sqrt(discriminant)
-            return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
-
-    def solve_quadratic(a, b, c):
-        """Solves a quadratic equation: ax² + bx + c = 0"""
-        discriminant = b**2 - 4*a*c
-        if discriminant < 0:
-            return "No real solutions"
-        x1 = (-b + math.sqrt(discriminant))/(2*a)
-        x2 = (-b - math.sqrt(discriminant))/(2*a)
-        return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
-
-    def solve_equation(equation_str):
-        """Solves a general equation using sympy"""
-        x = symbols('x')
-        try:
-            equation = parse_expr(equation_str)
-            solutions = solve(equation, x)
-            if not solutions:
-                return "No solutions found!"
-            return "\n".join([f"x{i+1 if len(solutions)>1 else ''} = {sol}" for i, sol in enumerate(solutions)])
-        except Exception as e:
-            return f"Error solving equation: {str(e)}"
-
+            
     if user_message.startswith('!calc'):
-        try:
-            global LAST_RESULT
-            expression = user_message[6:].strip()
-            if not expression:
-                # Help message with available functions
-                help_msg = (
-                    "📝 **Calculator Usage:**\n"
-                    "`!calc <expression>`\n\n"
-                    "**Available Functions:**\n"
-                    "• Basic Operations:\n"
-                    "  - Addition (+), Subtraction (-)\n"
-                    "  - Multiplication (×, *), Division (÷, /)\n"
-                    "  - Powers (^, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹)\n"
-                    "  - Square Root (√), Cubic Root (∛), Fourth Root (∜)\n"
-                    "\n• Mathematical Functions:\n"
-                    "  - Logarithms: ln(x), log(x), log2(x)\n"
-                    "  - Trigonometry: sin(x), cos(x), tan(x)\n"
-                    "  - Inverse Trig: asin(x), acos(x), atan(x)\n"
-                    "  - Hyperbolic: sinh(x), cosh(x), tanh(x)\n"
-                    "\n• Other Functions:\n"
-                    "  - exp(x), abs(x), factorial(x)\n"
-                    "  - floor(x), ceil(x), round(x)\n"
-                    "\n• Constants:\n"
-                    "  - π (pi), e, τ (tau), ∞ (inf)\n"
-                    "\n• Special Features:\n"
-                    "  - Previous result: ans\n"
-                    "  - Equation solving: solve(equation)\n"
-                    "  - PQ formula: pq(p,q)\n"
-                    "  - Quadratic: quad(a,b,c)\n"
-                    "\n**Examples:**\n"
-                    "• `!calc 2 + 2`\n"
-                    "• `!calc sin(45) + cos(30)`\n"
-                    "• `!calc √(16) + ∛(27)`\n"
-                    "• `!calc 2³ + π`\n"
-                    "• `!calc solve(x^2 + 2x + 1)`\n"
-                "• `!calc ans + 5`"
-            )
-                await message.channel.send(help_msg)
-                return
-
-            # Replace 'ans' with the last result for this user
-            if 'ans' in expression:
-                if message.author.id not in LAST_RESULT:
-                    await message.channel.send("❌ No previous calculation found. Cannot use 'ans'.")
-                    return
-                expression = expression.replace('ans', str(LAST_RESULT[message.author.id]))
-
-            # Debug log for initial expression
-            logging.debug(f"Initial expression: {expression}")
-
-            # Special character replacements
-            replacements = {
-                # Exponents
-                '²': '**2',
-                '³': '**3',
-                '⁴': '**4',
-                '⁵': '**5',
-                '⁶': '**6',
-                '⁷': '**7',
-                '⁸': '**8',
-                '⁹': '**9',
-
-                # Mathematical symbols
-                '^': '**',
-                '×': '*',
-                '·': '*',
-                '÷': '/',
-
-                # Roots
-                '√': 'sqrt',
-                '∛': 'cbrt',  # Cubic root as lambda function
-                '∜': 'root4',  # Fourth root as lambda function
-
-                # Greek letters and symbols
-                'π': 'pi',
-                'τ': 'tau',
-                '∞': 'inf',
-                'ℯ': 'e',
-
-                # Other symbols
-                '±': ' + [-]', # Plus or minus
-                '∓': ' - [+]',  # Minus or negative
-                '∑': 'sum',
-                '∏': 'prod',
-                '∆': 'delta',
-            }
-            
-            # Store original expression for display
-            original_expression = expression
-
-            # Apply all replacements for calculation
-            for old, new in replacements.items():
-                expression = expression.replace(old, new)
-                
-            # Convert degrees to radians for trig functions
-            if any(func in expression for func in ['sin(', 'cos(', 'tan(']):
-                expression = re.sub(r'(sin|cos|tan)\((.+?)\)', r'\1((\2) * pi / 180)', expression)
-
-            # Updated input validation to allow more characters
-            if re.search(r'[^0-9+\-*/()., \w]', expression):
-                logging.warning(f"Invalid characters in expression: {expression}")
-                await message.channel.send("❌ Invalid characters detected!")
-                return
-
-            # Calculate result
-            result = eval(expression, {"__builtins__": None}, SAFE_FUNCTIONS)
-            
-            # Store result for 'ans' functionality
-            LAST_RESULT[message.author.id] = result
-
-            # Format the result
-            if isinstance(result, float):
-                formatted_result = f"{result:.10g}"  # Show up to 10 significant digits
-            else:
-                formatted_result = str(result)
-
-            # Create embed using original expression
-            embed = discord.Embed(
-                title="🔢 Calculator",
-                color=discord.Color.blue()
-            )
-            embed.add_field(
-                name="Expression",
-                value=f"**{original_expression}**",  # Combine code block and bold
-                inline=False
-            )
-            embed.add_field(
-                name="Result",
-                value=f"**{formatted_result}**",
-                inline=False
-            )
-            
-            # Add tip for using 'ans'
-            embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use this result!")
-
-            await message.channel.send(embed=embed)
-            logging.info(f"Calculation performed for {message.author}: {expression} = {result}")
-
-        except ZeroDivisionError:
-            await message.channel.send("❌ Cannot divide by zero!")
-        except (SyntaxError, ValueError, NameError):
-            await message.channel.send("❌ Invalid expression. Type `!calc` for help.")
-            logging.warning(f"Invalid expression from {message.author}: {expression}")
-        except Exception as e:
-            await message.channel.send(f"❌ Error: {str(e)}")
-            logging.error(f"Calculation error for {message.author}: {str(e)}")
+        await handle_calc_command(message, user_message)
