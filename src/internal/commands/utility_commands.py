@@ -24,6 +24,9 @@ load_dotenv()
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
 
+# Store last result for 'ans' functionality
+LAST_RESULT = {}
+    
 # Dictionary to map country codes to full country names
 country_names = {
     "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AD": "Andorra", "AO": "Angola", "AG": "Antigua and Barbuda", "AR": "Argentina", "AM": "Armenia", "AU": "Australia", "AT": "Austria", 
@@ -446,126 +449,191 @@ async def handle_utility_commands(client, message, user_message):
             logging.error(f"Error creating reminder from {message.author}: {e}")
             
     # !calc command
+    
+    # Safe math functions for the calculator
+    SAFE_FUNCTIONS = {
+        # Basic math operations
+        'sqrt': math.sqrt, 
+        'ln': math.log, 
+        'log': math.log10,
+        'log2': math.log2,
+        
+        # Trigonometric functions (in radians)
+        'sin': math.sin, 
+        'cos': math.cos, 
+        'tan': math.tan,
+        'asin': math.asin, 
+        'acos': math.acos, 
+        'atan': math.atan,
+        
+        # Hyperbolic functions
+        'sinh': math.sinh,
+        'cosh': math.cosh,
+        'tanh': math.tanh,
+        
+        # Other math functions
+        'exp': math.exp, 
+        'pow': math.pow,
+        'factorial': math.factorial,
+        'abs': abs,
+        'floor': math.floor,
+        'ceil': math.ceil,
+        'round': round,
+        
+        # Constants
+        'pi': math.pi, 
+        'e': math.e,
+        'tau': math.tau,
+        'inf': math.inf,
+        
+        # Root functions
+        'sqrt': math.sqrt,
+        'cbrt': lambda x: x**(1/3),  # Cubic root
+        'root4': lambda x: x**(1/4)   # Fourth root
+    }
+
+    # Add lambda functions to SAFE_FUNCTIONS
+    SAFE_FUNCTIONS.update({
+        'cbrt': lambda x: x**(1/3),  # Cubic root
+        'root4': lambda x: x**(1/4)   # Fourth root
+    })
+
     if user_message.startswith('!calc'):
-        view = CalculatorView()
-        await message.channel.send("Calculator", view=view)
-
-    # Function to calculate a mathematical expression
-    def calculate_expression(expression):
         try:
-            # Remove all non-numeric and non-operator characters
-            expression = re.sub(r'[^0-9+\-*/().^√]', '', expression)
-            # Replace '^' with '**' for exponentiation
-            expression = expression.replace('^', '**')
-            # Replace '√' with 'math.sqrt'
-            expression = expression.replace('√', 'math.sqrt')
-            # Evaluate the expression safely
-            result = eval(expression, {"__builtins__": None}, {"math": math})
-            return result
+            global LAST_RESULT
+            expression = user_message[6:].strip()
+            if not expression:
+                # Help message with available functions
+                help_msg = (
+                    "📝 **Calculator Usage:**\n"
+                    "!calc <expression>\n\n"
+                    "**Available functions:**\n"
+                    "• Basic: +, -, *, /, ^, √, !, ()\n"
+                    "• Logs: ln(x), log(x), log2(x)\n"
+                    "• Trig: sin(x), cos(x), tan(x), asin(x), acos(x), atan(x)\n"
+                    "• Hyp: sinh(x), cosh(x), tanh(x)\n"
+                    "• Other: exp(x), abs(x), floor(x), ceil(x), round(x)\n"
+                    "• Constants: pi, e, tau, inf\n"
+                    "• Special: ans (last result)\n\n"
+                    "**Examples:**\n"
+                    "'!calc 2 + 2'\n"
+                    "'!calc sin(pi/2)'\n"
+                    "'!calc ln(e)'\n"
+                    "'!calc 2³ + √9'\n"
+                    "'!calc ans + 5'"
+                )
+                await message.channel.send(help_msg)
+                return
+
+            # Replace 'ans' with the last result for this user
+            if 'ans' in expression:
+                if message.author.id not in LAST_RESULT:
+                    await message.channel.send("❌ No previous calculation found. Cannot use 'ans'.")
+                    return
+                expression = expression.replace('ans', str(LAST_RESULT[message.author.id]))
+
+            # Debug log for initial expression
+            logging.debug(f"Initial expression: {expression}")
+
+            # Special character replacements
+            replacements = {
+                # Exponents
+                '²': '**2',
+                '³': '**3',
+                '⁴': '**4',
+                '⁵': '**5',
+                '⁶': '**6',
+                '⁷': '**7',
+                '⁸': '**8',
+                '⁹': '**9',
+
+                # Mathematical symbols
+                '^': '**',
+                '×': '*',
+                '·': '*',
+                '÷': '/',
+
+                # Roots
+                '√': 'sqrt',
+                '∛': 'cbrt',  # Cubic root as lambda function
+                '∜': 'root4',  # Fourth root as lambda function
+
+                # Greek letters and symbols
+                'π': 'pi',
+                'τ': 'tau',
+                '∞': 'inf',
+                'ℯ': 'e',
+
+                # Other symbols
+                '±': '+/-',
+                '∓': '-/+',
+                '∑': 'sum',
+                '∏': 'prod',
+                '∆': 'delta',
+            }
+            
+            # Store original expression for display
+            original_expression = expression
+
+            # Apply all replacements for calculation
+            for old, new in replacements.items():
+                expression = expression.replace(old, new)
+
+            # Debug log after replacements
+            logging.debug(f"After replacements: {expression}")
+                
+            # Convert degrees to radians for trig functions
+            if any(func in expression for func in ['sin(', 'cos(', 'tan(']):
+                expression = re.sub(r'(sin|cos|tan)\((.+?)\)', r'\1((\2) * pi / 180)', expression)
+
+            # Debug log after trig conversion
+            logging.debug(f"After trig conversion: {expression}")
+
+            # Updated input validation to allow more characters
+            if re.search(r'[^0-9+\-*/()., \w]', expression):
+                logging.warning(f"Invalid characters in expression: {expression}")
+                await message.channel.send("❌ Invalid characters detected!")
+                return
+
+            # Calculate result
+            result = eval(expression, {"__builtins__": None}, SAFE_FUNCTIONS)
+            
+            # Store result for 'ans' functionality
+            LAST_RESULT[message.author.id] = result
+
+            # Format the result
+            if isinstance(result, float):
+                formatted_result = f"{result:.10g}"  # Show up to 10 significant digits
+            else:
+                formatted_result = str(result)
+
+            # Create embed using original expression
+            embed = discord.Embed(
+                title="🔢 Calculator",
+                color=discord.Color.blue()
+            )
+            embed.add_field(
+                name="Expression",
+                value=f"**{original_expression}**",  # Combine code block and bold
+                inline=False
+            )
+            embed.add_field(
+                name="Result",
+                value=f"**{formatted_result}**",
+                inline=False
+            )
+            
+            # Add tip for using 'ans'
+            embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use this result!")
+
+            await message.channel.send(embed=embed)
+            logging.info(f"Calculation performed for {message.author}: {expression} = {result}")
+
+        except ZeroDivisionError:
+            await message.channel.send("❌ Cannot divide by zero!")
+        except (SyntaxError, ValueError, NameError):
+            await message.channel.send("❌ Invalid expression. Type `!calc` for help.")
+            logging.warning(f"Invalid expression from {message.author}: {expression}")
         except Exception as e:
-            return str(e)
-
-# Function to calculate a mathematical expression
-def calculate_expression(expression):
-    try:
-        # Remove all non-numeric and non-operator characters
-        expression = re.sub(r'[^0-9+\-*/().^√]', '', expression)
-        # Replace '^' with '**' for exponentiation
-        expression = expression.replace('^', '**')
-        # Replace '√' with 'math.sqrt'
-        expression = expression.replace('√', 'math.sqrt')
-        # Evaluate the expression safely
-        result = eval(expression, {"__builtins__": None}, {"math": math})
-        return result
-    except Exception as e:
-        return str(e)
-
-# Create a view for the calculator UI
-class CalculatorView(View):
-    def __init__(self):
-        super().__init__(timeout=None)
-        self.expression = ""
-
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        return interaction.user == interaction.message.author
-
-    @discord.ui.button(label="1", style=discord.ButtonStyle.secondary)
-    async def one(self, button: Button, interaction: discord.Interaction):
-        self.expression += "1"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="2", style=discord.ButtonStyle.secondary)
-    async def two(self, button: Button, interaction: discord.Interaction):
-        self.expression += "2"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="3", style=discord.ButtonStyle.secondary)
-    async def three(self, button: Button, interaction: discord.Interaction):
-        self.expression += "3"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="+", style=discord.ButtonStyle.primary)
-    async def add(self, button: Button, interaction: discord.Interaction):
-        self.expression += "+"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="4", style=discord.ButtonStyle.secondary)
-    async def four(self, button: Button, interaction: discord.Interaction):
-        self.expression += "4"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="5", style=discord.ButtonStyle.secondary)
-    async def five(self, button: Button, interaction: discord.Interaction):
-        self.expression += "5"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="6", style=discord.ButtonStyle.secondary)
-    async def six(self, button: Button, interaction: discord.Interaction):
-        self.expression += "6"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="-", style=discord.ButtonStyle.primary)
-    async def subtract(self, button: Button, interaction: discord.Interaction):
-        self.expression += "-"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="7", style=discord.ButtonStyle.secondary)
-    async def seven(self, button: Button, interaction: discord.Interaction):
-        self.expression += "7"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="8", style=discord.ButtonStyle.secondary)
-    async def eight(self, button: Button, interaction: discord.Interaction):
-        self.expression += "8"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="9", style=discord.ButtonStyle.secondary)
-    async def nine(self, button: Button, interaction: discord.Interaction):
-        self.expression += "9"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="*", style=discord.ButtonStyle.primary)
-    async def multiply(self, button: Button, interaction: discord.Interaction):
-        self.expression += "*"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="0", style=discord.ButtonStyle.secondary)
-    async def zero(self, button: Button, interaction: discord.Interaction):
-        self.expression += "0"
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label=".", style=discord.ButtonStyle.secondary)
-    async def dot(self, button: Button, interaction: discord.Interaction):
-        self.expression += "."
-        await interaction.response.edit_message(content=self.expression)
-
-    @discord.ui.button(label="=", style=discord.ButtonStyle.success)
-    async def equals(self, button: Button, interaction: discord.Interaction):
-        result = calculate_expression(self.expression)
-        await interaction.response.edit_message(content=f"{self.expression} = {result}")
-        self.expression = ""
-
-    @discord.ui.button(label="C", style=discord.ButtonStyle.danger)
-    async def clear(self, button: Button, interaction: discord.Interaction):
-        self.expression = ""
-        await interaction.response.edit_message(content=self.expression)
+            await message.channel.send(f"❌ Error: {str(e)}")
+            logging.error(f"Calculation error for {message.author}: {str(e)}")
