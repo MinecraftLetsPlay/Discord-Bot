@@ -448,18 +448,22 @@ async def handle_utility_commands(client, message, user_message):
             
     # !translate command
     if user_message.startswith('!translate'):
-        parts = user_message.split(' ', 2)
+        parts = user_message.split('"')
         if len(parts) < 3:
-            await message.channel.send("❌ Usage: !translate <language> <text>")
+            await message.channel.send("❌ Usage: !translate \"language\" \"text\"")
+            logging.info(f"User {message.author} tried to use translate command with invalid parameters")
             return
-        target_language = parts[1]
-        text = parts[2]
+
+        target_language = parts[1].strip()
+        text = parts[3].strip()
         translator = googletrans.Translator()
+        
         try:
-            translated = translator.translate(text, dest=target_language)
-            await message.channel.send(f"Translation ({target_language}): {translated.text}")
+            translated = await translator.translate(text, dest=target_language)
+            await message.channel.send(f"Translation ({target_language}): {translated}")
+            logging.info(f"Translated text for {message.author}: '{text}' to {target_language}")
         except Exception as e:
-            await message.channel.send("⚠️ Error translating text. Please try again.")
+            await message.channel.send("⚠️ Error translating text. Make sure to use valid language codes (e.g., 'en' for English, 'de' for German)")
             logging.error(f"Error translating text: {e}")
             
     # !calc command
