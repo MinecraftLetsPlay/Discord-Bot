@@ -16,7 +16,7 @@ command_handlers = {
 command_groups = {
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
-    'utility': ['!ping', '!uptime', '!weather', '!city', '!download', '!time', '!poll', '!reminder', 'calc'],
+    'utility': ['!ping', '!uptime', '!weather', '!city', '!download', '!time', '!poll', '!reminder', '!calc'],
     'minigames': ['!rps', '!guess', '!hangman', '!quiz', '!roll']
 }
 
