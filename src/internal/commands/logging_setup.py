@@ -5,7 +5,20 @@ from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 
-# Load config
+class CustomRotatingFileHandler(TimedRotatingFileHandler):
+    def __init__(self, filename, when='h', interval=1, backupCount=0, encoding=None):
+        # Generiere initialen Dateinamen mit Zeitstempel
+        timestamp = datetime.now().strftime("%d.%m.%Y_%H.%M.%S")
+        filename = f'{filename}_{timestamp}.txt'
+        super().__init__(filename, when, interval, backupCount, encoding=encoding)
+
+    def rotation_filename(self, default_name):
+        # Generiere neuen Dateinamen bei Rotation
+        dir_name, base_name = os.path.split(default_name)
+        timestamp = datetime.now().strftime("%d.%m.%Y_%H.%M.%S")
+        return os.path.join(dir_name, f'bot.log_{timestamp}.txt')
+
+# Rest der Konfiguration
 config = utils.load_config()
 log_directory = config.get("log_file_location")
 
@@ -17,22 +30,15 @@ if not os.path.exists(log_directory):
         print(f"Permission denied: {e}")
         sys.exit(1)
 
-# Generate initial log file name with timestamp
-timestamp = datetime.now().strftime("%d.%m.%Y_%H.%M.%S")
-log_file = os.path.join(log_directory, f'bot_{timestamp}.log')
-
-# Setup logging with TimedRotatingFileHandler
-handler = TimedRotatingFileHandler(
+# Setup logging with CustomRotatingFileHandler
+log_file = os.path.join(log_directory, 'bot.log')
+handler = CustomRotatingFileHandler(
     log_file,
     when="midnight",
     interval=1,
     backupCount=10,
     encoding="utf-8"
 )
-
-# Configure the handler
-handler.suffix = "%d.%m.%Y_%H.%M.%S"
-handler.namer = lambda name: name.replace(".log.", "_") + ".txt"
 
 # Basic logging configuration
 logging.basicConfig(
