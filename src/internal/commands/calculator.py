@@ -41,105 +41,76 @@ async def calculate_with_timeout(expression):
         raise CalculatorError("Calculation timed out")
     
 def solve_pq(p, q):
-    """Solves a PQ equation: x² + px + q = 0"""
-    if q > 0:
-        return "No real solutions (q must be ≤ 0 for real solutions)"
-        
-    discriminant = (p/2)**2 - q
-    
+    """Löst eine PQ-Formel-Gleichung: x² + px + q = 0"""
+    discriminant = (p / 2) ** 2 - q
+
     if discriminant < 0:
-        return "No real solutions (discriminant < 0)"
+        return "Keine reellen Lösungen (diskriminante < 0)"
     elif discriminant == 0:
-        x = -p/2
-        return f"x = {x:.4g} (double root)"
+        x = -p / 2
+        return f"x = {x:.4g} (doppelte Lösung)"
     else:
-        x1 = -p/2 + math.sqrt(discriminant)
-        x2 = -p/2 - math.sqrt(discriminant)
+        x1 = -p / 2 + math.sqrt(discriminant)
+        x2 = -p / 2 - math.sqrt(discriminant)
         return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
 
 def solve_quadratic(a, b, c):
-    """Solves a quadratic equation: ax² + bx + c = 0"""
-    discriminant = b**2 - 4*a*c
+    """Löst eine quadratische Gleichung: ax² + bx + c = 0"""
+    discriminant = b ** 2 - 4 * a * c
     if discriminant < 0:
-        return "No real solutions"
-    x1 = (-b + math.sqrt(discriminant))/(2*a)
-    x2 = (-b - math.sqrt(discriminant))/(2*a)
+        return "Keine reellen Lösungen"
+    x1 = (-b + math.sqrt(discriminant)) / (2 * a)
+    x2 = (-b - math.sqrt(discriminant)) / (2 * a)
     return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
 
 def solve_equation(equation_str: str) -> str:
     """
-    Solves a mathematical equation using sympy.
-    
-    Args:
-        equation_str (str): The equation to solve, e.g. 'x^2 - 4' or 'x^2 + 2*x + 1'
-        
-    Returns:
-        str: Formatted solution or error message
+    Löst eine mathematische Gleichung mit SymPy.
     """
     try:
-        x = sympy.Symbol('x')
-        
-        # Replace ^ with ** for exponentiation
-        equation_str = equation_str.replace('^', '**')
-        
-        # Convert string to sympy expression
-        expr = sympy.sympify(equation_str)
-        
-        # Solve the equation
-        solutions = sympy.solve(expr, x)
-        
-        # Convert complex solutions to string representation
-        solutions = [complex(sol.evalf()) if isinstance(sol, sympy.Expr) else sol 
-                    for sol in solutions]
-        
+        x = symbols('x')
+        equation_str = equation_str.replace('^', '**')  # Ersetze ^ mit ** für Potenzen
+        expr = sympify(equation_str)
+        solutions = solve(expr, x)
+
         if not solutions:
-            return "No solutions found!"
-            
-        # Format solutions
-        if len(solutions) == 1:
-            return f"x = {solutions[0]}"
-        elif len(solutions) == 2:
-            if solutions[0] == solutions[1]:
-                return f"x = {solutions[0]} (double root)"
+            return "Keine Lösungen gefunden!"
+        
+        # Formatierung der Lösungen
+        formatted_solutions = []
+        for i, sol in enumerate(solutions, start=1):
+            sol = sol.evalf()  # Wert berechnen
+            if sol.is_real:
+                formatted_solutions.append(f"x{i} = {sol:.4g}")
             else:
-                # Check if solutions are real or complex
-                solution_strings = []
-                for i, sol in enumerate(solutions, 1):
-                    if isinstance(sol, complex):
-                        if sol.imag == 0:
-                            solution_strings.append(f"x₁ = {sol.real}")
-                        else:
-                            solution_strings.append(f"x₁ = {sol}")
-                    else:
-                        solution_strings.append(f"x₁ = {sol}")
-                return "\n".join(solution_strings)
-        else:
-            return "\n".join([f"x₁ = {sol}" for sol in solutions])
-            
+                formatted_solutions.append(f"x{i} = {sol}")
+
+        return "\n".join(formatted_solutions)
+
     except sympy.SympifyError as e:
-        logging.error(f"Error parsing equation: {equation_str} - {str(e)}")
-        return "Invalid equation format"
+        logging.error(f"Fehler beim Parsen der Gleichung: {equation_str} - {str(e)}")
+        return "Ungültiges Gleichungsformat"
     except Exception as e:
-        logging.error(f"Error solving equation: {equation_str} - {str(e)}")
-        return f"Error solving equation: {str(e)}"
-    
+        logging.error(f"Fehler beim Lösen der Gleichung: {equation_str} - {str(e)}")
+        return f"Fehler beim Lösen: {str(e)}"
+
 def solve_equation_system(equations):
-    """Solves a system of equations using sympy"""
+    """Löst ein Gleichungssystem mit SymPy"""
     try:
         x, y = symbols('x y')
         equations = [sympify(eq) for eq in equations]
         solutions = solve(equations, (x, y))
-        
+
         if not solutions:
-            return "No solutions found!"
-            
+            return "Keine Lösungen gefunden!"
+        
         if isinstance(solutions, dict):
             return "\n".join([f"{var} = {val}" for var, val in solutions.items()])
         else:
-            return "\n".join([f"Solution {i+1}: x = {sol[0]}, y = {sol[1]}" 
-                            for i, sol in enumerate(solutions)])
+            return "\n".join([f"Lösung {i+1}: x = {sol[0]}, y = {sol[1]}" 
+                              for i, sol in enumerate(solutions)])
     except Exception as e:
-        return f"Error solving equation system: {str(e)}"
+        return f"Fehler beim Lösen des Gleichungssystems: {str(e)}"
 
 # Safe math functions for the calculator
 SAFE_FUNCTIONS = {
