@@ -66,16 +66,61 @@ def solve_quadratic(a, b, c):
     x2 = (-b - math.sqrt(discriminant))/(2*a)
     return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
 
-def solve_equation(equation_str):
-    """Solves a general equation using sympy"""
-    x = symbols('x')
+def solve_equation(equation_str: str) -> str:
+    """
+    Solves a mathematical equation using sympy.
+    
+    Args:
+        equation_str (str): The equation to solve, e.g. 'x^2 - 4' or 'x^2 + 2*x + 1'
+        
+    Returns:
+        str: Formatted solution or error message
+    """
     try:
-        equation = parse_expr(equation_str)
-        solutions = solve(equation, x)
+        x = sympy.Symbol('x')
+        
+        # Replace ^ with ** for exponentiation
+        equation_str = equation_str.replace('^', '**')
+        
+        # Convert string to sympy expression
+        expr = sympy.sympify(equation_str)
+        
+        # Solve the equation
+        solutions = sympy.solve(expr, x)
+        
+        # Convert complex solutions to string representation
+        solutions = [complex(sol.evalf()) if isinstance(sol, sympy.Expr) else sol 
+                    for sol in solutions]
+        
         if not solutions:
             return "No solutions found!"
-        return "\n".join([f"x{i+1 if len(solutions)>1 else ''} = {sol}" for i, sol in enumerate(solutions)])
+            
+        # Format solutions
+        if len(solutions) == 1:
+            return f"x = {solutions[0]}"
+        elif len(solutions) == 2:
+            if solutions[0] == solutions[1]:
+                return f"x = {solutions[0]} (double root)"
+            else:
+                # Check if solutions are real or complex
+                solution_strings = []
+                for i, sol in enumerate(solutions, 1):
+                    if isinstance(sol, complex):
+                        if sol.imag == 0:
+                            solution_strings.append(f"x₁ = {sol.real}")
+                        else:
+                            solution_strings.append(f"x₁ = {sol}")
+                    else:
+                        solution_strings.append(f"x₁ = {sol}")
+                return "\n".join(solution_strings)
+        else:
+            return "\n".join([f"x₁ = {sol}" for sol in solutions])
+            
+    except sympy.SympifyError as e:
+        logging.error(f"Error parsing equation: {equation_str} - {str(e)}")
+        return "Invalid equation format"
     except Exception as e:
+        logging.error(f"Error solving equation: {equation_str} - {str(e)}")
         return f"Error solving equation: {str(e)}"
     
 def solve_equation_system(equations):
@@ -147,7 +192,7 @@ SAFE_FUNCTIONS = {
 SAFE_FUNCTIONS.update({
     'cbrt': lambda x: x**(1/3),  # Cubic root
     'root4': lambda x: x**(1/4),  # Fourth root
-    'solve': lambda eq: solve_equation(eq),
+    'solve': solve_equation,
     'pq': lambda p, q: solve_pq(p, q),
     'quad': lambda a, b, c: solve_quadratic(a, b, c),
     'solve_system': solve_equation_system
