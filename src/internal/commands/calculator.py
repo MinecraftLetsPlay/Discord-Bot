@@ -3,57 +3,43 @@ import math
 import re
 import logging
 import sympy
-from sympy import solve, symbols, parse_expr
+import asyncio
+from sympy import solve, symbols, parse_expr, sympify
 
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
 
-# Safe math functions for the calculator
-SAFE_FUNCTIONS = {
-    # Basic math operations
-    'sqrt': math.sqrt, 
-    'ln': math.log, 
-    'log': math.log10,
-    'log2': math.log2,
-        
-    # Trigonometric functions (in radians)
-    'sin': math.sin, 
-    'cos': math.cos, 
-    'tan': math.tan,
-    'asin': math.asin, 
-    'acos': math.acos, 
-    'atan': math.atan,
-        
-    # Hyperbolic functions
-    'sinh': math.sinh,
-    'cosh': math.cosh,
-    'tanh': math.tanh,
-        
-    # Other math functions
-    'exp': math.exp, 
-    'pow': math.pow,
-    'factorial': math.factorial,
-    'abs': abs,
-    'floor': math.floor,
-    'ceil': math.ceil,
-    'round': round,
-        
-    # Constants
-    'pi': math.pi, 
-    'e': math.e,
-    'tau': math.tau,
-    'inf': math.inf
-}
+# Sicherheitskonfiguration
+MAX_EXPRESSION_LENGTH = 500
+CALCULATION_TIMEOUT = 5  # Sekunden
 
-# Add additional functions to SAFE_FUNCTIONS
-SAFE_FUNCTIONS.update({
-    'cbrt': lambda x: x**(1/3),  # Cubic root
-    'root4': lambda x: x**(1/4),  # Fourth root
-    'solve': lambda eq: solve_equation(eq),
-    'pq': lambda p, q: solve_pq(p, q),
-    'quad': lambda a, b, c: solve_quadratic(a, b, c)
-})
+def is_safe_expression(expression):
+    """Checks if an expression is safe to evaluate"""
+    if len(expression) > MAX_EXPRESSION_LENGTH:
+        return False, "Expression too long (max 500 characters)"
+        
+    dangerous_keywords = ['import', 'eval', 'exec', 'open', '__']
+    if any(keyword in expression.lower() for keyword in dangerous_keywords):
+        return False, "Invalid keywords detected"
+        
+    if expression.count('(') != expression.count(')'):
+        return False, "Unbalanced parentheses"
+        
+    return True, ""
 
+async def calculate_with_timeout(expression):
+    """Executes calculation with timeout"""
+    try:
+        return await asyncio.wait_for(
+            asyncio.get_event_loop().run_in_executor(
+                None, 
+                lambda: sympify(expression, locals=SAFE_FUNCTIONS)
+            ),
+            timeout=CALCULATION_TIMEOUT
+        )
+    except asyncio.TimeoutError:
+        raise CalculatorError("Calculation timed out")
+    
 def solve_pq(p, q):
     """Solves a PQ equation: x² + px + q = 0"""
     if q > 0:
@@ -91,6 +77,99 @@ def solve_equation(equation_str):
         return "\n".join([f"x{i+1 if len(solutions)>1 else ''} = {sol}" for i, sol in enumerate(solutions)])
     except Exception as e:
         return f"Error solving equation: {str(e)}"
+    
+def solve_equation_system(equations):
+    """Solves a system of equations using sympy"""
+    try:
+        x, y = symbols('x y')
+        equations = [sympify(eq) for eq in equations]
+        solutions = solve(equations, (x, y))
+        
+        if not solutions:
+            return "No solutions found!"
+            
+        if isinstance(solutions, dict):
+            return "\n".join([f"{var} = {val}" for var, val in solutions.items()])
+        else:
+            return "\n".join([f"Solution {i+1}: x = {sol[0]}, y = {sol[1]}" 
+                            for i, sol in enumerate(solutions)])
+    except Exception as e:
+        return f"Error solving equation system: {str(e)}"
+
+# Safe math functions for the calculator
+SAFE_FUNCTIONS = {
+    # Basic math operations
+    'sqrt': math.sqrt, 
+    'ln': math.log, 
+    'log': math.log10,
+    'log2': math.log2,
+        
+    # Trigonometric functions (in radians)
+    'sin': math.sin, 
+    'cos': math.cos, 
+    'tan': math.tan,
+    'asin': math.asin, 
+    'acos': math.acos, 
+    'atan': math.atan,
+        
+    # Hyperbolic functions
+    'sinh': math.sinh,
+    'cosh': math.cosh,
+    'tanh': math.tanh,
+        
+    # Other math functions
+    'exp': math.exp, 
+    'pow': math.pow,
+    'factorial': math.factorial,
+    'abs': abs,
+    'floor': math.floor,
+    'ceil': math.ceil,
+    'round': round,
+        
+    # Constants
+    'pi': math.pi, 
+    'e': math.e,
+    'tau': math.tau,
+    'inf': math.inf,
+    
+    # Summation and product functions
+    'sum': lambda expr, start, end: sum(sympify(expr).subs('n', i) for i in range(start, end + 1)),
+    'prod': lambda expr, start, end: math.prod(sympify(expr).subs('n', i) for i in range(start, end + 1)),
+    
+    # Unit conversions
+    'c_to_f': lambda x: x * 9/5 + 32,
+    'f_to_c': lambda x: (x - 32) * 5/9,
+    'km_to_mi': lambda x: x * 0.621371,
+    'mi_to_km': lambda x: x / 0.621371,
+}
+
+# Add additional functions to SAFE_FUNCTIONS
+SAFE_FUNCTIONS.update({
+    'cbrt': lambda x: x**(1/3),  # Cubic root
+    'root4': lambda x: x**(1/4),  # Fourth root
+    'solve': lambda eq: solve_equation(eq),
+    'pq': lambda p, q: solve_pq(p, q),
+    'quad': lambda a, b, c: solve_quadratic(a, b, c),
+    'solve_system': solve_equation_system
+})
+
+class CalculatorError(Exception):
+    """Custom calculator exception"""
+    pass
+
+def format_error(error):
+    """Formats error messages user-friendly"""
+    error_mapping = {
+        ZeroDivisionError: "Cannot divide by zero",
+        OverflowError: "Number too large",
+        ValueError: "Invalid input",
+        SyntaxError: "Invalid expression syntax",
+        CalculatorError: str(error),
+        sympy.core.sympify.SympifyError: "Invalid mathematical expression"
+    }
+    return error_mapping.get(type(error), str(error))
+
+
 
 async def handle_calc_command(message, user_message):
     """Handles the calculator command"""
@@ -116,22 +195,32 @@ async def handle_calc_command(message, user_message):
 
 async def process_calculation(message, expression):
     """Processes the calculation and returns the result"""
+    # Check for previous result
     if 'ans' in expression:
         if message.author.id not in LAST_RESULT:
             await message.channel.send("❌ No previous calculation found. Cannot use 'ans'.")
             return None
         expression = expression.replace('ans', str(LAST_RESULT[message.author.id]))
 
-    expression = replace_special_characters(expression)
-    
-    if re.search(r'[^0-9+\-*/()., \w]', expression):
-        logging.warning(f"Invalid characters in expression: {expression}")
-        await message.channel.send("❌ Invalid characters detected!")
+    # Safety checks
+    is_safe, error_msg = is_safe_expression(expression)
+    if not is_safe:
+        await message.channel.send(f"❌ {error_msg}")
         return None
 
-    result = eval(expression, {"__builtins__": None}, SAFE_FUNCTIONS)
-    LAST_RESULT[message.author.id] = result
-    return result
+    # Replace special characters
+    expression = replace_special_characters(expression)
+
+    try:
+        # Calculate with timeout
+        result = await calculate_with_timeout(expression)
+        LAST_RESULT[message.author.id] = result
+        return result
+    except Exception as e:
+        error_msg = format_error(e)
+        await message.channel.send(f"❌ {error_msg}")
+        logging.error(f"Calculation error for {message.author}: {error_msg}")
+        return None
 
 async def send_calculation_result(message, original_expression, result):
     """Sends the calculation result as an embed"""
@@ -173,6 +262,10 @@ async def send_help_message(message):
         "  - Equation solving: solve(equation)\n"
         "  - PQ formula: pq(p,q)\n"
         "  - Quadratic: quad(a,b,c)\n"
+        "  - Equation systems: solve_system([eq1, eq2])\n"
+        "  - Summation: sum(expr, start, end)\n"
+        "  - Product: prod(expr, start, end)\n"
+        "  - Unit conversion: c_to_f(x), km_to_mi(x)\n"
         "\n**Examples:**\n"
         "• `!calc 2 + 2`\n"
         "• `!calc sin(45) + cos(30)`\n"
@@ -180,6 +273,9 @@ async def send_help_message(message):
         "• `!calc 2³ + π`\n"
         "• `!calc solve(x^2 + 2x + 1)`\n"
         "• `!calc ans + 5`"
+        "• `!calc solve_system(['x + y = 5', 'x - y = 1'])`\n"
+        "• `!calc sum('n**2', 1, 5)`\n"
+        "• `!calc c_to_f(20)`"
     )
     await message.channel.send(help_msg)
 
@@ -212,5 +308,7 @@ def replace_special_characters(expression):
     # Convert degrees to radians for trig functions
     if any(func in result for func in ['sin(', 'cos(', 'tan(']):
         result = re.sub(r'(sin|cos|tan)\((.+?)\)', r'\1((\2) * pi / 180)', result)
+        
+
         
     return result
