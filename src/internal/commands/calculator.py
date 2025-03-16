@@ -18,7 +18,7 @@ def is_safe_expression(expression):
     if len(expression) > MAX_EXPRESSION_LENGTH:
         return False, "Expression too long (max 500 characters)"
         
-    dangerous_keywords = ['import', 'eval', 'exec', 'open', '__']
+    dangerous_keywords = ['import', 'eval', 'exec', 'open', '__', 'javascript:', 'js:', 'file:', 'ftp:', 'http:', 'https:', 'data:', r"\\x[0-9a-fA-F]{2}"]
     if any(keyword in expression.lower() for keyword in dangerous_keywords):
         return False, "Invalid keywords detected"
         
