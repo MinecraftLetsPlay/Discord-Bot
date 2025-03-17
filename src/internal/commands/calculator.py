@@ -48,11 +48,11 @@ def solve_pq(p, q):
         return "Keine reellen Lösungen (diskriminante < 0)"
     elif discriminant == 0:
         x = -p / 2
-        return f"x = {x:.4g} (doppelte Lösung)"
+        return f"x = {format_number(x)} (doppelte Lösung)"
     else:
         x1 = -p / 2 + math.sqrt(discriminant)
         x2 = -p / 2 - math.sqrt(discriminant)
-        return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
+        return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
 
 def solve_quadratic(a, b, c):
     """Löst eine quadratische Gleichung: ax² + bx + c = 0"""
@@ -61,7 +61,7 @@ def solve_quadratic(a, b, c):
         return "Keine reellen Lösungen"
     x1 = (-b + math.sqrt(discriminant)) / (2 * a)
     x2 = (-b - math.sqrt(discriminant)) / (2 * a)
-    return f"x₁ = {x1:.4g}\nx₂ = {x2:.4g}"
+    return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
 
 def solve_equation(equation_str: str) -> str:
     """
@@ -81,7 +81,7 @@ def solve_equation(equation_str: str) -> str:
         for i, sol in enumerate(solutions, start=1):
             sol = sol.evalf()  # Wert berechnen
             if sol.is_real:
-                formatted_solutions.append(f"x{i} = {sol:.4g}")
+                formatted_solutions.append(f"x{i} = {format_number(float(sol))}")  # float() hinzugefügt
             else:
                 formatted_solutions.append(f"x{i} = {sol}")
 
@@ -105,10 +105,12 @@ def solve_equation_system(equations):
             return "Keine Lösungen gefunden!"
         
         if isinstance(solutions, dict):
-            return "\n".join([f"{var} = {val}" for var, val in solutions.items()])
+            return "\n".join([f"{var} = {format_number(float(val))}" for var, val in solutions.items()])
         else:
-            return "\n".join([f"Lösung {i+1}: x = {sol[0]}, y = {sol[1]}" 
-                              for i, sol in enumerate(solutions)])
+            return "\n".join([
+                f"Lösung {i+1}: x = {format_number(float(sol[0]))}, y = {format_number(float(sol[1]))}" 
+                for i, sol in enumerate(solutions)
+            ])
     except Exception as e:
         return f"Fehler beim Lösen des Gleichungssystems: {str(e)}"
 
@@ -240,7 +242,10 @@ async def process_calculation(message, expression):
 
 async def send_calculation_result(message, original_expression, result):
     """Sends the calculation result as an embed"""
-    formatted_result = f"{result:.10g}" if isinstance(result, float) else str(result)
+    if isinstance(result, (int, float, str)):
+        formatted_result = format_number(result)
+    else:
+        formatted_result = str(result)
     
     embed = discord.Embed(
         title="🔢 Calculator",
@@ -324,6 +329,43 @@ def replace_special_characters(expression):
     # Convert degrees to radians for trig functions
     if any(func in result for func in ['sin(', 'cos(', 'tan(']):
         result = re.sub(r'(sin|cos|tan)\((.+?)\)', r'\1((\2) * pi / 180)', result)
+    
+    return result  # Dies war am falschen Ort
+
+def format_number(value: str) -> str:
+    """
+    Formatiert Zahlen-Strings für bessere Lesbarkeit:
+    - Entfernt unnötige Nachkommastellen
+    - Konvertiert wissenschaftliche Notation wenn sinnvoll
+    """
+    try:
+        # Wenn es keine Zahl ist, original zurückgeben
+        if not isinstance(value, (str, int, float)):
+            return str(value)
+            
+        # String in Float konvertieren
+        num = float(str(value).strip())
+        
+        # Ganzzahl check
+        if num.is_integer():
+            return str(int(num))
+            
+        # Wissenschaftliche Notation für sehr große/kleine Zahlen
+        abs_num = abs(num)
+        if abs_num < 0.0001 or abs_num > 10000:
+            return f"{num:.2e}"
+            
+        # Entferne unnötige Nullen am Ende
+        str_num = f"{num:.10f}".rstrip('0').rstrip('.')
+        
+        # Wenn mehr als 4 Nachkommastellen, auf 4 runden
+        if '.' in str_num and len(str_num.split('.')[1]) > 4:
+            return f"{num:.4f}".rstrip('0').rstrip('.')
+            
+        return str_num
+        
+    except (ValueError, TypeError):
+        return str(value)
         
 
         
