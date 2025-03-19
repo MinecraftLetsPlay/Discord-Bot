@@ -47,30 +47,30 @@ async def calculate_with_timeout(expression):
         raise CalculatorError("Calculation timed out")
     
 def solve_pq(p, q):
-    """Löst eine PQ-Formel-Gleichung: x² + px + q = 0"""
+    """Solves a PQ-Equation: x² + px + q = 0"""
     discriminant = (p / 2) ** 2 - q
 
     if discriminant < 0:
-        return "Keine reellen Lösungen (diskriminante < 0)"
+        return "No real solutions (discriminant < 0)"
     elif discriminant == 0:
         x = -p / 2
-        return f"x = {format_number(x)} (doppelte Lösung)"
+        return f"x = {format_number(x)} (double root)"
     else:
         x1 = -p / 2 + math.sqrt(discriminant)
         x2 = -p / 2 - math.sqrt(discriminant)
         return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
 
 def solve_quadratic(a, b, c):
-    """Löst eine quadratische Gleichung: ax² + bx + c = 0"""
+    """Solves a quadratic equation: ax² + bx + c = 0"""
     discriminant = b ** 2 - 4 * a * c
     if discriminant < 0:
-        return "Keine reellen Lösungen"
+        return "No real solutions (discriminant < 0)"
     x1 = (-b + math.sqrt(discriminant)) / (2 * a)
     x2 = (-b - math.sqrt(discriminant)) / (2 * a)
     return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
 
 def solve_equation(equation_str: str) -> str:
-    """Löst eine mathematische Gleichung mit SymPy."""
+    """Solves an equation system using sympy."""
     try:
         x = symbols('x')
         # Entferne Anführungszeichen, falls vorhanden
@@ -84,7 +84,7 @@ def solve_equation(equation_str: str) -> str:
         solutions = solve(expr, x)
 
         if not solutions:
-            return "Keine Lösungen gefunden!"
+            return "No results found!"
         
         formatted_solutions = []
         for i, sol in enumerate(solutions, start=1):
@@ -97,21 +97,21 @@ def solve_equation(equation_str: str) -> str:
         return "\n".join(formatted_solutions)
 
     except sympy.SympifyError as e:
-        logging.error(f"Fehler beim Parsen der Gleichung: {equation_str} - {str(e)}")
-        return "Ungültiges Gleichungsformat"
+        logging.error(f"Error parsing equation: {equation_str} - {str(e)}")
+        return f"Invalid equation format: {str(e)}"
     except Exception as e:
-        logging.error(f"Fehler beim Lösen der Gleichung: {equation_str} - {str(e)}")
-        return f"Fehler beim Lösen: {str(e)}"
+        logging.error(f"Error solving equation: {equation_str} - {str(e)}")
+        return f"Error while solving: {str(e)}"
 
 def solve_equation_system(equations):
-    """Löst ein Gleichungssystem mit SymPy"""
+    """Solves a system of equations using SymPy"""
     try:
         x, y = symbols('x y')
         equations = [sympify(eq) for eq in equations]
         solutions = solve(equations, (x, y))
 
         if not solutions:
-            return "Keine Lösungen gefunden!"
+            return "No results found!"
         
         if isinstance(solutions, dict):
             return "\n".join([f"{var} = {format_number(float(val))}" for var, val in solutions.items()])
@@ -121,7 +121,7 @@ def solve_equation_system(equations):
                 for i, sol in enumerate(solutions)
             ])
     except Exception as e:
-        return f"Fehler beim Lösen des Gleichungssystems: {str(e)}"
+        return f"Error solving equation system: {str(e)}"
 
 # Safe math functions for the calculator
 SAFE_FUNCTIONS = {
@@ -339,15 +339,18 @@ def replace_special_characters(expression):
     if any(func in result for func in ['sin(', 'cos(', 'tan(']):
         result = re.sub(r'(sin|cos|tan)\((.+?)\)', r'\1((\2) * pi / 180)', result)
     
-    return result  # Dies war am falschen Ort
+    return result
 
 def format_number(value: float | str) -> str:
     """
-    Formatiert Zahlen für bessere Lesbarkeit.
-    Behandelt auch Brüche und spezielle Werte.
+    Formats a number to a user-friendly string
+    - Converts very small numbers near 0 to 0
+    - Converts integers to whole numbers
+    - Rounds decimal numbers to 4 decimal places
+    - Removes unnecessary trailing zeros
     """
     try:
-        # Konvertiere zu Float
+        # Konvert to float if string
         if isinstance(value, str):
             if '/' in value:
                 num, denom = map(float, value.split('/'))
@@ -357,28 +360,28 @@ def format_number(value: float | str) -> str:
         
         num = float(value)
         
-        # Sehr kleine Zahlen nahe 0 als 0 ausgeben
+        # If numbers are close to 0 (within 1e-10), return 0
         if abs(num) < 1e-10:
             return "0"
             
-        # Ganzzahl check
+        # If number is an integer (8.0), return as whole number (8)
         if abs(num - round(num)) < 1e-10:
             return str(int(round(num)))
             
-        # Spezielle Werte
+        # Convert PI to 3.1416
         if abs(abs(num) - math.pi) < 1e-10:
             return "3.1416"
             
-        # Wissenschaftliche Notation für sehr große/kleine Zahlen
+        # Scientific notation for very small or large numbers
         abs_num = abs(num)
         if abs_num < 0.0001 or abs_num > 10000:
             return f"{num:.2e}"
             
-        # Dezimalzahlen auf 4 Stellen runden und unnötige Nullen entfernen
+        # Round to 4 decimal places
         rounded = round(num, 4)
         str_num = f"{rounded}"
         
-        # Entferne unnötige Nullen am Ende
+        # Remove trailing zeros and decimal point
         if '.' in str_num:
             str_num = str_num.rstrip('0').rstrip('.')
             
