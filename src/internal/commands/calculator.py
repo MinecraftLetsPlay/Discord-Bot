@@ -20,7 +20,7 @@ def is_safe_expression(expression):
         
     dangerous_keywords = ['import', 'eval', 'exec', 'open', '__', 'javascript:', 'js:', 'file:', 'ftp:', 'http:', 'https:', 'data:', r"\\x[0-9a-fA-F]{2}"]
     if any(keyword in expression.lower() for keyword in dangerous_keywords):
-        return False, "Invalid keywords detected"
+        return False, "Forbidden keywords detected"
         
     if expression.count('(') != expression.count(')'):
         return False, "Unbalanced parentheses"
@@ -51,10 +51,10 @@ def solve_pq(p, q):
     discriminant = (p / 2) ** 2 - q
 
     if discriminant < 0:
-        return "No real solutions (discriminant < 0)"
+        return "No real roots (discriminant < 0)"
     elif discriminant == 0:
         x = -p / 2
-        return f"x = {format_number(x)} (double root)"
+        return f"x = {format_number(x)} (repeated root)"
     else:
         x1 = -p / 2 + math.sqrt(discriminant)
         x2 = -p / 2 - math.sqrt(discriminant)
@@ -84,7 +84,7 @@ def solve_equation(equation_str: str) -> str:
         solutions = solve(expr, x)
 
         if not solutions:
-            return "No results found!"
+            return "No valid solutions found!"
         
         formatted_solutions = []
         for i, sol in enumerate(solutions, start=1):
@@ -101,7 +101,7 @@ def solve_equation(equation_str: str) -> str:
         return f"Invalid equation format: {str(e)}"
     except Exception as e:
         logging.error(f"Error solving equation: {equation_str} - {str(e)}")
-        return f"Error while solving: {str(e)}"
+        return f"An error occured while solving: {str(e)}"
 
 def solve_equation_system(equations):
     """Solves a system of equations using SymPy"""
@@ -111,7 +111,7 @@ def solve_equation_system(equations):
         solutions = solve(equations, (x, y))
 
         if not solutions:
-            return "No results found!"
+            return "No solution found!"
         
         if isinstance(solutions, dict):
             return "\n".join([f"{var} = {format_number(float(val))}" for var, val in solutions.items()])
@@ -188,7 +188,7 @@ def format_error(error):
     """Formats error messages user-friendly"""
     error_mapping = {
         ZeroDivisionError: "Cannot divide by zero",
-        OverflowError: "Number too large",
+        OverflowError: "Value exeeds allowed range",
         ValueError: "Invalid input",
         SyntaxError: "Invalid expression syntax",
         CalculatorError: str(error),
@@ -262,7 +262,7 @@ async def send_calculation_result(message, original_expression, result):
     )
     embed.add_field(name="Expression", value=f"**{original_expression}**", inline=False)
     embed.add_field(name="Result", value=f"**{formatted_result}**", inline=False)
-    embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use this result!")
+    embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use the last result!!")
 
     await message.channel.send(embed=embed)
     logging.info(f"Calculation performed for {message.author}: {original_expression} = {result}")
@@ -270,7 +270,7 @@ async def send_calculation_result(message, original_expression, result):
 async def send_help_message(message):
     """Sends the help message for the calculator"""
     help_msg = (
-        "📝 **Calculator Usage:**\n\n"
+        "📝 **How to use the calculator:**\n\n"
         "`!calc <expression>`\n\n"
         "**Basic Operations:**\n"
         "  - Addition (+), Subtraction (-)\n"
