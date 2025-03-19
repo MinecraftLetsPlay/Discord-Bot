@@ -30,13 +30,19 @@ def is_safe_expression(expression):
 async def calculate_with_timeout(expression):
     """Executes calculation with timeout"""
     try:
-        return await asyncio.wait_for(
+        result = await asyncio.wait_for(
             asyncio.get_event_loop().run_in_executor(
                 None, 
                 lambda: sympify(expression, locals=SAFE_FUNCTIONS)
             ),
             timeout=CALCULATION_TIMEOUT
         )
+        
+        # Formatiere das Ergebnis
+        if isinstance(result, (int, float, sympy.core.numbers.Number)):
+            return format_number(float(result))
+        return str(result)
+        
     except asyncio.TimeoutError:
         raise CalculatorError("Calculation timed out")
     
@@ -64,26 +70,29 @@ def solve_quadratic(a, b, c):
     return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
 
 def solve_equation(equation_str: str) -> str:
-    """
-    Löst eine mathematische Gleichung mit SymPy.
-    """
+    """Löst eine mathematische Gleichung mit SymPy."""
     try:
         x = symbols('x')
-        equation_str = equation_str.replace('^', '**')  # Ersetze ^ mit ** für Potenzen
+        # Entferne Anführungszeichen, falls vorhanden
+        equation_str = equation_str.strip('"\'')
+        # Ersetze ^ und ² mit **
+        equation_str = equation_str.replace('^', '**').replace('²', '**2')
+        # Ersetze 2x mit 2*x für korrekte Multiplikation
+        equation_str = re.sub(r'(\d)([xy])', r'\1*\2', equation_str)
+        
         expr = sympify(equation_str)
         solutions = solve(expr, x)
 
         if not solutions:
             return "Keine Lösungen gefunden!"
         
-        # Formatierung der Lösungen
         formatted_solutions = []
         for i, sol in enumerate(solutions, start=1):
-            sol = sol.evalf()  # Wert berechnen
-            if sol.is_real:
-                formatted_solutions.append(f"x{i} = {format_number(float(sol))}")  # float() hinzugefügt
-            else:
-                formatted_solutions.append(f"x{i} = {sol}")
+            sol = complex(sol.evalf())  # Konvertiere zu Complex für bessere Verarbeitung
+            if abs(sol.imag) < 1e-10:  # Reelle Zahl
+                formatted_solutions.append(f"x{i} = {format_number(sol.real)}")
+            else:  # Komplexe Zahl
+                formatted_solutions.append(f"x{i} = {format_number(sol.real)} + {format_number(sol.imag)}i")
 
         return "\n".join(formatted_solutions)
 
@@ -332,41 +341,48 @@ def replace_special_characters(expression):
     
     return result  # Dies war am falschen Ort
 
-def format_number(value: str) -> str:
+def format_number(value: float | str) -> str:
     """
-    Formatiert Zahlen-Strings für bessere Lesbarkeit:
-    - Entfernt unnötige Nachkommastellen
-    - Konvertiert wissenschaftliche Notation wenn sinnvoll
+    Formatiert Zahlen für bessere Lesbarkeit.
+    Behandelt auch Brüche und spezielle Werte.
     """
     try:
-        # Wenn es keine Zahl ist, original zurückgeben
-        if not isinstance(value, (str, int, float)):
-            return str(value)
-            
-        # String in Float konvertieren
-        num = float(str(value).strip())
+        # Konvertiere zu Float
+        if isinstance(value, str):
+            if '/' in value:
+                num, denom = map(float, value.split('/'))
+                value = num / denom
+            else:
+                value = float(value)
         
+        num = float(value)
+        
+        # Sehr kleine Zahlen nahe 0 als 0 ausgeben
+        if abs(num) < 1e-10:
+            return "0"
+            
         # Ganzzahl check
-        if num.is_integer():
-            return str(int(num))
+        if abs(num - round(num)) < 1e-10:
+            return str(int(round(num)))
+            
+        # Spezielle Werte
+        if abs(abs(num) - math.pi) < 1e-10:
+            return "3.1416"
             
         # Wissenschaftliche Notation für sehr große/kleine Zahlen
         abs_num = abs(num)
         if abs_num < 0.0001 or abs_num > 10000:
             return f"{num:.2e}"
             
-        # Entferne unnötige Nullen am Ende
-        str_num = f"{num:.10f}".rstrip('0').rstrip('.')
+        # Dezimalzahlen auf 4 Stellen runden und unnötige Nullen entfernen
+        rounded = round(num, 4)
+        str_num = f"{rounded}"
         
-        # Wenn mehr als 4 Nachkommastellen, auf 4 runden
-        if '.' in str_num and len(str_num.split('.')[1]) > 4:
-            return f"{num:.4f}".rstrip('0').rstrip('.')
+        # Entferne unnötige Nullen am Ende
+        if '.' in str_num:
+            str_num = str_num.rstrip('0').rstrip('.')
             
         return str_num
         
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, ZeroDivisionError):
         return str(value)
-        
-
-        
-    return result
