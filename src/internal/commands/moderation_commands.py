@@ -1,7 +1,6 @@
 import discord
 from datetime import timedelta
 import logging
-import json
 from internal import utils
 
 #

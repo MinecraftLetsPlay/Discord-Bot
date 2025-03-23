@@ -1,5 +1,5 @@
-import discord
-import logging
+import discord # Discord API
+import logging # Logging support
 import os
 import sys
 import nacl  # PyNaCl for voice support
