@@ -55,8 +55,9 @@ last_restart_time = None
 
 def is_authorized(user):
     try:
+        config = utils.load_config()
         whitelist = config.get("whitelist", [])
-        return str(user) in whitelist
+        return str(user.id) in whitelist  # Überprüfe die Nutzer-ID
     except Exception as e:
         log_.error(f"❌ Error checking authorization: {e}")
         return False
@@ -191,13 +192,28 @@ def setup_system_commands(bot):
             log_.info(f"System: Permission denied for log command. User: {interaction.user}")
 
     @bot.tree.command(name="whitelist_add", description="Add a user to the whitelist")
-    async def whitelist_add(interaction: discord.Interaction, user: str):
+    async def whitelist_add(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
-            if add_to_whitelist(user):
-                await interaction.response.send_message(f"✅ {user} has been added to the whitelist.")
-                log_.info(f"System: {user} has been added to whitelist by {interaction.user}")
-            else:
-                await interaction.response.send_message(f"ℹ️ {user} is already in the whitelist.")
+            try:
+                user_id = str(user.id)  # Extrahiere die Nutzer-ID
+                whitelist = config.get("whitelist", [])
+
+                if user_id in whitelist:
+                    await interaction.response.send_message(f"ℹ️ {user.mention} is already in the whitelist.")
+                    log_.info(f"System: {user.mention} is already in the whitelist.")
+                    return
+
+                # Füge die Nutzer-ID zur Whitelist hinzu
+                whitelist.append(user_id)
+                config["whitelist"] = whitelist
+                with open(config_file_path, 'w') as f:
+                    json.dump(config, f, indent=4)
+
+                await interaction.response.send_message(f"✅ {user.mention} has been added to the whitelist.")
+                log_.info(f"System: {user.mention} (ID: {user_id}) has been added to the whitelist by {interaction.user}.")
+            except Exception as e:
+                await interaction.response.send_message("❌ An error occurred while adding the user to the whitelist.")
+                log_.error(f"❌ Error adding user to whitelist: {e}")
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",
@@ -208,13 +224,28 @@ def setup_system_commands(bot):
             log_.info(f"System: Permission denied for whitelist add command. User: {interaction.user}")
 
     @bot.tree.command(name="whitelist_remove", description="Remove a user from the whitelist")
-    async def whitelist_remove(interaction: discord.Interaction, user: str):
+    async def whitelist_remove(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
-            if remove_from_whitelist(user):
-                await interaction.response.send_message(f"✅ {user} has been removed from the whitelist.")
-                log_.info(f"System: {user} has been removed from whitelist by {interaction.user}")
-            else:
-                await interaction.response.send_message(f"ℹ️ {user} is not in the whitelist.")
+            try:
+                user_id = str(user.id)  # Extrahiere die Nutzer-ID
+                whitelist = config.get("whitelist", [])
+
+                if user_id not in whitelist:
+                    await interaction.response.send_message(f"ℹ️ {user.mention} is not in the whitelist.")
+                    log_.info(f"System: {user.mention} is not in the whitelist.")
+                    return
+
+                # Entferne die Nutzer-ID aus der Whitelist
+                whitelist.remove(user_id)
+                config["whitelist"] = whitelist
+                with open(config_file_path, 'w') as f:
+                    json.dump(config, f, indent=4)
+
+                await interaction.response.send_message(f"✅ {user.mention} has been removed from the whitelist.")
+                log_.info(f"System: {user.mention} (ID: {user_id}) has been removed from the whitelist by {interaction.user}.")
+            except Exception as e:
+                await interaction.response.send_message("❌ An error occurred while removing the user from the whitelist.")
+                log_.error(f"❌ Error removing user from whitelist: {e}")
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",

@@ -106,9 +106,17 @@ async def handle_utility_commands(client, message, user_message):
             return None
 
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(base_url) as response:
-                return await response.json()
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(base_url) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        logging.warning(f"⚠️ Failed to fetch weather data. Status code: {response.status}")
+                        return None
+        except aiohttp.ClientError as e:
+            logging.error(f"❌ API request failed: {e}")
+            return None
 
     # Function to convert wind direction in degrees to compass direction
     def wind_direction(degrees):
@@ -222,6 +230,10 @@ async def handle_utility_commands(client, message, user_message):
     async def handle_download_command(user_message):
         config = utils.load_config()
         download_folders = config.get("download_folders", {})
+        
+        if not message.guild.me.guild_permissions.attach_files:
+            await message.channel.send("⚠️ I don't have permission to send files. Please check my role permissions.")
+            return
 
         # Split the command into parts
         parts = user_message.split(' ', 2)  # Split into 3 parts: command, folder, filename

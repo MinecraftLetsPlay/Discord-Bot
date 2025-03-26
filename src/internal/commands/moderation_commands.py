@@ -10,11 +10,11 @@ from internal import utils
 #
 
 def is_authorized(user):
-    # Checks if the user is on the whitelist
+    # Check if the user is authorized to execute moderation commands
     try:
-        config = utils.load_config()  # Load config using utils.py
+        config = utils.load_config()  # Load config
         whitelist = config.get("whitelist", [])  # Get the whitelist from the config
-        return str(user) in whitelist
+        return str(user.id) in whitelist  # Validate UserID
     except Exception as e:
         logging.error(f"❌ Error checking authorization: {e}")
         return False
@@ -181,6 +181,10 @@ async def handle_moderation_commands(client, message, user_message):
                 member = message.mentions[0]
                 duration = int(args[2])  # Duration in minutes
                 reason = args[3] if len(args) > 3 else "No reason provided"
+                
+                if duration < 1 or duration > 40320:  # 40320 Minutes = 28 Days
+                    await message.channel.send("⚠️ Duration must be between 1 minute and 28 days.")
+                    return
 
                 # Apply timeout
                 timeout_duration = timedelta(minutes=duration)
@@ -284,6 +288,11 @@ async def handle_moderation_commands(client, message, user_message):
             message_id = args[1]
             emoji = args[2]
             role_id = args[3]
+            
+            role = message.guild.get_role(int(role_id))
+            if not role:
+                await message.channel.send("⚠️ Role not found. Please provide a valid role ID.")
+                return
 
             try:
                 # Fetch the message

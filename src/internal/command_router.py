@@ -41,6 +41,14 @@ async def handle_command(client, message):
             return
 
     for group, commands in command_groups.items():
-        if any(user_message.startswith(cmd) for cmd in commands):
-            await command_handlers[group](client, message, user_message)
+        if any(user_message.startswith(f"{cmd} ") or user_message == cmd for cmd in commands):
+            try:
+                await command_handlers[group](client, message, user_message)
+            except Exception as e:
+                logging.error(f"❌ Error in command handler '{group}': {e}")
+                await message.channel.send("⚠️ An error occurred while processing your command.")
             return
+
+    # Log and respond to unknown commands
+    logging.warning(f"Unknown command: '{user_message}' from {message.author} in {message.guild.name if message.guild else 'DM'}")
+    await message.channel.send("❓ Unknown command. Type `!help` for a list of available commands.")

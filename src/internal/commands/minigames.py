@@ -2,7 +2,17 @@ import discord
 import random
 import asyncio
 import logging
-from internal import utils
+from internal.utils import load_game_data
+
+# Globale Variablen für Spielressourcen
+hangman_data = load_game_data("hangman")
+quiz_data = load_game_data("quiz")
+
+# Überprüfen, ob die Daten erfolgreich geladen wurden
+if not hangman_data:
+    logging.error("❌ Failed to load Hangman data.")
+if not quiz_data:
+    logging.error("❌ Failed to load Quiz data.")
 
 #
 #
@@ -16,25 +26,21 @@ from internal import utils
 
 # get data from hangman.jsonc for hangman game
 async def get_hangman_word(difficulty=None):
-    # Load hangman data
-    hangman_data = utils.load_hangman()
+    global hangman_data
     if not hangman_data:
-        logging.error("❌ Failed to load hangman data")
+        logging.error("❌ Hangman data is not loaded.")
         return None, None
 
-    # Get random category
     categories = list(hangman_data.keys())
     if not categories:
-        logging.error("❌ No categories found")
+        logging.error("❌ No categories found in Hangman data.")
         return None, None
 
     category = random.choice(categories)
 
-    # Get random difficulty if not specified
     if not difficulty:
         difficulty = random.choice(['easy', 'medium', 'hard'])
 
-    # Get words for category and difficulty
     words = hangman_data[category].get(difficulty, [])
     if not words:
         logging.error(f"❌ No words found for {category}/{difficulty}")
@@ -47,8 +53,9 @@ asked_questions = []
 
 # get data from quiz.jsonc for quiz game
 async def get_quiz_question(category=None):
-    quiz_data = utils.load_quiz()
+    global quiz_data
     if not quiz_data:
+        logging.error("❌ Quiz data is not loaded.")
         return None, None
 
     categories = list(quiz_data.keys())
@@ -57,6 +64,7 @@ async def get_quiz_question(category=None):
 
     questions = quiz_data.get(category, [])
     if not questions:
+        logging.error(f"❌ No questions found for category '{category}'.")
         return None, None
 
     # Filter out questions that have already been asked
@@ -76,7 +84,7 @@ async def get_quiz_question(category=None):
 
     return question, category
 
-# determine the winner of a rock-paper-scissors game
+# Determine the winner of a rock-paper-scissors game
 def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
     if user_choice == bot_choice:
         return "It's a tie!"
@@ -89,7 +97,7 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
 
 
 # ----------------------------------------------------------------
-# main command handler
+# Main command handler
 # ----------------------------------------------------------------
 async def handle_minigames_commands(client, message, user_message):
 
@@ -168,8 +176,8 @@ async def handle_minigames_commands(client, message, user_message):
     if user_message == '!hangman':
         word, difficulty = await get_hangman_word()
         if not word:
-            await message.channel.send("❌ Error loading words!")
-            logging.error("❌ Error loading words!")
+            await message.channel.send("❌ Error loading words! Please try again later.")
+            logging.error("❌ Error loading words for Hangman!")
             return
 
         guessed = set()
@@ -184,10 +192,12 @@ async def handle_minigames_commands(client, message, user_message):
             tries = 16
 
         # Initial display with hyphens
-        word_length = "-" * len(word)  # Create a string with hyphens equal to the length of the word
-        embed = discord.Embed(title="Hangman",
-                              description=f"Guess the word! (Difficulty: {difficulty})\nWord: {word_length}\nOne letter per message.",
-                              color=0x00ff00)
+        word_length = "-" * len(word)
+        embed = discord.Embed(
+            title="Hangman",
+            description=f"Guess the word! (Difficulty: {difficulty})\nWord: {word_length}\nOne letter per message.",
+            color=0x00ff00
+        )
         embed.add_field(name="Word length", value=f"{len(word)} letters", inline=False)
         embed.add_field(name="Remaining tries", value=str(tries), inline=False)
         await message.channel.send(embed=embed)
@@ -195,14 +205,16 @@ async def handle_minigames_commands(client, message, user_message):
         while tries > 0:
             # Display the current word with guessed letters
             display = "".join(letter if letter in guessed else "-" for letter in word)
-            status_embed = discord.Embed(title="Hangman",
-                                         description=f"Word: {display}\nGuessed Letters: {' '.join(guessed)}\nRemaining tries: {tries}",
-                                         color=0x00ff00)
+            status_embed = discord.Embed(
+                title="Hangman",
+                description=f"Word: {display}\nGuessed Letters: {' '.join(guessed)}\nRemaining tries: {tries}",
+                color=0x00ff00
+            )
             await message.channel.send(embed=status_embed)
 
             if display == word:  # Check if the word has been fully guessed
-                await message.channel.send("You win! The word has been guessed!")
-                logging.info("You win! The word has been guessed!")
+                await message.channel.send("🎉 You win! The word has been guessed!")
+                logging.info("🎉 Hangman: The word has been guessed!")
                 return
 
             try:
@@ -226,15 +238,15 @@ async def handle_minigames_commands(client, message, user_message):
 
                 if letter not in word:
                     tries -= 1
-                    await message.channel.send(f"Your letter, '{letter}', is not in the word.")
+                    await message.channel.send(f"❌ Your letter, '{letter}', is not in the word.")
                     if tries == 0:
-                        await message.channel.send(f"Game Over! The word was: {word}")
-                        logging.info(f"Game Over! The word was: {word}")
+                        await message.channel.send(f"💀 Game Over! The word was: {word}")
+                        logging.info(f"💀 Hangman: Game Over! The word was: {word}")
                         return
 
             except asyncio.TimeoutError:
                 await message.channel.send("⚠️ Timeout - Game cancelled!")
-                logging.warning("⚠️ Timeout - Game cancelled!")
+                logging.warning("⚠️ Hangman: Timeout - Game cancelled!")
                 return
 
     # !quiz command
@@ -242,11 +254,6 @@ async def handle_minigames_commands(client, message, user_message):
         parts = user_message.split()
         if len(parts) != 3 or not parts[2].isdigit():
             await message.channel.send("ℹ️ Please use the format: `!quiz <category> <number of questions>`")
-
-        elif len(parts) == 2 and parts[1].lower() == 'end':
-            # Handle ending the quiz early
-            await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
-            logging.info(f"Quiz ended early. User scored {score}/{quiz_size}.")
             return
 
         category = parts[1]
@@ -265,9 +272,11 @@ async def handle_minigames_commands(client, message, user_message):
                 logging.error(f"❌ Error loading quiz questions for category '{category}'!")
                 return
 
-            embed = discord.Embed(title=f"Quiz - {actual_category}",
-                                  description=f"Question {idx}/{quiz_size}: {question_data['question']}",
-                                  color=0x00ff00)
+            embed = discord.Embed(
+                title=f"Quiz - {actual_category}",
+                description=f"Question {idx}/{quiz_size}: {question_data['question']}",
+                color=0x00ff00
+            )
             await message.channel.send(embed=embed)
 
             try:
@@ -283,16 +292,16 @@ async def handle_minigames_commands(client, message, user_message):
                     return
 
                 if answer_message.content.lower() == question_data["answer"].lower():
-                    await message.channel.send("Correct!")
+                    await message.channel.send("✅ Correct!")
                     score += 1
                 else:
-                    await message.channel.send(f"Incorrect! The correct answer was: {question_data['answer']}")
+                    await message.channel.send(f"❌ Incorrect! The correct answer was: {question_data['answer']}")
 
             except asyncio.TimeoutError:
-                await message.channel.send("Timeout - Moving to the next question!")
-                logging.warning("Timeout - Moving to the next question!")
+                await message.channel.send("⚠️ Timeout - Moving to the next question!")
+                logging.warning("⚠️ Quiz: Timeout - Moving to the next question!")
 
-        await message.channel.send(f"Quiz complete! You scored {score}/{quiz_size}.")
+        await message.channel.send(f"🎉 Quiz complete! You scored {score}/{quiz_size}.")
 
     # !roll command
     if user_message.startswith('!roll'):

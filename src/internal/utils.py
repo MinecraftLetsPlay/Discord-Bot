@@ -1,41 +1,56 @@
 import json
 import os
+import logging
 
-# Get config from ./data/config.json
-def load_config(path='internal/data/config.json'):
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# Get the absolute path of a file based on a relative path
+def get_full_path(relative_path):
     base_path = os.path.dirname(os.path.abspath(__file__))
-    full_path = os.path.join(base_path, '..', path)
-    with open(full_path, 'r') as file:
-        return json.load(file)
+    return os.path.join(base_path, '..', relative_path)
 
-# Get quiz data from ./data/quiz.jsonc
-def load_quiz(path='internal/data/quiz.json'):
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    full_path = os.path.join(base_path, '..', path)
-    try:
-        with open(full_path, 'r') as file:
-            return json.load(file)
-    except Exception as e:
-        print(f"❌ Error loading quiz file: {e}")
-        return {}
-
-# Get hangman data from ./data/hangman.json
-def load_hangman(path='internal/data/hangman.json'):
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    full_path = os.path.join(base_path, path)
+# Load a JSON file and return its content
+def load_json_file(path):
+    full_path = get_full_path(path)
     try:
         with open(full_path, 'r', encoding='utf-8') as file:
             return json.load(file)
+    except FileNotFoundError:
+        logging.error(f"❌ File not found at {full_path}.")
+        return {}
+    except json.JSONDecodeError as e:
+        logging.error(f"❌ Error decoding JSON in file {full_path}: {e}")
+        return {}
     except Exception as e:
-        print(f"❌ Error loading hangman file: {e}")
+        logging.error(f"❌ Unexpected error loading file {full_path}: {e}")
         return {}
 
-# Get reaction role data from ./data/reactionrole.json
-def load_reaction_role_data():
-    with open('src/internal/data/reactionrole.json', 'r') as f:
-        return json.load(f)
+# Save data to a JSON file
+def save_json_file(data, path):
+    full_path = get_full_path(path)
+    try:
+        with open(full_path, 'w', encoding='utf-8') as file:
+            json.dump(data, file, indent=4)
+    except Exception as e:
+        logging.error(f"❌ Error saving file {full_path}: {e}")
 
-# Save reaction role data to ./data/reactionrole.json
+# Load the bot configuration file
+def load_config():
+    return load_json_file('internal/data/config.json')
+
+# Load quiz data
+def load_quiz():
+    return load_json_file('internal/data/quiz.json')
+
+# Load hangman data
+def load_hangman():
+    return load_json_file('internal/data/hangman.json')
+
+# Load reaction role data
+def load_reaction_role_data():
+    return load_json_file('internal/data/reactionrole.json')
+
+# Save reaction role data
 def save_reaction_role_data(data):
-    with open('src/internal/data/reactionrole.json', 'w') as f:
-        json.dump(data, f, indent=4)
+    save_json_file(data, 'internal/data/reactionrole.json')

@@ -16,6 +16,9 @@ def run_discord_bot():
     # Load config and get the token from the environment variable or config file
     config = utils.load_config()
     TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+    if not TOKEN:
+        logging.critical("❌ DISCORD_BOT_TOKEN is missing. Please set it in the .env file.")
+        sys.exit(1)
 
     # Get discord intents (rights for the bot)
     intents = discord.Intents.default()
@@ -70,15 +73,18 @@ def run_discord_bot():
                 logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
 
         # Pass the client object to handle_command
-        response = await command_router.handle_command(bot, message)
-        if response:
-            if message.guild is None:
-                if LoggingActivated:
-                    logging.info(f'{bot.user} said: "{response}" (DM / {channel})')
-            else:
-                if LoggingActivated:
-                    logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
-            await message.channel.send(response)
+        try:
+            response = await command_router.handle_command(bot, message)
+            if response:
+                if message.guild is None:
+                    if LoggingActivated:
+                        logging.info(f'{bot.user} said: "{response}" (DM / {channel})')
+                else:
+                    if LoggingActivated:
+                        logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
+                await message.channel.send(response)
+        except Exception as e:
+            logging.error(f"❌ Error handling message: {e}")
 
     # Register event listeners for reaction roles
     @bot.event
