@@ -386,8 +386,11 @@ async def handle_utility_commands(client, message, user_message):
         
     # !reminder command
     if user_message.startswith('!reminder'):
+        # Normalize quotation marks to standard double quotes
+        normalized_message = message.content.replace('“', '"').replace('”', '"').replace('„', '"')
+
         # Split the command into parts while preserving original case
-        parts = message.content.split('"')
+        parts = normalized_message.split('"')
 
         if len(parts) < 2:
             await message.channel.send("❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
@@ -447,7 +450,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Time", value=time_str, inline=True)
             embed.add_field(name="Type", value=location_text, inline=True)
             await message.channel.send(embed=embed)
-            
+        
             logging.info(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type})")
 
         except ValueError:
@@ -456,7 +459,3 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             await message.channel.send("❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
-            
-            
-    if user_message.startswith('!calc'):
-        await handle_calc_command(message, user_message)

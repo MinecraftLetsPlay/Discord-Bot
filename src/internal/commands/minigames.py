@@ -2,29 +2,34 @@ import discord
 import random
 import asyncio
 import logging
-from internal.utils import load_game_data
+from internal.utils import load_hangman, load_quiz  # Aktualisierte Importe
 
 # Globale Variablen für Spielressourcen
-hangman_data = load_game_data("hangman")
-quiz_data = load_game_data("quiz")
+hangman_data = None
+quiz_data = None
 
-# Überprüfen, ob die Daten erfolgreich geladen wurden
-if not hangman_data:
-    logging.error("❌ Failed to load Hangman data.")
-if not quiz_data:
-    logging.error("❌ Failed to load Quiz data.")
+# Überprüfen, ob die Daten erfolgreich geladen werden können
+def initialize_game_data():
+    global hangman_data, quiz_data
+    hangman_data = load_hangman()
+    quiz_data = load_quiz()
 
-#
-#
-# Minigame Commands
-#
-#
+    if not hangman_data:
+        logging.error("❌ Failed to load Hangman data.")
+    if not quiz_data:
+        logging.error("❌ Failed to load Quiz data.")
+
+# Initialisiere die Daten beim Laden des Moduls
+initialize_game_data()
+
+# List to keep track of asked question IDs
+asked_questions = []
 
 # ----------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------
 
-# get data from hangman.jsonc for hangman game
+# get data from hangman.json for hangman game
 async def get_hangman_word(difficulty=None):
     global hangman_data
     if not hangman_data:
@@ -48,10 +53,7 @@ async def get_hangman_word(difficulty=None):
 
     return random.choice(words), difficulty
 
-# List to keep track of asked question IDs
-asked_questions = []
-
-# get data from quiz.jsonc for quiz game
+# get data from quiz.json for quiz game
 async def get_quiz_question(category=None):
     global quiz_data
     if not quiz_data:

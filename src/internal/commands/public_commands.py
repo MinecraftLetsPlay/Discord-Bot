@@ -2,7 +2,6 @@ import discord
 import aiohttp
 import logging
 from internal import utils
-from internal.command_router import command_groups
 
 #
 #
@@ -15,10 +14,14 @@ async def handle_public_commands(client, message, user_message):
     config = utils.load_config()
 
     # !help command
+    # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
-        for category, commands in command_groups.items():
-            embed.add_field(name=f"[{category.capitalize()}]", value=", ".join(commands), inline=False)
+        embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
+        embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
+        embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
+        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !download, !poll, !reminder, !calc", inline=False)
+        embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman", inline=False)
         await message.channel.send(embed=embed)
         logging.info("Displayed help message.")
 

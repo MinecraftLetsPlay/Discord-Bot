@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from internal import utils
 from internal import command_router
-from internal.commands import logging_setup
 
 def run_discord_bot():
     # Load environment variables from .env file
@@ -33,13 +32,13 @@ def run_discord_bot():
     async def on_ready():
         logging.info(f'✅ {bot.user} is now running!')
         print()
-        logging.debug("--------------------------")
-        logging.debug(f"Python version: {sys.version.split()[0]}")
-        logging.debug(f"Discord.py version: {discord.__version__}")
-        logging.debug(f"PyNaCl version: {nacl.__version__}")
-        logging.debug(f"Application ID: {bot.application_id}")
-        logging.debug(f"Logging activated: {config.get('LoggingActivated', True)}")
-        logging.debug("--------------------------")
+        logging.info("--------------------------")
+        logging.info(f"Python version: {sys.version.split()[0]}")
+        logging.info(f"Discord.py version: {discord.__version__}")
+        logging.info(f"PyNaCl version: {nacl.__version__}")
+        logging.info(f"Application ID: {bot.application_id}")
+        logging.info(f"Logging activated: {config.get('LoggingActivated', True)}")
+        logging.info("--------------------------")
         print()
         # Set the bot's status to "hört euren Befehlen zu"
         activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
