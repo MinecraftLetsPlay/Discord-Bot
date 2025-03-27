@@ -17,7 +17,7 @@ load_dotenv()
 # Load config
 config = utils.load_config()
 log_directory = config.get("log_file_location")
-config_file_path = 'src/internal/data/config.json'  # Ensure the correct path to the config file
+config_file_path = 'internal/data/config.json'  # Ensure the correct path to the config file
 
 # Ensure log directory exists
 if not os.path.exists(log_directory):
