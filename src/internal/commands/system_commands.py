@@ -174,7 +174,8 @@ def setup_system_commands(bot):
     async def log(interaction: discord.Interaction):
         channel = interaction.channel
         if is_authorized(interaction.user):
-            log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
+            # Suche nach Dateien, die mit "bot.log" beginnen
+            log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('bot.log') and f.endswith('.txt')])
             if log_files:
                 latest_log_file = os.path.join(log_directory, log_files[-1])
                 await interaction.response.send_message(file=discord.File(latest_log_file))
