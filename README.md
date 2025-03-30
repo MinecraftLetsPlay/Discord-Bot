@@ -63,4 +63,7 @@ This is a private bot project. While the code is visible for educational purpose
 
 ## License
 
+Copyright © 2025 Dennis Plischke
+
 Private use only. All rights reserved.
+
