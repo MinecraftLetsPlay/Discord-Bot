@@ -18,11 +18,12 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 - `utility_commands.py` - Provides utility features (weather, time, etc.)
 - `public_commands.py` - Basic user commands (help, info, etc.)
 - `system_commands.py` - Administrative system controls
+- `calculator.py` - Provides calculator functionality
 
 ### Support Modules
 
 - `utils.py` - Helper functions and data management
-- `logging_setup.py` - Configures comprehensive logging system
+- `logging_setup.py` - Configures comprehensive logging system and file handler
 
 ## Features Under Development
 
@@ -34,11 +35,12 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 
 ### Core Technologies
 
-- Python 3.8+
-- Discord.py 2.3.2
-- PyNaCl (for voice support)
-- aiohttp 3.8.5
-- python-dotenv 1.0.0
+- Python 3.11.4
+- Discord.py 2.4.0
+- PyNaCl 1.5.0 (for voice support)
+- aiohttp 3.11.11
+- python-dotenv 1.0.1
+- sympy 1.12
 
 ### Development Tools
 
