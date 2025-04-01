@@ -26,7 +26,7 @@ def setup_logging():
         root_logger.removeHandler(handler)
 
     # Create formatter
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s  %(module)s - %(levelname)s - %(message)s')
 
     # Setup file handler
     timestamp = datetime.now().strftime("%d.%m.%Y_%H.%M.%S")
