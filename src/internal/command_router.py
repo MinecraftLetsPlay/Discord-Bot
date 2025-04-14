@@ -32,11 +32,11 @@ no_dm_commands = [
 async def handle_command(client, message):
     user_message = message.content.strip()
 
-    # Ignoriere Nachrichten, die nicht mit "!" beginnen
+    # Ignore messages starting not with !
     if not user_message.startswith('!'):
         return
 
-    # Konvertiere die Nachricht in Kleinbuchstaben für die Verarbeitung
+    # Convert to lower
     user_message = user_message.lower()
 
     # Check if the message is in a DM
