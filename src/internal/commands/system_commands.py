@@ -42,9 +42,28 @@ log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(messag
 
 # Function to rotate logs
 def rotate_logs():
-    log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('log') and f.endswith('.txt')])
+    # Hole alle Dateien, die mit "bot.log" beginnen und mit ".txt" enden
+    log_files = sorted(
+        [f for f in os.listdir(log_directory) if f.startswith('bot.log') and f.endswith('.txt')],
+        key=lambda x: os.path.getmtime(os.path.join(log_directory, x))  # Sortiere nach Änderungszeit
+    )
+
+    # Füge die aktuelle Log-Datei hinzu, falls sie nicht in der Liste ist
+    current_log_file = os.path.join(log_directory, 'bot.log')
+    if os.path.exists(current_log_file):
+        log_files.append('bot.log')
+
+    # Prüfe, ob die Anzahl der Dateien die Grenze überschreitet
     if len(log_files) > 10:
-        os.remove(os.path.join(log_directory, log_files[0]))
+        # Lösche die ältesten Dateien, bis nur noch 10 übrig sind
+        files_to_delete = log_files[:len(log_files) - 10]
+        for file in files_to_delete:
+            file_path = os.path.join(log_directory, file)
+            try:
+                os.remove(file_path)
+                log_.info(f"Deleted old log file: {file_path}")
+            except Exception as e:
+                log_.error(f"Failed to delete log file {file_path}: {e}")
 
 rotate_logs()
 

@@ -198,12 +198,15 @@ def format_error(error):
 
 
 
-async def handle_calc_command(message, user_message):
+async def handle_calc_command(client, message, user_message):
     """Handles the calculator command"""
+    logging.debug(f"Calculator command received: {user_message}")  # Debug-Log
     try:
         expression = user_message[6:].strip()  # Remove '!calc ' prefix
+        logging.debug(f"Parsed expression: {expression}")  # Debug-Log
         
         if not expression:
+            logging.debug("Empty expression, sending help message")  # Debug-Log
             await send_help_message(message)
             return
 
@@ -211,14 +214,9 @@ async def handle_calc_command(message, user_message):
         if result is not None:
             await send_calculation_result(message, expression, result)
             
-    except ZeroDivisionError:
-        await message.channel.send("❌ Cannot divide by zero!")
-    except (SyntaxError, ValueError, NameError):
-        await message.channel.send("❌ Invalid expression. Type `!calc` for help.")
-        logging.warning(f"Invalid expression from {message.author}: {expression}")
     except Exception as e:
+        logging.error(f"Calculator error: {str(e)}", exc_info=True)  # Detailed error log
         await message.channel.send(f"❌ Error: {str(e)}")
-        logging.error(f"Calculation error for {message.author}: {str(e)}")
 
 async def process_calculation(message, expression):
     """Processes the calculation and returns the result"""
