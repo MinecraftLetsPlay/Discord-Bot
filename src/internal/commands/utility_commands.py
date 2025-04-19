@@ -69,6 +69,17 @@ country_names = {
 
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
+    if user_message.startswith('!calc'):
+        await handle_calc_command(client, message, user_message)
+        return
+
+    # Andere Utility-Befehle hier verarbeiten
+    if user_message.startswith('!ping'):
+        await message.channel.send("Pong!")
+        return
+
+    # Füge weitere Utility-Befehle hinzu
+    # ...
 
     # !ping command
     if user_message == '!ping':

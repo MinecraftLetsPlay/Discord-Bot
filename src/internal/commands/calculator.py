@@ -106,21 +106,37 @@ def solve_equation(equation_str: str) -> str:
 def solve_equation_system(equations):
     """Solves a system of equations using SymPy"""
     try:
-        x, y = symbols('x y')
-        equations = [sympify(eq) for eq in equations]
-        solutions = solve(equations, (x, y))
+        # Parse the equations
+        parsed_equations = []
+        for eq in equations:
+            # Replace '^' with '**' for exponentiation
+            eq = eq.replace('^', '**')
+            # Replace 2x with 2*x for proper multiplication
+            eq = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', eq)
+            # Convert 'x + y = 5' to 'x + y - 5'
+            if '=' in eq:
+                lhs, rhs = eq.split('=')
+                eq = f"({lhs}) - ({rhs})"
+            parsed_equations.append(sympify(eq))
+
+        # Define variables (x, y, z, etc.)
+        variables = symbols(' '.join(set(re.findall(r'[a-zA-Z]', ' '.join(equations)))))
+
+        # Solve the system of equations
+        solutions = solve(parsed_equations, variables)
 
         if not solutions:
             return "No solution found!"
-        
+
         if isinstance(solutions, dict):
             return "\n".join([f"{var} = {format_number(float(val))}" for var, val in solutions.items()])
         else:
             return "\n".join([
-                f"Lösung {i+1}: x = {format_number(float(sol[0]))}, y = {format_number(float(sol[1]))}" 
+                f"Solution {i+1}: " + ", ".join([f"{var} = {format_number(float(sol[j]))}" for j, var in enumerate(variables)])
                 for i, sol in enumerate(solutions)
             ])
     except Exception as e:
+        logging.error(f"Error solving equation system: {equations} - {str(e)}")
         return f"Error solving equation system: {str(e)}"
 
 # Safe math functions for the calculator
@@ -168,6 +184,9 @@ SAFE_FUNCTIONS = {
     'f_to_c': lambda x: (x - 32) * 5/9,
     'km_to_mi': lambda x: x * 0.621371,
     'mi_to_km': lambda x: x / 0.621371,
+
+    # SymPy functions
+    'solve': solve,  # Hinzufügen von solve
 }
 
 # Add additional functions to SAFE_FUNCTIONS
@@ -188,11 +207,11 @@ def format_error(error):
     """Formats error messages user-friendly"""
     error_mapping = {
         ZeroDivisionError: "Cannot divide by zero",
-        OverflowError: "Value exeeds allowed range",
+        OverflowError: "Value exceeds allowed range",
         ValueError: "Invalid input",
         SyntaxError: "Invalid expression syntax",
         CalculatorError: str(error),
-        sympy.core.sympify.SympifyError: "Invalid mathematical expression"
+        sympy.SympifyError: "Invalid mathematical expression"
     }
     return error_mapping.get(type(error), str(error))
 
@@ -237,8 +256,15 @@ async def process_calculation(message, expression):
     expression = replace_special_characters(expression)
 
     try:
-        # Calculate with timeout
-        result = await calculate_with_timeout(expression)
+        # Check if the expression contains a solve function
+        if expression.startswith("solve(") and expression.endswith(")"):
+            # Extract the equation inside solve()
+            equation = expression[6:-1].strip()
+            result = solve_equation(equation)
+        else:
+            # Calculate with timeout
+            result = await calculate_with_timeout(expression)
+
         LAST_RESULT[message.author.id] = result
         return result
     except Exception as e:
@@ -290,7 +316,7 @@ async def send_help_message(message):
         "  - Equation solving: solve(equation)\n"
         "  - PQ formula: pq(p,q)\n"
         "  - Quadratic: quad(a,b,c)\n"
-        "  - Equation systems: solve_system([eq1, eq2])\n"
+        "  - Equation systems: solve_system(['eq1', 'eq2', ...])\n"
         "  - Summation: sum(expr, start, end)\n"
         "  - Product: prod(expr, start, end)\n"
         "  - Unit conversion: c_to_f(x), km_to_mi(x)\n"
@@ -300,7 +326,7 @@ async def send_help_message(message):
         "• `!calc √(16) + ∛(27)`\n"
         "• `!calc 2³ + π`\n"
         "• `!calc solve(x^2 + 2x + 1)`\n"
-        "• `!calc ans + 5`"
+        "• `!calc ans + 5`\n"
         "• `!calc solve_system(['x + y = 5', 'x - y = 1'])`\n"
         "• `!calc sum('n**2', 1, 5)`\n"
         "• `!calc c_to_f(20)`"

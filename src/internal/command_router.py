@@ -7,7 +7,7 @@ from internal.commands.moderation_commands import handle_moderation_commands
 
 # Command groups definition
 command_groups = {
-    'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!download', '!poll', '!reminder', '!calc'],
+    'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!download', '!poll', '!reminder'],
     'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole']
@@ -15,7 +15,7 @@ command_groups = {
 
 # Command handlers mapping
 command_handlers = {
-    'utility': handle_calc_command,  # Map calculator handler
+    'utility': handle_utility_commands,
     'minigames': handle_minigames_commands,
     'public': handle_public_commands,
     'moderation': handle_moderation_commands
@@ -32,7 +32,19 @@ async def handle_command(client, message):
     user_message = message.content.strip()
     
     logging.debug(f"Received command: {user_message}")  # Debug log
+
+    # Handle !calc separately
+    if user_message.startswith('!calc'):
+        logging.debug("Command matches: !calc")  # Debug log
+        try:
+            await handle_calc_command(client, message, user_message)
+            return
+        except Exception as e:
+            logging.error(f"Error in !calc command handler: {e}", exc_info=True)
+            await message.channel.send("⚠️ An error occurred while processing your command.")
+            return
     
+    # Handle other commands
     for group, commands in command_groups.items():
         if any(user_message.startswith(cmd) for cmd in commands):
             logging.debug(f"Command matches group: {group}")  # Debug log
