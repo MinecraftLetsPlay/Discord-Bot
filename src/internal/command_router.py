@@ -23,9 +23,9 @@ command_handlers = {
 
 # Commands that cannot be executed in a DM
 no_dm_commands = [
-    '!kick', '!ban', '!unban', '!timeout', '!untimeout',
+    '!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole',
     '!userinfo', '!rules', '!serverinfo', '!reactionrole',
-    '!whitelist add', '!whitelist remove'
+    '!whitelist add', '!whitelist remove', '!poll'
 ]
 
 async def handle_command(client, message):
