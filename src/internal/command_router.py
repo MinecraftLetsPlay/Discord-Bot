@@ -7,10 +7,10 @@ from internal.commands.moderation_commands import handle_moderation_commands
 
 # Command groups definition
 command_groups = {
-    'utility': ['!calc'],  # Calculator command in utility group
+    'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!download', '!poll', '!reminder', '!calc'],
     'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll'],
-    'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo'],
-    'moderation': ['!kick', '!ban', '!unban', '!timeout']
+    'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
+    'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole']
 }
 
 # Command handlers mapping
