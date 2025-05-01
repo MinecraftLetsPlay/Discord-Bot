@@ -18,7 +18,7 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 - `utility_commands.py` - Provides utility features (weather, time, etc.)
 - `public_commands.py` - Basic user commands (help, info, etc.)
 - `system_commands.py` - Administrative system controls
-- `calculator.py` - Provides calculator functionality
+- `calculator.py` - Provides extensive calculator functionality
 
 ### Support Modules
 
@@ -28,7 +28,6 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 ## Features Under Development
 
 - **Translation Service**: Multi-language translation support
-- **LaTeX Calculator**: Advanced mathematical calculations
 - **Music Bot Features**: Voice channel audio playback and control
 
 ## Tech Stack
