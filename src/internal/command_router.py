@@ -8,7 +8,7 @@ from internal.commands.moderation_commands import handle_moderation_commands
 # Command groups definition
 command_groups = {
     'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!download', '!poll', '!reminder'],
-    'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll'],
+    'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll', '!scrabble'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole']
 }
