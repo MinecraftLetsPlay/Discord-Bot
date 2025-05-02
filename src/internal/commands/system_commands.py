@@ -42,20 +42,20 @@ log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(messag
 
 # Function to rotate logs
 def rotate_logs():
-    # Hole alle Dateien, die mit "bot.log" beginnen und mit ".txt" enden
+    # Get all files that start with "bot.log" and end with ".txt"
     log_files = sorted(
         [f for f in os.listdir(log_directory) if f.startswith('bot.log') and f.endswith('.txt')],
-        key=lambda x: os.path.getmtime(os.path.join(log_directory, x))  # Sortiere nach Änderungszeit
+        key=lambda x: os.path.getmtime(os.path.join(log_directory, x))  # Sort by modification time
     )
 
-    # Füge die aktuelle Log-Datei hinzu, falls sie nicht in der Liste ist
+    # Add the current log file if it is not already in the list
     current_log_file = os.path.join(log_directory, 'bot.log')
     if os.path.exists(current_log_file):
         log_files.append('bot.log')
 
-    # Prüfe, ob die Anzahl der Dateien die Grenze überschreitet
+    # Check if the number of files exceeds the limit
     if len(log_files) > 10:
-        # Lösche die ältesten Dateien, bis nur noch 10 übrig sind
+        # Delete the oldest files until only 10 remain
         files_to_delete = log_files[:len(log_files) - 10]
         for file in files_to_delete:
             file_path = os.path.join(log_directory, file)
@@ -76,7 +76,7 @@ def is_authorized(user):
     try:
         config = utils.load_config()
         whitelist = config.get("whitelist", [])
-        return str(user.id) in whitelist  # Überprüfe die Nutzer-ID
+        return str(user.id) in whitelist  # Check the user ID
     except Exception as e:
         log_.error(f"❌ Error checking authorization: {e}")
         return False
@@ -193,7 +193,7 @@ def setup_system_commands(bot):
     async def log(interaction: discord.Interaction):
         channel = interaction.channel
         if is_authorized(interaction.user):
-            # Suche nach Dateien, die mit "bot.log" beginnen
+            # Search for files that start with "bot.log"
             log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('bot.log') and f.endswith('.txt')])
             if log_files:
                 latest_log_file = os.path.join(log_directory, log_files[-1])
@@ -215,7 +215,7 @@ def setup_system_commands(bot):
     async def whitelist_add(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
             try:
-                user_id = str(user.id)  # Extrahiere die Nutzer-ID
+                user_id = str(user.id)  # Extract the user ID
                 whitelist = config.get("whitelist", [])
 
                 if user_id in whitelist:
@@ -223,7 +223,7 @@ def setup_system_commands(bot):
                     log_.info(f"System: {user.mention} is already in the whitelist.")
                     return
 
-                # Füge die Nutzer-ID zur Whitelist hinzu
+                # Add the user ID to the whitelist
                 whitelist.append(user_id)
                 config["whitelist"] = whitelist
                 with open(config_file_path, 'w') as f:
@@ -247,7 +247,7 @@ def setup_system_commands(bot):
     async def whitelist_remove(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
             try:
-                user_id = str(user.id)  # Extrahiere die Nutzer-ID
+                user_id = str(user.id)  # Extract the user ID
                 whitelist = config.get("whitelist", [])
 
                 if user_id not in whitelist:
@@ -255,7 +255,7 @@ def setup_system_commands(bot):
                     log_.info(f"System: {user.mention} is not in the whitelist.")
                     return
 
-                # Entferne die Nutzer-ID aus der Whitelist
+                # Remove the user ID from the whitelist
                 whitelist.remove(user_id)
                 config["whitelist"] = whitelist
                 with open(config_file_path, 'w') as f:

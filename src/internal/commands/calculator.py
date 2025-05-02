@@ -9,9 +9,9 @@ from sympy import solve, symbols, parse_expr, sympify
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
 
-# Sicherheitskonfiguration
+# Security configuration
 MAX_EXPRESSION_LENGTH = 500
-CALCULATION_TIMEOUT = 5  # Sekunden
+CALCULATION_TIMEOUT = 5  # Seconds
 
 def is_safe_expression(expression):
     """Checks if an expression is safe to evaluate"""
@@ -38,7 +38,7 @@ async def calculate_with_timeout(expression):
             timeout=CALCULATION_TIMEOUT
         )
         
-        # Formatiere das Ergebnis
+        # Format the result
         if isinstance(result, (int, float, sympy.core.numbers.Number)):
             return format_number(float(result))
         return str(result)
@@ -73,11 +73,11 @@ def solve_equation(equation_str: str) -> str:
     """Solves an equation system using sympy."""
     try:
         x = symbols('x')
-        # Entferne Anführungszeichen, falls vorhanden
+        # Remove quotes if present
         equation_str = equation_str.strip('"\'')
-        # Ersetze ^ und ² mit **
+        # Replace ^ and ² with **
         equation_str = equation_str.replace('^', '**').replace('²', '**2')
-        # Ersetze 2x mit 2*x für korrekte Multiplikation
+        # Replace 2x with 2*x for proper multiplication
         equation_str = re.sub(r'(\d)([xy])', r'\1*\2', equation_str)
         
         expr = sympify(equation_str)
@@ -88,10 +88,10 @@ def solve_equation(equation_str: str) -> str:
         
         formatted_solutions = []
         for i, sol in enumerate(solutions, start=1):
-            sol = complex(sol.evalf())  # Konvertiere zu Complex für bessere Verarbeitung
-            if abs(sol.imag) < 1e-10:  # Reelle Zahl
+            sol = complex(sol.evalf())  # Convert to Complex for better handling
+            if abs(sol.imag) < 1e-10:  # Real number
                 formatted_solutions.append(f"x{i} = {format_number(sol.real)}")
-            else:  # Komplexe Zahl
+            else:  # Complex number
                 formatted_solutions.append(f"x{i} = {format_number(sol.real)} + {format_number(sol.imag)}i")
 
         return "\n".join(formatted_solutions)
@@ -101,7 +101,7 @@ def solve_equation(equation_str: str) -> str:
         return f"Invalid equation format: {str(e)}"
     except Exception as e:
         logging.error(f"Error solving equation: {equation_str} - {str(e)}")
-        return f"An error occured while solving: {str(e)}"
+        return f"An error occurred while solving: {str(e)}"
 
 def solve_equation_system(equations):
     """Solves a system of equations using SymPy"""
@@ -186,7 +186,7 @@ SAFE_FUNCTIONS = {
     'mi_to_km': lambda x: x / 0.621371,
 
     # SymPy functions
-    'solve': solve,  # Hinzufügen von solve
+    'solve': solve,  # Add solve
 }
 
 # Add additional functions to SAFE_FUNCTIONS
@@ -372,11 +372,13 @@ def format_number(value: float | str) -> str:
     - Converts integers to whole numbers
     - Rounds decimal numbers to 4 decimal places
     - Removes unnecessary trailing zeros
+    - Changes very large or small numbers to scientific notation
+    - Handles special cases like π (pi), e, and τ (tau)
     """
     try:
-        # Konvert to float if string
+        # Convert to float if string
         if isinstance(value, str):
-            if '/' in value:
+            if '/' in value:  # Handle fractions like "1/3"
                 num, denom = map(float, value.split('/'))
                 value = num / denom
             else:
@@ -388,13 +390,17 @@ def format_number(value: float | str) -> str:
         if abs(num) < 1e-10:
             return "0"
             
-        # If number is an integer (8.0), return as whole number (8)
+        # If number is an integer (e.g., 8.0), return as whole number (e.g., 8)
         if abs(num - round(num)) < 1e-10:
             return str(int(round(num)))
             
-        # Convert PI to 3.1416
+        # Handle special cases for mathematical constants
         if abs(abs(num) - math.pi) < 1e-10:
-            return "3.1416"
+            return "π"  # Return π symbol
+        if abs(abs(num) - math.e) < 1e-10:
+            return "e"  # Return e symbol
+        if abs(abs(num) - math.tau) < 1e-10:
+            return "τ"  # Return τ symbol
             
         # Scientific notation for very small or large numbers
         abs_num = abs(num)
