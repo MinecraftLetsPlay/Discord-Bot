@@ -97,10 +97,10 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
     else:
         return "Bot wins!"
 
-
 # ----------------------------------------------------------------
 # Main command handler
 # ----------------------------------------------------------------
+
 async def handle_minigames_commands(client, message, user_message):
 
     # !rps command
