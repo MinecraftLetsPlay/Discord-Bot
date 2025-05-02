@@ -2,24 +2,26 @@ import discord
 import random
 import asyncio
 import logging
-from internal.utils import load_hangman, load_quiz  # Aktualisierte Importe
+from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils functions for loading data
 
-# Globale Variablen für Spielressourcen
+# Global variables to store game data
 hangman_data = None
 quiz_data = None
+scrabble_data = None
 
-# Überprüfen, ob die Daten erfolgreich geladen werden können
+# Initialize game data / load it from JSON files -> Utils.py
 def initialize_game_data():
     global hangman_data, quiz_data
     hangman_data = load_hangman()
     quiz_data = load_quiz()
+    scrabble_data = load_scrabble()
 
     if not hangman_data:
         logging.error("❌ Failed to load Hangman data.")
     if not quiz_data:
         logging.error("❌ Failed to load Quiz data.")
 
-# Initialisiere die Daten beim Laden des Moduls
+# Initialize game data when the bot starts
 initialize_game_data()
 
 # List to keep track of asked question IDs
@@ -96,6 +98,27 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
         return "You win!"
     else:
         return "Bot wins!"
+
+# Draw a specified number of letters from the pool
+def draw_letters(pool, count):
+    """Zieht eine bestimmte Anzahl von Buchstaben aus dem Pool."""
+    letters = []
+    for _ in range(count):
+        if not pool:
+            break
+        letter = random.choice(pool)
+        pool.remove(letter)
+        letters.append(letter)
+    return letters
+
+# Calculate the score of a word based on letter values
+def calculate_word_score(word, scrabble_data):
+    """Berechnet die Punktzahl eines Wortes basierend auf den Buchstabenwerten."""
+    score = 0
+    for letter in word.upper():
+        if letter in scrabble_data:
+            score += scrabble_data[letter]["value"]
+    return score
 
 # ----------------------------------------------------------------
 # Main command handler
@@ -371,3 +394,96 @@ async def handle_minigames_commands(client, message, user_message):
         except (ValueError, IndexError):
             await message.channel.send("ℹ️ Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
             logging.warning("ℹ️ Invalid format for dice roll command!")
+
+    # !scrabble command
+    if user_message.startswith('!scrabble'):
+        # Start a new game
+        if user_message == '!scrabble start':
+            players = [message.author.id] + [user.id for user in message.mentions]
+            if len(players) < 2:
+                await message.channel.send("❌ At least 2 players are required to start the game!")
+                return
+
+            # Initialize the game
+            letter_pool = []
+            for letter, data in scrabble_data.items():
+                letter_pool.extend([letter] * data["count"])
+            random.shuffle(letter_pool)
+
+            game_state = {
+                "players": players,
+                "hands": {player: draw_letters(letter_pool, 7) for player in players},
+                "scores": {player: 0 for player in players},
+                "current_player": players[0],
+                "letter_pool": letter_pool
+            }
+            client.scrabble_game = game_state
+
+            await message.channel.send("🎮 Scrabble game started!")
+            for player in players:
+                hand = " ".join(game_state["hands"][player])
+                await message.channel.send(f"<@{player}>, your letters: {hand}")
+            return
+
+        # Play a word
+        if user_message.startswith('!scrabble play'):
+            if not hasattr(client, 'scrabble_game'):
+                await message.channel.send("❌ No Scrabble game is currently running!")
+                return
+
+            game = client.scrabble_game
+            if message.author.id != game["current_player"]:
+                await message.channel.send("❌ It's not your turn!")
+                return
+
+            word = user_message.split(' ', 2)[2].strip().upper()
+            if not set(word).issubset(set(game["hands"][message.author.id])):
+                await message.channel.send("❌ You don't have all the required letters!")
+                return
+
+            # Calculate points and update the game state
+            score = calculate_word_score(word, scrabble_data)
+            game["scores"][message.author.id] += score
+            for letter in word:
+                game["hands"][message.author.id].remove(letter)
+            game["hands"][message.author.id] += draw_letters(game["letter_pool"], len(word))
+            game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
+
+            await message.channel.send(f"✅ {word} was played! You earned {score} points.")
+            for player in game["players"]:
+                hand = " ".join(game["hands"][player])
+                await message.channel.send(f"<@{player}>, your letters: {hand}")
+            return
+
+        # End the game
+        if user_message == '!scrabble end':
+            if not hasattr(client, 'scrabble_game'):
+                await message.channel.send("❌ No Scrabble game is currently running!")
+                return
+
+            game = client.scrabble_game
+            del client.scrabble_game
+
+            results = "\n".join([f"<@{player}>: {score} points" for player, score in game["scores"].items()])
+            await message.channel.send(f"🏁 Scrabble game ended!\n📊 Results:\n{results}")
+            return
+
+        # Explain the game and commands
+        else:
+            embed = discord.Embed(
+                title="Scrabble Game Instructions",
+                description=(
+                    "🎮 **How to play Scrabble on Discord:**\n\n"
+                    "`!scrabble start @Player1 @Player2` - Start a new game with mentioned players.\n"
+                    "`!scrabble play <word>` - Play a word using your letters.\n"
+                    "`!scrabble end` - End the current game and show the results.\n\n"
+                    "**Rules:**\n"
+                    "1. Each player starts with 7 letters.\n"
+                    "2. Play valid words using your letters to earn points.\n"
+                    "3. Points are based on the value of each letter.\n"
+                    "4. The game ends when the letter pool is empty or players decide to stop.\n\n"
+                    "Good luck and have fun! 🎉"
+                ),
+                color=discord.Color.blue()
+            )
+            await message.channel.send(embed=embed)

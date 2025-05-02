@@ -47,6 +47,10 @@ def load_quiz():
 def load_hangman():
     return load_json_file('internal/data/hangman.json')
 
+# Load scrabble data
+def load_scrabble():
+    return load_json_file('internal/data/scrabble_letters.json')
+
 # Load reaction role data
 def load_reaction_role_data():
     return load_json_file('internal/data/reactionrole.json')
