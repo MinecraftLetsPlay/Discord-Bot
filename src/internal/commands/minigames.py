@@ -20,6 +20,8 @@ def initialize_game_data():
         logging.error("❌ Failed to load Hangman data.")
     if not quiz_data:
         logging.error("❌ Failed to load Quiz data.")
+    if not scrabble_data:
+        logging.error("❌ Failed to load Scrabble data.")
 
 # Initialize game data when the bot starts
 initialize_game_data()
@@ -101,10 +103,11 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
 
 # Draw a specified number of letters from the pool
 def draw_letters(pool, count):
-    """Zieht eine bestimmte Anzahl von Buchstaben aus dem Pool."""
+    """Draws a specified number of letters from the pool."""
     letters = []
     for _ in range(count):
         if not pool:
+            logging.warning("⚠️ The letter pool is empty. Cannot draw more letters.")
             break
         letter = random.choice(pool)
         pool.remove(letter)
@@ -113,11 +116,13 @@ def draw_letters(pool, count):
 
 # Calculate the score of a word based on letter values
 def calculate_word_score(word, scrabble_data):
-    """Berechnet die Punktzahl eines Wortes basierend auf den Buchstabenwerten."""
+    """Calculates the score of a word based on letter values."""
     score = 0
     for letter in word.upper():
         if letter in scrabble_data:
             score += scrabble_data[letter]["value"]
+        else:
+            logging.warning(f"⚠️ Letter '{letter}' is not in the Scrabble data. Ignoring it.")
     return score
 
 # ----------------------------------------------------------------
