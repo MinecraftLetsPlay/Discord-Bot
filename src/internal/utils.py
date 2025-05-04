@@ -48,8 +48,21 @@ def load_hangman():
     return load_json_file('internal/data/hangman.json')
 
 # Load scrabble data
-def load_scrabble():
-    return load_json_file('internal/data/scrabble_letters.json')
+def load_scrabble(language="En"):
+    """
+    Loads Scrabble data from a JSON file based on the specified language.
+    Supported languages are "En" for English and "De" for German.
+    """
+    file_mapping = {
+        "En": "internal/data/scrabble_letters_en.json",
+        "De": "internal/data/scrabble_letters_de.json"
+    }
+
+    if language not in file_mapping:
+        logging.error(f"❌ Unsupported language '{language}' for Scrabble data.")
+        return {}
+
+    return load_json_file(file_mapping[language])
 
 # Load reaction role data
 def load_reaction_role_data():

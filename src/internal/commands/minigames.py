@@ -1,27 +1,30 @@
 import discord
 import random
 import asyncio
+import aiohttp
 import logging
 from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils functions for loading data
 
 # Global variables to store game data
 hangman_data = None
 quiz_data = None
-scrabble_data = None
+scrabble_data = {}
+supported_languages = ['En', 'De'] # Supported languages for scrabble
 
 # Initialize game data / load it from JSON files -> Utils.py
 def initialize_game_data():
-    global hangman_data, quiz_data
+    global hangman_data, quiz_data, scrabble_data
     hangman_data = load_hangman()
     quiz_data = load_quiz()
-    scrabble_data = load_scrabble()
-
+    
     if not hangman_data:
         logging.error("❌ Failed to load Hangman data.")
     if not quiz_data:
         logging.error("❌ Failed to load Quiz data.")
-    if not scrabble_data:
-        logging.error("❌ Failed to load Scrabble data.")
+    
+    for lang in supported_languages:
+        if not scrabble_data[lang]:
+            logging.error(f"❌ Failed to load Scrabble data for {lang}.")
 
 # Initialize game data when the bot starts
 initialize_game_data()
@@ -112,6 +115,8 @@ def draw_letters(pool, count):
         letter = random.choice(pool)
         pool.remove(letter)
         letters.append(letter)
+    if not letters:
+        logging.warning("⚠️ No letters could be drawn because the pool is empty.")
     return letters
 
 # Calculate the score of a word based on letter values
@@ -124,6 +129,31 @@ def calculate_word_score(word, scrabble_data):
         else:
             logging.warning(f"⚠️ Letter '{letter}' is not in the Scrabble data. Ignoring it.")
     return score
+
+# Check if a word is valid using the appropriate dictionary API
+async def is_valid_word(word, language):
+    """Checks if a word exists using the appropriate dictionary API."""
+    if language == "En":
+        url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word.lower()}"
+    elif language == "De":
+        url = f"https://api.dictionaryapi.dev/api/v2/entries/de/{word.lower()}"
+    else:
+        logging.error(f"❌ Unsupported language '{language}' for dictionary lookup.")
+        return False
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return True  # Word exists
+                elif response.status == 404:
+                    return False  # Word does not exist
+                else:
+                    logging.warning(f"⚠️ Unexpected response from dictionary API: {response.status}")
+                    return False
+    except aiohttp.ClientError as e:
+        logging.error(f"❌ Error connecting to dictionary API: {e}")
+        return False
 
 # ----------------------------------------------------------------
 # Main command handler
@@ -403,7 +433,23 @@ async def handle_minigames_commands(client, message, user_message):
     # !scrabble command
     if user_message.startswith('!scrabble'):
         # Start a new game
-        if user_message == '!scrabble start':
+        if user_message.startswith('!scrabble start'):
+            parts = user_message.split()
+            if len(parts) < 2:
+                await message.channel.send("❌ Please specify a language (e.g., `!scrabble start En`) and mention at least 2 players.")
+                return
+
+            language = parts[2].capitalize() if len(parts) > 2 else "En"
+            if language not in supported_languages:
+                await message.channel.send(f"❌ Unsupported language '{language}'. Supported languages: {', '.join(supported_languages)}.")
+                return
+            
+            # Load Scrabble data for the specified language
+            scrabble_data = load_scrabble(language)
+            if not scrabble_data:
+                await message.channel.send(f"❌ Failed to load Scrabble data for language '{language}'.")
+                return
+
             players = [message.author.id] + [user.id for user in message.mentions]
             if len(players) < 2:
                 await message.channel.send("❌ At least 2 players are required to start the game!")
@@ -411,7 +457,7 @@ async def handle_minigames_commands(client, message, user_message):
 
             # Initialize the game
             letter_pool = []
-            for letter, data in scrabble_data.items():
+            for letter, data in scrabble_data[language].items():
                 letter_pool.extend([letter] * data["count"])
             random.shuffle(letter_pool)
 
@@ -420,11 +466,12 @@ async def handle_minigames_commands(client, message, user_message):
                 "hands": {player: draw_letters(letter_pool, 7) for player in players},
                 "scores": {player: 0 for player in players},
                 "current_player": players[0],
-                "letter_pool": letter_pool
+                "letter_pool": letter_pool,
+                "language": language
             }
             client.scrabble_game = game_state
 
-            await message.channel.send("🎮 Scrabble game started!")
+            await message.channel.send(f"🎮 Scrabble game started in {language}!")
             for player in players:
                 hand = " ".join(game_state["hands"][player])
                 await message.channel.send(f"<@{player}>, your letters: {hand}")
@@ -441,9 +488,32 @@ async def handle_minigames_commands(client, message, user_message):
                 await message.channel.send("❌ It's not your turn!")
                 return
 
-            word = user_message.split(' ', 2)[2].strip().upper()
+            try:
+                word_message = await client.wait_for(
+                    'message',
+                    timeout=60.0,
+                    check=lambda m: m.author == message.author
+                )
+                word = word_message.content.strip().upper()
+            except asyncio.TimeoutError:
+                await message.channel.send(f"⏳ {message.author.mention} took too long! Skipping their turn.")
+                game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
+                return
+
+            if not word:
+                await message.channel.send("❌ You must play a word!")
+                return
+
+            if len(word) > len(game["hands"][message.author.id]):
+                await message.channel.send("❌ Your word is too long for your current hand!")
+                return
+
             if not set(word).issubset(set(game["hands"][message.author.id])):
                 await message.channel.send("❌ You don't have all the required letters!")
+                return
+
+            if not is_valid_word(word, game["language"]):
+                await message.channel.send(f"❌ '{word}' is not a valid word!")
                 return
 
             # Calculate points and update the game state
@@ -458,6 +528,12 @@ async def handle_minigames_commands(client, message, user_message):
             for player in game["players"]:
                 hand = " ".join(game["hands"][player])
                 await message.channel.send(f"<@{player}>, your letters: {hand}")
+
+            # Check if the game should end
+            if not game["letter_pool"] and all(not hand for hand in game["hands"].values()):
+                results = "\n".join([f"<@{player}>: {score} points" for player, score in game["scores"].items()])
+                await message.channel.send(f"🏁 Scrabble game ended automatically!\n📊 Results:\n{results}")
+                del client.scrabble_game
             return
 
         # End the game
