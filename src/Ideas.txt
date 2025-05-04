@@ -16,9 +16,14 @@ Sammeln von ArbeitsbereichsinformationenHier sind einige Ideen für neue Funktio
 ---
 
 ### **2. Utility-Funktionen**
+
+
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 - **Währungsumrechnung**:
   - Nutze die [ExchangeRate-API](https://exchangerate.host/) für Echtzeit-Währungsumrechnungen.
   - Beispiel: `!convert 100 USD to EUR`.
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+
 
 - **Übersetzungsfunktion**:
   - Nutze die [LibreTranslate API](https://libretranslate.com/) oder [DeepL API](https://www.deepl.com/pro-api) für Übersetzungen.
@@ -71,9 +76,23 @@ Sammeln von ArbeitsbereichsinformationenHier sind einige Ideen für neue Funktio
   - Nutze die [COVID-19 API](https://covid19api.com/) für aktuelle Statistiken.
   - Beispiel: `!covid Germany`.
 
+
+
+
+
+
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 - **Astronomie-Daten**:
   - Nutze die [NASA API](https://api.nasa.gov/) für Bilder des Tages, Mars-Wetterdaten oder Informationen zu Himmelsobjekten.
   - Beispiel: `!nasa apod`.
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+
+
+
+
+
+
+
 
 - **News-Feed**:
   - Nutze die [NewsAPI](https://newsapi.org/) oder eine ähnliche API, um aktuelle Nachrichten bereitzustellen.
@@ -114,9 +133,14 @@ Sammeln von ArbeitsbereichsinformationenHier sind einige Ideen für neue Funktio
   - Generiere sichere Passwörter.
   - Beispiel: `!password 16` (für ein 16-stelliges Passwort).
 
+
+
+
+
+
+1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 - **IP- und Domain-Checker**:
   - Nutze die [VirusTotal API](https://developers.virustotal.com/) oder eine ähnliche API, um IPs oder Domains zu überprüfen.
   - Beispiel: `!checkdomain example.com`.
-
----
+1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 

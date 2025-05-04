@@ -23,8 +23,11 @@ def initialize_game_data():
         logging.error("❌ Failed to load Quiz data.")
     
     for lang in supported_languages:
-        if not scrabble_data[lang]:
+        scrabble_data[lang] = load_scrabble(lang)  # Load Scrabble data for each supported language
+        if not scrabble_data[lang]:  # Check if data is loaded successfully
             logging.error(f"❌ Failed to load Scrabble data for {lang}.")
+            scrabble_data[lang] = {}  # Set empty data if loading failed
+            logging.debug(f"Loaded Scrabble data for {lang}: {scrabble_data[lang]}")
 
 # Initialize game data when the bot starts
 initialize_game_data()
@@ -450,14 +453,14 @@ async def handle_minigames_commands(client, message, user_message):
                 await message.channel.send(f"❌ Failed to load Scrabble data for language '{language}'.")
                 return
 
-            players = [message.author.id] + [user.id for user in message.mentions]
-            if len(players) < 2:
-                await message.channel.send("❌ At least 2 players are required to start the game!")
-                return
+            players = [message.author.id]
+            for user in message.mentions:
+                if user.id not in players:
+                    players.append(user.id)
 
             # Initialize the game
             letter_pool = []
-            for letter, data in scrabble_data[language].items():
+            for letter, data in scrabble_data.items():  # Entferne [language], da scrabble_data bereits die Daten enthält
                 letter_pool.extend([letter] * data["count"])
             random.shuffle(letter_pool)
 
@@ -495,25 +498,26 @@ async def handle_minigames_commands(client, message, user_message):
                     check=lambda m: m.author == message.author
                 )
                 word = word_message.content.strip().upper()
+                await message.channel.send(f"✅ {word} was played! You earned {score} points. 🎉")
             except asyncio.TimeoutError:
                 await message.channel.send(f"⏳ {message.author.mention} took too long! Skipping their turn.")
                 game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
                 return
 
             if not word:
-                await message.channel.send("❌ You must play a word!")
+                await message.channel.send("❌ You must play a word! Please try again.")
                 return
 
             if len(word) > len(game["hands"][message.author.id]):
-                await message.channel.send("❌ Your word is too long for your current hand!")
+                await message.channel.send(f"❌ Your word '{word}' is too long for your current hand: {' '.join(game['hands'][message.author.id])}.")
                 return
 
             if not set(word).issubset(set(game["hands"][message.author.id])):
-                await message.channel.send("❌ You don't have all the required letters!")
+                await message.channel.send(f"❌ You don't have all the required letters to play '{word}'. Your hand: {' '.join(game['hands'][message.author.id])}.")
                 return
 
-            if not is_valid_word(word, game["language"]):
-                await message.channel.send(f"❌ '{word}' is not a valid word!")
+            if not await is_valid_word(word, game["language"]):
+                await message.channel.send(f"❌ '{word}' is not a valid word in {game['language']}!")
                 return
 
             # Calculate points and update the game state
@@ -526,8 +530,20 @@ async def handle_minigames_commands(client, message, user_message):
 
             await message.channel.send(f"✅ {word} was played! You earned {score} points.")
             for player in game["players"]:
+                user = await client.fetch_user(player)
                 hand = " ".join(game["hands"][player])
-                await message.channel.send(f"<@{player}>, your letters: {hand}")
+                await user.send(f"🎮 Your letters: {hand}")
+                
+            def calculate_word_score(word, scrabble_data):
+                """Calculates the score of a word based on letter values."""
+                score = 0
+                for letter in word.upper():
+                    if letter in scrabble_data:
+                        score += scrabble_data[letter]["value"]
+                    else:
+                        logging.warning(f"⚠️ Letter '{letter}' is not in the Scrabble data. Ignoring it.")
+                logging.debug(f"Calculated score for '{word}': {score}")
+                return score
 
             # Check if the game should end
             if not game["letter_pool"] and all(not hand for hand in game["hands"].values()):
