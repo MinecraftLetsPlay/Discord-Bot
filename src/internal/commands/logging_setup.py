@@ -4,7 +4,6 @@ import sys
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from internal import utils
-from internal.commands.system_commands import rotate_logs
 
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, filename, when='midnight', interval=1, backupCount=0, encoding=None):
@@ -20,6 +19,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         return os.path.join(dir_name, f"bot.log-{timestamp}.txt")
     
     def doRollover(self):
+        from internal.commands.system_commands import rotate_logs
         super().doRollover()
         rotate_logs()  # Lösche alte Logs nach der Rotation
 
