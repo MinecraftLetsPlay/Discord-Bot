@@ -7,7 +7,6 @@ import logging
 from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
-from discord.ext import commands
 from discord.ui import Button, View
 from internal.commands.calculator import handle_calc_command
 

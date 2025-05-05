@@ -1,15 +1,13 @@
 import discord
-from discord.ext import commands
 import os
 import sys
 import asyncio
 import logging as log_
 import json
 from datetime import datetime, timedelta
-from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 from dotenv import load_dotenv
-from internal.commands import logging_setup
+from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 
 # Load environment variables from .env file
 load_dotenv()
@@ -32,7 +30,7 @@ LoggingActivated = config.get("LoggingActivated")
 
 # Setup logging with TimedRotatingFileHandler
 log_file = os.path.join(log_directory, 'bot.log')
-handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
+handler = CustomTimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
 handler.suffix = "%d.%m.%Y_%H.%M.%S"
 
 log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
