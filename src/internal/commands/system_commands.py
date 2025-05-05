@@ -192,9 +192,17 @@ def setup_system_commands(bot):
         channel = interaction.channel
         if is_authorized(interaction.user):
             # Search for files that start with "bot.log"
-            log_files = sorted([f for f in os.listdir(log_directory) if f.startswith('bot.log') and f.endswith('.txt')])
+            log_files = [
+                os.path.join(log_directory, f)
+                for f in os.listdir(log_directory)
+                if f.startswith('bot.log') and f.endswith('.txt')
+            ]
+        
+            # Sortiere die Dateien nach Änderungsdatum (neueste zuerst)
+            log_files = sorted(log_files, key=os.path.getmtime, reverse=True)
+
             if log_files:
-                latest_log_file = os.path.join(log_directory, log_files[-1])
+                latest_log_file = log_files[0]  # Neueste Datei
                 await interaction.response.send_message(file=discord.File(latest_log_file))
                 log_.info(f"System: Latest log file sent to {channel} for {interaction.user}")
             else:
