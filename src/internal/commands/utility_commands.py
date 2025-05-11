@@ -461,3 +461,67 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             await message.channel.send("❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
+            
+    # !satellite command
+    if user_message.startswith('!satellite'):
+        # Split the command into parts
+        parts = user_message.split()
+
+        if len(parts) < 3:
+            await message.channel.send("❌ Usage: !satellite <latitude> <longitude>")
+            logging.info(f"User {message.author} tried to use the !satellite command without providing coordinates.")
+            return
+
+        try:
+            # Parse latitude and longitude
+            latitude = float(parts[1])
+            longitude = float(parts[2])
+
+            dim = 0.1  # Größe des Bildausschnitts in Grad
+            api_key = os.getenv('NASA_API_KEY')  # Get the API key from .env
+
+            if not api_key:
+                await message.channel.send("❌ NASA API key is missing. Please contact the administrator.")
+                logging.error("❌ NASA API key is missing.")
+                return
+
+            # Build the API request URL
+            base_url = "https://api.nasa.gov/planetary/earth/imagery"
+            params = {
+                "lat": latitude,
+                "lon": longitude,
+                "dim": dim,
+                "api_key": api_key
+            }
+
+            # Send the request to the NASA API
+            async with aiohttp.ClientSession() as session:
+                async with session.get(base_url, params=params) as response:
+                    if response.status == 200:
+                        # Get the image URL from the response
+                        image_url = str(response.url)
+
+                        # Embed message with the image
+                        embed = discord.Embed(
+                            title="🛰️ Satellite Image",
+                            description=f"Satellite image for coordinates ({latitude}, {longitude})",
+                            color=discord.Color.blue()
+                        )
+                        embed.set_image(url=image_url)
+                        embed.set_footer(text="Image provided by NASA Earth API")
+
+                        # Send the embed message
+                        await message.channel.send(embed=embed)
+                        logging.info(f"Satellite image sent for coordinates ({latitude}, {longitude}).")
+                    else:
+                        # Handle errors from the API
+                        error_message = await response.text()
+                        await message.channel.send(f"❌ Failed to fetch satellite image. Error: {error_message}")
+                        logging.error(f"Failed to fetch satellite image. Status: {response.status}, Error: {error_message}")
+
+        except ValueError:
+            await message.channel.send("❌ Invalid coordinates. Please provide valid latitude and longitude.")
+            logging.warning(f"Invalid coordinates provided by {message.author}: {user_message}")
+        except Exception as e:
+            await message.channel.send("❌ An error occurred while fetching the satellite image.")
+            logging.error(f"Error fetching satellite image: {e}")
