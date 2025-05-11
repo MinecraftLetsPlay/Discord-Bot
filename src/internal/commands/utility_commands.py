@@ -478,9 +478,9 @@ async def handle_utility_commands(client, message, user_message):
             longitude = float(parts[2])
 
             # Optional date parameter
-            date = parts[3] if len(parts) > 3 else ""  # Use the provided date or leave it blank
+            date = parts[3] if len(parts) > 3 else datetime.now().strftime('%Y-%m-%d')  # Use current date as default
 
-            dim = 0.1  # Size of the image in degrees
+            dim = 0.3  # Size of the image in degrees
             api_key = os.getenv('NASA_API_KEY')  # Get the API key from .env
 
             if not api_key:
@@ -494,12 +494,9 @@ async def handle_utility_commands(client, message, user_message):
                 "lat": latitude,
                 "lon": longitude,
                 "dim": dim,
+                "date": date,
                 "api_key": api_key
             }
-
-            # Add the date parameter only if it's provided
-            if date:
-                params["date"] = date
 
             # Send the request to the NASA API
             async with aiohttp.ClientSession() as session:
@@ -520,6 +517,9 @@ async def handle_utility_commands(client, message, user_message):
                         # Send the embed message
                         await message.channel.send(embed=embed)
                         logging.info(f"Satellite image sent for coordinates ({latitude}, {longitude}).")
+                    elif response.status == 404:
+                        await message.channel.send("❌ No imagery available for the specified coordinates and date. Try a different date or location.")
+                        logging.warning(f"No imagery available for coordinates ({latitude}, {longitude}) and date {date}.")
                     else:
                         # Handle errors from the API
                         error_message = await response.text()
