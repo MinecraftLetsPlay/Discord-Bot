@@ -468,7 +468,7 @@ async def handle_utility_commands(client, message, user_message):
         parts = user_message.split()
 
         if len(parts) < 3:
-            await message.channel.send("❌ Usage: !satellite <latitude> <longitude>")
+            await message.channel.send("❌ Usage: !satellite <latitude> <longitude> [YYYY-MM-DD]")
             logging.info(f"User {message.author} tried to use the !satellite command without providing coordinates.")
             return
 
@@ -477,7 +477,10 @@ async def handle_utility_commands(client, message, user_message):
             latitude = float(parts[1])
             longitude = float(parts[2])
 
-            dim = 0.1  # Größe des Bildausschnitts in Grad
+            # Optional date parameter
+            date = parts[3] if len(parts) > 3 else ""  # Use the provided date or leave it blank
+
+            dim = 0.1  # Size of the image in degrees
             api_key = os.getenv('NASA_API_KEY')  # Get the API key from .env
 
             if not api_key:
@@ -493,6 +496,10 @@ async def handle_utility_commands(client, message, user_message):
                 "dim": dim,
                 "api_key": api_key
             }
+
+            # Add the date parameter only if it's provided
+            if date:
+                params["date"] = date
 
             # Send the request to the NASA API
             async with aiohttp.ClientSession() as session:
