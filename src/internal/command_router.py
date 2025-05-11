@@ -4,13 +4,15 @@ from internal.commands.minigames import handle_minigames_commands
 from internal.commands.utility_commands import handle_utility_commands
 from internal.commands.public_commands import handle_public_commands
 from internal.commands.moderation_commands import handle_moderation_commands
+from internal.commands.mcserver_commands import handle_mcserver_commands
 
 # Command groups definition
 command_groups = {
     'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!download', '!poll', '!reminder', '!satellite'],
     'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll', '!scrabble'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
-    'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole']
+    'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
+    'mcserver': ['!MCServer']
 }
 
 # Command handlers mapping
@@ -18,14 +20,15 @@ command_handlers = {
     'utility': handle_utility_commands,
     'minigames': handle_minigames_commands,
     'public': handle_public_commands,
-    'moderation': handle_moderation_commands
+    'moderation': handle_moderation_commands,
+    'mcserver': handle_mcserver_commands
 }
 
 # Commands that cannot be executed in a DM
 no_dm_commands = [
     '!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole',
     '!userinfo', '!rules', '!serverinfo', '!reactionrole', '!scrabble',
-    '!whitelist add', '!whitelist remove', '!poll'
+    '!whitelist add', '!whitelist remove', '!poll', '!MCServer'
 ]
 
 async def handle_command(client, message):
@@ -35,7 +38,6 @@ async def handle_command(client, message):
 
     # Handle !calc separately
     if user_message.startswith('!calc'):
-        logging.debug("Command matches: !calc")  # Debug log
         try:
             await handle_calc_command(client, message, user_message)
             return
@@ -47,7 +49,6 @@ async def handle_command(client, message):
     # Handle other commands
     for group, commands in command_groups.items():
         if any(user_message.startswith(cmd) for cmd in commands):
-            logging.debug(f"Command matches group: {group}")  # Debug log
             try:
                 await command_handlers[group](client, message, user_message)
                 return
