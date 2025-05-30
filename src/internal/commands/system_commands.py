@@ -15,6 +15,9 @@ load_dotenv()
 # Load config
 config = utils.load_config()
 log_directory = config.get("log_file_location")
+if not isinstance(log_directory, str) or not log_directory:
+    log_directory = "logs"
+
 config_file_path = 'src/internal/data/config.json'  # Ensure the correct path to the config file
 
 # Ensure log directory exists
@@ -40,23 +43,21 @@ log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(messag
 
 # Function to rotate logs
 def rotate_logs():
-    # Get all files that start with "bot.log" and end with ".txt"
+    # Sicherstellen, dass log_directory ein String ist
+    directory = log_directory if isinstance(log_directory, str) else "logs"
     log_files = sorted(
-        [f for f in os.listdir(log_directory) if f.startswith('bot.log') and f.endswith('.txt')],
-        key=lambda x: os.path.getmtime(os.path.join(log_directory, x))  # Sort by modification time
+        [f for f in os.listdir(directory) if f.startswith('bot.log') and f.endswith('.txt')],
+        key=lambda x: os.path.getmtime(os.path.join(directory, x))
     )
-
-    # Add the current log file if it is not already in the list
-    current_log_file = os.path.join(log_directory, 'bot.log')
+    current_log_file = os.path.join(directory, 'bot.log')
     if os.path.exists(current_log_file):
         log_files.append('bot.log')
 
     # Check if the number of files exceeds the limit
     if len(log_files) > 10:
-        # Delete the oldest files until only 10 remain
         files_to_delete = log_files[:len(log_files) - 10]
         for file in files_to_delete:
-            file_path = os.path.join(log_directory, file)
+            file_path = os.path.join(directory, file)
             try:
                 os.remove(file_path)
                 log_.info(f"Deleted old log file: {file_path}")
@@ -120,7 +121,7 @@ def setup_system_commands(bot):
         if is_authorized(interaction.user):
             await interaction.response.send_message("Shutting down the bot...")
             log_.info(f"System: Shutdown command executed by: {interaction.user}")
-            discord.status = discord.Status.offline
+            # discord.status = discord.Status.offline  # Entfernen, gibt es nicht!
             await bot.close()
         else:
             embed = discord.Embed(
@@ -145,7 +146,7 @@ def setup_system_commands(bot):
                 await bot.wait_for("reaction_add", timeout=30.0, check=check)
                 await interaction.response.send_message("Shutting down the bot and the Raspberry Pi...")
                 log_.info(f"System: Full shutdown command executed by: {interaction.user}")
-                discord.status = discord.Status.offline
+                # discord.status = discord.Status.offline  # Entfernen, gibt es nicht!
                 await bot.close()
                 os.system("sudo shutdown now")
             except asyncio.TimeoutError:
@@ -189,20 +190,18 @@ def setup_system_commands(bot):
 
     @bot.tree.command(name="log", description="Get the latest log file")
     async def log(interaction: discord.Interaction):
+        # Sicherstellen, dass log_directory ein String ist
+        directory = log_directory if isinstance(log_directory, str) else "logs"
         channel = interaction.channel
         if is_authorized(interaction.user):
-            # Search for files that start with "bot.log"
             log_files = [
-                os.path.join(log_directory, f)
-                for f in os.listdir(log_directory)
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
                 if f.startswith('bot.log') and f.endswith('.txt')
             ]
-        
-            # Sortiere die Dateien nach Änderungsdatum (neueste zuerst)
             log_files = sorted(log_files, key=os.path.getmtime, reverse=True)
-
             if log_files:
-                latest_log_file = log_files[0]  # Neueste Datei
+                latest_log_file = log_files[0]
                 await interaction.response.send_message(file=discord.File(latest_log_file))
                 log_.info(f"System: Latest log file sent to {channel} for {interaction.user}")
             else:

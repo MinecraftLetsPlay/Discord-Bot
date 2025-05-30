@@ -498,7 +498,6 @@ async def handle_minigames_commands(client, message, user_message):
                     check=lambda m: m.author == message.author
                 )
                 word = word_message.content.strip().upper()
-                await message.channel.send(f"✅ {word} was played! You earned {score} points. 🎉")
             except asyncio.TimeoutError:
                 await message.channel.send(f"⏳ {message.author.mention} took too long! Skipping their turn.")
                 game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
@@ -520,7 +519,8 @@ async def handle_minigames_commands(client, message, user_message):
                 await message.channel.send(f"❌ '{word}' is not a valid word in {game['language']}!")
                 return
 
-            # Calculate points and update the game state
+            # Hole die Scrabble-Daten für die aktuelle Sprache
+            scrabble_data = load_scrabble(game["language"])
             score = calculate_word_score(word, scrabble_data)
             game["scores"][message.author.id] += score
             for letter in word:
@@ -528,59 +528,17 @@ async def handle_minigames_commands(client, message, user_message):
             game["hands"][message.author.id] += draw_letters(game["letter_pool"], len(word))
             game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
 
-            await message.channel.send(f"✅ {word} was played! You earned {score} points.")
+            await message.channel.send(f"✅ {word} was played! You earned {score} points. 🎉")
+
+            # Zeige jedem Spieler seine neuen Buchstaben
             for player in game["players"]:
                 user = await client.fetch_user(player)
                 hand = " ".join(game["hands"][player])
                 await user.send(f"🎮 Your letters: {hand}")
-                
-            def calculate_word_score(word, scrabble_data):
-                """Calculates the score of a word based on letter values."""
-                score = 0
-                for letter in word.upper():
-                    if letter in scrabble_data:
-                        score += scrabble_data[letter]["value"]
-                    else:
-                        logging.warning(f"⚠️ Letter '{letter}' is not in the Scrabble data. Ignoring it.")
-                logging.debug(f"Calculated score for '{word}': {score}")
-                return score
 
-            # Check if the game should end
+            # Prüfe, ob das Spiel zu Ende ist
             if not game["letter_pool"] and all(not hand for hand in game["hands"].values()):
                 results = "\n".join([f"<@{player}>: {score} points" for player, score in game["scores"].items()])
                 await message.channel.send(f"🏁 Scrabble game ended automatically!\n📊 Results:\n{results}")
                 del client.scrabble_game
             return
-
-        # End the game
-        if user_message == '!scrabble end':
-            if not hasattr(client, 'scrabble_game'):
-                await message.channel.send("❌ No Scrabble game is currently running!")
-                return
-
-            game = client.scrabble_game
-            del client.scrabble_game
-
-            results = "\n".join([f"<@{player}>: {score} points" for player, score in game["scores"].items()])
-            await message.channel.send(f"🏁 Scrabble game ended!\n📊 Results:\n{results}")
-            return
-
-        # Explain the game and commands
-        else:
-            embed = discord.Embed(
-                title="Scrabble Game Instructions",
-                description=(
-                    "🎮 **How to play Scrabble on Discord:**\n\n"
-                    "`!scrabble start @Player1 @Player2` - Start a new game with mentioned players.\n"
-                    "`!scrabble play <word>` - Play a word using your letters.\n"
-                    "`!scrabble end` - End the current game and show the results.\n\n"
-                    "**Rules:**\n"
-                    "1. Each player starts with 7 letters.\n"
-                    "2. Play valid words using your letters to earn points.\n"
-                    "3. Points are based on the value of each letter.\n"
-                    "4. The game ends when the letter pool is empty or players decide to stop.\n\n"
-                    "Good luck and have fun! 🎉"
-                ),
-                color=discord.Color.blue()
-            )
-            await message.channel.send(embed=embed)

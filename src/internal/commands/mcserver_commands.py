@@ -49,7 +49,7 @@ async def handle_mcserver_commands(client, message, user_message):
     if action == "shutdown":
         # Shutdown the server
         response = await send_nitrado_request("/gameservers/shutdown", method="POST")
-        if response.get("status") == "success":
+        if response and response.get("status") == "success":
             await message.channel.send("✅ Server is shutting down.")
         else:
             await message.channel.send(f"❌ Failed to shut down the server: {response}")
@@ -57,7 +57,7 @@ async def handle_mcserver_commands(client, message, user_message):
     elif action == "restart":
         # Restart the server
         response = await send_nitrado_request("/gameservers/restart", method="POST")
-        if response.get("status") == "success":
+        if response and response.get("status") == "success":
             await message.channel.send("✅ Server is restarting.")
         else:
             await message.channel.send(f"❌ Failed to restart the server: {response}")
@@ -65,7 +65,7 @@ async def handle_mcserver_commands(client, message, user_message):
     elif action == "status":
         # Get server status
         response = await send_nitrado_request("/gameservers")
-        if response.get("status") == "success":
+        if response and response.get("status") == "success":
             server_data = response["data"]["gameserver"]
             online = server_data["status"] == "online"
             players_online = server_data["players"]["current"]
@@ -91,7 +91,7 @@ async def handle_mcserver_commands(client, message, user_message):
 
         minecraft_command = " ".join(parts[2:])
         response = await send_nitrado_request("/gameservers/command", method="POST", data={"command": minecraft_command})
-        if response.get("status") == "success":
+        if response and response.get("status") == "success":
             await message.channel.send(f"✅ Command '{minecraft_command}' sent to the server.")
         else:
             await message.channel.send(f"❌ Failed to send command: {response}")

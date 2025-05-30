@@ -159,7 +159,7 @@ async def handle_utility_commands(client, message, user_message):
             elif 'fog' in description or 'mist' in description:
                 embed_color = discord.Color.light_gray()  # Foggy or misty
             elif 'drizzle' in description:
-                embed_color = discord.Color.sky_blue()  # Drizzle
+                embed_color = discord.Color.from_rgb(135, 206, 235)  # Drizzle
             elif 'extreme' in description or 'hurricane' in description or 'tornado' in description:
                 embed_color = discord.Color.purple()  # Extreme weather
             else:
@@ -263,7 +263,7 @@ async def handle_utility_commands(client, message, user_message):
     if user_message.startswith('!download'):
         response = await handle_download_command(user_message)
 
-        if os.path.isfile(response):  # If the response is a valid file path
+        if isinstance(response, str) and os.path.isfile(response):  # If the response is a valid file path
             await message.channel.send(file=discord.File(response))  # Send the file
             logging.info(f"File `{response}` sent to {message.author}.")
         else:
@@ -339,7 +339,7 @@ async def handle_utility_commands(client, message, user_message):
 
             async def vote_callback(self, interaction: discord.Interaction):
                 user_id = interaction.user.id
-                custom_id = interaction.data['custom_id']
+                custom_id = interaction.data.get('custom_id') if interaction.data else None
                 option = next((opt for opt in self.votes if f"poll_option_{list(self.votes.keys()).index(opt)}" == custom_id), None)
                 
                 if option:

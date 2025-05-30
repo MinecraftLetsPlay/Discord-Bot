@@ -4,7 +4,7 @@ import re
 import logging
 import sympy
 import asyncio
-from sympy import solve, symbols, parse_expr, sympify
+from sympy import solve, symbols, parse_expr, sympify, Number
 
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
@@ -39,7 +39,7 @@ async def calculate_with_timeout(expression):
         )
         
         # Format the result
-        if isinstance(result, (int, float, sympy.core.numbers.Number)):
+        if isinstance(result, (int, float, Number)):
             return format_number(float(result))
         return str(result)
         

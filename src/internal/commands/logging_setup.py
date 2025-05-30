@@ -28,6 +28,10 @@ def setup_logging():
     config = utils.load_config()
     log_directory = config.get("log_file_location")
 
+    # Fallback, falls log_directory nicht gesetzt ist
+    if not isinstance(log_directory, str) or not log_directory:
+        log_directory = "logs"
+
     # Ensure log directory exists
     if not os.path.exists(log_directory):
         try:
