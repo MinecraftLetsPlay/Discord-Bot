@@ -139,5 +139,9 @@ def run_discord_bot():
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
     setup_system_commands(bot)
+    
+    # Load /download command
+    from internal.commands.utility_commands import setup_utility_commands
+    setup_utility_commands(bot)
 
     bot.run(TOKEN)

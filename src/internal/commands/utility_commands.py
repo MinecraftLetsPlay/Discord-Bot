@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 import aiohttp
 import asyncio
 import json
@@ -227,48 +228,6 @@ async def handle_utility_commands(client, message, user_message):
         else:
             await message.channel.send("⚠️ Could not retrieve city information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve city information. Invalid location.")
-
-    # !download command
-    async def handle_download_command(user_message):
-        config = utils.load_config()
-        download_folders = config.get("download_folders", {})
-        
-        if not message.guild.me.guild_permissions.attach_files:
-            await message.channel.send("⚠️ I don't have permission to send files. Please check my role permissions.")
-            return
-
-        # Split the command into parts
-        parts = user_message.split(' ', 2)  # Split into 3 parts: command, folder, filename
-        if len(parts) < 3:
-            return "ℹ️ Usage: `!download <folder> <filename>` (e.g., `!download pack Betterminecraft.zip`)"
-
-        folder_key = parts[1].lower()  # Folder (e.g., pack)
-        file_name = parts[2]  # File name (e.g., Betterminecraft.zip)
-
-        # Validate the folder
-        if folder_key not in download_folders:
-            return f"ℹ️ Unknown folder: `{folder_key}`. Available folders: {', '.join(download_folders.keys())}"
-
-        # Build the full file path
-        folder_path = download_folders[folder_key]
-        file_path = os.path.join(folder_path, file_name)
-
-        # Check if the file exists
-        if os.path.isfile(file_path):
-            return file_path  # Return the file path for sending
-        else:
-            return f"⚠️ File `{file_name}` not found in folder `{folder_key}`."
-
-    # Command Handler
-    if user_message.startswith('!download'):
-        response = await handle_download_command(user_message)
-
-        if isinstance(response, str) and os.path.isfile(response):  # If the response is a valid file path
-            await message.channel.send(file=discord.File(response))  # Send the file
-            logging.info(f"File `{response}` sent to {message.author}.")
-        else:
-            await message.channel.send(response)  # Send the error message
-            logging.warning(f"File not found: {response}")
             
     # !time command
     if user_message.startswith('!time'):
@@ -395,7 +354,7 @@ async def handle_utility_commands(client, message, user_message):
         parts = normalized_message.split('"')
 
         if len(parts) < 2:
-            await message.channel.send("❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
+            await message.channel.send("❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel/everyone]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
             logging.info(f"User {message.author} tried to create a reminder without correct parameters")
             return
 
@@ -409,8 +368,8 @@ async def handle_utility_commands(client, message, user_message):
 
             date_str = params[0]
             time_str = params[1]
-            # Default is channel if not specified otherwise
-            reminder_type = params[2].lower() if len(params) > 2 and params[2].lower() in ['dm', 'channel'] else 'channel'
+            # Option: dm, channel, everyone (default: user mention)
+            reminder_type = params[2].lower() if len(params) > 2 else None
 
             # Parse date and time
             reminder_datetime = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
@@ -427,9 +386,18 @@ async def handle_utility_commands(client, message, user_message):
             async def send_reminder():
                 await asyncio.sleep(delay)
                 try:
+                    # DM
                     if reminder_type == 'dm':
                         await message.author.send(f"🔔 **Reminder:** {reminder_text}")
                         logging.info(f"Reminder for {message.author} sent as DM: {reminder_text}")
+                    # Channel @everyone (nur wenn nicht DM)
+                    elif reminder_type == 'everyone':
+                        if isinstance(message.channel, discord.DMChannel):
+                            await message.channel.send("❌ @everyone kann nicht in privaten Nachrichten verwendet werden.")
+                            return
+                        await message.channel.send(f"@everyone ⏰ **Erinnerung:** {reminder_text}")
+                        logging.info(f"Reminder for everyone in channel {message.channel} sent: {reminder_text}")
+                    # Channel (nur User)
                     else:
                         await message.channel.send(f"🔔 Hey {message.author.mention}, here's your reminder: {reminder_text}")
                         logging.info(f"Reminder for {message.author} sent in channel: {reminder_text}")
@@ -442,7 +410,13 @@ async def handle_utility_commands(client, message, user_message):
             asyncio.create_task(send_reminder())
 
             # Send confirmation
-            location_text = "DM" if reminder_type == 'dm' else "This channel"
+            if reminder_type == 'dm':
+                location_text = "DM"
+            elif reminder_type == 'everyone':
+                location_text = "@everyone (Channel)"
+            else:
+                location_text = "nur dich (Channel)"
+
             embed = discord.Embed(
                 title="⏰ Reminder Created",
                 description=f"**Text:** {reminder_text}",
@@ -452,8 +426,8 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Time", value=time_str, inline=True)
             embed.add_field(name="Type", value=location_text, inline=True)
             await message.channel.send(embed=embed)
-        
-            logging.info(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type})")
+    
+            logging.info(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type or 'user'})")
 
         except ValueError:
             await message.channel.send("❌ Invalid date/time format! Use DD.MM.YYYY HH:MM")
@@ -532,3 +506,44 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             await message.channel.send("❌ An error occurred while fetching the satellite image.")
             logging.error(f"Error fetching satellite image: {e}")
+
+@discord.app_commands.command(
+    name="download",
+    description="Lade eine Datei aus einem freigegebenen Ordner herunter."
+)
+@app_commands.describe(
+    folder="Name des freigegebenen Ordners",
+    filename="Dateiname (z.B. Betterminecraft.zip)"
+)
+async def download_command(interaction: discord.Interaction, folder: str, filename: str):
+    config = utils.load_config()
+    download_folders = config.get("download_folders", {})
+
+    folder_key = folder.lower()
+    if folder_key not in download_folders:
+        await interaction.response.send_message(
+            f"ℹ️ Unbekannter Ordner: `{folder_key}`. Verfügbare Ordner: {', '.join(download_folders.keys())}",
+            ephemeral=True
+        )
+        return
+
+    folder_path = download_folders[folder_key]
+    file_path = os.path.join(folder_path, filename)
+
+    if os.path.isfile(file_path):
+        await interaction.response.send_message(
+            content="Hier ist deine Datei:",
+            file=discord.File(file_path),
+            ephemeral=True
+        )
+        logging.info(f"File `{file_path}` sent to {interaction.user}.")
+    else:
+        await interaction.response.send_message(
+            f"⚠️ Datei `{filename}` nicht im Ordner `{folder_key}` gefunden.",
+            ephemeral=True
+        )
+        logging.warning(f"File not found: {file_path}")
+
+# Registrierung des Commands (z.B. in setup-Funktion)
+def setup_utility_commands(bot):
+    bot.tree.add_command(download_command)

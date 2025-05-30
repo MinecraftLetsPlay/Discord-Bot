@@ -8,7 +8,7 @@ from internal.commands.mcserver_commands import handle_mcserver_commands
 
 # Command groups definition
 command_groups = {
-    'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!download', '!poll', '!reminder', '!satellite'],
+    'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!poll', '!reminder', '!satellite'],
     'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll', '!scrabble'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
