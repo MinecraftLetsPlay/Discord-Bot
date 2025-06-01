@@ -1,5 +1,34 @@
-discord.py==2.4.0
+# External (not pre-installed) packages for the bot
+# Those packages are required to run the bot and should be installed via pip.
+# Use the command `pip install -r requirements.txt` to install them.
+
+# Important! Make sure that you are running this bot in a Python enviroment with python version 3.11.2 at miminum bot not higher than 3.11.4 as it introduced some errors with discord.py.
+# At the time those versions specified below, in combination of python 3.11.2 and 3.11.4 prooved to be working just fine.
+
+discord.py==2.4.0 # Escpecially important! Core functionality of the bot, including commands, events, and interactions.
 PyNaCl==1.5.0
 python-dotenv==1.0.1
 aiohttp==3.11.11
 sympy==1.12
+
+# Full list of requirements:
+
+discord.py
+PyNaCl
+python-dotenv
+aiohttp
+sympy
+asyncio
+os
+sys
+json
+logging
+random
+datetime
+dotenv # From python-dotenv
+importlib
+builtins
+
+# Note: The above packages are commonly used in Discord bots and may not be exhaustive.
+# Some of those packages may already be installed in your Python environment automatically.
+# Ensure to run `pip install -r requirements.txt` to install these packages.
