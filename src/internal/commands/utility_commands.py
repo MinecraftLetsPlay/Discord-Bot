@@ -507,43 +507,40 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("❌ An error occurred while fetching the satellite image.")
             logging.error(f"Error fetching satellite image: {e}")
 
-@discord.app_commands.command(
-    name="download",
-    description="Lade eine Datei aus einem freigegebenen Ordner herunter."
-)
-@app_commands.describe(
-    folder="Name des freigegebenen Ordners",
-    filename="Dateiname (z.B. Betterminecraft.zip)"
-)
-async def download_command(interaction: discord.Interaction, folder: str, filename: str):
-    config = utils.load_config()
-    download_folders = config.get("download_folders", {})
-
-    folder_key = folder.lower()
-    if folder_key not in download_folders:
-        await interaction.response.send_message(
-            f"ℹ️ Unbekannter Ordner: `{folder_key}`. Verfügbare Ordner: {', '.join(download_folders.keys())}",
-            ephemeral=True
-        )
-        return
-
-    folder_path = download_folders[folder_key]
-    file_path = os.path.join(folder_path, filename)
-
-    if os.path.isfile(file_path):
-        await interaction.response.send_message(
-            content="Hier ist deine Datei:",
-            file=discord.File(file_path),
-            ephemeral=True
-        )
-        logging.info(f"File `{file_path}` sent to {interaction.user}.")
-    else:
-        await interaction.response.send_message(
-            f"⚠️ Datei `{filename}` nicht im Ordner `{folder_key}` gefunden.",
-            ephemeral=True
-        )
-        logging.warning(f"File not found: {file_path}")
-
-# Registrierung des Commands (z.B. in setup-Funktion)
 def setup_utility_commands(bot):
-    bot.tree.add_command(download_command)
+    @bot.tree.command(
+        name="download",
+        description="Lade eine Datei aus einem freigegebenen Ordner herunter."
+    )
+    @app_commands.describe(
+        folder="Name des freigegebenen Ordners",
+        filename="Dateiname (z.B. Betterminecraft.zip)"
+    )
+    async def download(interaction: discord.Interaction, folder: str, filename: str):
+        config = utils.load_config()
+        download_folders = config.get("download_folders", {})
+
+        folder_key = folder.lower()
+        if folder_key not in download_folders:
+            await interaction.response.send_message(
+                f"ℹ️ Unbekannter Ordner: `{folder_key}`. Verfügbare Ordner: {', '.join(download_folders.keys())}",
+                ephemeral=True
+            )
+            return
+
+        folder_path = download_folders[folder_key]
+        file_path = os.path.join(folder_path, filename)
+
+        if os.path.isfile(file_path):
+            await interaction.response.send_message(
+                content="Hier ist deine Datei:",
+                file=discord.File(file_path),
+                ephemeral=True
+            )
+            logging.info(f"File `{file_path}` sent to {interaction.user}.")
+        else:
+            await interaction.response.send_message(
+                f"⚠️ Datei `{filename}` nicht im Ordner `{folder_key}` gefunden.",
+                ephemeral=True
+            )
+            logging.warning(f"File not found: {file_path}")
