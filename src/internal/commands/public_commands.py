@@ -17,10 +17,11 @@ async def handle_public_commands(client, message, user_message):
     # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
-        embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
+        embed.add_field(name="[System]", value="/download, /shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
         embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
-        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !download, !poll, !reminder, !calc, !satellite", inline=False)
+        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !poll, !reminder, !calc, !satellite", inline=False)
+        embed.add_field(name="[Minecraft Server]", value="Prefix: !MCServer, (vote) Shutdown, (vote) Restart, status, command", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman, !scrabble", inline=False)
         await message.channel.send(embed=embed)
         logging.info("Displayed help message.")
@@ -30,10 +31,11 @@ async def handle_public_commands(client, message, user_message):
         embed = discord.Embed(title="Info", color=0x00ff00)
         embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
         embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
-        embed.add_field(name="", value="The Bot is mainly developed by myself but there is also a co-developer \n which helps me: little_fox_e", inline=False)
-        embed.add_field(name="", value="The bot is hosted inside my home on a Raspberry Pi 3 Model B \n (Quad-Core 64bit 1.2GHz CPU and 1GB of RAM).", inline=False)
-        embed.add_field(name="", value="The programming language the Bot is made of is Python. \n It is using the Discord.py API Wrapper.", inline=False)
-        embed.add_field(name="", value="Planned features will include: Moderation, different utilities, minigames and more.", inline=False)
+        embed.add_field(name="", value="The bot is mainly developed by myself, but there is also \n a co-developer who is helping me: little_fox_e.", inline=False)
+        embed.add_field(name="", value="The bot is hosted inside my home on a Raspberry Pi 3 Model B \n (Quad-Core 64bit 1.2GHz CPU and 1GB of LPDDR2 SDRAM).", inline=False)
+        embed.add_field(name="", value="The Bot is using several APIs for some of its functioalities. \n For example the Nitrado API for Minecraft Server control.", inline=False)
+        embed.add_field(name="", value="The programming language the Bot is made of is Python. \n For core functionality it is using the Discord.py API Wrapper.", inline=False)
+        embed.add_field(name="", value="Ne functionalities will be added in the future and \n existing ones will be refined or expanded.", inline=False)
 
         # Create buttons
         view = discord.ui.View()
@@ -42,7 +44,7 @@ async def handle_public_commands(client, message, user_message):
         view.add_item(discord.ui.Button(label="API Wrapper Docs", url="https://discordpy.readthedocs.io/en/stable/"))
 
         await message.channel.send(embed=embed, view=view)
-        logging.info("Displayed info message with buttons.")
+        logging.info("Displayed info message.")
 
     # !rules command
     if user_message == '!rules':
