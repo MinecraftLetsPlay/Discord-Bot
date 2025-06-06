@@ -19,7 +19,7 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 - `public_commands.py` - Basic user commands (help, info, etc.)
 - `system_commands.py` - Administrative system controls
 - `calculator.py` - Provides extensive calculator functionality
-- `mcserver_commands.py` - Provides Mnecraft Server Control Functionality (Nitrado API)
+- `mcserver_commands.py` - Provides Minecraft-Server control functionality (Nitrado API)
 
 ### Support Modules
 
