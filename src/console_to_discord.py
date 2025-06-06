@@ -32,11 +32,11 @@ async def send_message():
 
         try:
             channel = client.get_channel(int(channel_id))
-            if channel:
+            if isinstance(channel, discord.TextChannel):
                 await channel.send(message_text)
                 print(f"✅ Sent message to {channel.name} (ID: {channel.id})")
             else:
-                print("❌ Invalid channel ID. Make sure the bot has access to the channel.")
+                print("❌ Invalid channel ID or not a text channel. Make sure the bot has access to the channel.")
         except ValueError:
             print("❌ Invalid input. Channel ID must be a number.")
 
@@ -52,4 +52,7 @@ async def on_ready():
             
     asyncio.create_task(send_message())  # Start message loop
 
-client.run(TOKEN)
+if TOKEN is None:
+    print("❌ DISCORD_BOT_TOKEN is not set in your .env file!")
+else:
+    client.run(TOKEN)
