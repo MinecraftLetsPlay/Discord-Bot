@@ -9,6 +9,12 @@ from internal import utils
 from dotenv import load_dotenv
 from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 
+#
+#
+# System Commands for Discord Bot
+#
+#
+
 # Load environment variables from .env file
 load_dotenv()
 

@@ -6,6 +6,12 @@ import sympy
 import asyncio
 from sympy import solve, symbols, parse_expr, sympify, Number
 
+#
+#
+# Calculator Command Module
+#
+#
+
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
 

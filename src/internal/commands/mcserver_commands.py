@@ -5,6 +5,12 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from internal.commands.system_commands import is_authorized  # Import the is_authorized function
 
+#
+#
+# Minecraft Server Commands
+#
+#
+
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv("NITRADO_API_KEY")
