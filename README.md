@@ -6,8 +6,8 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 
 ### Source Files Overview
 
-- `bot.py` - Main bot initialization and event handling
-- `main.py` - Entry point and logging configuration
+- `bot.py` - Main bot initialization and event handling (Core functionality)
+- `main.py` - Entry point and logging configuration (Main entry point)
 - `console_to_discord.py` - Enables console-to-Discord messaging
 - `command_router.py` - Routes commands to appropriate handlers
 
@@ -19,27 +19,27 @@ A feature-rich Discord bot built with Discord.py, providing moderation tools, ut
 - `public_commands.py` - Basic user commands (help, info, etc.)
 - `system_commands.py` - Administrative system controls
 - `calculator.py` - Provides extensive calculator functionality
+- `mcserver_commands.py` - Provides Mnecraft Server Control Functionality (Nitrado API)
 
 ### Support Modules
 
 - `utils.py` - Helper functions and data management
-- `logging_setup.py` - Configures comprehensive logging system and file handler
+- `logging_setup.py` - Configures comprehensive logging system and log-file handler
 
 ## Features Under Development
 
-- **Translation Service**: Multi-language translation support
-- **Music Bot Features**: Voice channel audio playback and control
+- **Music Bot Features**: Voice channel audio - YTMusic
 
 ## Tech Stack
 
 ### Core Technologies
 
-- Python 3.11.4
-- Discord.py 2.4.0
+- Python 3.11.4 - Python enviroment
+- Discord.py 2.4.0 - Discord API Wrapper
 - PyNaCl 1.5.0 (for voice support)
-- aiohttp 3.11.11
-- python-dotenv 1.0.1
-- sympy 1.12
+- aiohttp 3.11.11 - Websocket connection
+- python-dotenv 1.0.1 - Enviroment files
+- sympy 1.12 - Advanced calc. functionality
 
 ### Development Tools
 
