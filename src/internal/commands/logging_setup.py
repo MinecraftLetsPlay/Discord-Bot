@@ -5,6 +5,12 @@ from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 
+#
+#
+# Logging Setup for Log messages and log files
+#
+#
+
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, filename, when='midnight', interval=1, backupCount=0, encoding=None):
         # Generate initial filename with timestamp

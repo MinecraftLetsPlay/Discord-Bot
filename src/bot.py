@@ -8,6 +8,12 @@ from discord.ext import commands
 from internal import utils
 from internal import command_router
 
+#
+#
+# Main Discord Bot Functionality - Core Functions
+#
+#
+
 def run_discord_bot():
     # Load environment variables from .env file
     load_dotenv()
