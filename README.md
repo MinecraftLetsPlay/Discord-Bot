@@ -54,6 +54,7 @@ See [`requirements`](./requirements.txt) for detailed dependencies.
 ## Contributing
 
 This is a private bot project. While the code is visible for educational purposes, we do not accept direct contributions without prior discussion.
+Sharing or using this sourcecode is prohibited without permission.
 
 ## Authors
 
