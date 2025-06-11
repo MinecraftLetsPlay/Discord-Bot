@@ -20,14 +20,82 @@ SERVICE_ID = os.getenv("NITRADO_SERVICE_ID")
 BASE_URL = f"https://api.nitrado.net/services/{SERVICE_ID}"
 
 async def send_nitrado_request(endpoint, method="GET", data=None):
-    headers = {"Authorization": f"Bearer {API_KEY}"}
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"  # Content-Type Header hinzugefügt
+    }
     async with aiohttp.ClientSession() as session:
-        if method == "GET":
-            async with session.get(f"{BASE_URL}{endpoint}", headers=headers) as response:
-                return await response.json()
-        elif method == "POST":
-            async with session.post(f"{BASE_URL}{endpoint}", headers=headers, json=data) as response:
-                return await response.json()
+        try:
+            if method == "GET":
+                async with session.get(f"{BASE_URL}{endpoint}", headers=headers) as response:
+                    if response.status == 404:
+                        return {
+                            "status": "error",
+                            "message": f"Endpoint nicht gefunden: {endpoint}"
+                        }
+                    elif response.content_type != "application/json":
+                        return {
+                            "status": "error",
+                            "message": f"Unerwartete Antwort vom Server (Content-Type: {response.content_type})"
+                        }
+                    return await response.json()
+                    
+            elif method == "POST":
+                # Korrekter Endpoint für Nitrado API
+                if endpoint == "/gameservers/shutdown":
+                    endpoint = "/gameservers/stop"
+                    data = {
+                        "message": "Server shutdown requested via Discord Bot",
+                        "stop_message": "(Discord-Bot) Server wird heruntergefahren..."
+                    }
+                elif endpoint == "/gameservers/restart":
+                    endpoint = "/gameservers/restart"
+                    data = {
+                        "message": "Server restart requested via Discord Bot",
+                        "restart_message": "(Discord-Bot) Server wird neu gestartet..."
+                    }
+                
+                async with session.post(f"{BASE_URL}{endpoint}", headers=headers, json=data) as response:
+                    if response.status == 401:
+                        return {
+                            "status": "error",
+                            "message": "API-Token ist ungültig oder abgelaufen."
+                        }
+                    elif response.status == 429:
+                        return {
+                            "status": "error",
+                            "message": "Zu viele Anfragen. Bitte warte einen Moment."
+                        }
+                    elif response.status == 503:
+                        return {
+                            "status": "error",
+                            "message": "Wartungsarbeiten. API temporär nicht verfügbar."
+                        }
+                    elif response.status == 404:
+                        return {
+                            "status": "error",
+                            "message": f"Endpoint nicht gefunden: {endpoint}"
+                        }
+                    
+                    try:
+                        return await response.json()
+                    except aiohttp.ContentTypeError:
+                        text = await response.text()
+                        return {
+                            "status": "error",
+                            "message": f"Unerwartete Antwort (Status {response.status}): {text[:100]}..."
+                        }
+
+        except aiohttp.ClientError as e:
+            return {
+                "status": "error",
+                "message": f"Verbindungsfehler: {str(e)}"
+            }
+        except Exception as e:
+            return {
+                "status": "error", 
+                "message": f"Unerwarteter Fehler: {str(e)}"
+            }
 
 # Command handler
 async def handle_mcserver_commands(client, message, user_message):
@@ -69,50 +137,21 @@ async def handle_mcserver_commands(client, message, user_message):
             await message.channel.send(f"❌ Failed to restart the server: {response}")
 
     elif action == "status":
+        # Get server status
         response = await send_nitrado_request("/gameservers")
         if response and response.get("status") == "success":
             server_data = response["data"]["gameserver"]
-            online = server_data.get("status", "unknown") == "started"
-            ip = server_data.get("ip", "N/A")
-            port = server_data.get("port", "N/A")
-            ram = server_data.get("memory_mb", "N/A")
-            slots = server_data.get("slots", "N/A")
-            game = server_data.get("game_human", server_data.get("game", "N/A"))
-            label = server_data.get("label", "N/A")
-            last_change = server_data.get("last_status_change", None)
-            modpack = None
-            if "modpacks" in server_data and server_data["modpacks"]:
-                for mp in server_data["modpacks"].values():
-                    modpack = f"{mp.get('name', '')} {mp.get('modpack_version', '')} (MC {mp.get('game_version', '')})"
-                    break
-
-            from datetime import datetime
-            last_change_str = (
-                datetime.fromtimestamp(last_change).strftime("%d.%m.%Y %H:%M:%S")
-                if last_change else "N/A"
-            )
+            online = server_data["status"] == "online"
+            players_online = server_data["players"]["current"]
+            player_list = server_data["players"]["list"]
 
             embed = discord.Embed(
                 title="🖥️ Minecraft Server Status",
                 color=discord.Color.green() if online else discord.Color.red()
             )
-            # Erste Zeile: Online und IP:Port
             embed.add_field(name="Online", value=str(online), inline=True)
-            embed.add_field(name="IP:Port", value=f"{ip}:{port}", inline=True)
-            embed.add_field(name="", value="", inline=False)  # Leere Zeile
-            # Zweite Zeile: RAM und Slots
-            embed.add_field(name="RAM", value=f"{ram} MB", inline=True)
-            embed.add_field(name="Slots", value=str(slots), inline=True)
-            embed.add_field(name="", value="", inline=False)  # Leere Zeile
-            # Spiel als eigene Zeile
-            embed.add_field(name="Spiel", value=game, inline=False)
-
-            # Modpack als eigene Zeile (falls vorhanden)
-            if modpack:
-                embed.add_field(name="Modpack", value=modpack, inline=False)
-
-            # Letzter Statuswechsel
-            embed.add_field(name="Letzter Statuswechsel", value=last_change_str, inline=False)
+            embed.add_field(name="Players Online", value=str(players_online), inline=True)
+            embed.add_field(name="Player List", value=", ".join(player_list) if player_list else "None", inline=False)
 
             await message.channel.send(embed=embed)
         else:
