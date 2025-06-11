@@ -244,37 +244,33 @@ async def handle_moderation_commands(client, message, user_message):
     # !reactionrole command
     if user_message.startswith('!reactionrole'):
         if is_authorized(message.author):
-            args = user_message.split(maxsplit=3)  # Split the command into parts
+            args = user_message.split(maxsplit=3)
             
             # Check for clear command
             if len(args) == 2 and args[1].lower() == "clear":
                 try:
-                    # Load the existing reaction role data
                     reaction_role_data = utils.load_reaction_role_data()
+                    guild_id = str(message.guild.id)
                     
-                    if "messageID" in reaction_role_data:
-                        # Get the message and remove all reactions
-                        try:
-                            channel = client.get_channel(int(reaction_role_data["channelID"]))
-                            if channel:
-                                message = await channel.fetch_message(int(reaction_role_data["messageID"]))
-                                await message.clear_reactions()
-                        except:
-                            logging.warning("Could not clear reactions from the message.")
-
-                    # Reset reaction role data
-                    reaction_role_data = {
-                        "messageID": "",
-                        "channelID": "",
-                        "guildID": "",
-                        "roles": []
-                    }
+                    # Nur Einträge für diesen Server löschen
+                    if guild_id in reaction_role_data:
+                        for message_data in reaction_role_data[guild_id]:
+                            try:
+                                channel = client.get_channel(int(message_data["channelID"]))
+                                if channel:
+                                    msg = await channel.fetch_message(int(message_data["messageID"]))
+                                    await msg.clear_reactions()
+                            except:
+                                logging.warning(f"Could not clear reactions from message {message_data['messageID']}")
                     
-                    # Save the cleared data
-                    utils.save_reaction_role_data(reaction_role_data)
-                    
-                    await message.channel.send("✅ All reaction roles have been cleared.")
-                    logging.info(f"✅ Reaction roles cleared by {message.author}.")
+                        # Lösche nur die Daten für diesen Server
+                        del reaction_role_data[guild_id]
+                        utils.save_reaction_role_data(reaction_role_data)
+                        
+                        await message.channel.send("✅ All reaction roles for this server have been cleared.")
+                        logging.info(f"✅ Reaction roles cleared for server {guild_id} by {message.author}.")
+                    else:
+                        await message.channel.send("ℹ️ No reaction roles found for this server.")
                     return
                 except Exception as e:
                     await message.channel.send("❌ An error occurred while clearing reaction roles.")
@@ -295,35 +291,63 @@ async def handle_moderation_commands(client, message, user_message):
                 return
 
             try:
-                # Fetch the message
                 channel = message.channel
                 target_message = await channel.fetch_message(message_id)
-
-                # React to the message with the specified emoji
                 await target_message.add_reaction(emoji)
 
-                # Load the existing reaction role data
+                # Lade bestehende Daten
                 reaction_role_data = utils.load_reaction_role_data()
+                guild_id = str(message.guild.id)
 
-                # Update the reaction role data
-                reaction_role_data["messageID"] = message_id
-                reaction_role_data["channelID"] = str(channel.id)
-                reaction_role_data["guildID"] = str(message.guild.id)
-                reaction_role_data["roles"].append({
-                    "emoji": emoji,
-                    "roleID": role_id
-                })
+                # Erstelle neue Struktur für den Server falls nicht vorhanden
+                if guild_id not in reaction_role_data:
+                    reaction_role_data[guild_id] = []
 
-                # Save the updated reaction role data
+                # Füge neuen Eintrag für diese Nachricht hinzu
+                new_entry = {
+                    "messageID": message_id,
+                    "channelID": str(channel.id),
+                    "roles": [{
+                        "emoji": emoji,
+                        "roleID": role_id
+                    }]
+                }
+
+                # Prüfe ob bereits ein Eintrag für diese Nachricht existiert
+                message_entry = next(
+                    (item for item in reaction_role_data[guild_id] 
+                     if item["messageID"] == message_id), 
+                    None
+                )
+
+                if message_entry:
+                    # Füge neue Rolle zum bestehenden Eintrag hinzu
+                    message_entry["roles"].append({
+                        "emoji": emoji,
+                        "roleID": role_id
+                    })
+                else:
+                    # Füge neuen Nachrichteneintrag hinzu
+                    reaction_role_data[guild_id].append(new_entry)
+
+                # Speichere aktualisierte Daten
                 utils.save_reaction_role_data(reaction_role_data)
 
-                await message.channel.send(f"✅ Reaction role set up successfully for message ID {message_id} with emoji  {emoji}  and role ID {role_id}.")
-                logging.info(f"✅ Reaction role set up successfully for message ID {message_id} with emoji {emoji}   and role ID {role_id} by {message.author}.")
+                await message.channel.send(
+                    f"✅ Reaction role set up successfully for message ID {message_id} "
+                    f"with emoji {emoji} and role ID {role_id}."
+                )
+                logging.info(
+                    f"✅ Reaction role set up successfully for message ID {message_id} "
+                    f"with emoji {emoji} and role ID {role_id} by {message.author} "
+                    f"in server {guild_id}"
+                )
+
             except discord.NotFound:
                 await message.channel.send("❌ Message not found. Please provide a valid message ID.")
                 logging.error("❌ Message not found for reaction role setup.")
             except discord.Forbidden:
-                await message.channel.send("⚠️ I don't have permission to add reactions. Please check my role permissions.")
+                await message.channel.send("⚠️ I don't have permission to add reactions.")
                 logging.warning("⚠️ Permission denied for adding reaction.")
             except Exception as e:
                 await message.channel.send("❌ An error occurred while setting up the reaction role.")

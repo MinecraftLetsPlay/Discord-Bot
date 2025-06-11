@@ -191,23 +191,39 @@ async def handle_mcserver_commands(client, message, user_message):
         await vote_message.add_reaction("✅")
 
         def check(reaction, user):
-            return reaction.message.id == vote_message.id and str(reaction.emoji) == "✅"
-
-        try:
-            reaction, users = await client.wait_for(
-                "reaction_add",
-                timeout=60.0,
-                check=lambda reaction, user: check(reaction, user) and not user.bot
+            return (
+                reaction.message.id == vote_message.id 
+                and str(reaction.emoji) == "✅" 
+                and not user.bot
             )
-            if reaction.count - 1 >= required_votes:
-                if action == "shutdown-vote":
-                    await handle_mcserver_commands(client, message, "!MCServer shutdown")
-                elif action == "restart-vote":
-                    await handle_mcserver_commands(client, message, "!MCServer restart")
+
+        collected_votes = 0
+        try:
+            while collected_votes < required_votes:
+                # Warte auf die nächste Reaktion
+                reaction, user = await client.wait_for(
+                    "reaction_add",
+                    timeout=60.0,
+                    check=check
+                )
+                collected_votes += 1
+                
+                # Informiere über den Fortschritt
+                if collected_votes < required_votes:
+                    await message.channel.send(f"✅ Vote registered! {required_votes - collected_votes} more votes needed.")
+            
+            # Genügend Stimmen gesammelt
+            if action == "shutdown-vote":
+                await handle_mcserver_commands(client, message, "!MCServer shutdown")
             else:
-                await message.channel.send("❌ Not enough votes to proceed.")
+                await handle_mcserver_commands(client, message, "!MCServer restart")
+                
         except TimeoutError:
             await message.channel.send("❌ Voting timed out.")
+            try:
+                await vote_message.clear_reactions()
+            except:
+                pass
 
     else:
         await message.channel.send("❌ Unknown action. Available actions: shutdown, restart, status, command, shutdown-vote, restart-vote.")

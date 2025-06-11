@@ -80,7 +80,7 @@ def run_discord_bot():
         # Pass the client object to handle_command
         try:
             response = await command_router.handle_command(bot, message)
-            if response:
+            if response is not None:  # Prüfe explizit auf None
                 if message.guild is None:
                     if LoggingActivated:
                         logging.info(f'{bot.user} said: "{response}" (DM / {channel})')
@@ -94,28 +94,27 @@ def run_discord_bot():
     # Register event listeners for reaction roles
     @bot.event
     async def on_raw_reaction_add(payload):
-        # Ignore reactions from the bot itself
         if bot.user is not None and payload.user_id == bot.user.id:
             return
 
-        # Load the reaction role data
         reaction_role_data = utils.load_reaction_role_data()
+        guild_id = str(payload.guild_id)
 
-        if str(payload.message_id) == reaction_role_data["messageID"]:
-            guild = bot.get_guild(int(reaction_role_data["guildID"]))
-            if guild is None:
-                logging.warning(f"Guild with ID {reaction_role_data['guildID']} not found.")
-                return
-            # Find the matching role entry
-            role_entry = next((role for role in reaction_role_data["roles"] if role["roleID"] and str(payload.emoji) == role["emoji"]), None)
-        
-            if role_entry:
-                role = guild.get_role(int(role_entry["roleID"])) if guild else None
-                member = guild.get_member(payload.user_id) if guild else None
-
-                if role and member:
-                    await member.add_roles(role)
-                    logging.info(f"Added role {role.name} to {member.name} for reacting with {payload.emoji}.")
+        if guild_id in reaction_role_data:
+            # Suche nach der richtigen Nachricht
+            for message_data in reaction_role_data[guild_id]:
+                if message_data["messageID"] == str(payload.message_id):
+                    # Suche nach der passenden Rolle
+                    for role_data in message_data["roles"]:
+                        if str(payload.emoji) == role_data["emoji"]:
+                            guild = bot.get_guild(payload.guild_id)
+                            if guild:
+                                role = guild.get_role(int(role_data["roleID"]))
+                                member = guild.get_member(payload.user_id)
+                                if role and member:
+                                    await member.add_roles(role)
+                                    logging.info(f"Added role {role.name} to {member.name}")
+                                    return
 
     @bot.event
     async def on_raw_reaction_remove(payload):
@@ -123,24 +122,24 @@ def run_discord_bot():
         if bot.user is not None and payload.user_id == bot.user.id:
             return
 
-        # Load the reaction role data
         reaction_role_data = utils.load_reaction_role_data()
+        guild_id = str(payload.guild_id)
 
-        if str(payload.message_id) == reaction_role_data["messageID"]:
-            guild = bot.get_guild(int(reaction_role_data["guildID"]))
-            if guild is None:
-                logging.warning(f"Guild with ID {reaction_role_data['guildID']} not found.")
-                return
-            # Find the matching role entry
-            role_entry = next((role for role in reaction_role_data["roles"] if role["roleID"] and str(payload.emoji) == role["emoji"]), None)
-        
-            if role_entry:
-                role = guild.get_role(int(role_entry["roleID"])) if guild else None
-                member = guild.get_member(payload.user_id) if guild else None
-
-                if role and member:
-                    await member.remove_roles(role)
-                    logging.info(f"Removed role {role.name} from {member.name} for removing reaction {payload.emoji}.")
+        if guild_id in reaction_role_data:
+            # Suche nach der richtigen Nachricht
+            for message_data in reaction_role_data[guild_id]:
+                if message_data["messageID"] == str(payload.message_id):
+                    # Suche nach der passenden Rolle
+                    for role_data in message_data["roles"]:
+                        if str(payload.emoji) == role_data["emoji"]:
+                            guild = bot.get_guild(payload.guild_id)
+                            if guild:
+                                role = guild.get_role(int(role_data["roleID"]))
+                                member = guild.get_member(payload.user_id)
+                                if role and member:
+                                    await member.remove_roles(role)
+                                    logging.info(f"Removed role {role.name} from {member.name}")
+                                    return
 
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
