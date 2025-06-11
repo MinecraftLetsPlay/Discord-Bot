@@ -46,13 +46,13 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
                     endpoint = "/gameservers/stop"
                     data = {
                         "message": "Server shutdown requested via Discord Bot",
-                        "stop_message": "(Discord-Bot): Server wird heruntergefahren..."
+                        "stop_message": "(Discord Bot): Server wird heruntergefahren..."
                     }
                 elif endpoint == "/gameservers/restart":
                     endpoint = "/gameservers/restart"
                     data = {
                         "message": "Server restart requested via Discord Bot",
-                        "restart_message": "(Discord-Bot): Server wird neu gestartet..."
+                        "restart_message": "(Discord Bot): Server wird neu gestartet..."
                     }
                 
                 async with session.post(f"{BASE_URL}{endpoint}", headers=headers, json=data) as response:
