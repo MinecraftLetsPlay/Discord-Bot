@@ -77,3 +77,17 @@ def load_reaction_role_data():
 # Save reaction role data
 def save_reaction_role_data(data):
     save_json_file(data, 'internal/data/reactionrole.json')
+
+# Load poll data
+def load_poll_data():
+    try:
+        with open("data/polls.json", "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+# Save poll data
+def save_poll_data(data):
+    os.makedirs("data", exist_ok=True)
+    with open("data/polls.json", "w") as f:
+        json.dump(data, f, indent=4)
