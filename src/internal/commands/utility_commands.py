@@ -5,11 +5,11 @@ import asyncio
 import json
 import os
 import logging
-from dotenv import load_dotenv
-from discord.ui import View, Button
-from internal.commands.calculator import handle_calc_command
 from datetime import datetime, timezone, timedelta
 from internal import utils
+from dotenv import load_dotenv
+from discord.ui import Button, View
+from internal.commands.calculator import handle_calc_command
 
 #
 #
@@ -325,20 +325,6 @@ async def handle_utility_commands(client, message, user_message):
 
                     await self.update_poll_message(interaction.message)
 
-                    # Save poll data
-                    poll_data = utils.load_poll_data()
-                    guild_id = str(interaction.guild.id) if interaction.guild else "dm"
-                    message_id = str(interaction.message.id) if interaction.message else "unknown"
-                    user_id = str(interaction.user.id)
-                    if guild_id in poll_data and message_id in poll_data[guild_id]:
-                        poll = poll_data[guild_id][message_id]
-                        previous_vote = poll["votes"].get(user_id)
-                        if previous_vote:
-                            poll["results"][previous_vote] -= 1
-                        poll["votes"][user_id] = option
-                        poll["results"][option] += 1
-                        utils.save_poll_data(poll_data)
-
             async def update_poll_message(self, message):
                 if self.total_votes == 0:
                     results = "No votes yet"
@@ -356,15 +342,6 @@ async def handle_utility_commands(client, message, user_message):
         embed.set_footer(text="No votes yet")
         view = PollView(options)
         poll_message = await message.channel.send(embed=embed, view=view)
-
-        # Save poll data
-        poll_data = utils.load_poll_data()
-        guild_id = str(message.guild.id)
-        message_id = str(message.id)
-        if guild_id in poll_data and message_id in poll_data[guild_id]:
-            del poll_data[guild_id][message_id]
-            utils.save_poll_data(poll_data)
-
         logging.info(f"Poll created by {message.author}: '{question}' with options: {', '.join(options)}")#
         
     # !reminder command
