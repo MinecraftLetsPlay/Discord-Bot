@@ -99,7 +99,58 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
 
 # Command handler
 async def handle_mcserver_commands(client, message, user_message):
-    # Check if the user is authorized
+    # Jeder darf !MCServer status nutzen
+    if user_message.strip().lower() == "!mcserver status":
+        response = await send_nitrado_request("/gameservers")
+        if response and response.get("status") == "success":
+            server_data = response["data"]["gameserver"]
+            online = server_data.get("status", "unknown") == "started"
+            ip = server_data.get("ip", "N/A")
+            port = server_data.get("port", "N/A")
+            ram = server_data.get("memory_mb", "N/A")
+            slots = server_data.get("slots", "N/A")
+            game = server_data.get("game_human", server_data.get("game", "N/A"))
+            label = server_data.get("label", "N/A")
+            last_change = server_data.get("last_status_change", None)
+            modpack = None
+            if "modpacks" in server_data and server_data["modpacks"]:
+                for mp in server_data["modpacks"].values():
+                    modpack = f"{mp.get('name', '')} {mp.get('modpack_version', '')} (MC {mp.get('game_version', '')})"
+                    break
+
+            from datetime import datetime
+            last_change_str = (
+                datetime.fromtimestamp(last_change).strftime("%d.%m.%Y %H:%M:%S")
+                if last_change else "N/A"
+            )
+
+            embed = discord.Embed(
+                title="🖥️ Minecraft Server Status",
+                color=discord.Color.green() if online else discord.Color.red()
+            )
+            # Erste Zeile: Online und IP:Port
+            embed.add_field(name="Online", value=str(online), inline=True)
+            embed.add_field(name="IP:Port", value=f"{ip}:{port}", inline=True)
+            embed.add_field(name="", value="", inline=False)  # Leere Zeile
+            # Zweite Zeile: RAM und Slots
+            embed.add_field(name="RAM", value=f"{ram} MB", inline=True)
+            embed.add_field(name="Slots", value=str(slots), inline=True)
+            embed.add_field(name="", value="", inline=False)  # Leere Zeile
+            # Spiel als eigene Zeile
+            embed.add_field(name="Spiel", value=game, inline=False)
+
+            # Modpack als eigene Zeile (falls vorhanden)
+            if modpack:
+                embed.add_field(name="Modpack", value=modpack, inline=False)
+
+            # Letzter Statuswechsel
+            embed.add_field(name="Letzter Statuswechsel", value=last_change_str, inline=False)
+
+            await message.channel.send(embed=embed)
+
+        return
+
+    # Für alle anderen Befehle: Whitelist-Prüfung
     if not is_authorized(message.author):
         embed = discord.Embed(
             title="❌ Permission denied",
