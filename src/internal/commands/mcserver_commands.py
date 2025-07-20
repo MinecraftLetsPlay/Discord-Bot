@@ -22,7 +22,7 @@ BASE_URL = f"https://api.nitrado.net/services/{SERVICE_ID}"
 async def send_nitrado_request(endpoint, method="GET", data=None):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"  # Content-Type Header hinzugefügt
+        "Content-Type": "application/json"  # Content-Type header added
     }
     async with aiohttp.ClientSession() as session:
         try:
@@ -31,50 +31,50 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
                     if response.status == 404:
                         return {
                             "status": "error",
-                            "message": f"Endpoint nicht gefunden: {endpoint}"
+                            "message": f"Endpoint not found: {endpoint}"
                         }
                     elif response.content_type != "application/json":
                         return {
                             "status": "error",
-                            "message": f"Unerwartete Antwort vom Server (Content-Type: {response.content_type})"
+                            "message": f"Unexpected response from server (Content-Type: {response.content_type})"
                         }
                     return await response.json()
                     
             elif method == "POST":
-                # Korrekter Endpoint für Nitrado API
+                # Correct endpoint for Nitrado API
                 if endpoint == "/gameservers/shutdown":
                     endpoint = "/gameservers/stop"
                     data = {
                         "message": "Server shutdown requested via Discord Bot",
-                        "stop_message": "(Discord Bot): Server wird heruntergefahren..."
+                        "stop_message": "(Discord Bot): Server is shutting down..."
                     }
                 elif endpoint == "/gameservers/restart":
                     endpoint = "/gameservers/restart"
                     data = {
                         "message": "Server restart requested via Discord Bot",
-                        "restart_message": "(Discord Bot): Server wird neu gestartet..."
+                        "restart_message": "(Discord Bot): Server is restarting..."
                     }
                 
                 async with session.post(f"{BASE_URL}{endpoint}", headers=headers, json=data) as response:
                     if response.status == 401:
                         return {
                             "status": "error",
-                            "message": "API-Token ist ungültig oder abgelaufen."
+                            "message": "API token is invalid or expired."
                         }
                     elif response.status == 429:
                         return {
                             "status": "error",
-                            "message": "Zu viele Anfragen. Bitte warte einen Moment."
+                            "message": "Too many requests. Please wait a moment."
                         }
                     elif response.status == 503:
                         return {
                             "status": "error",
-                            "message": "Wartungsarbeiten. API temporär nicht verfügbar."
+                            "message": "Maintenance. API temporarily unavailable."
                         }
                     elif response.status == 404:
                         return {
                             "status": "error",
-                            "message": f"Endpoint nicht gefunden: {endpoint}"
+                            "message": f"Endpoint not found: {endpoint}"
                         }
                     
                     try:
@@ -83,23 +83,23 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
                         text = await response.text()
                         return {
                             "status": "error",
-                            "message": f"Unerwartete Antwort (Status {response.status}): {text[:100]}..."
+                            "message": f"Unexpected response (Status {response.status}): {text[:100]}..."
                         }
 
         except aiohttp.ClientError as e:
             return {
                 "status": "error",
-                "message": f"Verbindungsfehler: {str(e)}"
+                "message": f"Connection error: {str(e)}"
             }
         except Exception as e:
             return {
                 "status": "error", 
-                "message": f"Unerwarteter Fehler: {str(e)}"
+                "message": f"Unexpected error: {str(e)}"
             }
 
 # Command handler
 async def handle_mcserver_commands(client, message, user_message):
-    # Jeder darf !MCServer status nutzen
+    # Everyone can use !MCServer status
     if user_message.strip().lower() == "!mcserver status":
         response = await send_nitrado_request("/gameservers")
         if response and response.get("status") == "success":
@@ -128,33 +128,33 @@ async def handle_mcserver_commands(client, message, user_message):
                 title="🖥️ Minecraft Server Status",
                 color=discord.Color.green() if online else discord.Color.red()
             )
-            # Erste Zeile: Online und IP:Port
+            # First row: Online and IP:Port
             embed.add_field(name="Online", value=str(online), inline=True)
             embed.add_field(name="IP:Port", value=f"{ip}:{port}", inline=True)
-            embed.add_field(name="", value="", inline=False)  # Leere Zeile
-            # Zweite Zeile: RAM und Slots
+            embed.add_field(name="", value="", inline=False)  # Empty row
+            # Second row: RAM and Slots
             embed.add_field(name="RAM", value=f"{ram} MB", inline=True)
             embed.add_field(name="Slots", value=str(slots), inline=True)
-            embed.add_field(name="", value="", inline=False)  # Leere Zeile
-            # Spiel als eigene Zeile
-            embed.add_field(name="Spiel", value=game, inline=False)
+            embed.add_field(name="", value="", inline=False)  # Empty row
+            # Game as its own row
+            embed.add_field(name="Game", value=game, inline=False)
 
-            # Modpack als eigene Zeile (falls vorhanden)
+            # Modpack as its own row (if available)
             if modpack:
                 embed.add_field(name="Modpack", value=modpack, inline=False)
 
-            # Letzter Statuswechsel
-            embed.add_field(name="Letzter Statuswechsel", value=last_change_str, inline=False)
+            # Last status change
+            embed.add_field(name="Last status change", value=last_change_str, inline=False)
 
             await message.channel.send(embed=embed)
 
         return
 
-    # Für alle anderen Befehle: Whitelist-Prüfung
+    # Whitelist check for all other commands
     if not is_authorized(message.author):
         embed = discord.Embed(
             title="❌ Permission denied",
-            description=f"{message.author.mention} You don't have the permission to execute this command.",
+            description=f"{message.author.mention} You don't have permission to execute this command.",
             color=0xff0000
         )
         await message.channel.send(embed=embed)
@@ -215,23 +215,23 @@ async def handle_mcserver_commands(client, message, user_message):
                 title="🖥️ Minecraft Server Status",
                 color=discord.Color.green() if online else discord.Color.red()
             )
-            # Erste Zeile: Online und IP:Port
+            # First row: Online and IP:Port
             embed.add_field(name="Online", value=str(online), inline=True)
             embed.add_field(name="IP:Port", value=f"{ip}:{port}", inline=True)
-            embed.add_field(name="", value="", inline=False)  # Leere Zeile
-            # Zweite Zeile: RAM und Slots
+            embed.add_field(name="", value="", inline=False)  # Empty row
+            # Second row: RAM and Slots
             embed.add_field(name="RAM", value=f"{ram} MB", inline=True)
             embed.add_field(name="Slots", value=str(slots), inline=True)
-            embed.add_field(name="", value="", inline=False)  # Leere Zeile
-            # Spiel als eigene Zeile
-            embed.add_field(name="Spiel", value=game, inline=False)
+            embed.add_field(name="", value="", inline=False)  # Empty row
+            # Game as its own row
+            embed.add_field(name="Game", value=game, inline=False)
 
-            # Modpack als eigene Zeile (falls vorhanden)
+            # Modpack as its own row (if available)
             if modpack:
                 embed.add_field(name="Modpack", value=modpack, inline=False)
 
-            # Letzter Statuswechsel
-            embed.add_field(name="Letzter Statuswechsel", value=last_change_str, inline=False)
+            # Last status change
+            embed.add_field(name="Last status change", value=last_change_str, inline=False)
 
             await message.channel.send(embed=embed)
 
@@ -278,7 +278,7 @@ async def handle_mcserver_commands(client, message, user_message):
         collected_votes = 0
         try:
             while collected_votes < required_votes:
-                # Warte auf die nächste Reaktion
+                # Wait for the next reaction
                 reaction, user = await client.wait_for(
                     "reaction_add",
                     timeout=60.0,
@@ -286,11 +286,11 @@ async def handle_mcserver_commands(client, message, user_message):
                 )
                 collected_votes += 1
                 
-                # Informiere über den Fortschritt
+                # Inform about the progress
                 if collected_votes < required_votes:
                     await message.channel.send(f"✅ Vote registered! {required_votes - collected_votes} more votes needed.")
             
-            # Genügend Stimmen gesammelt
+            # Enough votes collected
             if action == "shutdown-vote":
                 await handle_mcserver_commands(client, message, "!MCServer shutdown")
             else:
