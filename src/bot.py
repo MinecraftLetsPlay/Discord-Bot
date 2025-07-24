@@ -10,7 +10,7 @@ from internal import command_router
 
 #
 #
-# Main Discord Bot Functionality - Core Functions
+#  Main Discord Bot Functionality - Core Functions
 #
 #
 
@@ -80,7 +80,7 @@ def run_discord_bot():
         # Pass the client object to handle_command
         try:
             response = await command_router.handle_command(bot, message)
-            if response is not None:  # Prüfe explizit auf None
+            if response is not None:  # Check for none response
                 if message.guild is None:
                     if LoggingActivated:
                         logging.info(f'{bot.user} said: "{response}" (DM / {channel})')
@@ -94,17 +94,18 @@ def run_discord_bot():
     # Register event listeners for reaction roles
     @bot.event
     async def on_raw_reaction_add(payload):
-        if bot.user is not None and payload.user_id == bot.user.id:
+        if bot.user is not None and payload.user_id == bot.user.id: # Ignore reactions from the bot itself
             return
 
         reaction_role_data = utils.load_reaction_role_data()
         guild_id = str(payload.guild_id)
 
+        # Adding roles based on reactions
         if guild_id in reaction_role_data:
-            # Suche nach der richtigen Nachricht
+            # Search for the correct message
             for message_data in reaction_role_data[guild_id]:
                 if message_data["messageID"] == str(payload.message_id):
-                    # Suche nach der passenden Rolle
+                    # Search for the matching role
                     for role_data in message_data["roles"]:
                         if str(payload.emoji) == role_data["emoji"]:
                             guild = bot.get_guild(payload.guild_id)
@@ -125,11 +126,12 @@ def run_discord_bot():
         reaction_role_data = utils.load_reaction_role_data()
         guild_id = str(payload.guild_id)
 
+        # Removing roles based on reactions
         if guild_id in reaction_role_data:
-            # Suche nach der richtigen Nachricht
+            # Search for the correct message
             for message_data in reaction_role_data[guild_id]:
                 if message_data["messageID"] == str(payload.message_id):
-                    # Suche nach der passenden Rolle
+                    # Search for the matching role
                     for role_data in message_data["roles"]:
                         if str(payload.emoji) == role_data["emoji"]:
                             guild = bot.get_guild(payload.guild_id)

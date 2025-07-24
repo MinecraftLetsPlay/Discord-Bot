@@ -6,6 +6,12 @@ from internal.commands.public_commands import handle_public_commands
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.mcserver_commands import handle_mcserver_commands
 
+#
+#
+# Passes commands to the appropriate handler based on the command group
+#
+#
+
 # Command groups definition
 command_groups = {
     'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!poll', '!reminder', '!satellite'],
@@ -33,6 +39,13 @@ no_dm_commands = [
 
 async def handle_command(client, message):
     user_message = message.content.strip()
+    
+    # Prüfe, ob der Befehl nicht im DM ausgeführt werden darf
+    if message.guild is None:
+        if any(user_message.startswith(cmd) for cmd in no_dm_commands):
+            await message.channel.send("⚠️ This command cannot be executed in a DM enviroment.")
+            logging.warning(f"Command '{user_message}' blocked in DM enviroment.")
+            return
     
     logging.debug(f"Received command: {user_message}")  # Debug log
 

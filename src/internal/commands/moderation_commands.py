@@ -252,7 +252,7 @@ async def handle_moderation_commands(client, message, user_message):
                     reaction_role_data = utils.load_reaction_role_data()
                     guild_id = str(message.guild.id)
                     
-                    # Nur Einträge für diesen Server löschen
+                    # Only clear reaction roles for this server
                     if guild_id in reaction_role_data:
                         for message_data in reaction_role_data[guild_id]:
                             try:
@@ -263,7 +263,7 @@ async def handle_moderation_commands(client, message, user_message):
                             except:
                                 logging.warning(f"Could not clear reactions from message {message_data['messageID']}")
                     
-                        # Lösche nur die Daten für diesen Server
+                        # Only delete the entry for this server
                         del reaction_role_data[guild_id]
                         utils.save_reaction_role_data(reaction_role_data)
                         
@@ -295,15 +295,15 @@ async def handle_moderation_commands(client, message, user_message):
                 target_message = await channel.fetch_message(message_id)
                 await target_message.add_reaction(emoji)
 
-                # Lade bestehende Daten
+                # Load existing reaction role data
                 reaction_role_data = utils.load_reaction_role_data()
                 guild_id = str(message.guild.id)
 
-                # Erstelle neue Struktur für den Server falls nicht vorhanden
+                # Create a new entry if it doesn't exist
                 if guild_id not in reaction_role_data:
                     reaction_role_data[guild_id] = []
 
-                # Füge neuen Eintrag für diese Nachricht hinzu
+                # Add or update the reaction role entry
                 new_entry = {
                     "messageID": message_id,
                     "channelID": str(channel.id),
@@ -313,7 +313,7 @@ async def handle_moderation_commands(client, message, user_message):
                     }]
                 }
 
-                # Prüfe ob bereits ein Eintrag für diese Nachricht existiert
+                # Check if the message already exists in the data
                 message_entry = next(
                     (item for item in reaction_role_data[guild_id] 
                      if item["messageID"] == message_id), 
@@ -321,16 +321,16 @@ async def handle_moderation_commands(client, message, user_message):
                 )
 
                 if message_entry:
-                    # Füge neue Rolle zum bestehenden Eintrag hinzu
+                    # Add the new role to the existing message entry
                     message_entry["roles"].append({
                         "emoji": emoji,
                         "roleID": role_id
                     })
                 else:
-                    # Füge neuen Nachrichteneintrag hinzu
+                    # Add a new message entry
                     reaction_role_data[guild_id].append(new_entry)
 
-                # Speichere aktualisierte Daten
+                # Save the updated reaction role data
                 utils.save_reaction_role_data(reaction_role_data)
 
                 await message.channel.send(

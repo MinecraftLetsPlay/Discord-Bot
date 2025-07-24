@@ -27,7 +27,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
     def doRollover(self):
         from internal.commands.system_commands import rotate_logs
         super().doRollover()
-        rotate_logs()  # Lösche alte Logs nach der Rotation
+        rotate_logs()  # Delete old log files after rollover
 
 def setup_logging():
     # Load configuration

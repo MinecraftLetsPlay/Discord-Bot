@@ -509,11 +509,11 @@ async def handle_utility_commands(client, message, user_message):
 def setup_utility_commands(bot):
     @bot.tree.command(
         name="download",
-        description="Lade eine Datei aus einem freigegebenen Ordner herunter."
+        description="Download a file from a available folder."
     )
     @app_commands.describe(
-        folder="Name des freigegebenen Ordners",
-        filename="Dateiname (z.B. Betterminecraft.zip)"
+        folder="Name of the folder (e.g. 'Documents')",
+        filename="Filename (e.g. 'example.txt')"
     )
     async def download(interaction: discord.Interaction, folder: str, filename: str):
         config = utils.load_config()
@@ -522,7 +522,7 @@ def setup_utility_commands(bot):
         folder_key = folder.lower()
         if folder_key not in download_folders:
             await interaction.response.send_message(
-                f"ℹ️ Unbekannter Ordner: `{folder_key}`. Verfügbare Ordner: {', '.join(download_folders.keys())}",
+                f"ℹ️ Unknown folder: `{folder_key}`. Available folders: {', '.join(download_folders.keys())}",
                 ephemeral=True
             )
             return
@@ -532,14 +532,14 @@ def setup_utility_commands(bot):
 
         if os.path.isfile(file_path):
             await interaction.response.send_message(
-                content="Hier ist deine Datei:",
+                content="Here is your file:",
                 file=discord.File(file_path),
                 ephemeral=True
             )
             logging.info(f"File `{file_path}` sent to {interaction.user}.")
         else:
             await interaction.response.send_message(
-                f"⚠️ Datei `{filename}` nicht im Ordner `{folder_key}` gefunden.",
+                f"⚠️ File `{filename}` not found in folder `{folder_key}`.",
                 ephemeral=True
             )
             logging.warning(f"File not found: {file_path}")

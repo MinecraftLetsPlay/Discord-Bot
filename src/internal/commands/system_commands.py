@@ -49,7 +49,7 @@ log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(messag
 
 # Function to rotate logs
 def rotate_logs():
-    # Sicherstellen, dass log_directory ein String ist
+    # Make sure log_directory is a string
     directory = log_directory if isinstance(log_directory, str) else "logs"
     log_files = sorted(
         [f for f in os.listdir(directory) if f.startswith('bot.log') and f.endswith('.txt')],
@@ -196,7 +196,7 @@ def setup_system_commands(bot):
 
     @bot.tree.command(name="log", description="Get the latest log file")
     async def log(interaction: discord.Interaction):
-        # Sicherstellen, dass log_directory ein String ist
+        # Ensure log_directory is a string
         directory = log_directory if isinstance(log_directory, str) else "logs"
         channel = interaction.channel
         if is_authorized(interaction.user):

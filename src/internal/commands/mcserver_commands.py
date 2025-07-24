@@ -26,7 +26,7 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
     }
     async with aiohttp.ClientSession() as session:
         try:
-            if method == "GET":
+            if method == "GET": # To retrieve data from the server
                 async with session.get(f"{BASE_URL}{endpoint}", headers=headers) as response:
                     if response.status == 404:
                         return {
@@ -40,7 +40,7 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
                         }
                     return await response.json()
                     
-            elif method == "POST":
+            elif method == "POST": # To send data to the server
                 # Correct endpoint for Nitrado API
                 if endpoint == "/gameservers/shutdown":
                     endpoint = "/gameservers/stop"
@@ -55,7 +55,7 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
                         "restart_message": "(Discord Bot): Server is restarting..."
                     }
                 
-                async with session.post(f"{BASE_URL}{endpoint}", headers=headers, json=data) as response:
+                async with session.post(f"{BASE_URL}{endpoint}", headers=headers, json=data) as response: # Error handling for POST requests
                     if response.status == 401:
                         return {
                             "status": "error",
@@ -188,6 +188,7 @@ async def handle_mcserver_commands(client, message, user_message):
             await message.channel.send(f"❌ Failed to restart the server: {response}")
 
     elif action == "status":
+        # Get the server status
         response = await send_nitrado_request("/gameservers")
         if response and response.get("status") == "success":
             server_data = response["data"]["gameserver"]
