@@ -1,74 +1,775 @@
 {
     "programming": [
-        {"question": "What is the name of the first computer virus?", "answer": "Creeper", "id": 1},
-        {"question": "Which programming language is known as the backbone of the web?", "answer": "JavaScript", "id": 2},
-        {"question": "What is the name of the Linux mascot?", "answer": "Tux", "id": 3},
-        {"question": "Who is the founder of Microsoft?", "answer": "Bill Gates", "id": 4},
-        {"question": "What does HTML stand for?", "answer": "HyperText Markup Language", "id": 5},
-        {"question": "What is the primary purpose of the Python programming language?", "answer": "General-purpose programming", "id": 6},
-        {"question": "Which programming language is known for its use in artificial intelligence?", "answer": "Python", "id": 7},
-        {"question": "What does 'OOP' stand for?", "answer": "Object-Oriented Programming", "id": 8},
-        {"question": "Who is the creator of the Linux operating system?", "answer": "Linus Torvalds", "id": 9},
-        {"question": "What is the purpose of the `var` keyword in C#?", "answer": "It is used to declare a variable with an implicit type.", "id": 10},
-        {"question": "Which language is known as the first high-level programming language?", "answer": "Fortran", "id": 11},
-        {"question": "In Python, which operator is used to exponentiate a number?", "answer": "**", "id": 12},
-        {"question": "What is the main difference between `==` and `===` in JavaScript?", "answer": "`==` compares values, while `===` compares both value and type.", "id": 13},
-        {"question": "What does compiling mean in programming?", "answer": "It refers to the process of converting source code into executable code.", "id": 14},
-        {"question": "Which programming language is used for Android app development?", "answer": "Java", "id": 15},
-        {"question": "What does SQL stand for?", "answer": "Structured Query Language", "id": 16},
-        {"question": "In C++, what does the `::` symbol represent?", "answer": "It represents the scope resolution operator.", "id": 17},
-        {"question": "What is the output of `print(10 % 3)` in Python?", "answer": "1", "id": 18},
-        {"question": "Which C# keyword is used to define a method?", "answer": "`void`", "id": 19},
-        {"question": "What does the acronym 'IDE' stand for?", "answer": "Integrated Development Environment", "id": 20},
-        {"question": "In which year was JavaScript created?", "answer": "1995", "id": 21},
-        {"question": "What is the difference between an array and a list in C#?", "answer": "An array has a fixed size, while a list can dynamically resize.", "id": 22},
-        {"question": "What does the acronym API stand for?", "answer": "Application Programming Interface", "id": 23},
-        {"question": "What is a 'for loop' used for in programming?", "answer": "It is used for repeating a block of code a specific number of times.", "id": 24},
-        {"question": "What is the function of a break statement in a loop?", "answer": "It exits the loop immediately.", "id": 25},
-        {"question": "What is the main purpose of the Git version control system?", "answer": "To track changes in source code during software development.", "id": 26},
-        {"question": "What does CSS stand for?", "answer": "Cascading Style Sheets", "id": 27},
-        {"question": "Which programming language is primarily used for statistical analysis?", "answer": "R", "id": 28},
-        {"question": "What is the purpose of the `return` statement in a function?", "answer": "To exit the function and optionally pass back a value.", "id": 29},
-        {"question": "What is the difference between a function and a method in programming?", "answer": "A function is independent of a class, while a method is associated with a class.", "id": 30},
-        {"question": "What is the purpose of the `this` keyword in JavaScript?", "answer": "It refers to the current object.", "id": 31},
-        {"question": "What is the output of `print('hello' + 'world')` in Python?", "answer": "helloworld", "id": 32},
-        {"question": "What is the purpose of the `new` keyword in JavaScript?", "answer": "To create an instance of an object.", "id": 33},
-        {"question": "What is the main function of the `finally` block in a try-catch-finally statement?", "answer": "To execute code after the try and catch blocks, regardless of an exception.", "id": 34},
-        {"question": "What is the purpose of the `super` keyword in Java?", "answer": "To call the constructor of the superclass.", "id": 35},
-        {"question": "What is the output of `print(3 < 5)` in Python?", "answer": "True", "id": 36},
-        {"question": "What is the purpose of the `abstract` keyword in C#?", "answer": "To define a class as incomplete and require subclasses to implement its abstract members.", "id": 37},
-        {"question": "What is the main purpose of the `async` and `await` keywords in C#?", "answer": "To simplify asynchronous programming by allowing code to be written sequentially.", "id": 38},
-        {"question": "What is the output of `print('hello'[1])` in Python?", "answer": "e", "id": 39},
-        {"question": "What is the purpose of the `static` keyword in C#?", "answer": "To define members that belong to the type itself, rather than to instances of the type.", "id": 40},
-        {"question": "What is the main function of the `yield` keyword in Python?", "answer": "To return a value from a generator function.", "id": 41},
-        {"question": "What is the purpose of the `protected` access modifier in C#?", "answer": "To restrict access to members to the containing class and its subclasses.", "id": 42},
-        {"question": "What is the output of `print(2 ** 3)` in Python?", "answer": "8", "id": 43},
-        {"question": "What is the purpose of the `sealed` keyword in C#?", "answer": "To prevent a class from being inherited.", "id": 44},
-        {"question": "What is the main function of the `lambda` keyword in Python?", "answer": "To create anonymous functions.", "id": 45},
-        {"question": "What is the output of `print('abc'.upper())` in Python?", "answer": "ABC", "id": 46},
-        {"question": "What does the `in` operator do in Python?", "answer": "It checks if a value exists within an iterable (e.g., a list, string, or tuple).", "id": 47},
-        {"question": "What is the purpose of the `continue` statement in a loop?", "answer": "It skips the current iteration and proceeds to the next iteration of the loop.", "id": 48},
-        {"question": "What is the difference between compiled and interpreted languages?", "answer": "Compiled languages are translated into machine code before execution; interpreted languages are translated during execution.", "id": 49},
-        {"question": "What is an algorithm?", "answer": "An algorithm is a step-by-step procedure for solving a problem.", "id": 50},
-        {"question": "What is the difference between a class and an object?", "answer": "A class is a blueprint, and an object is an instance of a class.", "id": 51},
-        {"question": "What is the difference between a stack and a queue?", "answer": "A stack uses Last-In-First-Out, a queue uses First-In-First-Out.", "id": 52},
-        {"question": "What is a database?", "answer": "A database is an organized collection of data.", "id": 53},
-        {"question": "What is a hash function?", "answer": "A hash function converts input into a fixed-length hash value.", "id": 54},
-        {"question": "What is the purpose of the 'while' loop in programming?", "answer": "A 'while' loop repeats a block of code while a condition is true.", "id": 55 },
-        {"question": "What is the difference between a shallow copy and a deep copy?", "answer": "A shallow copy duplicates references; a deep copy duplicates objects and their references.", "id": 56},
-        {"question": "What is the difference between a primary key and a foreign key in a database?", "answer": "A primary key uniquely identifies a record, a foreign key links tables.", "id": 57},
-        {"question": "What is the purpose of a constructor in object-oriented programming?", "answer": "A constructor initializes an object when it is created.", "id": 58},
-        {"question": "What is the purpose of the 'import' statement in Python?", "answer": "The 'import' statement brings external modules into the program.", "id": 59},
-        {"question": "What is the purpose of a version control system?", "answer": "A version control system tracks changes to source code over time.", "id": 60},
-        {"question": "What is the difference between an interface and an abstract class?", "answer": "An interface defines a contract, an abstract class can provide default functionality.", "id": 61},
-        {"question": "What does the 'self' keyword refer to in Python?", "answer": "'self' refers to the current instance of a class.", "id": 62},
-        {"question": "What is the purpose of an API in software development?", "answer": "An API defines how software components interact.", "id": 63},
-        {"question": "What is the purpose of a breakpoint in debugging?", "answer": "A breakpoint pauses execution to inspect the code.", "id": 64},
-        {"question": "What is the difference between a method and a function?", "answer": "A method is associated with a class, a function is not.", "id": 65},
-        {"question": "What is a framework in software development?", "answer": "A framework is a set of tools to help build applications.", "id": 66},
-        {"question": "What is the purpose of exception handling in programming?", "answer": "Exception handling manages errors and recovers from them.", "id": 67},
-        {"question": "What does it mean to 'refactor' code?", "answer": "Refactoring improves code readability or performance without changing its behavior.", "id": 68},
-        {"question": "What is a package manager?", "answer": "A package manager automates installing and managing software libraries.", "id": 69}
+        {
+            "question": "What is the name of the first computer virus?",
+            "options": [
+                "Creeper",
+                "Stuxnet",
+                "You are an idiot",
+                "Melissa"
+            ],
+            "correct": "A",
+            "id": 1
+        },
+        {
+            "question": "Which programming language is known as the backbone of the web?",
+            "options": [
+                "Java",
+                "Python",
+                "C++",
+                "Javascript",
+                "PHP"
+            ],
+            "correct": "D",
+            "id": 2
+        },
+        {
+            "question": "What is the name of the Linux mascot?",
+            "options": [
+                "Tux",
+                "Pingu",
+                "Gnu",
+                "Penguin"
+            ],
+            "correct": "A",
+            "id": 3
+        },
+        {
+            "question": "Who is the founder of Microsoft?",
+            "options": [
+                "Steve Jobs",
+                "Bill Gates",
+                "Mark Zuckerberg",
+                "Larry Page"
+            ],
+            "correct": "B",
+            "id": 4
+        },
+        {
+            "question": "What does HTML stand for?",
+            "options": [
+                "High-Level Text Markup Language",
+                "HyperText Machine Language",
+                "HyperText Markup Language",
+                "HyperText Multi-Language"
+            ],
+            "correct": "C",
+            "id": 5
+        },
+        {
+            "question": "What is the primary purpose of the Python programming language?",
+            "options": [
+                "Web development",
+                "Data analysis",
+                "Machine learning",
+                "All of the above"
+            ],
+            "correct": "B",
+            "id": 6
+        },
+        {
+            "question": "Which programming language is known for its use in artificial intelligence?",
+            "options": [
+                "Java",
+                "Python",
+                "C#",
+                "Ruby"
+            ],
+            "correct": "B",
+            "id": 7
+        },
+        {
+            "question": "What does 'OOP' stand for?",
+            "options": [
+                "Object-Oriented Programming",
+                "Object-Oriented Process",
+                "Object-Obfuscated Protocol",
+                "Object-Organized Product"
+            ],
+            "correct": "A",
+            "id": 8
+        },
+        {
+            "question": "Who is the creator of the Linux operating system?",
+            "options": [
+                "Thomas J. Watson",
+                "Lee Byung-Chul",
+                "Linus Torvalds",
+                "Bill Gates"
+            ],
+            "correct": "C",
+            "id": 9
+        },
+        {
+            "question": "What is the purpose of the `var` keyword in C#?",
+            "options": [
+                "To declare a class",
+                "To define a method",
+                "To create a variable",
+                "To import a namespace"
+            ],
+            "correct": "C",
+            "id": 10
+        },
+        {
+            "question": "Which language is known as the first high-level programming language?",
+            "options": [
+                "Fortran",
+                "Assembly",
+                "C",
+                "Pascal"
+            ],
+            "correct": "B",
+            "id": 11
+        },
+        {
+            "question": "In Python, which operator is used to exponentiate a number?",
+            "options": [
+                "^^",
+                "**",
+                "^",
+                "%",
+                "exp"
+            ],
+            "correct": "B",
+            "id": 12
+        },
+        {
+            "question": "What is the main difference between `==` and `===` in JavaScript?",
+            "options": [
+                "`==` checks value equality, `===` checks value and type equality",
+                "`==` checks type equality, `===` checks value equality",
+                "`==` is used for strings, `===` is used for numbers",
+                "There is no difference"
+            ],
+            "correct": "A",
+            "id": 13
+        },
+        {
+            "question": "What does compiling mean in programming?",
+            "options": [
+                "Writing comments in code",
+                "Running a program",
+                "Debugging code",
+                "Translating source code into machine code",
+                "Translating source code into binary code"
+            ],
+            "correct": "D",
+            "id": 14
+        },
+        {
+            "question": "Which programming language is used for Android app development?",
+            "options": [
+                "Swift",
+                "Java",
+                "Kotlin",
+                "C#",
+                "Svelte",
+                "Both B and C"
+            ],
+            "correct": "F",
+            "id": 15
+        },
+        {
+            "question": "What does SQL stand for?",
+            "options": [
+                "Structured Query Language",
+                "Standard Query Language",
+                "Simple Query Language",
+                "Sequential Query Language",
+                "Simple question Language"
+            ],
+            "correct": "A",
+            "id": 16
+        },
+        {
+            "question": "In C++, what does the `::` symbol represent?",
+            "options": [
+                "Member access operator",
+                "Pointer dereference operator",
+                "Scope resolution operator",
+                "Bitwise AND operator"
+            ],
+            "correct": "C",
+            "id": 17
+        },
+        {
+            "question": "What is the output of `print(10 % 3)` in Python?",
+            "options": [
+                "1",
+                "3",
+                "0",
+                "10",
+                "2"
+            ],
+            "correct": "E",
+            "id": 18
+        },
+        {
+            "question": "Which C# keyword is used to define a method?",
+            "options": [
+                "function",
+                "def",
+                "method",
+                "void",
+                "public"
+            ],
+            "correct": "D",
+            "id": 19
+        },
+        {
+            "question": "What does the acronym 'IDE' stand for?",
+            "options": [
+                "Integrated Development Environment",
+                "Integrated Debugging Environment",
+                "Interactive Development Environment",
+                "Interactive Design Environment"
+            ],
+            "correct": "A",
+            "id": 20
+        },
+        {
+            "question": "In which year was JavaScript created?",
+            "options": [
+                "1995",
+                "2000",
+                "2005",
+                "2010",
+                "2015"
+            ],
+            "correct": "A",
+            "id": 21
+        },
+        {
+            "question": "What is the difference between an array and a list in C#?",
+            "options": [
+                "An array can only hold numbers, a list can hold any type",
+                "An array is fixed size, a list is dynamic",
+                "An array is mutable, a list is immutable",
+                "There is no difference"
+            ],
+            "correct": "B",
+            "id": 22
+        },
+        {
+            "question": "What does the acronym API stand for?",
+            "options": [
+                "Advanced Programming Interface",
+                "Application Protocol Interface",
+                "Application Programming Interface",
+                "Automated Programming Interface"
+            ],
+            "correct": "A",
+            "id": 23
+        },
+        {
+            "question": "What is a 'for loop' used for in programming?",
+            "options": [
+                "To iterate over elements in a collection",
+                "To repeat a block of code a specific number of times",
+                "To create an infinite loop",
+                "To cycle through a list of items"
+            ],
+            "correct": "B",
+            "id": 24
+        },
+        {
+            "question": "What is the function of a break statement in a loop?",
+            "options": [
+                "To pause the loop",
+                "To skip the current iteration",
+                "To continue to the next iteration",
+                "To exit the loop immediately"
+            ],
+            "correct": "D",
+            "id": 25
+        },
+        {
+            "question": "What is the main purpose of the Git version control system?",
+            "options": [
+                "To manage software dependencies",
+                "To track changes in source code",
+                "To compile code",
+                "To debug code"
+            ],
+            "correct": "B",
+            "id": 26
+        },
+        {
+            "question": "What does CSS stand for?",
+            "options": [
+                "Creative Style Sheets",
+                "Computer Style Sheets",
+                "Cascading Style Sheets",
+                "Cascading Script Styles"
+            ],
+            "correct": "C",
+            "id": 27
+        },
+        {
+            "question": "Which programming language is primarily used for statistical analysis?",
+            "options": [
+                "R",
+                "Python",
+                "Java",
+                "C++",
+                "JavaScript"
+            ],
+            "correct": "A",
+            "id": 28
+        },
+        {
+            "question": "What is the purpose of the `return` statement in a function?",
+            "options": [
+                "To exit the function",
+                "To return a value from the function",
+                "To define a new function",
+                "To return to another function"
+            ],
+            "correct": "B",
+            "id": 29
+        },
+        {
+            "question": "What is the difference between a function and a method in programming?",
+            "options": [
+                "A function can only return a value, a method cannot",
+                "A function is used for mathematical calculations, a method is used for string manipulation",
+                "A function is a standalone block of code, a method is associated with an object",
+                "There is no difference"
+            ],
+            "correct": "C",
+            "id": 30
+        },
+        {
+            "question": "What is the purpose of the `this` keyword in JavaScript?",
+            "options": [
+                "To refer to the global object",
+                "To refer to the current object",
+                "To create a new object",
+                "To access a static method"
+            ],
+            "correct": "B",
+            "id": 31
+        },
+        {
+            "question": "What is the output of `print('hello' + 'world')` in Python?",
+            "options": [
+                "helloworld",
+                "hello world",
+                "hello+world",
+                "hello-world",
+                "hello*world"
+            ],
+            "correct": "A",
+            "id": 32
+        },
+        {
+            "question": "What is the purpose of the `new` keyword in JavaScript?",
+            "options": [
+                "To create a new class",
+                "To create a new variable",
+                "To create a new function",
+                "To create a new object"
+            ],
+            "correct": "D",
+            "id": 33
+        },
+        {
+            "question": "What is the main function of the `finally` block in a try-catch-finally statement?",
+            "options": [
+                "To handle exceptions",
+                "To execute code regardless of whether an exception occurred",
+                "To define a new function",
+                "To return a value"
+            ],
+            "correct": "B",
+            "id": 34
+        },
+        {
+            "question": "What is the purpose of the `super` keyword in Java?",
+            "options": [
+                "A) To call a parent class constructor",
+                "B) To access a parent class method",
+                "C) To create a new class",
+                "D) To define a static method"
+            ],
+            "correct": "",
+            "id": 35
+        },
+        {
+            "question": "What is the output of `print(3 < 5)` in Python?",
+            "options": [
+                "A) True",
+                "B) False",
+                "C) 3",
+                "D) 5"
+            ],
+            "correct": "A",
+            "id": 36
+        },
+        {
+            "question": "What is the purpose of the `abstract` keyword in C#?",
+            "options": [
+                "A) To define a class that cannot be instantiated",
+                "B) To create a method that must be implemented in derived classes",
+                "C) To declare a variable",
+                "D) To import a namespace"
+            ],
+            "correct": "A",
+            "id": 37
+        },
+        {
+            "question": "What is the main purpose of the `async` and `await` keywords in C#?",
+            "options": [
+                "A) To define a synchronous method",
+                "B) To create a new ansyncronous thread",
+                "C) To handle exceptions",
+                "D) To perform asynchronous programming"
+            ],
+            "correct": "D",
+            "id": 38
+        },
+        {
+            "question": "What is the output of `print('hello'[1])` in Python?",
+            "options": [
+                "A) hello",
+                "B) h",
+                "C) 1",
+                "D) o"
+            ],
+            "correct": "B",
+            "id": 39
+        },
+        {
+            "question": "What is the purpose of the `static` keyword in C#?",
+            "options": [
+                "A) To define a class that cannot be instantiated",
+                "B) To create a method that can be called without an instance",
+                "C) To declare a variable that is shared across all instances",
+                "D) To import a namespace"
+            ],
+            "correct": "B",
+            "id": 40
+        },
+        {
+            "question": "What is the main function of the `yield` keyword in Python?",
+            "options": [
+                "A) To return a value from a function",
+                "B) To pause the execution of a function and return a generator",
+                "C) To define a new class",
+                "D) To create a new variable"
+            ],
+            "correct": "B",
+            "id": 41
+        },
+        {
+            "question": "What is the purpose of the `protected` access modifier in C#?",
+            "options": [
+                "A) To allow access to a member only within the same class",
+                "B) To allow access to a member only within the same assembly",
+                "C) To allow access to a member from any class",
+                "D) To allow access to a member within the same class and derived classes"
+            ],
+            "correct": "D",
+            "id": 42
+        },
+        {
+            "question": "What is the output of `print(2 ** 3)` in Python?",
+            "options": [
+                "A) 6",
+                "B) 9",
+                "C) 8",
+                "D) 5"
+            ],
+            "correct": "C",
+            "id": 43
+        },
+        {
+            "question": "What is the purpose of the `sealed` keyword in C#?",
+            "options": [
+                "A) To prevent a class from being inherited",
+                "B) To define a method that cannot be overridden",
+                "C) To declare a variable",
+                "D) To import a namespace"
+            ],
+            "correct": "A",
+            "id": 44
+        },
+        {
+            "question": "What is the main function of the `lambda` keyword in Python?",
+            "options": [
+                "A) To define a function",
+                "B) To create an anonymous function",
+                "C) To declare a variable",
+                "D) To import a module"
+            ],
+            "correct": "B",
+            "id": 45
+        },
+        {
+            "question": "What is the output of `print('abc'.upper())` in Python?",
+            "options": [
+                "A) ABC",
+                "B) Abc",
+                "C) abc",
+                "D) aBc"
+            ],
+            "correct": "A",
+            "id": 46
+        },
+        {
+            "question": "What does the `in` operator do in Python?",
+            "options": [
+                "A) Checks if a value is less than another value",
+                "B) Checks if a value is greater than another value",
+                "C) Checks if a value is present in a list or string",
+                "D) Checks if a value is equal to another value"
+            ],
+            "correct": "C",
+            "id": 47
+        },
+        {
+            "question": "What is the purpose of the `continue` statement in a loop?",
+            "options": [
+                "A) To exit the loop immediately",
+                "B) To skip the current iteration and continue with the next one",
+                "C) To pause the loop for a specified time",
+                "D) To break out of the loop"
+            ],
+            "correct": "B",
+            "id": 48
+        },
+        {
+            "question": "What is the difference between compiled and interpreted languages?",
+            "options": [
+                "A) Compiled languages are faster than interpreted languages",
+                "B) Interpreted languages are more secure than compiled languages, by default",
+                "C) Compiled languages are executed directly by the CPU, while interpreted languages are executed by an interpreter",
+                "D) There is no difference"
+            ],
+            "correct": "C",
+            "id": 49
+        },
+        {
+            "question": "What is an algorithm?",
+            "options": [
+                "A) A debugging tool",
+                "B) A programming language",
+                "C) A type of data structure",
+                "D) A set of instructions to solve a problem"
+            ],
+            "correct": "D",
+            "id": 50
+        },
+        {
+            "question": "What is the difference between a class and an object?",
+            "options": [
+                "A) A class is a type of data structure, while an object is a variable",
+                "B) A class is a blueprint for creating objects, while an object is an instance of a classA class is a type of data structure, while an object is a variable",
+                "C) A class is a function, while an object is a method",
+                "D) There is no difference"
+            ],
+            "correct": "A",
+            "id": 51
+        },
+        {
+            "question": "What is the difference between a stack and a queue?",
+            "options": [
+                "A) A stack is a last-in-first-out (LIFO) data structure, while a queue is a first-in-first-out (FIFO) data structure",
+                "B) A stack is a first-in-first-out (FIFO) data structure, while a queue is a last-in-first-out (LIFO) data structure",
+                "C) A stack is used for recursion, while a queue is used for iteration",
+                "D) There is no difference"
+            ],
+            "correct": "A",
+            "id": 52
+        },
+        {
+            "question": "What is a database?",
+            "options": [
+                "A) A file system for storing datafiles",
+                "B) A collection of related data organized in a structured way",
+                "C) A programming language for managing data",
+                "D) A type of data structure for storing data"
+            ],
+            "correct": "B",
+            "id": 53
+        },
+        {
+            "question": "What is a hash function?",
+            "options": [
+                "A) A function that compresses data to save space",
+                "B) A function that encrypts data with no way to decrypt it",
+                "C) A function that converts data into a fixed-size string of characters",
+                "D) A function that decrypts data to its original form"
+            ],
+            "correct": "C",
+            "id": 54
+        },
+        {
+            "question": "What is the purpose of the 'while' loop in programming?",
+            "options": [
+                "A) To iterate over a collection of items",
+                "B) To execute a block of code a specific number of times",
+                "C) To ierate through a list of items",
+                "D) To repeat a block of code as long as a condition is true"
+            ],
+            "correct": "D",
+            "id": 55
+        },
+        {
+            "question": "What is the difference between a shallow copy and a deep copy?",
+            "options": [
+                "A) A shallow copy creates a new object, while a deep copy creates a new object and copies all nested objects",
+                "B) A shallow copy copies only the top-level object, while a deep copy copies the entire object including nested objects",
+                "C) A shallow copy is faster than a deep copy, but less accurate",
+                "D) A shallow copy is more secure than a deep copy"
+            ],
+            "correct": "B",
+            "id": 56
+        },
+        {
+            "question": "What is the difference between a primary key and a foreign key in a database?",
+            "options": [
+                "A) The primary key identifies another table, while the foreign key identifies a unique record in the same table",
+                "B) The primary key is a unique identifier for a record in a table, while the foreign key is a refernce",
+                "C) The primary key is used for indexing, while the foreign key is used for sorting",
+                "D) There is no difference"
+            ],
+            "correct": "B",
+            "id": 57
+        },
+        {
+            "question": "What is the purpose of a constructor in object-oriented programming?",
+            "options": [
+                "A) To create a new class",
+                "B) To define a method that can be called on an object",
+                "C) To initialize an object when it is created",
+                "D) To import a namespace"
+            ],
+            "correct": "C",
+            "id": 58
+        },
+        {
+            "question": "What is the purpose of the 'import' statement in Python?",
+            "options": [
+                "A) To import files from the local file system",
+                "B) To import videos and photos from a device",
+                "C) To import modules or packages into the current namespace",
+                "D) To import data from a database"
+            ],
+            "correct": "C",
+            "id": 59
+        },
+        {
+            "question": "What is the purpose of a version control system?",
+            "options": [
+                "A) To manage software dependencies",
+                "B) To track changes in source code over time",
+                "C) To see and compare different versions of a file",
+                "D) To download different versions of a file"
+            ],
+            "correct": "B",
+            "id": 60
+        },
+        {
+            "question": "What is the difference between an interface and an abstract class?",
+            "options": [
+                "A) An interface can only contain variables, while an abstract class can only contain methods",
+                "B) An abstract class can contain both method signatures and implementations, while an Interface can only contain method signatures",
+                "C) An Interface abstract class can only contain method signatures",
+                "D) An Interface can only contain method signatures, while an abstract class can contain both method signatures and implementations"
+            ],
+            "correct": "B",
+            "id": 61
+        },
+        {
+            "question": "What does the 'self' keyword refer to in Python?",
+            "options": [
+                "A) The current instance of a class",
+                "B) The global variable",
+                "C) The parent class",
+                "D) The current module"
+            ],
+            "correct": "A",
+            "id": 62
+        },
+        {
+            "question": "What is the purpose of an API in software development?",
+            "options": [
+                "A) To send requests to a server and receive responses",
+                "B) To connect to databases and retrieve data",
+                "C) To provide a way for different software components to communicate",
+                "D) To create a user interface"
+            ],
+            "correct": "C",
+            "id": 63
+        },
+        {
+            "question": "What is the purpose of a breakpoint in debugging?",
+            "options": [
+                "A) To exit the program at a specific line of code",
+                "B) To break out of a loop",
+                "C) To pause the execution of a program at a specific line of code",
+                "D) To skip a line of code during execution"
+            ],
+            "correct": "C",
+            "id": 64
+        },
+        {
+            "question": "What is the difference between a method and a function?",
+            "options": [
+                "A) A method is a function that you can declare everywhere, while a function is a method that you can only declare inside a class",
+                "B) A Method can be called from everywheer and contains executable code",
+                "C) A function can be called from everywhere and contains executable code, while a method can only be called from within a class",
+                "D) A method is a function that belongs to an object, while a function is a standalone block of code"
+            ],
+            "correct": "D",
+            "id": 65
+        },
+        {
+            "question": "What is a framework in software development?",
+            "options": [
+                "A) A set of rules for writing code",
+                "B) A set of libraries and tools for building applications",
+                "C) A programming language",
+                "D) A type of database"
+            ],
+            "correct": "B",
+            "id": 66
+        },
+        {
+            "question": "What is the purpose of exception handling in programming?",
+            "options": [
+                "A) To show error messages to the user",
+                "B) To handle runtime errors gracefully",
+                "C) To improve code performance",
+                "D) To optimize memory usage"
+            ],
+            "correct": "B",
+            "id": 67
+        },
+        {
+            "question": "What does it mean to 'refactor' code?",
+            "options": [
+                "A) To improve structure and reliabilityTo rewrite code from scratch",
+                "B) To rewrite code from scratch",
+                "C) To speed up code execution and reduce memory usage",
+                "D) To minimize code size"
+            ],
+            "correct": "A",
+            "id": 68
+        },
+        {
+            "question": "What is a package manager?",
+            "options": [
+                "A) A program to manage delivery of packages",
+                "B) A program that helps to keep track of software versions",
+                "C) A program that manages software dependencies and installations",
+                "D) A program that manages software licenses"
+            ],
+            "correct": "C",
+            "id": 69
+        }
     ],
     "tech": [
         {"question": "What year was the iPhone first released?", "answer": "2007", "id": 1},

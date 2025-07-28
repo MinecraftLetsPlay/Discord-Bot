@@ -3,6 +3,7 @@ import random
 import asyncio
 import aiohttp
 import logging
+import string
 from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils functions for loading data
 
 # Global variables to store game data
@@ -314,57 +315,82 @@ async def handle_minigames_commands(client, message, user_message):
 
     # !quiz command
     if user_message.startswith('!quiz'):
+        # Beispiel: !quiz programming 10
         parts = user_message.split()
-        if len(parts) != 3 or not parts[2].isdigit():
-            await message.channel.send("ℹ️ Please use the format: `!quiz <category> <number of questions>`")
+        if len(parts) < 3:
+            await message.channel.send("Bitte gib eine Kategorie und die Anzahl der Fragen an, z.B. `!quiz programming 10`.")
             return
 
         category = parts[1]
         quiz_size = int(parts[2])
 
-        if quiz_size not in [10, 20, 30]:
-            await message.channel.send("ℹ️ Invalid quiz size. Please choose 10, 20, or 30 questions.")
-            return
-
         score = 0
 
-        for idx in range(1, quiz_size + 1):
+        for idx in range(quiz_size):
             question_data, actual_category = await get_quiz_question(category)
             if not question_data:
-                await message.channel.send(f"❌ Error loading quiz questions for category '{category}'!")
-                logging.error(f"❌ Error loading quiz questions for category '{category}'!")
-                return
+                await message.channel.send("Keine weiteren Fragen verfügbar.")
+                break
 
-            embed = discord.Embed(
-                title=f"Quiz - {actual_category}",
-                description=f"Question {idx}/{quiz_size}: {question_data['question']}",
-                color=0x00ff00
-            )
-            await message.channel.send(embed=embed)
+            # Multiple-Choice Frage
+            if "options" in question_data:
+                options = question_data["options"]
+                option_letters = list(string.ascii_uppercase)[:len(options)]
+                description = "\n".join([f":regional_indicator_{l.lower()}: {o}" for l, o in zip(option_letters, options)])
 
-            try:
-                answer_message = await client.wait_for(
-                    'message',
-                    timeout=90.0,
-                    check=lambda m: m.author == message.author
+                embed = discord.Embed(
+                    title=f"Frage {idx+1}/{quiz_size}",
+                    description=f"{question_data['question']}\n\n{description}",
+                    color=0x00ff00
                 )
+                quiz_msg = await message.channel.send(embed=embed)
 
-                # Check if the user wants to end the quiz
-                if answer_message.content.lower() == '!quiz end':
-                    await message.channel.send(f"Quiz ended early. You scored {score}/{quiz_size}.")
-                    return
+                # Reaktionen hinzufügen
+                emoji_map = [chr(0x1F1E6 + i) for i in range(len(options))]  # 🇦, 🇧, 🇨, ...
+                for emoji in emoji_map:
+                    await quiz_msg.add_reaction(emoji)
 
-                if answer_message.content.lower() == question_data["answer"].lower():
-                    await message.channel.send("✅ Correct!")
-                    score += 1
-                else:
-                    await message.channel.send(f"❌ Incorrect! The correct answer was: {question_data['answer']}")
+                def check(reaction, user):
+                    return (
+                        user == message.author and
+                        reaction.message.id == quiz_msg.id and
+                        str(reaction.emoji) in emoji_map
+                    )
 
-            except asyncio.TimeoutError:
-                await message.channel.send("⚠️ Timeout - Moving to the next question!")
-                logging.warning("⚠️ Quiz: Timeout - Moving to the next question!")
+                try:
+                    reaction, user = await client.wait_for('reaction_add', timeout=30.0, check=check)
+                    user_answer = option_letters[emoji_map.index(str(reaction.emoji))]
+                    if user_answer == question_data["correct"]:
+                        await message.channel.send("✅ Richtig!")
+                        score += 1
+                    else:
+                        await message.channel.send(f"❌ Falsch! Die richtige Antwort war: {question_data['correct']}")
+                except asyncio.TimeoutError:
+                    await message.channel.send("⏰ Zeit abgelaufen!")
+            else:
+                # Offene Textfrage
+                embed = discord.Embed(
+                    title=f"Frage {idx+1}/{quiz_size}",
+                    description=question_data['question'],
+                    color=0x00ff00
+                )
+                await message.channel.send(embed=embed)
+                try:
+                    answer_message = await client.wait_for(
+                        'message',
+                        timeout=30.0,
+                        check=lambda m: m.author == message.author
+                    )
+                    # Vergleiche Antwort (case-insensitive, trims)
+                    if answer_message.content.strip().lower() == question_data.get("answer", "").strip().lower():
+                        await message.channel.send("✅ Richtig!")
+                        score += 1
+                    else:
+                        await message.channel.send(f"❌ Falsch! Die richtige Antwort war: {question_data.get('answer', 'unbekannt')}")
+                except asyncio.TimeoutError:
+                    await message.channel.send("⏰ Zeit abgelaufen!")
 
-        await message.channel.send(f"🎉 Quiz complete! You scored {score}/{quiz_size}.")
+        await message.channel.send(f"Quiz beendet! Du hast {score}/{quiz_size} Punkten erreicht.")
 
     # !roll command
     if user_message.startswith('!roll'):
