@@ -315,10 +315,10 @@ async def handle_minigames_commands(client, message, user_message):
 
     # !quiz command
     if user_message.startswith('!quiz'):
-        # Beispiel: !quiz programming 10
+        # E.g.!quiz programming 10
         parts = user_message.split()
         if len(parts) < 3:
-            await message.channel.send("Bitte gib eine Kategorie und die Anzahl der Fragen an, z.B. `!quiz programming 10`.")
+            await message.channel.send("Please specify a category and the number of questions (e.g., `!quiz programming 10`).")
             return
 
         category = parts[1]
@@ -329,10 +329,10 @@ async def handle_minigames_commands(client, message, user_message):
         for idx in range(quiz_size):
             question_data, actual_category = await get_quiz_question(category)
             if not question_data:
-                await message.channel.send("Keine weiteren Fragen verfügbar.")
+                await message.channel.send("⚠️ No more questions available or error loading questions. Please try again later.")
                 break
 
-            # Multiple-Choice Frage
+            # Multiple-Choice question
             if "options" in question_data:
                 options = question_data["options"]
                 option_letters = list(string.ascii_uppercase)[:len(options)]
@@ -345,7 +345,7 @@ async def handle_minigames_commands(client, message, user_message):
                 )
                 quiz_msg = await message.channel.send(embed=embed)
 
-                # Reaktionen hinzufügen
+                # Add reactions for options
                 emoji_map = [chr(0x1F1E6 + i) for i in range(len(options))]  # 🇦, 🇧, 🇨, ...
                 for emoji in emoji_map:
                     await quiz_msg.add_reaction(emoji)
@@ -361,14 +361,14 @@ async def handle_minigames_commands(client, message, user_message):
                     reaction, user = await client.wait_for('reaction_add', timeout=30.0, check=check)
                     user_answer = option_letters[emoji_map.index(str(reaction.emoji))]
                     if user_answer == question_data["correct"]:
-                        await message.channel.send("✅ Richtig!")
+                        await message.channel.send("✅ Correct!")
                         score += 1
                     else:
-                        await message.channel.send(f"❌ Falsch! Die richtige Antwort war: {question_data['correct']}")
+                        await message.channel.send(f"❌ Wrong! The right answer was: {question_data['correct']}")
                 except asyncio.TimeoutError:
-                    await message.channel.send("⏰ Zeit abgelaufen!")
+                    await message.channel.send("⚠️ Timeout - Game cancelled!")
             else:
-                # Offene Textfrage
+                # open text question
                 embed = discord.Embed(
                     title=f"Frage {idx+1}/{quiz_size}",
                     description=question_data['question'],
@@ -381,16 +381,16 @@ async def handle_minigames_commands(client, message, user_message):
                         timeout=30.0,
                         check=lambda m: m.author == message.author
                     )
-                    # Vergleiche Antwort (case-insensitive, trims)
+                    # Compare the answer
                     if answer_message.content.strip().lower() == question_data.get("answer", "").strip().lower():
-                        await message.channel.send("✅ Richtig!")
+                        await message.channel.send("✅ Right!")
                         score += 1
                     else:
-                        await message.channel.send(f"❌ Falsch! Die richtige Antwort war: {question_data.get('answer', 'unbekannt')}")
+                        await message.channel.send(f"❌ Wrong! The right answer was: {question_data.get('answer', 'unbekannt')}")
                 except asyncio.TimeoutError:
-                    await message.channel.send("⏰ Zeit abgelaufen!")
+                    await message.channel.send("⚠️ Timeout - Game cancelled!")
 
-        await message.channel.send(f"Quiz beendet! Du hast {score}/{quiz_size} Punkten erreicht.")
+        await message.channel.send(f"Quiz finished! You scored {score}/{quiz_size}.")
 
     # !roll command
     if user_message.startswith('!roll'):
