@@ -388,7 +388,7 @@ async def handle_minigames_commands(client, message, user_message):
                     else:
                         await message.channel.send(f"❌ Wrong! The right answer was: {question_data.get('answer', 'unbekannt')}")
                 except asyncio.TimeoutError:
-                    await message.channel.send("⚠️ Timeout - The right answer was: {question_data['correct']}")
+                    await message.channel.send(f"⚠️ Timeout - The right answer was: {question_data['correct']}")
 
         await message.channel.send(f"Quiz finished! You scored {score}/{quiz_size}.")
 
