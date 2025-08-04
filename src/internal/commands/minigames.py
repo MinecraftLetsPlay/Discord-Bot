@@ -366,7 +366,7 @@ async def handle_minigames_commands(client, message, user_message):
                     else:
                         await message.channel.send(f"❌ Wrong! The right answer was: {question_data['correct']}")
                 except asyncio.TimeoutError:
-                    await message.channel.send("⚠️ Timeout - Game cancelled!")
+                    await message.channel.send(f"⚠️ Timeout - Game cancelled! The right answer was: {question_data['correct']}")
             else:
                 # open text question
                 embed = discord.Embed(

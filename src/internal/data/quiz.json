@@ -769,6 +769,347 @@
             ],
             "correct": "C",
             "id": 69
+        },
+        {
+            "question": "Which language is mainly used for iOS app development?",
+            "options": [
+                "A) Swift",
+                "B) Java",
+                "C) Kotlin",
+                "D) Objective-C"
+            ],
+            "correct": "A",
+            "id": 70
+        },
+        {
+            "question": "What is the main purpose of the 'git clone' command?",
+            "options": [
+                "A) To copy a repository to your local machine",
+                "B) To delete a repository",
+                "C) To update a repository",
+                "D) To create a new branch"
+            ],
+            "correct": "A",
+            "id": 71
+        },
+        {
+            "question": "Which programming paradigm focuses on objects and classes?",
+            "options": [
+                "A) Functional programming",
+                "B) Procedural programming",
+                "C) Object-oriented programming",
+                "D) Logic programming"
+            ],
+            "correct": "C",
+            "id": 72
+        },
+        {
+            "question": "Which symbol is used for comments in Python?",
+            "options": [
+                "A) //",
+                "B) #",
+                "C) <!-- -->",
+                "D) /* */"
+            ],
+            "correct": "B",
+            "id": 73
+        },
+        {
+            "question": "Which keyword is used to define a function in JavaScript?",
+            "options": [
+                "A) function",
+                "B) def",
+                "C) method",
+                "D) fun"
+            ],
+            "correct": "A",
+            "id": 74
+        },
+        {
+            "question": "What is the file extension for a Java source file?",
+            "options": [
+                "A) .js",
+                "B) .java",
+                "C) .py",
+                "D) .class"
+            ],
+            "correct": "B",
+            "id": 75
+        },
+        {
+            "question": "Which HTML tag is used to create a hyperlink?",
+            "options": [
+                "A) <link>",
+                "B) <a>",
+                "C) <href>",
+                "D) <hyper>"
+            ],
+            "correct": "B",
+            "id": 76
+        },
+        {
+            "question": "Which SQL statement is used to retrieve data from a database?",
+            "options": [
+                "A) SELECT",
+                "B) INSERT",
+                "C) UPDATE",
+                "D) DELETE"
+            ],
+            "correct": "A",
+            "id": 77
+        },
+        {
+            "question": "Which of the following is NOT a primitive data type in Java?",
+            "options": [
+                "A) int",
+                "B) float",
+                "C) string",
+                "D) boolean"
+            ],
+            "correct": "C",
+            "id": 78
+        },
+        {
+            "question": "Which operator is used for logical AND in most programming languages?",
+            "options": [
+                "A) &&",
+                "B) ||",
+                "C) &",
+                "D) and"
+            ],
+            "correct": "A",
+            "id": 79
+        },
+        {
+            "question": "Which language is known for its use in web front-end development?",
+            "options": [
+                "A) JavaScript",
+                "B) C++",
+                "C) PHP",
+                "D) Ruby"
+            ],
+            "correct": "A",
+            "id": 80
+        },
+        {
+            "question": "Which keyword is used to inherit a class in Python?",
+            "options": [
+                "A) extends",
+                "B) inherits",
+                "C) class",
+                "D) (className)"
+            ],
+            "correct": "C",
+            "id": 81
+        },
+        {
+            "question": "Which of the following is a version control system?",
+            "options": [
+                "A) Git",
+                "B) Docker",
+                "C) Jenkins",
+                "D) Kubernetes"
+            ],
+            "correct": "A",
+            "id": 82
+        },
+        {
+            "question": "Which method is called when an object is created in a class in Python?",
+            "options": [
+                "A) __init__",
+                "B) __main__",
+                "C) __start__",
+                "D) __create__"
+            ],
+            "correct": "A",
+            "id": 83
+        },
+        {
+            "question": "Which of the following is NOT a loop structure in JavaScript?",
+            "options": [
+                "A) for",
+                "B) while",
+                "C) repeat",
+                "D) do...while"
+            ],
+            "correct": "C",
+            "id": 84
+        },
+        {
+            "question": "Which keyword is used to declare a constant in JavaScript?",
+            "options": [
+                "A) const",
+                "B) let",
+                "C) var",
+                "D) static"
+            ],
+            "correct": "A",
+            "id": 85
+        },
+        {
+            "question": "Which of the following is a Python web framework?",
+            "options": [
+                "A) Django",
+                "B) Laravel",
+                "C) Spring",
+                "D) Express"
+            ],
+            "correct": "A",
+            "id": 86
+        },
+        {
+            "question": "Which function is used to output text in C?",
+            "options": [
+                "A) print()",
+                "B) echo()",
+                "C) printf()",
+                "D) write()"
+            ],
+            "correct": "C",
+            "id": 87
+        },
+        {
+            "question": "Which of the following is NOT a valid variable name in Python?",
+            "options": [
+                "A) my_var",
+                "B) 2var",
+                "C) var_2",
+                "D) _var"
+            ],
+            "correct": "B",
+            "id": 88
+        },
+        {
+            "question": "Which language is mainly used for Android app development?",
+            "options": [
+                "A) Java",
+                "B) Kotlin",
+                "C) Swift",
+                "D) Both A and B"
+            ],
+            "correct": "D",
+            "id": 89
+        },
+        {
+            "question": "Which of the following is a relational database?",
+            "options": [
+                "A) MongoDB",
+                "B) MySQL",
+                "C) Redis",
+                "D) Cassandra"
+            ],
+            "correct": "B",
+            "id": 90
+        },
+        {
+            "question": "Which symbol is used for single-line comments in Java?",
+            "options": [
+                "A) #",
+                "B) //",
+                "C) <!-- -->",
+                "D) /* */"
+            ],
+            "correct": "B",
+            "id": 91
+        },
+        {
+            "question": "Which of the following is NOT a valid HTTP method?",
+            "options": [
+                "A) GET",
+                "B) POST",
+                "C) SEND",
+                "D) DELETE"
+            ],
+            "correct": "C",
+            "id": 92
+        },
+        {
+            "question": "Which of the following is a cloud computing platform?",
+            "options": [
+                "A) AWS",
+                "B) GitHub",
+                "C) Docker",
+                "D) Linux"
+            ],
+            "correct": "A",
+            "id": 93
+        },
+        {
+            "question": "Which keyword is used to handle exceptions in Python?",
+            "options": [
+                "A) catch",
+                "B) except",
+                "C) error",
+                "D) handle"
+            ],
+            "correct": "B",
+            "id": 94
+        },
+        {
+            "question": "Which of the following is NOT a valid data type in JavaScript?",
+            "options": [
+                "A) number",
+                "B) string",
+                "C) float",
+                "D) boolean"
+            ],
+            "correct": "C",
+            "id": 95
+        },
+        {
+            "question": "Which of the following is a NoSQL database?",
+            "options": [
+                "A) PostgreSQL",
+                "B) MongoDB",
+                "C) MySQL",
+                "D) Oracle"
+            ],
+            "correct": "B",
+            "id": 96
+        },
+        {
+            "question": "Which of the following is used to style web pages?",
+            "options": [
+                "A) HTML",
+                "B) CSS",
+                "C) JavaScript",
+                "D) SQL"
+            ],
+            "correct": "B",
+            "id": 97
+        },
+        {
+            "question": "Which of the following is NOT an operating system?",
+            "options": [
+                "A) Windows",
+                "B) Linux",
+                "C) Android",
+                "D) Python"
+            ],
+            "correct": "D",
+            "id": 98
+        },
+        {
+            "question": "Which of the following is used to create virtual environments in Python?",
+            "options": [
+                "A) pip",
+                "B) venv",
+                "C) npm",
+                "D) composer"
+            ],
+            "correct": "B",
+            "id": 99
+        },
+        {
+            "question": "Which of the following is NOT a valid loop in Python?",
+            "options": [
+                "A) for",
+                "B) while",
+                "C) do...while",
+                "D) None of the above"
+            ],
+            "correct": "C",
+            "id": 100
         }
     ],
     "tech": [
@@ -793,7 +1134,7 @@
                 "D) Universal Service Bus"
             ],
             "correct": "A",
-            "id": 4},
+            "id": 2},
         {"question": "What is the world's largest search engine?", "answer": "Google", "id": 5},
         {"question": "What does 'IoT' stand for in tech?",
         "options": [
@@ -803,7 +1144,7 @@
             "D) Interactive online Transactions"
         ],
         "correct": "",
-        "id": 6},
+        "id": 3},
         {"question": "Which company created the first mass-market laptop computer?", "answer": "IBM", "id": 7},
         {"question": "What does RAM stand for?", "answer": "Random Access Memory", "id": 8},
         {"question": "Which company produces the Snapdragon series of processors?",
@@ -814,7 +1155,7 @@
             "D) Apple"
         ],
         "correct": "C",
-        "id": 9},
+        "id": 4},
         {"question": "What year was the World Wide Web introduced?",
         "options": [
             "A) 1989",
@@ -823,7 +1164,7 @@
             "D) 1995"
         ],
         "correct": "B",
-        "id": 10},
+        "id": 5},
         {"question": "Who invented the first computer mouse?",
         "options": [
             "A) Douglas Engelbart",
@@ -833,7 +1174,7 @@
             "E) Linus Torvalds"
         ],
         "correct": "A",
-        "id": 11},
+        "id": 6},
         {"question": "What does VPN stand for in networking?", "answer": "Virtual Private Network", "id": 12},
         {"question": "What is the largest tech company in the world by market cap?",
         "options": [
@@ -844,7 +1185,7 @@
             "E) Samsung"
         ],
         "correct": "C",
-        "id": 13},
+        "id": 7},
         {"question": "What year did Google acquire Android?", "answer": "2005", "id": 14},
         {"question": "Which company developed the first solid-state hard drive?",
         "options": [
@@ -854,7 +1195,7 @@
             "D) Kingston"
         ],
         "correct": "C",
-        "id": 15},
+        "id": 8},
         {"question": "What is the process of turning on a computer called?", "answer": "Booting", "id": 16},
         {"question": "Which company is known for its ThinkPad laptops?", "answer": "Lenovo", "id": 17},
         {"question": "Which company owns the brand 'Windows'?", "answer": "Microsoft", "id": 18},
@@ -867,7 +1208,7 @@
             "E) C#"
         ],
         "correct": "B",
-        "id": 19},
+        "id": 9},
         {"question": "What is the standard Ethernet cable used for networking?",
         "options": [
             "A) Coaxial cable",
@@ -876,7 +1217,7 @@
             "D) HDMI cable"
         ],
         "correct": "C",
-        "id": 20},
+        "id": 10},
         {"question": "Which company created the first tablet computer?", "answer": "Microsoft", "id": 21},
         {"question": "What does GUI stand for?",
         "options": [
@@ -886,7 +1227,7 @@
             "D) General User Interface"
         ],
         "correct": "B",
-        "id": 22},
+        "id": 11},
         {"question": "What is the main function of a router?",
         "options": [
             "A) TO provide WLAN acces to devices",
@@ -895,7 +1236,7 @@
             "D) To provide connection to the GAN"
         ],
         "correct": "B",
-        "id": 23},
+        "id": 12},
         {"question": "Which company is known for its ThinkPad laptops?", "answer": "Lenovo", "id": 24},
         {"question": "What does HTTP stand for?",
         "options": [
@@ -905,7 +1246,7 @@
             "D) HyperText Transfer Process"
         ],
         "correct": "A",
-        "id": 25},
+        "id": 13},
         {"question": "What is the primary function of a firewall?",
         "options": [
             "A) To monitor network traffic and block unauthorized access",
@@ -914,7 +1255,7 @@
             "D) To block websites and applications that are not allowed"
         ],
         "correct": "A",
-        "id": 26},
+        "id": 14},
         {"question": "Which company developed the first microprocessor?", "answer": "Intel", "id": 27},
         {"question": "What does SSD stand for?", "answer": "Solid State Drive", "id": 28},
         {"question": "What is the main purpose of an operating system?",
@@ -928,7 +1269,7 @@
             "G) A, B, C and D"
         ],
         "correct": "F",
-        "id": 29},
+        "id": 15},
         {"question": "Which company is known for its Galaxy series of smartphones?", "answer": "Samsung", "id": 30},
         {"question": "What does DNS stand for?", "answer": "Domain Name System", "id": 31},
         {"question": "What does CPU stand for?", "answer": "Central Processing Unit", "id": 32},
@@ -940,7 +1281,7 @@
             "D) Apple"
         ],
         "correct": "B",
-        "id": 33},
+        "id": 16},
         {"question": "What is the purpose of the power supply unit (PSU) in a computer?",
         "options": [
             "A) To step down voltage from the wall outlet to a usable level for the computer",
@@ -950,7 +1291,7 @@
             "E) To provide backup power in case of electrical outages"
         ],
         "correct": "C",
-        "id": 34},
+        "id": 17},
         {"question": "What is the most common storage medium in modern smartphones?",
         "options": [
             "A) Hard Disk Drive (HDD)",
@@ -959,7 +1300,7 @@
             "D) Optical Disc"
         ],
         "correct": "C",
-        "id": 35},
+        "id": 18},
         {"question": "What does the term 'cloud computing' refer to?",
         "options": [
             "A) Storing and accessing data and applications over the internet",
@@ -968,7 +1309,7 @@
             "D) Storing data on a Internet Server"
         ],
         "correct": "A",
-        "id": 36},
+        "id": 19},
         {"question": "What is the function of a GPU?",
         "options": [
             "A) To calculate mathematical operations",
@@ -977,7 +1318,7 @@
             "D) To execute general-purpose tasks"
         ],
         "correct": "B",
-        "id": 37},
+        "id": 20},
         {"question": "What does BIOS stand for?", "answer": "Basic Input Output System", "id": 38},
         {"question": "What are the main differences between an SSD and an HDD?",
         "options": [
@@ -989,7 +1330,7 @@
             "F) A, C and D "
         ],
         "correct": "F",
-        "id": 39},
+        "id": 21},
         {"question": "Which company manufactures the Apple M1 chip?", "answer": "Apple", "id": 40},
         {"question": "What does the term 'virtualization' refer to in computing?",
         "options": [
@@ -999,7 +1340,7 @@
             "D) Running multiple operating systems on a single physical machine"
         ],
         "correct": "D",
-        "id": 41},
+        "id": 22},
         {"question": "What is the purpose of a network switch?",
         "options": [
             "A) To provide wireless access to devices within a network",
@@ -1008,7 +1349,7 @@
             "D) To store and manage data on a network"
         ],
         "correct": "C",
-        "id": 42},
+        "id": 23},
         {"question": "What is the main function of a modem?",
         "options": [
             "A) To connect a computer to a network",
@@ -1017,7 +1358,7 @@
             "D) To store and manage data on a network"
         ],
         "correct": "B",
-        "id": 43},
+        "id": 24},
         {"question": "What is the purpose of a UPS in computing?", "answer": "To provide backup power.", "id": 44},
         {"question": "What is the main function of a sound card?", "answer": "To process and output audio signals.", "id": 45},
         {"question": "What is the purpose of a network interface card (NIC)?",
@@ -1028,7 +1369,7 @@
             "D) To store and manage data on a network"
         ],
         "correct": "A",
-        "id": 46},
+        "id": 25},
         {"question": "What is the main function of a barcode scanner?",
         "options": [
             "A) To print barcodes on labels or tags",
@@ -1037,7 +1378,7 @@
             "D) To decode products and store the result in the database"
         ],
         "correct": "B",
-        "id": 47},
+        "id": 26},
         {"question": "What is the purpose of a digital camera?", "answer": "To capture and store digital images and videos.", "id": 48},
         {"question": "What is the main function of a laser printer?",
         "options": [
@@ -1047,7 +1388,7 @@
             "D) To print high-quality text and images using laser technology"
         ],
         "correct": "D",
-        "id": 49},
+        "id": 27},
         {"question": "What is the purpose of a graphics tablet?",
         "options": [
             "A) To scan and digitize physical documents",
@@ -1058,7 +1399,7 @@
             "F) All of the above"
         ],
         "correct": "C",
-        "id": 50},
+        "id": 28},
         {"question": "What is the main function of a barcode printer?",
         "options": [
             "A) To print barcodes on labels or tags",
@@ -1067,7 +1408,7 @@
             "D) To decode products and store the result in the database"
         ],
         "correct": "A",
-        "id": 51},
+        "id": 29},
         {"question": "What is the purpose of a digital projector?",
         "options": [
             "A) To display images and videos on a screen",
@@ -1076,7 +1417,7 @@
             "D) To digitilize physical documents"
         ],
         "correct": "C",
-        "id": 52},
+        "id": 30},
         {"question": "What is the main function of a webcam?",
         "options": [
             "A) To capture and record audio",
@@ -1086,7 +1427,7 @@
             "E) A and B"
         ],
         "correct": "E",
-        "id": 53},
+        "id": 31},
         {"question": "What is the purpose of a fingerprint scanner?", "answer": "To capture and analyze fingerprint patterns.", "id": 54},
         {"question": "What is the main function of a document scanner?", "answer": "To convert physical documents into digital images or text.", "id": 55},
         {"question": "What is an example of an open-source operating system?",
@@ -1097,7 +1438,7 @@
             "D) Android"
         ],
         "correct": "C",
-        "id": 56},
+        "id": 32},
         {"question": "What does GAN stand for in networking?",
         "options": [
             "A) Global Access Network",
@@ -1106,7 +1447,7 @@
             "D) Global Application Network"
         ],
         "correct": "C",
-        "id": 57},
+        "id": 33},
         {"question": "What does WAN stand for in networking?",
         "options": [
             "A) Web Area Network",
@@ -1115,7 +1456,7 @@
             "D) Wide Area Network"
         ],
         "correct": "D",
-        "id": 58},
+        "id": 34},
         {"question": "What does LAN stand for in networking?",
         "options": [
             "A) Local Area Network",
@@ -1124,7 +1465,7 @@
             "D) Low Area Network"
         ],
         "correct": "A",
-        "id": 59},
+        "id": 35},
         {"question": "What does the term 'bandwidth' refer to in networking?",
         "options": [
             "A) The distance over which a network can operate",
@@ -1133,7 +1474,7 @@
             "D) The type of cables used in a network"
         ],
         "correct": "C",
-        "id": 60},
+        "id": 36},
         {"question": "What does 'URL' stand for?", "answer": "Uniform Resource Locator", "id": 63},
         {"question": "What is the main function of a web server?", "answer": "To host websites and serve web pages to users.", "id": 64},
         {"question": "What is the purpose of a content management system (CMS)?",
@@ -1144,7 +1485,7 @@
             "D) To provide a user interface for managing content"
         ],
         "correct": "B",
-        "id": 65},
+        "id": 37},
         {"question": "What is the main function of an email client?", "answer": "To send, receive, and manage email messages.", "id": 66},
         {"question": "What is the main function of a VPN?",
         "options": [
@@ -1154,8 +1495,99 @@
             "D) All of the above"
         ],
         "correct": "D",
-        "id": 69},
-        {"question": "Which company is known for the development of the 'XBox' gaming console?", "answer": "Microsoft", "id": 71}
+        "id": 38},
+        {"question": "Which company is known for the development of the 'XBox' gaming console?", "answer": "Microsoft", "id": 39},
+        {"question": "What does BIOS stand for?", "answer": "Basic Input Output System", "id": 40},
+        {"question": "What does LCD stand for?", "answer": "Liquid Crystal Display", "id": 41},
+        {"question": "What does HDMI stand for?", "answer": "High-Definition Multimedia Interface", "id": 42},
+        {"question": "What does API stand for?", "answer": "Application Programming Interface", "id": 43},
+        {"question": "What was the first practical electrical communication system?", "answer": "Telegraph", "id": 44},
+        {"question": "What kind of memory is used to store BIOS settings?", "answer": "CMOS", "id": 45},
+        {"question": "Which component is considered the 'brain' of the computer?", "answer": "CPU", "id": 46},
+        {"question": "Which unit measures data transfer speed over the internet?", "answer": "Mbps (Megabits per second)", "id": 47},
+        {"question": "What does the abbreviation 'IP' in IP address stand for?", "answer": "Internet Protocol", "id": 48},
+        {"question": "How many layers does the OSI model have?", "answer": "7", "id": 49},
+        {"question": "Which layer of the OSI model is responsible for routing?", "answer": "Network layer", "id": 50},
+        {"question": "Which layer of the OSI model handles data encryption?", "answer": "Presentation layer", "id": 51},
+        {"question": "Which OSI layer does the TCP protocol operate at?", "answer": "Transport layer", "id": 52},
+        {"question": "What type of address does the Data Link layer use?", "answer": "MAC address", "id": 53},
+        {"question": "What type of address does the Network layer use?", "answer": "IP address", "id": 54},
+        {"question": "Which adress uniquely identifies a device on a network?", "answer": "MAC address", "id": 55},
+        {"question": "Which adress uniquely identifies a device on the internet?", "answer": "IP address", "id": 56},
+        {"question": "What is the purpose of an interrupt in a CPU?", "answer": "To pause the current process and handle a high-priority event", "id": 57},
+        {"question": "What is the role of the Control Unit in a CPU?", "answer": "It directs the operation of the processor", "id": 58},
+        {"question": "What does the instruction 'NOP' do in a CPU?", "answer": "No operation", "id": 59},
+        {"question": "What is the output of an AND gate when both inputs are 1?", "answer": "1", "id": 60},
+        {"question": "Which logic gate outputs 1 only when exactly one input is 1?", "answer": "XOR gate", "id": 61},
+        {"question": "Which gate outputs the opposite of the input?", "answer": "NOT gate", "id": 62},
+        {"question": "What is the output of a NAND gate when both inputs are 1?", "answer": "0", "id": 63},
+        {"question": "Which logic gate returns 1 if at least one input is 1?", "answer": "OR gate", "id": 64},
+        {"question": "Which logic gate gives a 0 only if both inputs are the same?", "answer": "XOR gate", "id": 65},
+        {"question": "What does a NOR gate output when both inputs are 0?", "answer": "1", "id": 66},
+        {"question": "Which two gates are considered 'universal gates'?", "answer": "NAND and NOR", "id": 67},
+        {"question": "What is the most common operating system for smartphones?", "answer": "Android", "id": 68},
+        {"question": "Which company manufactures the Galaxy smartphone series?", "answer": "Samsung", "id": 69},
+        {"question": "What does GPS stand for?", "answer": "Global Positioning System", "id": 70},
+        {"question": "What is the main function of Bluetooth?", "answer": "Wireless data transfer", "id": 71},
+        {"question": "Which company created the Macintosh computer?", "answer": "Apple", "id": 72},
+        {"question": "What is the main function of a webcam?", "answer": "Video capture", "id": 73},
+        {"question": "What is the world's largest social network?", "answer": "Facebook", "id": 74},
+        {"question": "What does PDF stand for?", "answer": "Portable Document Format", "id": 75},
+        {"question": "Which company owns YouTube?", "answer": "Google", "id": 76},
+        {"question": "What is the main function of a scanner?", "answer": "Digitize documents", "id": 77},
+        {"question": "What is the main function of a microphone?", "answer": "Audio input", "id": 78},
+        {"question": "What is the main function of a monitor?", "answer": "Display output", "id": 79},
+        {"question": "Which company produces the Surface tablet?", "answer": "Microsoft", "id": 80},
+        {"question": "What does SIM stand for?", "answer": "Subscriber Identity Module", "id": 81},
+        {"question": "What is the main function of a hard drive?", "answer": "Data storage", "id": 82},
+        {"question": "Which company developed the PlayStation console?", "answer": "Sony", "id": 83},
+        {"question": "What is the main function of a touchpad?", "answer": "Cursor control", "id": 84},
+        {"question": "What is the main function of a router?", "answer": "Network connection", "id": 85},
+        {"question": "What is the main function of a modem?", "answer": "Signal conversion", "id": 86},
+        {"question": "Which company created the Echo smart speaker?", "answer": "Amazon", "id": 87},
+        {"question": "What is the main function of a USB stick?", "answer": "Portable storage", "id": 88},
+        {"question": "What is the main function of a projector?", "answer": "Image projection", "id": 89},
+        {"question": "Which company produces the iPad?", "answer": "Apple", "id": 90},
+        {"question": "What is the main function of a smartwatch?", "answer": "Wearable computing", "id": 91},
+        {"question": "Which company developed Windows OS?", "answer": "Microsoft", "id": 92},
+        {"question": "What is the main function of a barcode scanner?", "answer": "Read barcodes", "id": 93},
+        {"question": "Which company produces the Pixel smartphone?", "answer": "Google", "id": 94},
+        {"question": "What is the main function of a speaker?", "answer": "Audio output", "id": 95},
+        {"question": "What is the main function of a power bank?", "answer": "Charge devices", "id": 96},
+        {"question": "Which company created the Kindle e-reader?", "answer": "Amazon", "id": 97},
+        {
+            "question": "Which device is used to measure temperature?",
+            "options": [
+                "A) Barometer",
+                "B) Thermometer",
+                "C) Hygrometer",
+                "D) Altimeter"
+            ],
+            "correct": "B",
+            "id": 98
+        },
+        {
+            "question": "Which device is used to measure blood pressure?",
+            "options": [
+                "A) Stethoscope",
+                "B) Sphygmomanometer",
+                "C) Thermometer",
+                "D) Glucometer"
+            ],
+            "correct": "B",
+            "id": 99
+        },
+        {
+            "question": "Which device is used to measure speed?",
+            "options": [
+                "A) Odometer",
+                "B) Speedometer",
+                "C) Barometer",
+                "D) Altimeter"
+            ],
+            "correct": "B",
+            "id": 100
+        }
     ],
     "gaming": [
         {"question": "What is the best-selling video game of all time?", "answer": "Minecraft", "id": 1},
@@ -1237,7 +1669,27 @@
         {"question": "In 'Minecraft', what is the name of the item used to create a bed?", "answer": "Wool", "id": 77},
         {"question": "In 'Horizon Zero Dawn', what is the name of the main antagonist who seeks to control the robotic creatures?", "answer": "Hades", "id": 78},
         {"question": "In 'Satisfactory', what is the name of the machine used to extract resources from the ground?", "answer": "Miner", "id": 79},
-        {"question": "In 'Minecraft', what is the name of the item used to create a map?", "answer": "Paper", "id": 80}
+        {"question": "In 'Minecraft', what is the name of the item used to create a map?", "answer": "Paper", "id": 80},
+        {"question": "What is the name of the sword used by Link in The Legend of Zelda?", "answer": "Master Sword", "id": 81},
+        {"question": "Which item is needed to enter the Nether in Minecraft?", "answer": "Flint and Steel", "id": 82},
+        {"question": "What is the healing item in Resident Evil called?", "answer": "Herb", "id": 83},
+        {"question": "What is the main currency in Grand Theft Auto V?", "answer": "Dollar", "id": 84},
+        {"question": "Which item revives a fainted Pokémon in Pokémon games?", "answer": "Revive", "id": 85},
+        {"question": "What is the name of the main city in Skyrim?", "answer": "Whiterun", "id": 86},
+        {"question": "Which item is used to catch Pokémon?", "answer": "Poke Ball", "id": 87},
+        {"question": "What is the name of the shield used by Link?", "answer": "Hylian Shield", "id": 88},
+        {"question": "What is the rarest item in Terraria?", "answer": "Rod of Discord", "id": 89},
+        {"question": "Which item is needed to evolve Eevee into Vaporeon?", "answer": "Water Stone", "id": 90},
+        {"question": "What is the main quest item in Portal?", "answer": "Portal Gun", "id": 91},
+        {"question": "Which item is used to heal in The Witcher 3?", "answer": "Swallow Potion", "id": 92},
+        {"question": "What is the name of the main antagonist in Half-Life?", "answer": "G-Man", "id": 93},
+        {"question": "Which item is used to fast travel in Skyrim?", "answer": "Map", "id": 94},
+        {"question": "What is the name of the main villain in The Legend of Zelda?", "answer": "Ganon", "id": 95},
+        {"question": "Which item is used to restore magic in Final Fantasy?", "answer": "Ether", "id": 96},
+        {"question": "What is the name of the main character's weapon in DOOM?", "answer": "BFG 9000", "id": 97},
+        {"question": "Which item is used to cure poison in Pokémon?", "answer": "Antidote", "id": 98},
+        {"question": "What is the name of the main quest item in Minecraft?", "answer": "Ender Pearl", "id": 99},
+        {"question": "Which item is used to upgrade weapons in Dark Souls?", "answer": "Titanite", "id": 100}
     ],
     "science": [
         {"question": "What particle is responsible for carrying the electromagnetic force?", "answer": "Photon", "id": 1},
@@ -1370,17 +1822,6 @@
         "id": 63
     },
     {
-    "question": "What is the chemical symbol for sodium?",
-        "options": [
-            "A) S",
-            "B) Na",
-            "C) So",
-            "D) Sn"
-        ],
-        "correct": "B",
-        "id": 64
-    },
-    {
     "question": "Which scientist is known for the law of gravity?",
         "options": [
             "A) Albert Einstein",
@@ -1389,7 +1830,7 @@
             "D) Nikola Tesla"
         ],
         "correct": "B",
-        "id": 65
+        "id": 64
     },
     {
     "question": "What is the process by which plants make their own food?",
@@ -1400,7 +1841,7 @@
             "D) Fermentation"
         ],
         "correct": "B",
-        "id": 66
+        "id": 65
     },
     {
     "question": "Which part of the cell contains genetic material?",
@@ -1411,7 +1852,7 @@
             "D) Mitochondria"
         ],
         "correct": "B",
-        "id": 67
+        "id": 66
     },
     {
     "question": "What is the boiling point of water at sea level?",
@@ -1422,7 +1863,7 @@
             "D) 212°C"
         ],
         "correct": "C",
-        "id": 68
+        "id": 67
     },
     {
     "question": "Which vitamin is produced when the skin is exposed to sunlight?",
@@ -1433,7 +1874,7 @@
             "D) Vitamin D"
         ],
         "correct": "D",
-        "id": 69
+        "id": 68
     },
     {
     "question": "Which organelle is known as the powerhouse of the cell?",
@@ -1444,69 +1885,142 @@
             "D) Golgi apparatus"
         ],
         "correct": "C",
-        "id": 70
-    }
+        "id": 69
+    },
+    {"question": "What is the largest planet?", "answer": "Jupiter", "id": 70},
+    {"question": "What is the hardest natural substance?", "answer": "Diamond", "id": 71},
+    {"question": "What is the main gas in Earth's atmosphere?", "answer": "Nitrogen", "id": 72},
+    {"question": "What is the boiling point of water?", "answer": "100°C", "id": 73},
+    {"question": "What is the speed of light?", "answer": "299,792 km/s", "id": 74},
+    {"question": "What is the center of an atom?", "answer": "Nucleus", "id": 75},
+    {"question": "What is the process of water loss from plants?", "answer": "Transpiration", "id": 76},
+    {"question": "What is the boiling point of water?", "answer": "100°C", "id": 77},
+    {"question": "What is the melting point of iron?", "answer": "1538°C", "id": 78},
+    {"question": "What is the boiling point of nitrogen?", "answer": "-196°C", "id": 79},
+    {"question": "What is the melting point of gold?", "answer": "1064°C", "id": 80},
+    {"question": "What is the boiling point of oxygen?", "answer": "-183°C", "id": 81},
+    {"question": "What is the melting point of ice?", "answer": "0°C", "id": 82},
+    {"question": "What is the boiling point of mercury?", "answer": "357°C", "id": 83},
+    {"question": "What is the melting point of copper?", "answer": "1085°C", "id": 84},
+    {"question": "What is the boiling point of helium?", "answer": "-269°C", "id": 85},
+    {"question": "What is the melting point of silver?", "answer": "961°C", "id": 86},
+    {"question": "What is the boiling point of ethanol?", "answer": "78°C", "id": 87},
+    {"question": "What is the melting point of aluminum?", "answer": "660°C", "id": 88},
+    {"question": "What is the boiling point of sodium?", "answer": "883°C", "id": 89},
+    {"question": "What is the melting point of lead?", "answer": "327°C", "id": 90},
+    {"question": "What is the boiling point of gold?", "answer": "2856°C", "id": 91},
+    {"question": "What is the melting point of sulfur?", "answer": "115°C", "id": 92},
+    {"question": "What is the boiling point of carbon dioxide?", "answer": "-78°C", "id": 93},
+    {"question": "What is the melting point of zinc?", "answer": "420°C", "id": 94},
+    {"question": "What is the boiling point of potassium?", "answer": "759°C", "id": 95},
+    {"question": "What is the melting point of tin?", "answer": "232°C", "id": 96},
+    {"question": "What is the sublimation point of dry ice?", "answer": "-78°C", "id": 97},
+    {"question": "What is the melting point of diamond?", "answer": "3550°C", "id": 98},
+    {"question": "What is the boiling point of chlorine?", "answer": "-34°C", "id": 99},
+    {"question": "What is the melting point of magnesium?", "answer": "650°C", "id": 100}
     ],
     "history": [
-      {"question": "Who was the first President of the United States?", "answer": "George Washington", "id": 1},
-      {"question": "In which year did World War II end?", "answer": "1945", "id": 2},
-      {"question": "Who was the first human to travel into space?", "answer": "Yuri Gagarin", "id": 3},
-      {"question": "What was the name of the ship on which the Pilgrims traveled to America?", "answer": "Mayflower", "id": 4},
-      {"question": "Who was the first emperor of Rome?", "answer": "Augustus", "id": 5},
-      {"question": "What year did the Berlin Wall fall?", "answer": "1989", "id": 6},
-      {"question": "Which war was fought between the North and South regions of the United States?", "answer": "The Civil War", "id": 7},
-      {"question": "Who discovered America in 1492?", "answer": "Christopher Columbus", "id": 8},
-      {"question": "What year did the Titanic sink?", "answer": "1912", "id": 9},
-      {"question": "Which ancient civilization built the pyramids?", "answer": "Egyptians", "id": 10},
-      {"question": "Who was the first woman to fly solo across the Atlantic Ocean?", "answer": "Amelia Earhart", "id": 11},
-      {"question": "In which year did the United States declare independence from Britain?", "answer": "1776", "id": 12},
-      {"question": "Who was the last monarch of France?", "answer": "Louis-Philippe I", "id": 13},
-      {"question": "What ancient civilization is credited with the invention of the wheel?", "answer": "Sumerians", "id": 14},
-      {"question": "Which war was fought between the British and the American colonies in the 18th century?", "answer": "The American Revolutionary War", "id": 15},
-      {"question": "What year did the first manned moon landing take place?", "answer": "1969", "id": 16},
-      {"question": "What was the name of the first satellite launched by humans into space?", "answer": "Sputnik 1", "id": 17},
-      {"question": "Who was the first African American president of the United States?", "answer": "Barack Obama", "id": 18},
-      {"question": "Which war involved the Axis Powers and the Allies?", "answer": "World War II", "id": 19},
-      {"question": "Who was the first king of the United Kingdom?", "answer": "King James VI of Scotland (James I of England)", "id": 20},
-      {"question": "In which year did the Cold War begin?", "answer": "1947", "id": 21},
-      {"question": "Who was the leader of Nazi Germany during World War II?", "answer": "Adolf Hitler", "id": 22},
-      {"question": "Which country was the first to grant women the right to vote?", "answer": "New Zealand", "id": 23},
-      {"question": "What year did the American Civil War begin?", "answer": "1861", "id": 24},
-      {"question": "Who was the first emperor of China?", "answer": "Qin Shi Huang", "id": 25},
-      {"question": "What year did World War I begin?", "answer": "1914", "id": 26},
-      {"question": "Which ancient empire was ruled by Julius Caesar?", "answer": "The Roman Empire", "id": 27},
-      {"question": "What year did the French Revolution start?", "answer": "1789", "id": 28},
-      {"question": "Which famous ship sank after hitting an iceberg in 1912?", "answer": "Titanic", "id": 29},
-      {"question": "Who was the first woman to become a British monarch?", "answer": "Queen Elizabeth I", "id": 30},
-      {"question": "Which empire was ruled by Genghis Khan?", "answer": "The Mongol Empire", "id": 31},
-      {"question": "What was the name of the ship that brought the first English settlers to America in 1607?", "answer": "The Susan Constant", "id": 32},
-      {"question": "Who was the famous leader of the Indian independence movement?", "answer": "Mahatma Gandhi", "id": 33},
-      {"question": "What year did the Battle of Hastings take place?", "answer": "1066", "id": 34},
-      {"question": "Who was the famous nurse during the Crimean War?", "answer": "Florence Nightingale", "id": 35},
-      {"question": "Who was the first woman to serve as the Prime Minister of the United Kingdom?", "answer": "Margaret Thatcher", "id": 36},
-      {"question": "Which famous English explorer sailed around the world in the 16th century?", "answer": "Sir Francis Drake", "id": 37},
-      {"question": "Which country did the United States fight in the Vietnam War?", "answer": "North Vietnam", "id": 38},
-      {"question": "What year did the United States enter World War I?", "answer": "1917", "id": 39},
-      {"question": "Who wrote the Declaration of Independence?", "answer": "Thomas Jefferson", "id": 40},
-      {"question": "Which ancient civilization built Machu Picchu?", "answer": "Inca", "id": 41},
-      {"question": "Who was the first female pharaoh of Egypt?", "answer": "Hatshepsut", "id": 42},
-      {"question": "Which war ended with the Treaty of Versailles?", "answer": "World War I", "id": 43},
-      {"question": "Who was the British Prime Minister during World War II?", "answer": "Winston Churchill", "id": 44},
-      {"question": "What year did the Magna Carta get signed?", "answer": "1215", "id": 45},
-      {"question": "Who was the first man to circumnavigate the globe?", "answer": "Ferdinand Magellan", "id": 46},
-      {"question": "Which empire was ruled by Alexander the Great?", "answer": "Macedonian Empire", "id": 47},
-      {"question": "Who was the founder of the Mongol Empire?", "answer": "Genghis Khan", "id": 48},
-      {"question": "Which city was the capital of the Byzantine Empire?", "answer": "Constantinople", "id": 49},
-      {"question": "Who was the first president of the Federal Republic of Germany?", "answer": "Theodor Heuss", "id": 50},
-      {"question": "Which event started World War I?", "answer": "Assassination of Archduke Franz Ferdinand", "id": 51},
-      {"question": "Who was the leader of the Soviet Union during the Cuban Missile Crisis?", "answer": "Nikita Khrushchev", "id": 52},
-      {"question": "Which civilization invented the first writing system?", "answer": "Sumerians", "id": 53},
-      {"question": "Who was the first emperor of Japan?", "answer": "Emperor Jimmu", "id": 54},
-      {"question": "Which explorer discovered the sea route to India?", "answer": "Vasco da Gama", "id": 55},
-      {"question": "Who was the first woman to win a Nobel Prize?", "answer": "Marie Curie", "id": 56},
-      {"question": "Which ancient civilization built the Colosseum?", "answer": "Romans", "id": 57},
-      {"question": "Who was the last Tsar of Russia?", "answer": "Nicholas II", "id": 58},
-      {"question": "Which country was formerly known as Persia?", "answer": "Iran", "id": 59}
+    {"question": "Who was the first President of the United States?", "answer": "George Washington", "id": 1},
+    {"question": "In which year did World War II end?", "answer": "1945", "id": 2},
+    {"question": "Who was the first human to travel into space?", "answer": "Yuri Gagarin", "id": 3},
+    {"question": "What was the name of the ship on which the Pilgrims traveled to America?", "answer": "Mayflower", "id": 4},
+    {"question": "Who was the first emperor of Rome?", "answer": "Augustus", "id": 5},
+    {"question": "What year did the Berlin Wall fall?", "answer": "1989", "id": 6},
+    {"question": "Which war was fought between the North and South regions of the United States?", "answer": "The Civil War", "id": 7},
+    {"question": "Who discovered America in 1492?", "answer": "Christopher Columbus", "id": 8},
+    {"question": "What year did the Titanic sink?", "answer": "1912", "id": 9},
+    {"question": "Which ancient civilization built the pyramids?", "answer": "Egyptians", "id": 10},
+    {"question": "Who was the first woman to fly solo across the Atlantic Ocean?", "answer": "Amelia Earhart", "id": 11},
+    {"question": "In which year did the United States declare independence from Britain?", "answer": "1776", "id": 12},
+    {"question": "Who was the last monarch of France?", "answer": "Louis-Philippe I", "id": 13},
+    {"question": "What ancient civilization is credited with the invention of the wheel?", "answer": "Sumerians", "id": 14},
+    {"question": "Which war was fought between the British and the American colonies in the 18th century?", "answer": "The American Revolutionary War", "id": 15},
+    {"question": "What year did the first manned moon landing take place?", "answer": "1969", "id": 16},
+    {"question": "What was the name of the first satellite launched by humans into space?", "answer": "Sputnik 1", "id": 17},
+    {"question": "Who was the first African American president of the United States?", "answer": "Barack Obama", "id": 18},
+    {"question": "Which war involved the Axis Powers and the Allies?", "answer": "World War II", "id": 19},
+    {"question": "Who was the first king of the United Kingdom?", "answer": "King James VI of Scotland (James I of England)", "id": 20},
+    {"question": "In which year did the Cold War begin?", "answer": "1947", "id": 21},
+    {"question": "Who was the leader of Nazi Germany during World War II?", "answer": "Adolf Hitler", "id": 22},
+    {"question": "Which country was the first to grant women the right to vote?", "answer": "New Zealand", "id": 23},
+    {"question": "What year did the American Civil War begin?", "answer": "1861", "id": 24},
+    {"question": "Who was the first emperor of China?", "answer": "Qin Shi Huang", "id": 25},
+    {"question": "What year did World War I begin?", "answer": "1914", "id": 26},
+    {"question": "Which ancient empire was ruled by Julius Caesar?", "answer": "The Roman Empire", "id": 27},
+    {"question": "What year did the French Revolution start?", "answer": "1789", "id": 28},
+    {"question": "Which famous ship sank after hitting an iceberg in 1912?", "answer": "Titanic", "id": 29},
+    {"question": "Who was the first woman to become a British monarch?", "answer": "Queen Elizabeth I", "id": 30},
+    {"question": "Which empire was ruled by Genghis Khan?", "answer": "The Mongol Empire", "id": 31},
+    {"question": "What was the name of the ship that brought the first English settlers to America in 1607?", "answer": "The Susan Constant", "id": 32},
+    {"question": "Who was the famous leader of the Indian independence movement?", "answer": "Mahatma Gandhi", "id": 33},
+    {"question": "What year did the Battle of Hastings take place?", "answer": "1066", "id": 34},
+    {"question": "Who was the famous nurse during the Crimean War?", "answer": "Florence Nightingale", "id": 35},
+    {"question": "Who was the first woman to serve as the Prime Minister of the United Kingdom?", "answer": "Margaret Thatcher", "id": 36},
+    {"question": "Which famous English explorer sailed around the world in the 16th century?", "answer": "Sir Francis Drake", "id": 37},
+    {"question": "Which country did the United States fight in the Vietnam War?", "answer": "North Vietnam", "id": 38},
+    {"question": "What year did the United States enter World War I?", "answer": "1917", "id": 39},
+    {"question": "Who wrote the Declaration of Independence?", "answer": "Thomas Jefferson", "id": 40},
+    {"question": "Which ancient civilization built Machu Picchu?", "answer": "Inca", "id": 41},
+    {"question": "Who was the first female pharaoh of Egypt?", "answer": "Hatshepsut", "id": 42},
+    {"question": "Which war ended with the Treaty of Versailles?", "answer": "World War I", "id": 43},
+    {"question": "Who was the British Prime Minister during World War II?", "answer": "Winston Churchill", "id": 44},
+    {"question": "What year did the Magna Carta get signed?", "answer": "1215", "id": 45},
+    {"question": "Who was the first man to circumnavigate the globe?", "answer": "Ferdinand Magellan", "id": 46},
+    {"question": "Which empire was ruled by Alexander the Great?", "answer": "Macedonian Empire", "id": 47},
+    {"question": "Who was the founder of the Mongol Empire?", "answer": "Genghis Khan", "id": 48},
+    {"question": "Which city was the capital of the Byzantine Empire?", "answer": "Constantinople", "id": 49},
+    {"question": "Who was the first president of the Federal Republic of Germany?", "answer": "Theodor Heuss", "id": 50},
+    {"question": "Which event started World War I?", "answer": "Assassination of Archduke Franz Ferdinand", "id": 51},
+    {"question": "Who was the leader of the Soviet Union during the Cuban Missile Crisis?", "answer": "Nikita Khrushchev", "id": 52},
+    {"question": "Which civilization invented the first writing system?", "answer": "Sumerians", "id": 53},
+    {"question": "Who was the first emperor of Japan?", "answer": "Emperor Jimmu", "id": 54},
+    {"question": "Which explorer discovered the sea route to India?", "answer": "Vasco da Gama", "id": 55},
+    {"question": "Who was the first woman to win a Nobel Prize?", "answer": "Marie Curie", "id": 56},
+    {"question": "Which ancient civilization built the Colosseum?", "answer": "Romans", "id": 57},
+    {"question": "Who was the last Tsar of Russia?", "answer": "Nicholas II", "id": 58},
+    {"question": "Which country was formerly known as Persia?", "answer": "Iran", "id": 59},
+    {"question": "Who was the first Chancellor of Germany after World War II?", "answer": "Konrad Adenauer", "id": 60},
+    {"question": "Which year did the Berlin Wall fall?", "answer": "1989", "id": 61},
+    {"question": "Who was the first female Chancellor of Germany?", "answer": "Angela Merkel", "id": 62},
+    {"question": "Which empire was ruled by Suleiman the Magnificent?", "answer": "Ottoman Empire", "id": 63},
+    {"question": "Who was the first President of South Africa after apartheid?", "answer": "Nelson Mandela", "id": 64},
+    {"question": "Which war was fought between the North and South in the United States?", "answer": "Civil War", "id": 65},
+    {"question": "Who discovered penicillin?", "answer": "Alexander Fleming", "id": 66},
+    {"question": "Which ancient civilization built Machu Picchu?", "answer": "Inca", "id": 67},
+    {"question": "Who was the first emperor of the Roman Empire?", "answer": "Augustus", "id": 68},
+    {"question": "Which year did the French Revolution begin?", "answer": "1789", "id": 69},
+    {"question": "Who was the first man in space?", "answer": "Yuri Gagarin", "id": 70},
+    {"question": "Which country gifted the Statue of Liberty to the USA?", "answer": "France", "id": 71},
+    {"question": "Who was the first woman to win a Nobel Prize?", "answer": "Marie Curie", "id": 72},
+    {"question": "Which ancient civilization invented democracy?", "answer": "Greeks", "id": 73},
+    {"question": "Who was the British monarch during World War I?", "answer": "King George V", "id": 74},
+    {"question": "Which explorer led the first expedition to circumnavigate the globe?", "answer": "Ferdinand Magellan", "id": 75},
+    {"question": "Who was the first President of Russia after the fall of the Soviet Union?", "answer": "Boris Yeltsin", "id": 76},
+    {"question": "Which year did the Titanic sink?", "answer": "1912", "id": 77},
+    {"question": "Who was the first emperor of China?", "answer": "Qin Shi Huang", "id": 78},
+    {"question": "Which ancient civilization built the pyramids?", "answer": "Egyptians", "id": 79},
+    {"question": "Who was the first President of the United States?", "answer": "George Washington", "id": 80},
+    {"question": "Which year did World War II end?", "answer": "1945", "id": 81},
+    {"question": "Who was the first human to travel into space?", "answer": "Yuri Gagarin", "id": 82},
+    {"question": "Which country was formerly known as Siam?", "answer": "Thailand", "id": 83},
+    {"question": "Who was the first woman to fly solo across the Atlantic?", "answer": "Amelia Earhart", "id": 84},
+    {"question": "Which year did the Magna Carta get signed?", "answer": "1215", "id": 85},
+    {"question": "Who was the first king of England?", "answer": "Athelstan", "id": 86},
+    {"question": "Which ancient civilization invented the wheel?", "answer": "Sumerians", "id": 87},
+    {"question": "Who was the first Prime Minister of India?", "answer": "Jawaharlal Nehru", "id": 88},
+    {"question": "Which year did the American Civil War begin?", "answer": "1861", "id": 89},
+    {"question": "Who was the first emperor of Japan?", "answer": "Emperor Jimmu", "id": 90},
+    {"question": "Which explorer discovered America in 1492?", "answer": "Christopher Columbus", "id": 91},
+    {"question": "Who was the first woman to serve as Prime Minister of the UK?", "answer": "Margaret Thatcher", "id": 92},
+    {"question": "Which year did the first manned moon landing take place?", "answer": "1969", "id": 93},
+    {"question": "Who was the first President of France?", "answer": "Louis-Napoléon Bonaparte", "id": 94},
+    {"question": "Which ancient civilization built the Colosseum?", "answer": "Romans", "id": 95},
+    {"question": "Who was the first President of Turkey?", "answer": "Mustafa Kemal Atatürk", "id": 96},
+    {"question": "Which year did the United States enter World War I?", "answer": "1917", "id": 97},
+    {"question": "Who was the first President of Brazil?", "answer": "Deodoro da Fonseca", "id": 98},
+    {"question": "Which ancient civilization invented paper?", "answer": "Chinese", "id": 99},
+    {"question": "Who was the first President of South Korea?", "answer": "Syngman Rhee", "id": 100
+}
     ],
     "chemistry": [
         {"question": "What is the chemical symbol for gold?", "answer": "Au", "id": 1},
@@ -1803,11 +2317,21 @@
         "options": [
             "A) Boyle's Law",
             "B) Charles's Law",
-            "C) Avogadro's Law",
+             "C) Avogadro's Law",
             "D) Dalton's Law"
         ],
         "correct": "A",
         "id": 90
-    }
+    },
+    {"question": "What is the formula for Hydrochloric acid?", "answer": "HCl", "id": 91},
+    {"question": "What is the chemical formula for sulfuric acid?", "answer": "H2SO4", "id": 92},
+    {"question": "What is the chemical formula for nitric acid?", "answer": "HNO3", "id": 93},
+    {"question": "What is the chemical formula for acetic acid?", "answer": "CH3COOH", "id": 94},
+    {"question": "What is the chemical formula for phosphoric acid?", "answer": "H3PO4", "id": 95},
+    {"question": "What is the chemical formula for citric acid?", "answer": "C6H8O7", "id": 96},
+    {"question": "What is the chemical formula for carbonic acid?", "answer": "H2CO3", "id": 97},
+    {"question": "What is the chemical formula for boric acid?", "answer": "H3BO3", "id": 98},
+    {"question": "What is the chemical formula for hydrofluoric acid?", "answer": "HF", "id": 99},
+    {"question": "What is the chemical formula for hydrochloric acid?", "answer": "HCl", "id": 100}
     ]
   }
