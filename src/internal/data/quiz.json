@@ -1486,7 +1486,27 @@
       {"question": "Who was the first woman to serve as the Prime Minister of the United Kingdom?", "answer": "Margaret Thatcher", "id": 36},
       {"question": "Which famous English explorer sailed around the world in the 16th century?", "answer": "Sir Francis Drake", "id": 37},
       {"question": "Which country did the United States fight in the Vietnam War?", "answer": "North Vietnam", "id": 38},
-      {"question": "What year did the United States enter World War I?", "answer": "1917", "id": 39}
+      {"question": "What year did the United States enter World War I?", "answer": "1917", "id": 39},
+      {"question": "Who wrote the Declaration of Independence?", "answer": "Thomas Jefferson", "id": 40},
+      {"question": "Which ancient civilization built Machu Picchu?", "answer": "Inca", "id": 41},
+      {"question": "Who was the first female pharaoh of Egypt?", "answer": "Hatshepsut", "id": 42},
+      {"question": "Which war ended with the Treaty of Versailles?", "answer": "World War I", "id": 43},
+      {"question": "Who was the British Prime Minister during World War II?", "answer": "Winston Churchill", "id": 44},
+      {"question": "What year did the Magna Carta get signed?", "answer": "1215", "id": 45},
+      {"question": "Who was the first man to circumnavigate the globe?", "answer": "Ferdinand Magellan", "id": 46},
+      {"question": "Which empire was ruled by Alexander the Great?", "answer": "Macedonian Empire", "id": 47},
+      {"question": "Who was the founder of the Mongol Empire?", "answer": "Genghis Khan", "id": 48},
+      {"question": "Which city was the capital of the Byzantine Empire?", "answer": "Constantinople", "id": 49},
+      {"question": "Who was the first president of the Federal Republic of Germany?", "answer": "Theodor Heuss", "id": 50},
+      {"question": "Which event started World War I?", "answer": "Assassination of Archduke Franz Ferdinand", "id": 51},
+      {"question": "Who was the leader of the Soviet Union during the Cuban Missile Crisis?", "answer": "Nikita Khrushchev", "id": 52},
+      {"question": "Which civilization invented the first writing system?", "answer": "Sumerians", "id": 53},
+      {"question": "Who was the first emperor of Japan?", "answer": "Emperor Jimmu", "id": 54},
+      {"question": "Which explorer discovered the sea route to India?", "answer": "Vasco da Gama", "id": 55},
+      {"question": "Who was the first woman to win a Nobel Prize?", "answer": "Marie Curie", "id": 56},
+      {"question": "Which ancient civilization built the Colosseum?", "answer": "Romans", "id": 57},
+      {"question": "Who was the last Tsar of Russia?", "answer": "Nicholas II", "id": 58},
+      {"question": "Which country was formerly known as Persia?", "answer": "Iran", "id": 59}
     ],
     "chemistry": [
         {"question": "What is the chemical symbol for gold?", "answer": "Au", "id": 1},
@@ -1557,6 +1577,237 @@
         {"question": "What is the name of the process by which a solid turns into a liquid?", "answer": "Melting", "id": 66},
         {"question": "What is the name of the process by which a gas turns into a solid?", "answer": "Deposition", "id": 67},
         {"question": "What is the name of the process by which a solid turns directly into a gas?", "answer": "Sublimation", "id": 68},
-        {"question": "What is the name of the process by which a liquid turns directly into a gas?", "answer": "Vaporization", "id": 69}
+        {"question": "What is the name of the process by which a liquid turns directly into a gas?", "answer": "Vaporization", "id": 69},
+        {
+    "question": "Which element has the highest electronegativity?",
+        "options": [
+            "A) Oxygen",
+            "B) Fluorine",
+            "C) Nitrogen",
+            "D) Chlorine"
+        ],
+        "correct": "B",
+        "id": 70
+    },
+    {
+    "question": "What is the oxidation state of sulfur in sulfuric acid (H2SO4)?",
+        "options": [
+            "A) +2",
+            "B) +4",
+            "C) +6",
+            "D) -2"
+        ],
+        "correct": "C",
+        "id": 71
+    },
+    {
+    "question": "Which compound is NOT an organic molecule?",
+        "options": [
+            "A) Methane",
+            "B) Glucose",
+            "C) Sodium chloride",
+            "D) Ethanol"
+        ],
+        "correct": "C",
+        "id": 72
+    },
+    {
+    "question": "Which type of bond is found in sodium chloride (NaCl)?",
+        "options": [
+            "A) Covalent",
+            "B) Ionic",
+            "C) Metallic",
+            "D) Hydrogen"
+        ],
+        "correct": "B",
+        "id": 73
+    },
+    {
+    "question": "What is the main product of the Haber-Bosch process?",
+        "options": [
+            "A) Ammonia",
+            "B) Methane",
+            "C) Nitric acid",
+            "D) Sulfuric acid"
+        ],
+        "correct": "A",
+        "id": 74
+    },
+    {
+    "question": "Which acid is used in car batteries?",
+        "options": [
+            "A) Hydrochloric acid",
+            "B) Sulfuric acid",
+            "C) Nitric acid",
+            "D) Acetic acid"
+        ],
+        "correct": "B",
+        "id": 75
+    },
+    {
+    "question": "Which element is a liquid at room temperature?",
+        "options": [
+            "A) Bromine",
+            "B) Mercury",
+            "C) Both A and B",
+            "D) None"
+        ],
+        "correct": "C",
+        "id": 76
+    },
+    {
+    "question": "What is the molecular geometry of methane (CH4)?",
+        "options": [
+            "A) Linear",
+            "B) Trigonal planar",
+            "C) Tetrahedral",
+            "D) Octahedral"
+        ],
+        "correct": "C",
+        "id": 77
+    },
+    {
+    "question": "Which scientist is credited with the discovery of the electron?",
+        "options": [
+            "A) Ernest Rutherford",
+            "B) J.J. Thomson",
+            "C) Marie Curie",
+            "D) Niels Bohr"
+        ],
+        "correct": "B",
+        "id": 78
+    },
+    {
+    "question": "Which gas is produced when zinc reacts with hydrochloric acid?",
+        "options": [
+            "A) Oxygen",
+            "B) Nitrogen",
+            "C) Hydrogen",
+            "D) Carbon dioxide"
+        ],
+        "correct": "C",
+        "id": 79
+    },
+    {
+    "question": "Which of the following is NOT a noble gas?",
+        "options": [
+            "A) Argon",
+            "B) Neon",
+            "C) Xenon",
+            "D) Nitrogen"
+        ],
+        "correct": "D",
+        "id": 80
+    },
+    {
+    "question": "Which element is most commonly used as a semiconductor in electronics?",
+        "options": [
+            "A) Silicon",
+            "B) Carbon",
+            "C) Germanium",
+            "D) Copper"
+        ],
+    "correct": "A",
+    "id": 81
+    },
+    {
+    "question": "Which molecule is responsible for the green color in plants?",
+        "options": [
+            "A) Hemoglobin",
+            "B) Chlorophyll",
+            "C) Melanin",
+            "D) Keratin"
+        ],
+        "correct": "B",
+        "id": 82
+    },
+    {
+    "question": "Which of the following acids is a strong acid?",
+        "options": [
+            "A) Acetic acid",
+            "B) Hydrochloric acid",
+            "C) Citric acid",
+            "D) Carbonic acid"
+        ],
+        "correct": "B",
+        "id": 83
+    },
+    {
+    "question": "Which element has the highest melting point?",
+        "options": [
+            "A) Iron",
+            "B) Tungsten",
+            "C) Gold",
+            "D) Platinum"
+        ],
+        "correct": "B",
+        "id": 84
+    },
+    {
+    "question": "What is the main component of natural diamonds?",
+        "options": [
+            "A) Carbon",
+            "B) Silicon",
+            "C) Oxygen",
+            "D) Nitrogen"
+        ],
+        "correct": "A",
+        "id": 85
+    },
+    {
+    "question": "Which gas is used in fluorescent lamps?",
+        "options": [
+            "A) Neon",
+            "B) Argon",
+            "C) Krypton",
+            "D) Mercury vapor"
+        ],
+        "correct": "D",
+        "id": 86
+    },
+    {
+    "question": "Which chemical process converts glucose and oxygen into energy in cells?",
+        "options": [
+            "A) Photosynthesis",
+            "B) Fermentation",
+            "C) Cellular respiration",
+            "D) Hydrolysis"
+        ],
+        "correct": "C",
+        "id": 87
+    },
+    {
+    "question": "Which element is found in all amino acids?",
+        "options": [
+            "A) Phosphorus",
+            "B) Nitrogen",
+            "C) Sulfur",
+            "D) Calcium"
+        ],
+        "correct": "B",
+        "id": 88
+    },
+    {
+    "question": "Which of the following is an allotrope of carbon?",
+        "options": [
+            "A) Graphite",
+            "B) Quartz",
+            "C) Diamond",
+            "D) Both A and C"
+        ],
+        "correct": "D",
+        "id": 89
+    },
+    {
+    "question": "Which law states that the volume of a gas is inversely proportional to its pressure?",
+        "options": [
+            "A) Boyle's Law",
+            "B) Charles's Law",
+            "C) Avogadro's Law",
+            "D) Dalton's Law"
+        ],
+        "correct": "A",
+        "id": 90
+    }
     ]
   }
