@@ -545,7 +545,7 @@ async def handle_minigames_commands(client, message, user_message):
                 await message.channel.send(f"❌ '{word}' is not a valid word in {game['language']}!")
                 return
 
-            # Hole die Scrabble-Daten für die aktuelle Sprache
+            # Get the score for the played word in the current language
             scrabble_data = load_scrabble(game["language"])
             score = calculate_word_score(word, scrabble_data)
             game["scores"][message.author.id] += score
@@ -556,20 +556,20 @@ async def handle_minigames_commands(client, message, user_message):
 
             await message.channel.send(f"✅ {word} was played! You earned {score} points. 🎉")
 
-            # Zeige jedem Spieler seine neuen Buchstaben
+            # Show new hands of all players
             for player in game["players"]:
                 user = await client.fetch_user(player)
                 hand = " ".join(game["hands"][player])
                 await user.send(f"🎮 Your letters: {hand}")
 
-            # Prüfe, ob das Spiel zu Ende ist
+            # Check if game is over
             if not game["letter_pool"] and all(not hand for hand in game["hands"].values()):
                 results = "\n".join([f"<@{player}>: {score} points" for player, score in game["scores"].items()])
                 await message.channel.send(f"🏁 Scrabble game ended automatically!\n📊 Results:\n{results}")
                 del client.scrabble_game
             return
 
-        # Zeige Status des Spiels
+        # Show game status
         if user_message.startswith('!scrabble status'):
             if not hasattr(client, 'scrabble_game'):
                 await message.channel.send("❌ No Scrabble game is currently running!")
@@ -578,7 +578,7 @@ async def handle_minigames_commands(client, message, user_message):
             status = "\n".join([f"<@{player}>: {game['scores'][player]} points, Letters: {' '.join(game['hands'][player])}" for player in game["players"]])
             await message.channel.send(f"📊 Scrabble Status:\n{status}\nCurrent turn: <@{game['current_player']}>")
 
-        # Buchstaben tauschen
+        # Swap letters
         if user_message.startswith('!scrabble swap'):
             if not hasattr(client, 'scrabble_game'):
                 await message.channel.send("❌ No Scrabble game is currently running!")
@@ -599,7 +599,7 @@ async def handle_minigames_commands(client, message, user_message):
             # Next player
             game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
 
-        # Spiel beenden
+        # End the game
         if user_message.startswith('!scrabble end'):
             if hasattr(client, 'scrabble_game'):
                 del client.scrabble_game
