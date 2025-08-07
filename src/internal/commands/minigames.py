@@ -486,7 +486,7 @@ async def handle_minigames_commands(client, message, user_message):
 
             # Initialize the game
             letter_pool = []
-            for letter, data in scrabble_data.items():  # Entferne [language], da scrabble_data bereits die Daten enthält
+            for letter, data in scrabble_data.items():
                 letter_pool.extend([letter] * data["count"])
             random.shuffle(letter_pool)
 
@@ -568,3 +568,41 @@ async def handle_minigames_commands(client, message, user_message):
                 await message.channel.send(f"🏁 Scrabble game ended automatically!\n📊 Results:\n{results}")
                 del client.scrabble_game
             return
+
+        # Zeige Status des Spiels
+        if user_message.startswith('!scrabble status'):
+            if not hasattr(client, 'scrabble_game'):
+                await message.channel.send("❌ No Scrabble game is currently running!")
+                return
+            game = client.scrabble_game
+            status = "\n".join([f"<@{player}>: {game['scores'][player]} points, Letters: {' '.join(game['hands'][player])}" for player in game["players"]])
+            await message.channel.send(f"📊 Scrabble Status:\n{status}\nCurrent turn: <@{game['current_player']}>")
+
+        # Buchstaben tauschen
+        if user_message.startswith('!scrabble swap'):
+            if not hasattr(client, 'scrabble_game'):
+                await message.channel.send("❌ No Scrabble game is currently running!")
+                return
+            game = client.scrabble_game
+            if message.author.id != game["current_player"]:
+                await message.channel.send("❌ It's not your turn!")
+                return
+            swap_letters = user_message.split()[2:]
+            hand = game["hands"][message.author.id]
+            for letter in swap_letters:
+                if letter in hand:
+                    hand.remove(letter)
+                    game["letter_pool"].append(letter)
+            new_letters = draw_letters(game["letter_pool"], len(swap_letters))
+            hand += new_letters
+            await message.channel.send(f"🔄 Swapped letters! Your new hand: {' '.join(hand)}")
+            # Next player
+            game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
+
+        # Spiel beenden
+        if user_message.startswith('!scrabble end'):
+            if hasattr(client, 'scrabble_game'):
+                del client.scrabble_game
+                await message.channel.send("🏁 Scrabble game ended manually!")
+            else:
+                await message.channel.send("❌ No Scrabble game is currently running!")
