@@ -40,7 +40,7 @@ no_dm_commands = [
 async def handle_command(client, message):
     user_message = message.content.strip()
     
-    # Prüfe, ob der Befehl nicht im DM ausgeführt werden darf
+    # Check if the command can be executed in DM enviroment
     if message.guild is None:
         if any(user_message.startswith(cmd) for cmd in no_dm_commands):
             await message.channel.send("⚠️ This command cannot be executed in a DM enviroment.")
