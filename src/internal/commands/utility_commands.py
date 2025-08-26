@@ -389,14 +389,14 @@ async def handle_utility_commands(client, message, user_message):
                     if reminder_type == 'dm':
                         await message.author.send(f"🔔 **Reminder:** {reminder_text}")
                         logging.info(f"Reminder for {message.author} sent as DM: {reminder_text}")
-                    # Channel @everyone (nur wenn nicht DM)
+                    # Channel @everyone (Only if not DM)
                     elif reminder_type == 'everyone':
                         if isinstance(message.channel, discord.DMChannel):
                             await message.channel.send("❌ @everyone kann nicht in privaten Nachrichten verwendet werden.")
                             return
                         await message.channel.send(f"@everyone ⏰ **Erinnerung:** {reminder_text}")
                         logging.info(f"Reminder for everyone in channel {message.channel} sent: {reminder_text}")
-                    # Channel (nur User)
+                    # Channel (Only user)
                     else:
                         await message.channel.send(f"🔔 Hey {message.author.mention}, here's your reminder: {reminder_text}")
                         logging.info(f"Reminder for {message.author} sent in channel: {reminder_text}")
