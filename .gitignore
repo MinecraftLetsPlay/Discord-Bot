@@ -6,3 +6,5 @@ logs/
 #### other
 .vscode/
 Lavalink/
+ideas.txt
+console_to_discord.py
