@@ -1,57 +1,79 @@
 {
     "programming": {
         "easy": [
-            "java", "html", "css", "php", "rust", "ruby", "perl", "bash", "lua"
+            "java", "html", "css", "php", "rust", "ruby", "perl", "bash", "lua", "ajax", "json", "xml", "sql", "yaml", "sass", "less", "swift", "dart", "node", "vim"
         ],
         "medium": [
-            "python", "javascript", "typescript", "mongodb", "discord", "angular", "django", "docker", "flutter"
+            "python", "javascript", "typescript", "mongodb", "discord", "angular", "django", "docker", "flutter", "jquery", "react", "vue", "spring", "laravel", "express", "webpack", "gradle", "jenkins", "kotlin", "nginx"
         ],
         "hard": [
-            "kubernetes", "postgresql", "tensorflow", "microservices", "javascript", "development", "blockchain", "artificial", "framework"
+            "kubernetes", "postgresql", "tensorflow", "microservices", "javascript", "development", "blockchain", "artificial", "framework", "algorithm", "middleware", "serverless", "deployment", "encryption", "asynchronous", "authentication", "optimization", "dependency", "virtualization", "infrastructure"
         ]
     },
     "animals": {
         "easy": [
-            "cat", "dog", "rat", "pig", "cow", "hen", "owl", "ant"
+            "cat", "dog", "rat", "pig", "cow", "hen", "owl", "ant", "bee", "fox", "bat", "elk", "emu", "ram", "yak", "seal", "fish", "goat", "lion", "bear"
         ],
         "medium": [
-            "rabbit", "monkey", "turtle", "falcon", "spider", "donkey", "jaguar", "python"
+            "rabbit", "monkey", "turtle", "falcon", "spider", "donkey", "jaguar", "python", "zebra", "koala", "panda", "eagle", "shark", "tiger", "whale", "camel", "bison", "lemur", "sloth", "horse"
         ],
         "hard": [
-            "elephant", "crocodile", "butterfly", "hippopotamus", "rhinoceros", "chimpanzee", "orangutan"
+            "elephant", "crocodile", "butterfly", "hippopotamus", "rhinoceros", "chimpanzee", "orangutan", "platypus", "penguin", "kangaroo", "alligator", "gorilla", "pelican", "octopus", "dolphin", "giraffe", "antelope", "panther", "hamster", "squirrel"
         ]
     },
     "countries": {
         "easy": [
-            "usa", "uk", "spain", "iran", "iraq", "peru", "cuba", "mali"
+            "usa", "uk", "spain", "iran", "iraq", "peru", "cuba", "mali", "chad", "fiji", "italy", "chile", "syria", "ghana", "togo", "laos", "yemen", "qatar", "sudan", "nepal"
         ],
         "medium": [
-            "germany", "france", "canada", "mexico", "brazil", "japan", "china", "india"
+            "germany", "france", "canada", "mexico", "brazil", "japan", "china", "india", "russia", "poland", "turkey", "sweden", "norway", "finland", "iceland", "greece", "austria", "belgium", "morocco", "vietnam"
         ],
         "hard": [
-            "australia", "argentina", "kazakhstan", "switzerland", "netherlands", "bangladesh", "madagascar"
+            "australia", "argentina", "kazakhstan", "switzerland", "netherlands", "bangladesh", "madagascar", "indonesia", "philippines", "singapore", "zimbabwe", "azerbaijan", "uzbekistan", "kyrgyzstan", "tajikistan", "mauritania", "mozambique", "botswana", "ethiopia", "cameroon"
         ]
     },
     "gaming": {
         "easy": [
-            "wow", "cod", "cs", "dota", "fifa", "mario"
+            "wow", "cod", "cs", "dota", "fifa", "mario", "sims", "doom", "halo", "sonic", "xbox", "lego", "nfs", "rage", "prey", "apex", "rust", "roblox", "risk", "pong"
         ],
         "medium": [
-            "minecraft", "fortnite", "pokemon", "zelda", "portal", "skyrim"
+            "minecraft", "fortnite", "pokemon", "zelda", "portal", "skyrim", "destiny", "warcraft", "overwatch", "diablo", "borderlands", "bioshock", "fallout", "starcraft", "terraria", "undertale", "persona", "darksouls", "tetris", "halflife"
         ],
         "hard": [
-            "playstation", "counterstrike", "assassins creed", "final fantasy", "world of warcraft"
+            "playstation", "counterstrike", "assassins creed", "final fantasy", "world of warcraft", "red dead redemption", "mass effect", "metal gear solid", "grand theft auto", "league of legends", "super mario galaxy", "devil may cry", "monster hunter", "resident evil", "silent hill", "dark souls", "bloodborne", "sekiro", "elden ring", "cyberpunk"
         ]
     },
     "food": {
         "easy": [
-            "pie", "cake", "fish", "meat", "egg", "rice", "milk"
+            "pie", "cake", "fish", "meat", "egg", "rice", "milk", "ham", "soup", "corn", "bread", "pear", "tuna", "salt", "apple", "plum", "bean", "beef", "pork", "wrap"
         ],
         "medium": [
-            "pizza", "burger", "cheese", "salad", "cookie", "pasta", "sushi"
+            "pizza", "burger", "cheese", "salad", "cookie", "pasta", "sushi", "ramen", "taco", "curry", "steak", "donut", "kebab", "wings", "gyros", "waffle", "bagel", "muffin", "crepe", "nachos"
         ],
         "hard": [
-            "spaghetti", "lasagna", "croissant", "chocolate", "strawberry", "vegetables", "pineapple"
+            "spaghetti", "lasagna", "croissant", "chocolate", "strawberry", "vegetables", "pineapple", "quesadilla", "carbonara", "bruschetta", "guacamole", "enchilada", "tiramisu", "cappuccino", "margarita", "bolognese", "parmesan", "prosciutto", "pepperoni", "mozzarella"
+        ]
+    },
+    "sports": {
+        "easy": [
+            "golf", "swim", "run", "ski", "bike", "jump", "dive", "surf", "box", "judo", "yoga", "sail", "race", "bowl", "dart", "polo", "row", "lift", "spar", "trek"
+        ],
+        "medium": [
+            "tennis", "soccer", "hockey", "boxing", "skiing", "rowing", "cycling", "running", "diving", "archery", "skating", "climbing", "fencing", "cricket", "curling", "frisbee", "bowling", "parkour", "sailing", "surfing"
+        ],
+        "hard": [
+            "basketball", "volleyball", "badminton", "gymnastics", "wrestling", "skateboard", "snowboard", "taekwondo", "waterpolo", "triathlon", "equestrian", "paragliding", "windsurfing", "paddleboard", "racquetball", "powerlifting", "bobsledding", "decathlon", "pentathlon", "marathon"
+        ]
+    },
+    "movies": {
+        "easy": [
+            "star", "jaws", "alien", "rocky", "speed", "blade", "ghost", "shaft", "seven", "taken", "cube", "heat", "drive", "sing", "troy", "brave", "shark", "cars", "up", "saw"
+        ],
+        "medium": [
+            "avatar", "matrix", "gladiator", "inception", "titanic", "goodfellas", "terminator", "interstellar", "frozen", "kingsman", "deadpool", "gravity", "starwars", "batman", "topgun", "godzilla", "aquaman", "joker", "venom", "pixels"
+        ],
+        "hard": [
+            "jurassic park", "lord of the rings", "back to the future", "forrest gump", "fight club", "the godfather", "pulp fiction", "saving private ryan", "the green mile", "the dark knight", "schindlers list", "million dollar baby", "the sixth sense", "american beauty", "good will hunting", "silence of the lambs", "catch me if you can", "eternal sunshine", "requiem for a dream", "the usual suspects"
         ]
     }
 }
