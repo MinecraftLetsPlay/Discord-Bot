@@ -59,7 +59,7 @@ Sharing or using this sourcecode is prohibited without permission.
 ## Authors
 
 - Minecraft Lets Play (@MinecraftLetsPlay) => Dennis Plischke
-- olittlefoxE (@olittlefoxE)
+- Jirasrel (@Jirasrel)
 
 ## License
 
