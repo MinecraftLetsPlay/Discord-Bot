@@ -1,70 +1,72 @@
-# MCLP Discord Bot
+# 🤖 MCLP Discord Bot  
 
-A feature-rich Discord bot built with Discord.py, providing moderation tools, utility commands, minigames, and more. This bot is designed for private server use with sophisticated permission handling and logging capabilities.
+A **feature-rich** Discord bot built with [Discord.py](https://discordpy.readthedocs.io/en/stable/), providing  
+🔒 Moderation tools, 🎮 Minigames, 🛠️ Utility commands, and more!  
+Designed for **private server use** with sophisticated permission handling and logging.  
 
-## Core Functionality
+---
 
-### Source Files Overview
+## ✨ Core Functionality  
 
-- `bot.py` - Main bot initialization and event handling (Core functionality)
-- `main.py` - Entry point and logging configuration (Main entry point)
-- `console_to_discord.py` - Enables console-to-Discord messaging
-- `command_router.py` - Routes commands to appropriate handlers
+### 📂 Source Files  
+- `bot.py` – 🔧 Main bot initialization and event handling  
+- `main.py` – 📝 Entry point & logging configuration  
+- `console_to_discord.py` – 💬 Console ↔ Discord messaging  
+- `command_router.py` – 🚦 Command routing system  
 
-### Command Modules
+### 🗂️ Command Modules  
+- `moderation_commands.py` – 🔒 Kick, Ban, Timeout  
+- `minigames.py` – 🎮 RPS, Hangman, Quiz  
+- `utility_commands.py` – 🛠️ Weather, Time, etc.  
+- `public_commands.py` – 👥 Help, Info  
+- `system_commands.py` – 🖥️ Admin controls  
+- `calculator.py` – ➗ Advanced calculator  
+- `mcserver_commands.py` – ⛏️ Minecraft-Server controls (Nitrado API)  
 
-- `moderation_commands.py` - Handles user management (kick/ban/timeout)
-- `minigames.py` - Implements various games (RPS, Hangman, Quiz)
-- `utility_commands.py` - Provides utility features (weather, time, etc.)
-- `public_commands.py` - Basic user commands (help, info, etc.)
-- `system_commands.py` - Administrative system controls
-- `calculator.py` - Provides extensive calculator functionality
-- `mcserver_commands.py` - Provides Minecraft-Server control functionality (Nitrado API)
+### 🔌 Support Modules  
+- `utils.py` – 🧩 Helper functions  
+- `logging_setup.py` – 📜 Advanced logging with rotation  
 
-### Support Modules
+---
 
-- `utils.py` - Helper functions and data management
-- `logging_setup.py` - Configures comprehensive logging system and log-file handler
+## 🚧 Features Under Development  
+- 🎵 **Music Bot Features** – Voice channel audio with YTMusic  
 
-## Features Under Development
+---
 
-- **Music Bot Features**: Voice channel audio - YTMusic
+## ⚙️ Tech Stack  
 
-## Tech Stack
+- 🐍 **Python 3.11.4**  
+- 💬 **Discord.py 2.4.0**  
+- 🔊 **PyNaCl 1.5.0** (voice support)  
+- 🌐 **aiohttp 3.11.11**  
+- 🔑 **python-dotenv 1.0.1**  
+- 📐 **sympy 1.12** (advanced math)  
 
-### Core Technologies
+**Development Tools:**  
+- 📦 JSON (data storage)  
+- ⏳ Asyncio (async operations)  
+- 📝 Logging system (with rotation)  
 
-- Python 3.11.4 - Python enviroment
-- Discord.py 2.4.0 - Discord API Wrapper
-- PyNaCl 1.5.0 (for voice support)
-- aiohttp 3.11.11 - Websocket connection
-- python-dotenv 1.0.1 - Enviroment files
-- sympy 1.12 - Advanced calc. functionality
+---
 
-### Development Tools
+## 🛠️ Setup  
 
-- JSON for data storage
-- Asyncio for asynchronous operations
-- Logging system with rotation
+See [`requirements.txt`](./requirements.txt) for full dependencies.  
 
-## Setup Requirements
+---
 
-See [`requirements`](./requirements.txt) for detailed dependencies.
+## 🔒 License  
 
-## Contributing
+📜 **Private License** – All rights reserved.  
+Permission is granted to view the source code for **personal reference and educational purposes only**.  
+🚫 Any other use (copy, modify, distribute, commercial) requires prior written consent.  
 
-This is a private bot project. While the code is visible for educational purposes, we do not accept direct contributions without prior discussion.
-Sharing or using this sourcecode is prohibited without permission.
+[`license.txt`](./license.txt)
 
-## Authors
+---
 
-- Minecraft Lets Play (@MinecraftLetsPlay) => Dennis Plischke
-- Jirasrel (@Jirasrel)
+## 👥 Authors  
 
-## License
-
-Copyright © 2025 Dennis Plischke
-
-[`license`](./license.txt)
-
-All rights reserved.
+- 🧑‍💻 Minecraft Lets Play (@MinecraftLetsPlay) → Dennis Plischke  
+- 👨‍💻 Jirasrel (@Jirasrel)  
