@@ -14,7 +14,6 @@ async def handle_public_commands(client, message, user_message):
     config = utils.load_config()
 
     # !help command
-    # !help command
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
