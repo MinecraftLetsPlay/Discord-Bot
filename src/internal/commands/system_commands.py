@@ -127,7 +127,6 @@ def setup_system_commands(bot):
         if is_authorized(interaction.user):
             await interaction.response.send_message("Shutting down the bot...")
             log_.info(f"System: Shutdown command executed by: {interaction.user}")
-            # discord.status = discord.Status.offline  # Entfernen, gibt es nicht!
             await bot.close()
         else:
             embed = discord.Embed(
@@ -152,7 +151,6 @@ def setup_system_commands(bot):
                 await bot.wait_for("reaction_add", timeout=30.0, check=check)
                 await interaction.response.send_message("Shutting down the bot and the Raspberry Pi...")
                 log_.info(f"System: Full shutdown command executed by: {interaction.user}")
-                # discord.status = discord.Status.offline  # Entfernen, gibt es nicht!
                 await bot.close()
                 os.system("sudo shutdown now")
             except asyncio.TimeoutError:
