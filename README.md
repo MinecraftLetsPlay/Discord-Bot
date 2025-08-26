@@ -65,5 +65,9 @@ Sharing or using this sourcecode is prohibited without permission.
 
 Copyright © 2025 Dennis Plischke
 
-Private use only. All rights reserved.
+All rights reserved.
+
+This project and its source code are proprietary and confidential.
+Unauthorized copying, distribution, modification, or use of this software
+is strictly prohibited without explicit permission from the author.
 
