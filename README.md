@@ -9,8 +9,8 @@ Designed for **private server use** with sophisticated permission handling and l
 ## ✨ Core Functionality  
 
 ### 📂 Source Files  
-- `bot.py` – 🔧 Main bot initialization and event handling  
-- `main.py` – 📝 Entry point & logging configuration  
+- `main.py` – 📝 Entry point & logging configuration
+- `bot.py` – 🔧 Main bot initialization and event handling   
 - `console_to_discord.py` – 💬 Console ↔ Discord messaging  
 - `command_router.py` – 🚦 Command routing system  
 
