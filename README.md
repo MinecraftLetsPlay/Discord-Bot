@@ -65,4 +65,6 @@ Sharing or using this sourcecode is prohibited without permission.
 
 Copyright © 2025 Dennis Plischke
 
+[`license`](./license.txt)
+
 All rights reserved.
