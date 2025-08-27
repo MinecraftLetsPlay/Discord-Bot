@@ -1,10 +1,10 @@
 #### python
 .env
 __pycache__/
-logs/
 .venv/
+console_to_discord.py
 #### other
 .vscode/
 Lavalink/
 ideas.txt
-console_to_discord.py
+logs/
