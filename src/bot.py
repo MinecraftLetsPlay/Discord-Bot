@@ -80,13 +80,15 @@ def run_discord_bot():
         # Pass the client object to handle_command
         try:
             response = await command_router.handle_command(bot, message)
-            if response is not None:  # Check for none response
-                if message.guild is None:
+            if response is not None:  # Check for a valid response
+                # Log the response based on channel type
+                if message.guild is None:  # DM
                     if LoggingActivated:
                         logging.info(f'{bot.user} said: "{response}" (DM / {channel})')
-                else:
+                else:  # Server
                     if LoggingActivated:
                         logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
+                # Send the response
                 await message.channel.send(response)
         except Exception as e:
             logging.error(f"❌ Error handling message: {e}")
