@@ -163,6 +163,13 @@ async def is_valid_word(word, language):
         logging.error(f"❌ Error connecting to dictionary API: {e}")
         return False
 
+def check_answer(question, user_answer):
+    # If the question has multiple correct answers
+    if "answers" in question:
+        return any(user_answer.lower() == ans.lower() for ans in question["answers"])
+    # If the question has a single correct answer
+    return user_answer.lower() == question["answer"].lower()
+
 # ----------------------------------------------------------------
 # Main command handler
 # ----------------------------------------------------------------

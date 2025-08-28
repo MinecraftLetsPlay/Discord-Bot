@@ -1615,7 +1615,7 @@
         {"question": "In 'Minecraft', what is the name of the item used to create a map?", "answer": "Paper", "id": 23},
         {"question": "In 'Minecraft', what is the name of the rarest ore?", "answer": "Emerald", "id": 24},
         {"question": "In 'Minecraft', what is the name of the boss found in The End?", "answer": "Ender Dragon", "id": 25},
-        {"question": "In 'Minecraft', what is the name of the boss found in The Nether?", "answer": "Wither", "id": 26},
+        {"question": "In 'Minecraft', what is the name of the boss that needs ressources from the Nether?", "answer": "Wither", "id": 26},
         {"question": "In 'Horizon Zero Dawn', what is the name of the protagonist?", "answer": "Aloy", "id": 27},
         {"question": "In 'Horizon Zero Dawn', what is the name of the tribe Aloy belongs to?", "answer": "Nora", "id": 28},
         {"question": "In 'Horizon Zero Dawn', what is the name of the main antagonist?", "answer": "Hades", "id": 29},
