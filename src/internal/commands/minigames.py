@@ -75,24 +75,28 @@ async def get_quiz_question(category=None):
     if not category or category not in categories:
         category = random.choice(categories)
 
-    questions = quiz_data.get(category, [])
+    # If category is "random", pool from all categories
+    if category == "random":
+        all_questions = []
+        for cat in categories:
+            all_questions.extend(quiz_data[cat])
+        questions = all_questions
+    else:
+        questions = quiz_data.get(category, [])
+
     if not questions:
         logging.error(f"❌ No questions found for category '{category}'.")
         return None, None
 
-    # Filter out questions that have already been asked
     available_questions = [q for q in questions if q['id'] not in asked_questions]
 
     if not available_questions:
-        # If all questions have been asked, reset the list and start over
         asked_questions.clear()
         available_questions = questions
 
-    # Select a random question from the available ones
     question = random.choice(available_questions)
     asked_questions.append(question['id'])
 
-    # Debugging: Print the list of asked question IDs
     logging.debug(f"Asked questions: {asked_questions}")
 
     return question, category
