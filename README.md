@@ -9,22 +9,22 @@ Designed for **private server use** with sophisticated permission handling and l
 ## ✨ Core Functionality  
 
 ### 📂 Source Files  
-- `main.py` – 📝 Entry point & logging configuration
+- `main.py` – 📝 Entry point
 - `bot.py` – 🔧 Main bot initialization and event handling   
 - `console_to_discord.py` – 💬 Console ↔ Discord messaging  
 - `command_router.py` – 🚦 Command routing system  
 
 ### 🗂️ Command Modules  
 - `moderation_commands.py` – 🔒 Kick, Ban, Timeout  
-- `minigames.py` – 🎮 RPS, Hangman, Quiz  
-- `utility_commands.py` – 🛠️ Weather, Time, etc.  
-- `public_commands.py` – 👥 Help, Info  
-- `system_commands.py` – 🖥️ Admin controls  
-- `calculator.py` – ➗ Advanced calculator  
+- `minigames.py` – 🎮 RPS, Hangman, Quiz, scrabble etc
+- `utility_commands.py` – 🛠️ Weather, Time, reminder etc.  
+- `public_commands.py` – 👥 Help, Info and some public commands
+- `system_commands.py` – 🖥️ Admin controls and system commands
+- `calculator.py` – ➗ Advanced calculator with eqaution solving
 - `mcserver_commands.py` – ⛏️ Minecraft-Server controls (Nitrado API)  
 
 ### 🔌 Support Modules  
-- `utils.py` – 🧩 Helper functions  
+- `utils.py` – 🧩 Helper functions for loading data
 - `logging_setup.py` – 📜 Advanced logging with rotation  
 
 ---
