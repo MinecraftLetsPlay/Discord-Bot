@@ -53,6 +53,28 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ---
 
+## 🌐 APIs & Data Sources
+
+- **Discord API (Gateway & REST)** → Login, Chat, Slash Commands, Events
+
+- **Discord Voice API** → Voice support (via PyNaCl)
+
+- **Cat Fact API** → https://catfact.ninja/fact → random cat facts
+
+- **Free Dictionary API** → https://api.dictionaryapi.dev/api/v2/entries/en/ & /de/
+  – dictionary (English & German)
+
+- **OpenWeatherMap API** → http://api.openweathermap.org/data/2.5/weather
+  – real-time weather data
+
+- **NASA API** → https://api.nasa.gov/planetary/earth/imagery
+  – satellite imagery (⚠️ currently unavailable → Earthdata GIBS API will be used in the future)
+
+- **Nitrado API** → https://api.nitrado.net/services/
+  – game server management
+
+Local JSON files → internal data storage for quiz, scrabble, etc.
+
 ## 🛠️ Setup  
 
 See [`requirements.txt`](./requirements.txt) for full dependencies.  
