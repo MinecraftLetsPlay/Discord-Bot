@@ -37,16 +37,19 @@ Designed for **private server use** with sophisticated permission handling and l
 ## ⚙️ Tech Stack  
 
 - 🐍 **Python 3.11.4**  
-- 💬 **Discord.py 2.4.0**  
-- 🔊 **PyNaCl 1.5.0** (voice support)  
-- 🌐 **aiohttp 3.11.11**  
-- 🔑 **python-dotenv 1.0.1**  
-- 📐 **sympy 1.12** (advanced math)  
+- 💬 **Discord.py 2.6.3**  
+- 🔊 **PyNaCl 1.6.0** (voice support)  
+- 🌐 **aiohttp 3.12.15** (HTTP/WebSocket)  
+- ⏳ **asyncio 4.0.0** (async operations)  
+- 🔑 **python-dotenv 1.1.1** (environment variables)  
+- 📐 **sympy 1.14.0** (advanced math & calculator)  
+- 📅 **DateTime 5.5** (time-based utilities)  
+- 🌍 **pytz 2025.2** (timezone handling)  
 
 **Development Tools:**  
-- 📦 JSON (data storage)  
-- ⏳ Asyncio (async operations)  
-- 📝 Logging system (with rotation)  
+- 📦 **JSON** (lightweight data storage: configs, quiz data, scrabble)  
+- 📝 **Logging system with rotation** (auto log management, error tracing)  
+- 🔄 **Virtual Environment (venv)** for isolated dependencies
 
 ---
 
