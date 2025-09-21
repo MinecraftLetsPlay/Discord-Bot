@@ -9,6 +9,27 @@ from internal import utils
 #
 #
 
+# Component test function for public commands
+async def component_test():
+
+    status = "🟩"
+    messages = []
+
+    # Test 1: Rules Channel in Config
+    config = utils.load_config()
+    rules_channel = config.get("rules_channel_name", None)
+    if not rules_channel:
+        status = "🟨"
+        messages.append("Warning: No rules channel found in config.")
+    else:
+        messages.append(f"Rules Channel in config: {rules_channel}")
+
+    return {"status": status, "msg": " | ".join(messages)}
+
+# ----------------------------------------------------------------
+# Main command handler
+# ----------------------------------------------------------------
+
 # Main def for handling public commands
 async def handle_public_commands(client, message, user_message):
     config = utils.load_config()
@@ -139,3 +160,5 @@ async def handle_public_commands(client, message, user_message):
         else:
             await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")
             logging.warning("Failed to fetch a cat fact.")
+
+

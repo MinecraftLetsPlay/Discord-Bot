@@ -12,6 +12,12 @@ from sympy import solve, symbols, parse_expr, sympify, Number
 #
 #
 
+def component_test():
+    status = "🟩"
+    messages = ["Calculator module loaded."]
+    
+    return {"status": status, "msg": " | ".join(messages)}
+
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
 

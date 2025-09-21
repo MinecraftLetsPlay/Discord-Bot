@@ -33,6 +33,24 @@ if not os.path.exists(log_directory):
     except PermissionError as e:
         print(f"Permission denied: {e}")
         sys.exit(1)
+        
+def component_test():
+    status = "🟩"
+    messages = []
+
+    # 1. Load config
+    try:
+        cfg = utils.load_config()
+        if not cfg:
+            status = "🟧"
+            messages.append("Warning: config.json missing or empty.")
+        else:
+            messages.append("config.json loaded.")
+    except Exception as e:
+        status = "🟥"
+        messages.append(f"Error loading config.json: {e}")
+        
+    return {"status": status, "msg": " | ".join(messages)}
 
 # Global variable to control logging
 LoggingActivated = config.get("LoggingActivated")

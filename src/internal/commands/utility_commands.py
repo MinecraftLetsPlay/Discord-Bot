@@ -20,6 +20,22 @@ from internal.commands.calculator import handle_calc_command
 # Load environment variables from .env file
 load_dotenv()
 
+def component_test():
+    status = "🟩"
+    messages = ["Utility commands module loaded."]
+
+    # Test 1: OPENWEATHERMAP_API_KEY present?
+    if not os.getenv("OPENWEATHERMAP_API_KEY"):
+        status = "🟧"
+        messages.append("Warning: OPENWEATHERMAP_API_KEY not present in .env file.")
+
+    # Test 2: NASA_API_KEY present?
+    if not os.getenv("NASA_API_KEY"):
+        status = "🟧"
+        messages.append("Warning: NASA_API_KEY not present in .env file.")
+        
+    return {"status": status, "msg": " | ".join(messages)}
+
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
     
@@ -471,7 +487,8 @@ async def handle_utility_commands(client, message, user_message):
             }
 
             # Send the request to the NASA API
-            async with aiohttp.ClientSession() as session:
+            timeout = aiohttp.ClientTimeout(total=60)  # 60 Seconds
+            async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.get(base_url, params=params) as response:
                     if response.status == 200:
                         # Get the image URL from the response

@@ -5,5 +5,6 @@ from internal.commands.logging_setup import setup_logging
 if __name__ == '__main__':
     # Initialize logging first
     logger = setup_logging()
+    print()
     logger.info("Logging set up! Starting bot...")
     bot.run_discord_bot()

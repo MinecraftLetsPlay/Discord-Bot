@@ -9,6 +9,40 @@ from internal import utils
 #
 #
 
+def component_test():
+    status = "🟩"
+    messages = []
+
+    # Test 1: Check if config.json exists and is valid
+    try:
+        config = utils.load_config()
+        if not config:
+            status = "🟧"
+            messages.append("Warning: config.json is missing or empty.")
+        else:
+            messages.append("config.json loaded.")
+    except Exception as e:
+        status = "🟥"
+        messages.append(f"Error loading config.json: {e}")
+
+    # Test 2: Check if reactionrole.json exists and is valid
+    try:
+        reaction_role_data = utils.load_reaction_role_data()
+        if reaction_role_data is None:
+            status = "🟧"
+            messages.append("Warning: reactionrole.json is missing or empty.")
+        else:
+            messages.append("reactionrole.json loaded.")
+    except Exception as e:
+        status = "🟥"
+        messages.append(f"Error loading reactionrole.json: {e}")
+
+    return {"status": status, "msg": " | ".join(messages)}
+
+# ----------------------------------------------------------------
+# Main command handler
+# ----------------------------------------------------------------
+
 def is_authorized(user):
     # Check if the user is authorized to execute moderation commands
     try:

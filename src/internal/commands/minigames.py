@@ -10,7 +10,7 @@ from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils funct
 hangman_data = None
 quiz_data = None
 scrabble_data = {}
-supported_languages = ['En', 'De'] # Supported languages for scrabble
+supported_languages = ['En','De'] # Supported languages for scrabble
 
 # Initialize game data / load it from JSON files -> Utils.py
 def initialize_game_data():
@@ -39,6 +39,35 @@ asked_questions = []
 # ----------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------
+
+async def component_test():
+    status = "🟩"
+    messages = []
+
+    # Use existing initialization
+    try:
+        initialize_game_data()
+        if not hangman_data:
+            status = "🟧"
+            messages.append("Warning: Hangman data missing or empty.")
+        else:
+            messages.append("Hangman data loaded.")
+        if not quiz_data:
+            status = "🟧"
+            messages.append("Warning: Quiz data missing or empty.")
+        else:
+            messages.append("Quiz data loaded.")
+        for lang in supported_languages:
+            if not scrabble_data.get(lang):
+                status = "🟧"
+                messages.append(f"Warning: Scrabble data for {lang} missing or empty.")
+            else:
+                messages.append(f"Scrabble data for {lang} loaded.")
+    except Exception as e:
+        status = "🟥"
+        messages.append(f"Error during data initialization: {e}")
+        
+    return {"status": status, "msg": " | ".join(messages)}
 
 # get data from hangman.json for hangman game
 async def get_hangman_word(difficulty=None):
@@ -389,7 +418,7 @@ async def handle_minigames_commands(client, message, user_message):
                 try:
                     answer_message = await client.wait_for(
                         'message',
-                        timeout=30.0,
+                        timeout=40.0,
                         check=lambda m: m.author == message.author
                     )
                     # Compare the answer

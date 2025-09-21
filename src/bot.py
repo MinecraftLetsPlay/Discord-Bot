@@ -3,6 +3,7 @@ import logging # Logging support
 import os
 import sys
 import nacl  # PyNaCl for voice support
+import asyncio
 from dotenv import load_dotenv
 from discord.ext import commands
 from internal import utils
@@ -32,10 +33,24 @@ def run_discord_bot():
     intents.presences = True
 
     bot = commands.Bot(command_prefix='!', intents=intents)
+    
+    async def run_component_tests():
+        print()
+        print("Component Test:")
+        results = await command_router.component_test()
+        for name, result in results:
+            print(f"Hello from {name}:")
+            print(f"  Status: {result['status']} {result['msg']}")
+            
+        print()
+        return results
+    
+    asyncio.run(run_component_tests())
 
     # Check for the bot to be ready
     @bot.event
     async def on_ready():
+        print()
         logging.info(f'✅ {bot.user} is now running!')
         print()
         logging.info("--------------------------")
@@ -46,7 +61,8 @@ def run_discord_bot():
         logging.info(f"Logging activated: {config.get('LoggingActivated', True)}")
         logging.info("--------------------------")
         print()
-        # Set the bot's status to "hört euren Befehlen zu"
+        
+        # Set the bots status to "Listening to your commands"
         activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
         await bot.change_presence(activity=activity)
         # Sync the slash commands with Discord

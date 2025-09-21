@@ -1,5 +1,6 @@
 import os
 import aiohttp
+import asyncio
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -10,6 +11,19 @@ from internal.commands.system_commands import is_authorized  # Import the is_aut
 # Minecraft Server Commands
 #
 #
+
+def component_test():
+    
+    status = "🟩"
+    messages = []
+
+    api_key = os.getenv("NITRADO_API_KEY")
+    service_id = os.getenv("NITRADO_SERVICE_ID")
+    if not api_key or not service_id:
+        status = "🟧"
+        messages.append("Warning: Nitrado API key or Service ID not present in .env file.")
+
+    return {"status": status, "msg": " | ".join(messages)}
 
 # Load environment variables
 load_dotenv()
