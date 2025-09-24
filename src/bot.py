@@ -16,8 +16,10 @@ from internal import command_router
 #
 #
 
+start = time.perf_counter()
+
 def run_discord_bot():
-    start = time.time()
+    
     # Load environment variables from .env file
     load_dotenv()
 
@@ -39,17 +41,13 @@ def run_discord_bot():
     
     # Run component tests before starting the bot
     async def run_component_tests():
-        cp_start = time.time()
         print()
         print("Component Test:")
         results = await command_router.component_test()
         for name, result in results:
             print(f"Hello from {name}:")
             print(f"  Status: {result['status']} {result['msg']}")
-            
         print()
-        cp_duration = time.time() - cp_start
-        logging.info(f"Component tests completed in {cp_duration:.2f} seconds.")
         return results
     
     if DebugModeActivated:
@@ -58,6 +56,8 @@ def run_discord_bot():
     # Check for the bot to be ready
     @bot.event
     async def on_ready():
+        duration = time.perf_counter() - start
+        logging.info(f"Bot ready after {duration:.2f} seconds.")
         print()
         logging.info(f'✅ {bot.user} is now running!')
         print()
@@ -178,6 +178,4 @@ def run_discord_bot():
     from internal.commands.utility_commands import setup_utility_commands
     setup_utility_commands(bot)
     
-    total_duration = time.time() - start
-    logging.info(f"Startup completed in {total_duration:.2f} seconds.")
     bot.run(TOKEN)

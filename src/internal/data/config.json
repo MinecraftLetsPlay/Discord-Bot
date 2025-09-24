@@ -10,5 +10,5 @@
         "logs": "/home/dennis/Desktop/Storage/Logs"
     },
     "LoggingActivated": true,
-    "DebugModeActivated": false
+    "DebugModeActivated": true
 }

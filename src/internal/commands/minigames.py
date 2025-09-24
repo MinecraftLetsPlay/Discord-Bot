@@ -4,7 +4,6 @@ import asyncio
 import aiohttp
 import logging
 import string
-import time
 from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils functions for loading data
 
 # Global variables to store game data
@@ -15,7 +14,6 @@ supported_languages = ['En','De'] # Supported languages for scrabble
 
 # Initialize game data / load it from JSON files -> Utils.py
 def initialize_game_data():
-    igd_start = time.time()
     global hangman_data, quiz_data, scrabble_data
     hangman_data = load_hangman()
     quiz_data = load_quiz()
@@ -31,9 +29,6 @@ def initialize_game_data():
             logging.error(f"❌ Failed to load Scrabble data for {lang}.")
             scrabble_data[lang] = {}  # Set empty data if loading failed
             logging.debug(f"Loaded Scrabble data for {lang}: {scrabble_data[lang]}")
-            
-    igd_duration = time.time() - igd_start
-    logging.debug(f"Game data initialized in {igd_duration:.2f} seconds.")
 
 # Initialize game data when the bot starts
 initialize_game_data()
