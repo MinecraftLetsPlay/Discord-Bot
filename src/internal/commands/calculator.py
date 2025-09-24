@@ -301,7 +301,7 @@ async def send_calculation_result(message, original_expression, result):
     embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use the last result!!")
 
     await message.channel.send(embed=embed)
-    logging.info(f"Calculation performed for {message.author}: {original_expression} = {result}")
+    logging.debug(f"Calculation performed for {message.author}: {original_expression} = {result}")
 
 async def send_help_message(message):
     """Sends the help message for the calculator"""

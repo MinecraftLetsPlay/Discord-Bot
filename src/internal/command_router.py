@@ -113,6 +113,8 @@ async def handle_command(client, message):
     # Handle other commands
     for group, commands in command_groups.items():
         if any(user_message.startswith(cmd) for cmd in commands):
+            handler = command_handlers[group]
+            logging.debug(f"[Debug] Routing command '{user_message}' to handler '{handler.__name__}'")
             try:
                 return await command_handlers[group](client, message, user_message)
             except Exception as e:

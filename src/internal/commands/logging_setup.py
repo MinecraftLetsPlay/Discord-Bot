@@ -32,6 +32,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
 def setup_logging():
     # Load configuration
     config = utils.load_config()
+    debug_mode = config.get("DebugModeActivated", False)
     log_directory = config.get("log_file_location")
 
     # Fallback, falls log_directory nicht gesetzt ist
@@ -66,12 +67,12 @@ def setup_logging():
         encoding="utf-8"
     )
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.DEBUG if debug_mode else logging.INFO)
 
     # Setup console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.DEBUG if debug_mode else logging.INFO)
 
     # Add handlers to root logger
     root_logger.addHandler(file_handler)

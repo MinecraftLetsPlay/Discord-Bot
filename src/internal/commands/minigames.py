@@ -261,7 +261,7 @@ async def handle_minigames_commands(client, message, user_message):
 
                 if guess == number:
                     await message.channel.send(f"Correct! The number was {number}. You took {tries} tries!")
-                    logging.info(f"Correct! The number was {number}. User took {tries} tries!")
+                    logging.debug(f"Correct! The number was {number}. User took {tries} tries!")
                     return
                 elif guess < number:
                     await message.channel.send("Higher!")
@@ -318,7 +318,7 @@ async def handle_minigames_commands(client, message, user_message):
 
             if display == word:  # Check if the word has been fully guessed
                 await message.channel.send("🎉 You win! The word has been guessed!")
-                logging.info("🎉 Hangman: The word has been guessed!")
+                logging.debug("🎉 Hangman: The word has been guessed!")
                 return
 
             try:
@@ -345,7 +345,7 @@ async def handle_minigames_commands(client, message, user_message):
                     await message.channel.send(f"❌ Your letter, '{letter}', is not in the word.")
                     if tries == 0:
                         await message.channel.send(f"💀 Game Over! The word was: {word}")
-                        logging.info(f"💀 Hangman: Game Over! The word was: {word}")
+                        logging.debug(f"💀 Hangman: Game Over! The word was: {word}")
                         return
 
             except asyncio.TimeoutError:
@@ -489,9 +489,9 @@ async def handle_minigames_commands(client, message, user_message):
                     value=f"{avg:.2f}",
                     inline=False
                 )
-                logging.info(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}, Average: {avg:.2f}")
+                logging.debug(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}, Average: {avg:.2f}")
             else:
-                logging.info(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}")
+                logging.debug(f"Dice roll: {default_num_dice}d{default_num_sides}, Rolls: {roll_str}, Total: {total}")
 
             await message.channel.send(embed=embed)
 

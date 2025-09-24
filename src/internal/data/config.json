@@ -9,5 +9,6 @@
         "documents": "/home/dennis/Desktop/Storage/Documents",
         "logs": "/home/dennis/Desktop/Storage/Logs"
     },
-    "LoggingActivated": true
+    "LoggingActivated": true,
+    "DebugModeActivated": false
 }

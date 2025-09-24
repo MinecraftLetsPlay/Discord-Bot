@@ -403,18 +403,18 @@ async def handle_utility_commands(client, message, user_message):
                     # DM
                     if reminder_type == 'dm':
                         await message.author.send(f"🔔 **Reminder:** {reminder_text}")
-                        logging.info(f"Reminder for {message.author} sent as DM: {reminder_text}")
+                        logging.debug(f"Reminder for {message.author} sent as DM: {reminder_text}")
                     # Channel @everyone (Only if not DM)
                     elif reminder_type == 'everyone':
                         if isinstance(message.channel, discord.DMChannel):
                             await message.channel.send("❌ @everyone kann nicht in privaten Nachrichten verwendet werden.")
                             return
                         await message.channel.send(f"@everyone ⏰ **Erinnerung:** {reminder_text}")
-                        logging.info(f"Reminder for everyone in channel {message.channel} sent: {reminder_text}")
+                        logging.debug(f"Reminder for everyone in channel {message.channel} sent: {reminder_text}")
                     # Channel (Only user)
                     else:
                         await message.channel.send(f"🔔 Hey {message.author.mention}, here's your reminder: {reminder_text}")
-                        logging.info(f"Reminder for {message.author} sent in channel: {reminder_text}")
+                        logging.debug(f"Reminder for {message.author} sent in channel: {reminder_text}")
                 except Exception as e:
                     logging.error(f"Error sending reminder: {e}")
                     if reminder_type == 'dm':
@@ -441,7 +441,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Type", value=location_text, inline=True)
             await message.channel.send(embed=embed)
     
-            logging.info(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type or 'user'})")
+            logging.debug(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type or 'user'})")
 
         except ValueError:
             await message.channel.send("❌ Invalid date/time format! Use DD.MM.YYYY HH:MM")
@@ -452,72 +452,54 @@ async def handle_utility_commands(client, message, user_message):
             
     # !satellite command
     if user_message.startswith('!satellite'):
-        # Split the command into parts
         parts = user_message.split()
-
         if len(parts) < 3:
-            await message.channel.send("❌ Usage: !satellite <latitude> <longitude> [YYYY-MM-DD]")
+            await message.channel.send("❌ Usage: !satellite <latitude> <longitude> [YYYY-MM-DD] [zoom] [width] [height]")
             logging.info(f"User {message.author} tried to use the !satellite command without providing coordinates.")
             return
 
         try:
-            # Parse latitude and longitude
             latitude = float(parts[1])
             longitude = float(parts[2])
+            date = parts[3] if len(parts) > 3 else datetime.now().strftime('%Y-%m-%d')
+            zoom = int(parts[4]) if len(parts) > 4 else 2
+            width = int(parts[5]) if len(parts) > 5 else 512
+            height = int(parts[6]) if len(parts) > 6 else 512
 
-            # Optional date parameter
-            date = parts[3] if len(parts) > 3 else datetime.now().strftime('%Y-%m-%d')  # Use current date as default
+            # Calculate bounding box based on zoom (smaller delta = higher zoom)
+            # Example: delta = 0.1 / zoom (zoom 2 = 0.05, zoom 4 = 0.025, etc.)
+            delta = 0.1 / zoom if zoom > 0 else 0.1
+            bbox = f"{longitude-delta},{latitude-delta},{longitude+delta},{latitude+delta}"
 
-            dim = 0.3  # Size of the image in degrees
-            api_key = os.getenv('NASA_API_KEY')  # Get the API key from .env
+            layer = "MODIS_Terra_CorrectedReflectance_TrueColor"
 
-            if not api_key:
-                await message.channel.send("❌ NASA API key is missing. Please contact the administrator.")
-                logging.error("❌ NASA API key is missing.")
-                return
+            image_url = (
+                f"https://gibs.earthdata.nasa.gov/image-download"
+                f"?TIME={date}"
+                f"&extent={bbox}"
+                f"&epsg=4326"
+                f"&layers={layer}"
+                f"&opacities=1"
+                f"&worldfile=false"
+                f"&format=image/png"
+                f"&width={width}"
+                f"&height={height}"
+            )
 
-            # Build the API request URL
-            base_url = "https://api.nasa.gov/planetary/earth/imagery"
-            params = {
-                "lat": latitude,
-                "lon": longitude,
-                "dim": dim,
-                "date": date,
-                "api_key": api_key
-            }
+            embed = discord.Embed(
+                title="🛰️ Satellite Image (NASA GIBS)",
+                description=f"True Color image for ({latitude}, {longitude}) on {date}\nZoom: {zoom}, Size: {width}x{height}",
+                color=discord.Color.blue()
+            )
+            embed.set_image(url=image_url)
+            embed.set_footer(text="Image provided by NASA GIBS")
 
-            # Send the request to the NASA API
-            timeout = aiohttp.ClientTimeout(total=60)  # 60 Seconds
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.get(base_url, params=params) as response:
-                    if response.status == 200:
-                        # Get the image URL from the response
-                        image_url = str(response.url)
-
-                        # Embed message with the image
-                        embed = discord.Embed(
-                            title="🛰️ Satellite Image",
-                            description=f"Satellite image for coordinates ({latitude}, {longitude})",
-                            color=discord.Color.blue()
-                        )
-                        embed.set_image(url=image_url)
-                        embed.set_footer(text="Image provided by NASA Earth API")
-
-                        # Send the embed message
-                        await message.channel.send(embed=embed)
-                        logging.info(f"Satellite image sent for coordinates ({latitude}, {longitude}).")
-                    elif response.status == 404:
-                        await message.channel.send("❌ No imagery available for the specified coordinates and date. Try a different date or location.")
-                        logging.warning(f"No imagery available for coordinates ({latitude}, {longitude}) and date {date}.")
-                    else:
-                        # Handle errors from the API
-                        error_message = await response.text()
-                        await message.channel.send(f"❌ Failed to fetch satellite image. Error: {error_message}")
-                        logging.error(f"Failed to fetch satellite image. Status: {response.status}, Error: {error_message}")
+            await message.channel.send(embed=embed)
+            logging.info(f"Satellite image (GIBS) sent for coordinates ({latitude}, {longitude}) on {date} with zoom {zoom}, size {width}x{height}.")
 
         except ValueError:
-            await message.channel.send("❌ Invalid coordinates. Please provide valid latitude and longitude.")
-            logging.warning(f"Invalid coordinates provided by {message.author}: {user_message}")
+            await message.channel.send("❌ Invalid coordinates or parameters. Please provide valid numbers.")
+            logging.warning(f"Invalid coordinates or parameters provided by {message.author}: {user_message}")
         except Exception as e:
             await message.channel.send("❌ An error occurred while fetching the satellite image.")
             logging.error(f"Error fetching satellite image: {e}")

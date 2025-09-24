@@ -330,3 +330,30 @@ def setup_system_commands(bot):
             )
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for logging command. User: {interaction.user}")
+    
+    @bot.tree.command(name="debugmode", description="Enable or disable debug mode")
+    async def debugmode(interaction: discord.Interaction, action: str):
+        global config
+        if is_authorized(interaction.user):
+            if action.lower() == 'on':
+                config["DebugModeActivated"] = True
+                with open(config_file_path, 'w') as f:
+                    json.dump(config, f, indent=4)
+                await interaction.response.send_message("✅ Debug mode has been enabled. Please restart the bot for changes to take effect.")
+                log_.info(f"System: Debug mode enabled by {interaction.user}")
+            elif action.lower() == 'off':
+                config["DebugModeActivated"] = False
+                with open(config_file_path, 'w') as f:
+                    json.dump(config, f, indent=4)
+                await interaction.response.send_message("✅ Debug mode has been disabled. Please restart the bot for changes to take effect.")
+                log_.info(f"System: Debug mode disabled by {interaction.user}")
+            else:
+                await interaction.response.send_message("ℹ️ Usage: `/debugmode on` or `/debugmode off`")
+        else:
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{interaction.user.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await interaction.response.send_message(embed=embed)
+            log_.info(f"System: Permission denied for debugmode command. User: {interaction.user}")

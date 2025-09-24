@@ -21,6 +21,7 @@ def run_discord_bot():
 
     # Load config and get the token from the environment variable or config file
     config = utils.load_config()
+    DebugModeActivated = config.get("DebugModeActivated", False)
     TOKEN = os.getenv('DISCORD_BOT_TOKEN')
     if not TOKEN:
         logging.critical("❌ DISCORD_BOT_TOKEN is missing. Please set it in the .env file.")
@@ -34,6 +35,7 @@ def run_discord_bot():
 
     bot = commands.Bot(command_prefix='!', intents=intents)
     
+    # Run component tests before starting the bot
     async def run_component_tests():
         print()
         print("Component Test:")
@@ -45,7 +47,8 @@ def run_discord_bot():
         print()
         return results
     
-    asyncio.run(run_component_tests())
+    if DebugModeActivated:
+        asyncio.run(run_component_tests())
 
     # Check for the bot to be ready
     @bot.event
