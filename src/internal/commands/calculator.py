@@ -4,6 +4,7 @@ import re
 import logging
 import sympy
 import asyncio
+import time
 from sympy import solve, symbols, parse_expr, sympify, Number
 
 #
@@ -250,6 +251,7 @@ async def handle_calc_command(client, message, user_message):
         await message.channel.send(f"❌ Error: {str(e)}")
 
 async def process_calculation(message, expression):
+    calc_start = time.time()
     """Processes the calculation and returns the result"""
     # Check for previous result
     if 'ans' in expression:
@@ -278,12 +280,18 @@ async def process_calculation(message, expression):
             result = await calculate_with_timeout(expression)
 
         LAST_RESULT[message.author.id] = result
+        
+        calc_duration = time.time() - calc_start
+        logging.debug(f"Calculation processed in {calc_duration:.2f} seconds.")
+        
         return result
     except Exception as e:
         error_msg = format_error(e)
         await message.channel.send(f"❌ {error_msg}")
         logging.error(f"Calculation error for {message.author}: {error_msg}")
         return None
+    
+    
 
 async def send_calculation_result(message, original_expression, result):
     """Sends the calculation result as an embed"""
