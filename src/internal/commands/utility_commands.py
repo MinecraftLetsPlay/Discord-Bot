@@ -452,57 +452,8 @@ async def handle_utility_commands(client, message, user_message):
             
     # !satellite command
     if user_message.startswith('!satellite'):
-        parts = user_message.split()
-        if len(parts) < 3:
-            await message.channel.send("❌ Usage: !satellite <latitude> <longitude> [YYYY-MM-DD] [zoom] [width] [height]")
-            logging.info(f"User {message.author} tried to use the !satellite command without providing coordinates.")
-            return
-
-        try:
-            latitude = float(parts[1])
-            longitude = float(parts[2])
-            date = parts[3] if len(parts) > 3 else datetime.now().strftime('%Y-%m-%d')
-            zoom = int(parts[4]) if len(parts) > 4 else 2
-            width = int(parts[5]) if len(parts) > 5 else 512
-            height = int(parts[6]) if len(parts) > 6 else 512
-
-            # Calculate bounding box based on zoom (smaller delta = higher zoom)
-            # Example: delta = 0.1 / zoom (zoom 2 = 0.05, zoom 4 = 0.025, etc.)
-            delta = 0.1 / zoom if zoom > 0 else 0.1
-            bbox = f"{longitude-delta},{latitude-delta},{longitude+delta},{latitude+delta}"
-
-            layer = "MODIS_Terra_CorrectedReflectance_TrueColor"
-
-            image_url = (
-                f"https://gibs.earthdata.nasa.gov/image-download"
-                f"?TIME={date}"
-                f"&extent={bbox}"
-                f"&epsg=4326"
-                f"&layers={layer}"
-                f"&opacities=1"
-                f"&worldfile=false"
-                f"&format=image/png"
-                f"&width={width}"
-                f"&height={height}"
-            )
-
-            embed = discord.Embed(
-                title="🛰️ Satellite Image (NASA GIBS)",
-                description=f"True Color image for ({latitude}, {longitude}) on {date}\nZoom: {zoom}, Size: {width}x{height}",
-                color=discord.Color.blue()
-            )
-            embed.set_image(url=image_url)
-            embed.set_footer(text="Image provided by NASA GIBS")
-
-            await message.channel.send(embed=embed)
-            logging.info(f"Satellite image (GIBS) sent for coordinates ({latitude}, {longitude}) on {date} with zoom {zoom}, size {width}x{height}.")
-
-        except ValueError:
-            await message.channel.send("❌ Invalid coordinates or parameters. Please provide valid numbers.")
-            logging.warning(f"Invalid coordinates or parameters provided by {message.author}: {user_message}")
-        except Exception as e:
-            await message.channel.send("❌ An error occurred while fetching the satellite image.")
-            logging.error(f"Error fetching satellite image: {e}")
+        await message.channel.send("⚠️ The !satellite command is currently under development and will be available soon.")
+        logging.info(f"User {message.author} tried to use the !satellite command which is under development.")
 
 def setup_utility_commands(bot):
     @bot.tree.command(
