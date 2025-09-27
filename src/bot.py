@@ -94,7 +94,7 @@ def run_discord_bot():
             user_message = str(message.content)
             channel = str(message.channel)
             if LoggingActivated:
-                logging.info(f'{username} said: "{user_message}" (DM / {channel})')
+                logging.info(f'{username} said: "{user_message}" (DM / {message.author})')
         else: # Server enviroment
             username = str(message.author)
             user_message = str(message.content)
@@ -109,7 +109,7 @@ def run_discord_bot():
                 # Log the response based on channel type
                 if message.guild is None:  # DM
                     if LoggingActivated:
-                        logging.info(f'{bot.user} said: "{response}" (DM / {channel})')
+                        logging.info(f'{bot.user} said: "{response}" (DM / {message.author})')
                 else:  # Server
                     if LoggingActivated:
                         logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
