@@ -12,7 +12,7 @@ from internal.commands.system_commands import is_authorized  # Import the is_aut
 #
 #
 
-def component_test():
+async def component_test():
     
     status = "🟩"
     messages = []
@@ -22,6 +22,18 @@ def component_test():
     if not api_key or not service_id:
         status = "🟧"
         messages.append("Warning: Nitrado API key or Service ID not present in .env file.")
+        
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.nitrado.net/services', timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 200:
+                    messages.append("Nitrado API reachable.")
+                else:
+                    status = "🟧"
+                    messages.append(f"Nitrado API error: Status {response.status}")
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"Nitrado API not reachable: {e}")
 
     return {"status": status, "msg": " | ".join(messages)}
 

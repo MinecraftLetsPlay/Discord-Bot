@@ -77,7 +77,7 @@ def setup_logging():
     # Add handlers to root logger
     root_logger.addHandler(file_handler)
     root_logger.addHandler(console_handler)
-    root_logger.setLevel(logging.DEBUG)
+    root_logger.setLevel(logging.INFO)
 
     # Configure Discord logger
     discord_logger = logging.getLogger('discord')

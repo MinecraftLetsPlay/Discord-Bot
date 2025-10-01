@@ -20,7 +20,7 @@ from internal.commands.calculator import handle_calc_command
 # Load environment variables from .env file
 load_dotenv()
 
-def component_test():
+async def component_test():
     status = "🟩"
     messages = ["Utility commands module loaded."]
 
@@ -33,6 +33,26 @@ def component_test():
     if not os.getenv("NASA_API_KEY"):
         status = "🟧"
         messages.append("Warning: NASA_API_KEY not present in .env file.")
+        
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.openweathermap.org/data/2.5/weather?q=London&appid=dummy', timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 401:
+                    messages.append("OpenWeatherMap API reachable.")
+                else:
+                    status = "🟧"
+                    messages.append(f"OpenWeatherMap API error: Status {response.status}")
+                    
+            async with session.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 200:
+                    messages.append("NASA API reachable.")
+                else:
+                    status = "🟧"
+                    messages.append(f"NASA API error: Status {response.status}")
+                    
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"APIs not reachable: {e}")
         
     return {"status": status, "msg": " | ".join(messages)}
 

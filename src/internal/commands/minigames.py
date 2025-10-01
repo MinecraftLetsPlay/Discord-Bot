@@ -63,6 +63,15 @@ async def component_test():
                 messages.append(f"Warning: Scrabble data for {lang} missing or empty.")
             else:
                 messages.append(f"Scrabble data for {lang} loaded.")
+                
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.dictionaryapi.dev/api/v2/entries/en/example', timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 200:
+                    messages.append("Dictionary API reachable.")
+                else:
+                    status = "🟧"
+                    messages.append(f"Dictionary API error: Status {response.status}")
+                    
     except Exception as e:
         status = "🟥"
         messages.append(f"Error during data initialization: {e}")

@@ -23,6 +23,18 @@ async def component_test():
         messages.append("Warning: No rules channel found in config.")
     else:
         messages.append(f"Rules Channel in config: {rules_channel}")
+        
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://catfact.ninja/fact', timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 200:
+                    messages.append("Catfact API reachable.")
+                else:
+                    status = "🟧"
+                    messages.append(f"Catfact API error: Status {response.status}")
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"Catfact API not reachable: {e}")
 
     return {"status": status, "msg": " | ".join(messages)}
 
