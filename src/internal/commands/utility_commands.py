@@ -28,11 +28,6 @@ async def component_test():
     if not os.getenv("OPENWEATHERMAP_API_KEY"):
         status = "🟧"
         messages.append("Warning: OPENWEATHERMAP_API_KEY not present in .env file.")
-
-    # Test 2: NASA_API_KEY present?
-    if not os.getenv("NASA_API_KEY"):
-        status = "🟧"
-        messages.append("Warning: NASA_API_KEY not present in .env file.")
         
     try:
         async with aiohttp.ClientSession() as session:
@@ -42,14 +37,7 @@ async def component_test():
                 else:
                     status = "🟧"
                     messages.append(f"OpenWeatherMap API error: Status {response.status}")
-                    
-            async with session.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', timeout=aiohttp.ClientTimeout(total=5)) as response:
-                if response.status == 200:
-                    messages.append("NASA API reachable.")
-                else:
-                    status = "🟧"
-                    messages.append(f"NASA API error: Status {response.status}")
-                    
+
     except Exception as e:
         status = "🟧"
         messages.append(f"APIs not reachable: {e}")
@@ -469,11 +457,6 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             await message.channel.send("❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
-            
-    # !satellite command
-    if user_message.startswith('!satellite'):
-        await message.channel.send("⚠️ The !satellite command is currently under development and will be available soon.")
-        logging.info(f"User {message.author} tried to use the !satellite command which is under development.")
 
 def setup_utility_commands(bot):
     @bot.tree.command(
