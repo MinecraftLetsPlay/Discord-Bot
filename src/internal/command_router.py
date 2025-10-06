@@ -7,6 +7,7 @@ from internal.commands.utility_commands import handle_utility_commands
 from internal.commands.public_commands import handle_public_commands
 from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.mcserver_commands import handle_mcserver_commands
+from internal.commands.sciencecific_commands import handle_sciencecific_commands
 
 #
 #
@@ -26,6 +27,7 @@ command_groups = {
     'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll', '!scrabble'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
+    'sciencecific': ['!apod', '!marsphoto', '!earth', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
     'mcserver': ['!MCServer']
 }
 
@@ -35,7 +37,8 @@ command_handlers = {
     'minigames': handle_minigames_commands,
     'public': handle_public_commands,
     'moderation': handle_moderation_commands,
-    'mcserver': handle_mcserver_commands
+    'mcserver': handle_mcserver_commands,
+    'sciencecific': handle_sciencecific_commands
 }
 
 # Commands that cannot be executed in a DM

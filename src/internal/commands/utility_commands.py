@@ -40,7 +40,7 @@ async def component_test():
 
     except Exception as e:
         status = "🟧"
-        messages.append(f"APIs not reachable: {e}")
+        messages.append(f"API not reachable: {e}")
         
     return {"status": status, "msg": " | ".join(messages)}
 
@@ -92,8 +92,6 @@ country_names = {
 
 # Main def for handling utility commands
 async def handle_utility_commands(client, message, user_message):
-    if user_message.startswith('!calc'):
-        return await handle_calc_command(client, message, user_message)
 
     # !ping command
     if user_message == '!ping':

@@ -471,7 +471,7 @@ async def handle_minigames_commands(client, message, user_message):
             # Create embed
             embed = discord.Embed(
                 title="🎲 Dice Roll",
-                description=f"Arguments: {default_num_dice}d{default_num_sides}",
+                description=f"Arguments: d{default_num_dice} s{default_num_sides}",
                 color=0x00ff00
             )
 
