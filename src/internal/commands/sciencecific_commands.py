@@ -26,11 +26,13 @@ async def handle_sciencecific_commands(client, message, user_message):
                     embed.set_image(url=data.get('url'))
                     embed.set_footer(text=f"Date: {data.get('date', '')} | Copyright: {data.get('copyright', 'NASA')}")
                     await message.channel.send(embed=embed)
+                    logging.info("Displayed APOD")
                 else:
                     await message.channel.send("❌ Could not fetch APOD from NASA API.")
+                    logging.error(f"APOD API error: {response.status}")
         return
 
-    # !marsphoto [rover] <YYYY-MM-DD>
+    # !marsphoto command
     if user_message.startswith('!marsphoto'):
         parts = user_message.split()
         # Default values
@@ -40,13 +42,16 @@ async def handle_sciencecific_commands(client, message, user_message):
         # Check if arguments are provided
         if len(parts) == 2:
             # Check if the argument is a rover name or a date
-            if parts[1].lower() in ["curiosity", "opportunity", "spirit"]:
+            if parts[1].lower() in ["curiosity", "spirit"]:
                 rover = parts[1].lower()
             else:
                 date = parts[1]
         elif len(parts) >= 3:
             rover = parts[1].lower()
             date = parts[2]
+        else:
+            await message.channel.send("❌ Usage: `!marsphoto [rover] [YYYY-MM-DD]` (rover: curiosity, spirit)")
+            return
             
         # Build URL and fetch data
 
@@ -66,44 +71,14 @@ async def handle_sciencecific_commands(client, message, user_message):
                         )
                         embed.set_image(url=photo['img_src'])
                         await message.channel.send(embed=embed)
+                        logging.info(f"Displayed Mars photo from {rover} on {date}")
                     else:
                         await message.channel.send(f"❌ No photos found for {rover.title()} on {date}.")
                 else:
                     await message.channel.send("❌ Could not fetch Mars photo from NASA API.")
+                    logging.error(f"Mars photo API error: {response.status}")
         return
 
-    if user_message.startswith('!earth'):
-        url = f"https://api.nasa.gov/EPIC/api/natural/images?api_key={NASA_API_KEY}"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if not data:
-                        await message.channel.send("❌ No recent EPIC images found.")
-                        return
-                    
-                    # Generate image URL and details
-
-                    latest = data[0]
-                    date_str = latest["date"].split(" ")[0]  # yyyy-mm-dd
-                    image_name = latest["image"]
-                    image_url = f"https://epic.gsfc.nasa.gov/archive/natural/{date_str.replace('-', '/')}/png/{image_name}.png"
-
-                    caption = latest["caption"]
-                    centroid = latest["centroid_coordinates"]
-                    
-                    # Create and send embed
-                    embed = discord.Embed(
-                        title="🌍 Latest Earth Image (NASA EPIC)",
-                        description=f"{caption}\n\nDate: {latest['date']}\nLat: {centroid['lat']}, Lon: {centroid['lon']}",
-                        color=discord.Color.blue()
-                    )
-                    embed.set_image(url=image_url)
-                    embed.set_footer(text="Source: NASA EPIC (DSCOVR Satellite)")
-                    await message.channel.send(embed=embed)
-                else:
-                    await message.channel.send("❌ Could not fetch Earth image from NASA EPIC API.")
-            return
 
     if user_message.startswith('!asteroids'):
         try:
@@ -148,11 +123,11 @@ async def handle_sciencecific_commands(client, message, user_message):
                                     f"Velocity: {velocity:,.0f} km/h\n"
                                     f"Approach Date: {approach_date}\n"
                                     f"Orbiting Body: {orbiting_body}\n"
-                                    f"[More Info]({jpl_url})"
                                 ),
                                 inline=False
                             )
                         await message.channel.send(embed=embed)
+                        logging.info("Displayed asteroid data")
                     else:
                         await message.channel.send("❌ Error fetching asteroid data from NASA API.")
         except Exception as e:

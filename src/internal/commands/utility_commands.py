@@ -289,7 +289,7 @@ async def handle_utility_commands(client, message, user_message):
 
         if len(parts) < 3:
             await message.channel.send("❌ Usage: !poll \"Question\" \"Option1\" \"Option2\" ...")
-            logging.info(f"User {message.author} tried to create a poll without correct parameters")
+            logging.debug(f"User {message.author} tried to create a poll without correct parameters")
             return
 
         # Preserve original case for question and options
@@ -298,11 +298,11 @@ async def handle_utility_commands(client, message, user_message):
 
         if len(options) < 2:
             await message.channel.send("❌ You must provide at least two options.")
-            logging.info(f"User {message.author} tried to create a poll with less than 2 options")
+            logging.debug(f"User {message.author} tried to create a poll with less than 2 options")
             return
         if len(options) > 10:
             await message.channel.send("❌ You can provide a maximum of ten options.")
-            logging.info(f"User {message.author} tried to create a poll with more than 10 options")
+            logging.debug(f"User {message.author} tried to create a poll with more than 10 options")
             return
 
         class PollView(View):
@@ -375,7 +375,7 @@ async def handle_utility_commands(client, message, user_message):
 
         if len(parts) < 2:
             await message.channel.send("❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel/everyone]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
-            logging.info(f"User {message.author} tried to create a reminder without correct parameters")
+            logging.debug(f"User {message.author} tried to create a reminder without correct parameters")
             return
 
         reminder_text = parts[1]
@@ -413,9 +413,9 @@ async def handle_utility_commands(client, message, user_message):
                     # Channel @everyone (Only if not DM)
                     elif reminder_type == 'everyone':
                         if isinstance(message.channel, discord.DMChannel):
-                            await message.channel.send("❌ @everyone kann nicht in privaten Nachrichten verwendet werden.")
+                            await message.channel.send("❌ @everyone cannot be used in private messages.")
                             return
-                        await message.channel.send(f"@everyone ⏰ **Erinnerung:** {reminder_text}")
+                        await message.channel.send(f"@everyone ⏰ **Reminder:** {reminder_text}")
                         logging.debug(f"Reminder for everyone in channel {message.channel} sent: {reminder_text}")
                     # Channel (Only user)
                     else:

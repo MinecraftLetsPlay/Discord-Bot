@@ -27,7 +27,7 @@ command_groups = {
     'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll', '!scrabble'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
-    'sciencecific': ['!apod', '!marsphoto', '!earth', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
+    'sciencecific': ['!apod', '!marsphoto', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
     'mcserver': ['!MCServer']
 }
 
