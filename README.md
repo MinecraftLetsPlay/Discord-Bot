@@ -41,12 +41,12 @@ Designed for **private server use** with sophisticated permission handling and l
 ## ⚙️ Tech Stack  
 
 - 🐍 **Python 3.11.4**  
-- 💬 **Discord.py 2.4.0**  
-- 🔊 **PyNaCl 1.5.0** → voice support  
-- 🌐 **aiohttp 3.12.14** → HTTP/WebSocket
+- 💬 **Discord.py 2.6.3**  
+- 🔊 **PyNaCl 1.6.0** → voice support  
+- 🌐 **aiohttp 3.13.0** → HTTP/WebSocket
 - ⏳ **asyncio 4.0.0** → async operations
-- 🔑 **python-dotenv 1.0.1** → environment variables
-- 📐 **sympy 1.12.0** → advanced math & calculator
+- 🔑 **python-dotenv 1.1.1** → environment variables
+- 📐 **sympy 1.14.0** → advanced math & calculator
 - 📅 **DateTime 5.5** → time-based utilities
 - 🌍 **pytz 2025.2** → timezone handling
 
@@ -71,10 +71,10 @@ Designed for **private server use** with sophisticated permission handling and l
   → Dictionary for locales English & German
 
 - **OpenWeatherMap API** → <http://api.openweathermap.org/data/2.5/weather> <br>
-→ Real-time weather data
+→ Real-time weather data (also used for city data)
 
 - **NASA API** → <https://api.nasa.gov/planetary/earth/imagery>
-- Satellite imagery (⚠️ currently unavailable → Earthdata GIBS API will be used in the future)
+→ Mars Rover photos, asteroides, astronomy picture of the day, space weather and exoplanets.
 
 - **Nitrado API** → <https://api.nitrado.net/services/> → game server management
 
