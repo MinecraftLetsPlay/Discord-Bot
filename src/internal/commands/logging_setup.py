@@ -41,7 +41,7 @@ def setup_logging():
     debug_mode = config.get("DebugModeActivated", False)
     log_directory = config.get("log_file_location")
 
-    # Fallback, falls log_directory nicht gesetzt ist
+    # Fallback, if Log_file_location is not set or invalid
     if not isinstance(log_directory, str) or not log_directory:
         log_directory = "logs"
 

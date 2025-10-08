@@ -52,6 +52,7 @@ no_dm_commands = [
 # Component test function for all command handlers
 async def component_test() -> List[Tuple[str, Dict[str, str]]]:
     results: List[Tuple[str, Dict[str, str]]] = []
+    
     print("Hello from command_router:")
     print("  Status: 🟩 Command router loaded.")
     
@@ -72,14 +73,13 @@ async def component_test() -> List[Tuple[str, Dict[str, str]]]:
             mod = handler.__module__
             module = __import__(mod, fromlist=["component_test"])
             if hasattr(module, "component_test"):
-                test_func: ComponentTestFunc = getattr(module, "component_test")  # type: ignore
+                test_func: ComponentTestFunc = getattr(module, "component_test") # type: ignore
                 if inspect.iscoroutinefunction(test_func):
-                    result: Dict[str, str] = await test_func()  # type: ignore
+                    result: Dict[str, str] = await test_func() # type: ignore
                 else:
-                    result: Dict[str, str] = test_func()  # type: ignore
+                    result: Dict[str, str] = test_func() # type: ignore
                 results.append((name, result))
             else:
-                print("  Status: 🟧 No component test found.")
                 results.append((name, {"status": "🟧", "msg": "No component test found."}))
         except Exception as e:
             print(f"  Status: 🟥 Error during loading.: {e}")
