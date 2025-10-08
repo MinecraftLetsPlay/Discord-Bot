@@ -2,13 +2,9 @@ import json
 import os
 import logging
 
-#
-#
-# Utility functions for loading and saving JSON files, and configuring logging
-#
-#
-
-# Configure logging
+# ----------------------------------------------------------------
+# Configure data paths and logging
+# ----------------------------------------------------------------
 logging.basicConfig(level=logging.INFO)
 
 # Get the absolute path of a file based on a relative path
@@ -55,10 +51,6 @@ def load_hangman():
 
 # Load scrabble data
 def load_scrabble(language):
-    """
-    Loads Scrabble data from a JSON file based on the specified language.
-    Supported languages are "En" for English and "De" for German.
-    """
     file_mapping = {
         'En': 'internal/data/scrabble_letters_en.json',
         'De': 'internal/data/scrabble_letters_de.json'
