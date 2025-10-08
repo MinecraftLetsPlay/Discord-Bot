@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from internal.commands.system_commands import is_authorized  # Import the is_authorized function
 
 # --------------------------------------------------
-# Component test function for mcserver commands
+# Component test function for [MCServer commands]
 # --------------------------------------------------
 async def component_test():
     

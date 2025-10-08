@@ -11,12 +11,9 @@ from dotenv import load_dotenv
 from discord.ui import Button, View
 from internal.commands.calculator import handle_calc_command
 
-#
-#
-# Utility commands
-#
-#
-
+# ----------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------
 # Load environment variables from .env file
 load_dotenv()
 
