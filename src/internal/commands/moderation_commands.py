@@ -6,6 +6,7 @@ from internal import utils
 # ----------------------------------------------------------------
 # Component test function for [Moderation Commands]
 # ----------------------------------------------------------------
+
 def component_test():
     status = "🟩"
     messages = []
@@ -39,6 +40,7 @@ def component_test():
 # ----------------------------------------------------------------
 # Main command handler for [Moderation Commands]
 # ----------------------------------------------------------------
+
 # Check if the user is authorized to execute moderation commands
 def is_authorized(user):
     try:
@@ -58,6 +60,7 @@ async def handle_moderation_commands(client, message, user_message):
     # Type: Full Command
     # Description: Kick a user from the server
     # ----------------------------------------------------------------
+    
     # check if the message starts with !kick
     if user_message.startswith('!kick'):
         if is_authorized(message.author):
@@ -115,6 +118,7 @@ async def handle_moderation_commands(client, message, user_message):
     # Type: Full Command
     # Description: Ban a user from the server
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!ban'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=2)  # Split command into parts
@@ -171,6 +175,7 @@ async def handle_moderation_commands(client, message, user_message):
     # Type: Full Command
     # Description: Unban a user from the server
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!unban'):
         if is_authorized(message.author):
             try:
@@ -220,6 +225,7 @@ async def handle_moderation_commands(client, message, user_message):
     # Type: Full Command
     # Description: Timeout a user for a specified duration
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!timeout'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)  # Split the command into parts
@@ -270,6 +276,7 @@ async def handle_moderation_commands(client, message, user_message):
     # Type: Full Command
     # Description: Remove timeout from a users
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!untimeout'):
         if is_authorized(message.author):
             try:
@@ -297,12 +304,13 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for untimeout command by {message.author}.")
             
-    # ----------------------------------------------------------------     
+    # -----------------------------------------------------------------------------
     # Command: !reactionrole
     # Category: Moderation Commands
     # Type: Full Command
     # Description: Set up reaction roles or clear all reaction roles for the server
-    # ----------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    
     if user_message.startswith('!reactionrole'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)

@@ -6,6 +6,7 @@ from internal import utils
 # ----------------------------------------------------------------
 # Component test function for public commands
 # ----------------------------------------------------------------
+
 async def component_test():
 
     status = "🟩"
@@ -47,6 +48,7 @@ async def handle_public_commands(client, message, user_message):
     # Category: Public Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
@@ -63,6 +65,7 @@ async def handle_public_commands(client, message, user_message):
     # Category: Public Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message == '!info':
         embed = discord.Embed(title="Info", color=0x00ff00)
         embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
@@ -87,6 +90,7 @@ async def handle_public_commands(client, message, user_message):
     # Category: Public Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message == '!rules':
         rules_channel_name = config.get("rules_channel_name", "rules")
         rules_channel = discord.utils.get(message.guild.text_channels, name=rules_channel_name)
@@ -102,6 +106,7 @@ async def handle_public_commands(client, message, user_message):
     # Category: Public Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!userinfo'):
         user_identifier = user_message[len('!userinfo '):].strip()
 
@@ -147,6 +152,7 @@ async def handle_public_commands(client, message, user_message):
     # Category: Public Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!serverinfo'):
         guild = message.guild  # Get the guild (server)
         embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
@@ -169,6 +175,7 @@ async def handle_public_commands(client, message, user_message):
     # ----------------------------------------------------------------
     # !catfact command
     # ----------------------------------------------------------------
+    
     if user_message == '!catfact':
         async def get_catfact():
             try:
@@ -190,5 +197,3 @@ async def handle_public_commands(client, message, user_message):
         else:
             await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")
             logging.warning("Failed to fetch a cat fact.")
-
-

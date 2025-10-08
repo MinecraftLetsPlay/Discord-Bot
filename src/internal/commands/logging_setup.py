@@ -13,6 +13,7 @@ from internal import utils
 # ----------------------------------------------------------------
 # Helpers for logging setup
 # ----------------------------------------------------------------
+
 # Create Timestamps for log files
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, filename, when='midnight', interval=1, backupCount=0, encoding=None):
@@ -35,6 +36,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
 # ----------------------------------------------------------------
 # Main function to setup logging
 # ----------------------------------------------------------------
+
 def setup_logging():
     # Load configuration
     config = utils.load_config()

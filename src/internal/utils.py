@@ -3,8 +3,9 @@ import os
 import logging
 
 # ----------------------------------------------------------------
-# Configure data paths and logging
+# Configure data paths
 # ----------------------------------------------------------------
+
 logging.basicConfig(level=logging.INFO)
 
 # Get the absolute path of a file based on a relative path

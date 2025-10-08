@@ -12,6 +12,7 @@ from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 # ----------------------------------------------------------------
 # Helper Functions and Initial Setup
 # ----------------------------------------------------------------
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -33,7 +34,8 @@ if not os.path.exists(log_directory):
         
 # ----------------------------------------------------------------
 # Component test function for [System Commands]
-# ----------------------------------------------------------------        
+# ----------------------------------------------------------------
+
 def component_test():
     status = "🟩"
     messages = []
@@ -54,6 +56,10 @@ def component_test():
 
 # Global variable to control logging
 LoggingActivated = config.get("LoggingActivated")
+
+# ----------------------------------------------------------------
+# Logging engine (Handels logging and file naming / file deletion)
+# ----------------------------------------------------------------
 
 # Setup logging with TimedRotatingFileHandler
 log_file = os.path.join(log_directory, 'bot.log')
@@ -89,6 +95,10 @@ def rotate_logs():
                 log_.error(f"Failed to delete log file {file_path}: {e}")
 
 rotate_logs()
+
+# ----------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------
 
 # Store the bot start time
 bot_start_time = datetime.now()
@@ -141,13 +151,16 @@ def remove_from_whitelist(user):
 # ----------------------------------------------------------------
 # Main Command Handler for [System Commands]
 # ----------------------------------------------------------------
+
 def setup_system_commands(bot):
+    
     # -----------------------------------------------------------------
     # Command: /shutdown
     # Category: System Commands
     # Type: Full Command
     # Description: Shut down the bot
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="shutdown", description="Shut down the bot")
     async def shutdown(interaction: discord.Interaction):
         if is_authorized(interaction.user):
@@ -169,6 +182,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Shut down the bot and the Raspberry Pi
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="full_shutdown", description="Shut down the bot and the Raspberry Pi")
     async def full_shutdown(interaction: discord.Interaction):
         if is_authorized(interaction.user):
@@ -203,6 +217,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Restart the bot
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="restart", description="Restart the bot")
     async def restart(interaction: discord.Interaction):
         global last_restart_time
@@ -236,6 +251,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Get the latest log file
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="log", description="Get the latest log file")
     async def log(interaction: discord.Interaction):
         # Ensure log_directory is a string
@@ -270,6 +286,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Add a user to the whitelist
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="whitelist_add", description="Add a user to the whitelist")
     async def whitelist_add(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
@@ -308,6 +325,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Remove a user from the whitelist
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="whitelist_remove", description="Remove a user from the whitelist")
     async def whitelist_remove(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
@@ -346,6 +364,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Enable or disable logging
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="logging", description="Enable or disable logging")
     async def logging(interaction: discord.Interaction, action: str):
         global LoggingActivated
@@ -381,6 +400,7 @@ def setup_system_commands(bot):
     # Type: Full Command
     # Description: Enable or disable debug mode
     # -----------------------------------------------------------------
+    
     @bot.tree.command(name="debugmode", description="Enable or disable debug mode")
     async def debugmode(interaction: discord.Interaction, action: str):
         global config

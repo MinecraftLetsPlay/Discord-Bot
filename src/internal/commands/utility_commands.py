@@ -23,6 +23,7 @@ load_dotenv()
 # ----------------------------------------------------------------
 # Component test function for [Utility Commands]
 # ----------------------------------------------------------------
+
 async def component_test():
     status = "🟩"
     messages = ["Utility commands module loaded."]
@@ -50,6 +51,7 @@ async def component_test():
 # ----------------------------------------------------------------
 # Global variables and setup
 # ----------------------------------------------------------------
+
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
     
@@ -99,14 +101,16 @@ country_names = {
 # ----------------------------------------------------------------
 # Main Command Handler for [Utility Commands]
 # ----------------------------------------------------------------
+
 async def handle_utility_commands(client, message, user_message):
 
-    # --------------------------------------------------
+    # --------------------------------------------------------------------
     # Command: !calc
     # Category: Utility Commands
     # Type: Full Command
     # Description: ping pong command to Client -> Server -> Client latency
-    # --------------------------------------------------
+    # --------------------------------------------------------------------
+    
     if user_message == '!ping':
         latency = round(client.latency * 1000)  # Latency in milliseconds
         await message.channel.send(f'Pong! Latency is {latency}ms')
@@ -118,6 +122,7 @@ async def handle_utility_commands(client, message, user_message):
     # Type: Full Command
     # Description: Show bot uptime
     # --------------------------------------------------
+    
     if user_message == '!uptime':
         current_time = datetime.now(timezone.utc)
         uptime_duration = current_time - bot_start_time
@@ -129,12 +134,13 @@ async def handle_utility_commands(client, message, user_message):
         await message.channel.send(uptime_message)
         logging.info(f"Uptime: {days}d {hours}h {minutes}m {seconds}s")
 
-    # --------------------------------------------------
+    # ---------------------------------------------------
     # Command: !weather
     # Category: Utility Commands
     # Type: Full Command
     # Description: Get weather information for a location
-    # --------------------------------------------------
+    # ---------------------------------------------------
+    
     def load_config():
         try:
             with open('config.json', 'r') as file:
@@ -170,12 +176,13 @@ async def handle_utility_commands(client, message, user_message):
         index = round(degrees / 22.5) % 16
         return directions[index]
 
-    # --------------------------------------------------
+    # ---------------------------------------------------
     # Command: !weather
     # Category: Utility Commands
     # Type: Full Command
     # Description: Get weather information for a location
-    # --------------------------------------------------
+    # ---------------------------------------------------
+    
     if user_message.startswith('!weather'):
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
@@ -230,12 +237,13 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("⚠️ Could not retrieve weather information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve weather information. Invalid location.")
 
-    # --------------------------------------------------
+    # ---------------------------------------------------------
     # Command: !city
     # Category: Utility Commands
     # Type: Full Command
     # Description: Get detailed city information for a location
-    # --------------------------------------------------
+    # ---------------------------------------------------------
+    
     if user_message.startswith('!city'):
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
@@ -282,12 +290,13 @@ async def handle_utility_commands(client, message, user_message):
             await message.channel.send("⚠️ Could not retrieve city information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve city information. Invalid location.")
             
-    # --------------------------------------------------
+    # ------------------------------------------------------
     # Command: !time
     # Category: Utility Commands
     # Type: Full Command
     # Description: Get local time information for a location
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    
     if user_message.startswith('!time'):
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
@@ -325,6 +334,7 @@ async def handle_utility_commands(client, message, user_message):
     # Type: Full Command
     # Description: Create a poll with multiple options
     # --------------------------------------------------
+    
     if user_message.startswith('!poll'):
         # Split the command into parts while preserving original case
         # Use message.content instead of user_message to preserve case
@@ -408,12 +418,13 @@ async def handle_utility_commands(client, message, user_message):
         poll_message = await message.channel.send(embed=embed, view=view)
         logging.info(f"Poll created by {message.author}: '{question}' with options: {', '.join(options)}")#
         
-    # --------------------------------------------------
+    # -----------------------------------------------------------
     # Command: !reminder
     # Category: Utility Commands
     # Type: Full Command
     # Description: Create a reminder for a specific date and time
-    # --------------------------------------------------
+    # -----------------------------------------------------------
+    
     if user_message.startswith('!reminder'):
         # Normalize quotation marks to standard double quotes
         normalized_message = message.content.replace('“', '"').replace('”', '"').replace('„', '"')
@@ -510,6 +521,7 @@ async def handle_utility_commands(client, message, user_message):
 # Type: Full Command (Slash Command)
 # Description: Download a file from a specified folder
 # ----------------------------------------------------------------
+
 def setup_utility_commands(bot):
     @bot.tree.command(
         name="download",

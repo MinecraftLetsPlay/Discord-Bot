@@ -9,6 +9,7 @@ from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils funct
 # ----------------------------------------------------------------
 # Component test function for [Minigames]
 # ----------------------------------------------------------------
+
 async def component_test():
     status = "🟩"
     messages = []
@@ -49,6 +50,7 @@ async def component_test():
 # ----------------------------------------------------------------
 # Helper variables and functions for [Minigames]
 # ----------------------------------------------------------------
+
 # Global variables to store game data
 hangman_data = None
 quiz_data = None
@@ -218,6 +220,7 @@ async def handle_minigames_commands(client, message, user_message):
     # Type: Full Command
     # Description: Start a game of Rock-Paper-Scissors
     # ----------------------------------------------------------------
+    
     if user_message == '!rps':
         choices = ['🪨', '📄', '✂️']
         embed = discord.Embed(title="Rock Paper Scissors",
@@ -255,6 +258,7 @@ async def handle_minigames_commands(client, message, user_message):
     # Type: Full Command
     # Description: Start a number guessing game
     # ----------------------------------------------------------------
+    
     if user_message == '!guess':
         number = random.randint(1, 100)
         tries = 0
@@ -299,6 +303,7 @@ async def handle_minigames_commands(client, message, user_message):
     # Type: Full Command
     # Description: Start a game of Hangman with difficulty levels
     # ----------------------------------------------------------------
+    
     if user_message == '!hangman':
         word, difficulty = await get_hangman_word()
         if not word:
@@ -377,12 +382,13 @@ async def handle_minigames_commands(client, message, user_message):
                 logging.warning("⚠️ Hangman: Timeout - Game cancelled!")
                 return
 
-    # ----------------------------------------------------------------
+    # ----------------------------------------------------------------------------
     # !quiz command
     # Category: Minigames
     # Type: Full Command
     # Description: Start a quiz with customizable category and number of questions
-    # ----------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    
     if user_message.startswith('!quiz'):
         # E.g.!quiz programming 10
         parts = user_message.split()
@@ -467,6 +473,7 @@ async def handle_minigames_commands(client, message, user_message):
     # Type: Full Command
     # Description: Roll dice with customizable number and sides
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!roll'):
         try:
             args = user_message.split()[1:] if len(user_message.split()) > 1 else []
@@ -539,6 +546,7 @@ async def handle_minigames_commands(client, message, user_message):
     # Type: Full Command
     # Description: Play a game of Scrabble
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!scrabble'):
         # Start a new game
         if user_message.startswith('!scrabble start'):
@@ -684,6 +692,7 @@ async def handle_minigames_commands(client, message, user_message):
         # Type: Full Command
         # Description: End the current scrabble game manually
         # ----------------------------------------------------------------
+        
         if user_message.startswith('!scrabble end'):
             if hasattr(client, 'scrabble_game'):
                 del client.scrabble_game

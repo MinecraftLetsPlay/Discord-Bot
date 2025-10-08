@@ -13,6 +13,7 @@ from internal.commands.sciencecific_commands import handle_sciencecific_commands
 # ----------------------------------------------------------------
 # Type definitions
 # ----------------------------------------------------------------
+
 # Type alias for component test function
 ComponentTestFunc = Union[
     Callable[[], Dict[str, str]],
@@ -49,6 +50,7 @@ no_dm_commands = [
 # ----------------------------------------------------------------
 # Component test function for command handlers
 # ----------------------------------------------------------------
+
 # Component test function for all command handlers
 async def component_test() -> List[Tuple[str, Dict[str, str]]]:
     results: List[Tuple[str, Dict[str, str]]] = []
@@ -89,6 +91,7 @@ async def component_test() -> List[Tuple[str, Dict[str, str]]]:
 # ----------------------------------------------------------------
 # Main command handler for routing commands
 # ----------------------------------------------------------------
+
 async def handle_command(client, message):
     user_message = message.content.strip()
     

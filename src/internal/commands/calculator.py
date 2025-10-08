@@ -10,6 +10,7 @@ from sympy import solve, symbols, parse_expr, sympify, Number
 # ----------------------------------------------------------------
 # Component test function for calculator module
 # ----------------------------------------------------------------
+
 def component_test():
     status = "🟩"
     messages = ["Calculator module loaded."]
@@ -19,6 +20,7 @@ def component_test():
 # ----------------------------------------------------------------
 # Additional Helpers and Globals
 # ----------------------------------------------------------------
+
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
 
@@ -62,6 +64,7 @@ async def calculate_with_timeout(expression):
 # ----------------------------------------------------------------
 # Equation Solvers
 # ----------------------------------------------------------------
+
 # Solves a PQ-Equation: x² + px + q = 0    
 def solve_pq(p, q):
     discriminant = (p / 2) ** 2 - q
@@ -235,6 +238,7 @@ def format_error(error):
 # ----------------------------------------------------------------
 # Main handler for !calc command
 # ----------------------------------------------------------------
+
 async def handle_calc_command(client, message, user_message):
     logging.debug(f"Calculator command received: {user_message}")  # Debug-Log
     try:

@@ -13,12 +13,14 @@ NASA_API_KEY = os.getenv('NASA_API_KEY')
 # ----------------------------------------------------------------
 # Main Command Handler
 # ----------------------------------------------------------------
+
 async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
     # Command: !apod
     # Category: Scientific Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!apod'):
         url = f'https://api.nasa.gov/planetary/apod?api_key={NASA_API_KEY}'
         async with aiohttp.ClientSession() as session:
@@ -44,6 +46,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     # Category: Scientific Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!marsphoto'):
         parts = user_message.split()
         # Default values
@@ -95,6 +98,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     # Category: Scientific Commands
     # Type: Full Command
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!asteroids'):
         try:
             today = datetime.now().strftime('%Y-%m-%d')
@@ -155,6 +159,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     # Category: Scientific Commands
     # Type: <Placeholder>
     # ----------------------------------------------------------------
+    
     if user_message.startswith('!sun'):
         await message.channel.send("🌞 Sun command coming soon!")
         return
@@ -163,6 +168,8 @@ async def handle_sciencecific_commands(client, message, user_message):
     # Command: !exoplanet
     # Category: Scientific Commands
     # Type: <Placeholder>
+    # ----------------------------------------------------------------
+    
     if user_message.startswith('!exoplanet'):
         await message.channel.send("🪐 Exoplanet command coming soon!")
         return
