@@ -5,12 +5,15 @@ from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 
-#
-#
-# Logging Setup for Log messages and log files
-#
-#
+# ----------------------------------------------------------------
+# Module: Logging Setup
+# Description: Sets up logging with daily rotation and custom filenames
+# ----------------------------------------------------------------
 
+# ----------------------------------------------------------------
+# Helpers for logging setup
+# ----------------------------------------------------------------
+# Create Timestamps for log files
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, filename, when='midnight', interval=1, backupCount=0, encoding=None):
         # Generate initial filename with timestamp
@@ -29,6 +32,9 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         super().doRollover()
         rotate_logs()  # Delete old log files after rollover
 
+# ----------------------------------------------------------------
+# Main function to setup logging
+# ----------------------------------------------------------------
 def setup_logging():
     # Load configuration
     config = utils.load_config()

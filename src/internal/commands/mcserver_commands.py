@@ -6,12 +6,9 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from internal.commands.system_commands import is_authorized  # Import the is_authorized function
 
-#
-#
-# Minecraft Server Commands
-#
-#
-
+# --------------------------------------------------
+# Component test function for mcserver commands
+# --------------------------------------------------
 async def component_test():
     
     status = "🟩"
@@ -37,6 +34,9 @@ async def component_test():
 
     return {"status": status, "msg": " | ".join(messages)}
 
+# --------------------------------------------------
+# Helpers for Nitrado API interaction functions
+#---------------------------------------------------
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv("NITRADO_API_KEY")
@@ -45,6 +45,7 @@ SERVICE_ID = os.getenv("NITRADO_SERVICE_ID")
 # Base URL for Nitrado API
 BASE_URL = f"https://api.nitrado.net/services/{SERVICE_ID}"
 
+# get Nitrado API endpoints
 async def send_nitrado_request(endpoint, method="GET", data=None):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -123,9 +124,15 @@ async def send_nitrado_request(endpoint, method="GET", data=None):
                 "message": f"Unexpected error: {str(e)}"
             }
 
-# Command handler
+# --------------------------------------------------
+# Main command handler for [!MCServer commands]
+# --------------------------------------------------
 async def handle_mcserver_commands(client, message, user_message):
-    # Everyone can use !MCServer status
+    # --------------------------------------------------
+    # Command: !MCServer status (shortcut)
+    # Category: Minecraft Server Commands
+    # Type: Full Command
+    # --------------------------------------------------
     if user_message.strip().lower() == "!mcserver status":
         response = await send_nitrado_request("/gameservers")
         if response and response.get("status") == "success":
@@ -262,6 +269,11 @@ async def handle_mcserver_commands(client, message, user_message):
 
             await message.channel.send(embed=embed)
 
+    # --------------------------------------------------
+    # Command: !MCServer command <minecraft_command>
+    # Category: Minecraft Server Commands
+    # Type: Full Command
+    # --------------------------------------------------
     elif action == "command":
         # Send a command to the server console
         if len(parts) < 3:
@@ -275,6 +287,11 @@ async def handle_mcserver_commands(client, message, user_message):
         else:
             await message.channel.send(f"❌ Failed to send command: {response}")
 
+    # --------------------------------------------------
+    # Command: !MCServer shutdown-vote <number_of_users>
+    # Category: Minecraft Server Commands
+    # Type: Full Command
+    # --------------------------------------------------
     elif action in ["shutdown-vote", "restart-vote"]:
         # Voting logic
         if len(parts) < 3:

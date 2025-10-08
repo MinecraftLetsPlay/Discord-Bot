@@ -7,18 +7,18 @@ import asyncio
 import time
 from sympy import solve, symbols, parse_expr, sympify, Number
 
-#
-#
-# Calculator Command Module
-#
-#
-
+# ----------------------------------------------------------------
+# Component test function for calculator module
+# ----------------------------------------------------------------
 def component_test():
     status = "🟩"
     messages = ["Calculator module loaded."]
     
     return {"status": status, "msg": " | ".join(messages)}
 
+# ----------------------------------------------------------------
+# Additional Helpers and Globals
+# ----------------------------------------------------------------
 # Store last result for 'ans' functionality
 LAST_RESULT = {}
 
@@ -26,8 +26,8 @@ LAST_RESULT = {}
 MAX_EXPRESSION_LENGTH = 500
 CALCULATION_TIMEOUT = 5  # Seconds
 
+# Checks if an expression is safe to evaluate
 def is_safe_expression(expression):
-    """Checks if an expression is safe to evaluate"""
     if len(expression) > MAX_EXPRESSION_LENGTH:
         return False, "Expression too long (max 500 characters)"
         
@@ -40,8 +40,8 @@ def is_safe_expression(expression):
         
     return True, ""
 
+# Executes calculation with timeout
 async def calculate_with_timeout(expression):
-    """Executes calculation with timeout"""
     try:
         result = await asyncio.wait_for(
             asyncio.get_event_loop().run_in_executor(
@@ -59,8 +59,11 @@ async def calculate_with_timeout(expression):
     except asyncio.TimeoutError:
         raise CalculatorError("Calculation timed out")
     
+# ----------------------------------------------------------------
+# Equation Solvers
+# ----------------------------------------------------------------
+# Solves a PQ-Equation: x² + px + q = 0    
 def solve_pq(p, q):
-    """Solves a PQ-Equation: x² + px + q = 0"""
     discriminant = (p / 2) ** 2 - q
 
     if discriminant < 0:
@@ -72,9 +75,9 @@ def solve_pq(p, q):
         x1 = -p / 2 + math.sqrt(discriminant)
         x2 = -p / 2 - math.sqrt(discriminant)
         return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
-
+    
+# Solves a quadratic equation: ax² + bx + c = 0
 def solve_quadratic(a, b, c):
-    """Solves a quadratic equation: ax² + bx + c = 0"""
     discriminant = b ** 2 - 4 * a * c
     if discriminant < 0:
         return "No real solutions (discriminant < 0)"
@@ -82,9 +85,10 @@ def solve_quadratic(a, b, c):
     x2 = (-b - math.sqrt(discriminant)) / (2 * a)
     return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
 
+# Solves an equation system using sympy.
 def solve_equation(equation_str: str) -> str:
-    """Solves an equation system using sympy."""
     try:
+        # define x
         x = symbols('x')
         # Remove quotes if present
         equation_str = equation_str.strip('"\'')
@@ -93,12 +97,14 @@ def solve_equation(equation_str: str) -> str:
         # Replace 2x with 2*x for proper multiplication
         equation_str = re.sub(r'(\d)([xy])', r'\1*\2', equation_str)
         
+        # Parse and solve the equation
         expr = sympify(equation_str)
         solutions = solve(expr, x)
 
         if not solutions:
             return "No valid solutions found!"
         
+        # Format solutions
         formatted_solutions = []
         for i, sol in enumerate(solutions, start=1):
             sol = complex(sol.evalf())  # Convert to Complex for better handling
@@ -116,8 +122,8 @@ def solve_equation(equation_str: str) -> str:
         logging.error(f"Error solving equation: {equation_str} - {str(e)}")
         return f"An error occurred while solving: {str(e)}"
 
+# Solves a system of equations using sympy
 def solve_equation_system(equations):
-    """Solves a system of equations using SymPy"""
     try:
         # Parse the equations
         parsed_equations = []
@@ -155,7 +161,9 @@ def solve_equation_system(equations):
 # Safe math functions for the calculator
 SAFE_FUNCTIONS = {
     # Basic math operations
-    'sqrt': math.sqrt, 
+    'sqrt': math.sqrt,
+    'cbrt': lambda x: x**(1/3),  # Cubic root
+    'root4': lambda x: x**(1/4),  # Fourth root
     'ln': math.log, 
     'log': math.log10,
     'log2': math.log2,
@@ -199,25 +207,21 @@ SAFE_FUNCTIONS = {
     'mi_to_km': lambda x: x / 0.621371,
 
     # SymPy functions
-    'solve': solve,  # Add solve
-}
+    'solve': solve,
 
-# Add additional functions to SAFE_FUNCTIONS
-SAFE_FUNCTIONS.update({
-    'cbrt': lambda x: x**(1/3),  # Cubic root
-    'root4': lambda x: x**(1/4),  # Fourth root
+    # Additional safe functions
     'solve': solve_equation,
     'pq': lambda p, q: solve_pq(p, q),
     'quad': lambda a, b, c: solve_quadratic(a, b, c),
     'solve_system': solve_equation_system
-})
+}
 
+# Custom calculator exception
 class CalculatorError(Exception):
-    """Custom calculator exception"""
     pass
 
+# Formats error messages user-friendly
 def format_error(error):
-    """Formats error messages user-friendly"""
     error_mapping = {
         ZeroDivisionError: "Cannot divide by zero",
         OverflowError: "Value exceeds allowed range",
@@ -228,10 +232,10 @@ def format_error(error):
     }
     return error_mapping.get(type(error), str(error))
 
-
-
+# ----------------------------------------------------------------
+# Main handler for !calc command
+# ----------------------------------------------------------------
 async def handle_calc_command(client, message, user_message):
-    """Handles the calculator command"""
     logging.debug(f"Calculator command received: {user_message}")  # Debug-Log
     try:
         expression = user_message[6:].strip()  # Remove '!calc ' prefix
@@ -250,9 +254,11 @@ async def handle_calc_command(client, message, user_message):
         logging.error(f"Calculator error: {str(e)}", exc_info=True)  # Detailed error log
         await message.channel.send(f"❌ Error: {str(e)}")
 
+# Processes the calculation and returns the result
 async def process_calculation(message, expression):
+    # Processes the calculation and returns the result
     calc_start = time.time()
-    """Processes the calculation and returns the result"""
+
     # Check for previous result
     if 'ans' in expression:
         if message.author.id not in LAST_RESULT:
@@ -269,8 +275,8 @@ async def process_calculation(message, expression):
     # Replace special characters
     expression = replace_special_characters(expression)
 
+    # Check if the expression contains a solve function
     try:
-        # Check if the expression contains a solve function
         if expression.startswith("solve(") and expression.endswith(")"):
             # Extract the equation inside solve()
             equation = expression[6:-1].strip()
@@ -291,10 +297,8 @@ async def process_calculation(message, expression):
         logging.error(f"Calculation error for {message.author}: {error_msg}")
         return None
     
-    
-
+# Sends the calculation result as an embed
 async def send_calculation_result(message, original_expression, result):
-    """Sends the calculation result as an embed"""
     if isinstance(result, (int, float, str)):
         formatted_result = format_number(result)
     else:
@@ -311,8 +315,8 @@ async def send_calculation_result(message, original_expression, result):
     await message.channel.send(embed=embed)
     logging.debug(f"Calculation performed for {message.author}: {original_expression} = {result}")
 
+# Sends the help message for the calculator
 async def send_help_message(message):
-    """Sends the help message for the calculator"""
     help_msg = (
         "📝 **How to use the calculator:**\n\n"
         "`!calc <expression>`\n\n"
@@ -353,8 +357,8 @@ async def send_help_message(message):
     )
     await message.channel.send(help_msg)
 
+# Replaces special mathematical characters with their python equivalents
 def replace_special_characters(expression):
-    """Replaces special mathematical characters with their python equivalents"""
     replacements = {
         # Exponents
         '²': '**2', '³': '**3', '⁴': '**4',
@@ -385,16 +389,14 @@ def replace_special_characters(expression):
     
     return result
 
+# Formats a number to a user-friendly string
+#    - Converts very small numbers near 0 to 0
+#    - Converts integers to whole numbers
+#    - Rounds decimal numbers to 4 decimal places
+#    - Removes unnecessary trailing zeros
+#    - Changes very large or small numbers to scientific notation
+#    - Handles special cases like π (pi), e, and τ (tau)
 def format_number(value: float | str) -> str:
-    """
-    Formats a number to a user-friendly string
-    - Converts very small numbers near 0 to 0
-    - Converts integers to whole numbers
-    - Rounds decimal numbers to 4 decimal places
-    - Removes unnecessary trailing zeros
-    - Changes very large or small numbers to scientific notation
-    - Handles special cases like π (pi), e, and τ (tau)
-    """
     try:
         # Convert to float if string
         if isinstance(value, str):

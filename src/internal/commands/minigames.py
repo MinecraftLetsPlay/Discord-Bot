@@ -6,45 +6,13 @@ import logging
 import string
 from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils functions for loading data
 
-# Global variables to store game data
-hangman_data = None
-quiz_data = None
-scrabble_data = {}
-supported_languages = ['En','De'] # Supported languages for scrabble
-
-# Initialize game data / load it from JSON files -> Utils.py
-def initialize_game_data():
-    global hangman_data, quiz_data, scrabble_data
-    hangman_data = load_hangman()
-    quiz_data = load_quiz()
-    
-    if not hangman_data:
-        logging.error("❌ Failed to load Hangman data.")
-    if not quiz_data:
-        logging.error("❌ Failed to load Quiz data.")
-    
-    for lang in supported_languages:
-        scrabble_data[lang] = load_scrabble(lang)  # Load Scrabble data for each supported language
-        if not scrabble_data[lang]:  # Check if data is loaded successfully
-            logging.error(f"❌ Failed to load Scrabble data for {lang}.")
-            scrabble_data[lang] = {}  # Set empty data if loading failed
-            logging.debug(f"Loaded Scrabble data for {lang}: {scrabble_data[lang]}")
-
-# Initialize game data when the bot starts
-initialize_game_data()
-
-# List to keep track of asked question IDs
-asked_questions = []
-
 # ----------------------------------------------------------------
-# Helper functions
+# Component test function for [Minigames]
 # ----------------------------------------------------------------
-
 async def component_test():
     status = "🟩"
     messages = []
 
-    # Use existing initialization
     try:
         initialize_game_data()
         if not hangman_data:
@@ -77,6 +45,39 @@ async def component_test():
         messages.append(f"Error during data initialization: {e}")
         
     return {"status": status, "msg": " | ".join(messages)}
+
+# ----------------------------------------------------------------
+# Helper variables and functions for [Minigames]
+# ----------------------------------------------------------------
+# Global variables to store game data
+hangman_data = None
+quiz_data = None
+scrabble_data = {}
+supported_languages = ['En','De'] # Supported languages for scrabble
+
+# Initialize game data / load it from JSON files -> Utils.py
+def initialize_game_data():
+    global hangman_data, quiz_data, scrabble_data
+    hangman_data = load_hangman()
+    quiz_data = load_quiz()
+    
+    if not hangman_data:
+        logging.error("❌ Failed to load Hangman data.")
+    if not quiz_data:
+        logging.error("❌ Failed to load Quiz data.")
+    
+    for lang in supported_languages:
+        scrabble_data[lang] = load_scrabble(lang)  # Load Scrabble data for each supported language
+        if not scrabble_data[lang]:  # Check if data is loaded successfully
+            logging.error(f"❌ Failed to load Scrabble data for {lang}.")
+            scrabble_data[lang] = {}  # Set empty data if loading failed
+            logging.debug(f"Loaded Scrabble data for {lang}: {scrabble_data[lang]}")
+
+# Initialize game data when the bot starts
+initialize_game_data()
+
+# List to keep track of asked question IDs
+asked_questions = []
 
 # get data from hangman.json for hangman game
 async def get_hangman_word(difficulty=None):
@@ -152,7 +153,6 @@ def determine_rps_winner(user_choice: str, bot_choice: str) -> str:
 
 # Draw a specified number of letters from the pool
 def draw_letters(pool, count):
-    """Draws a specified number of letters from the pool."""
     letters = []
     for _ in range(count):
         if not pool:
@@ -167,7 +167,6 @@ def draw_letters(pool, count):
 
 # Calculate the score of a word based on letter values
 def calculate_word_score(word, scrabble_data):
-    """Calculates the score of a word based on letter values."""
     score = 0
     for letter in word.upper():
         if letter in scrabble_data:
@@ -178,7 +177,6 @@ def calculate_word_score(word, scrabble_data):
 
 # Check if a word is valid using the appropriate dictionary API
 async def is_valid_word(word, language):
-    """Checks if a word exists using the appropriate dictionary API."""
     if language == "En":
         url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word.lower()}"
     elif language == "De":
@@ -209,12 +207,17 @@ def check_answer(question, user_answer):
     return user_answer.lower() == question["answer"].lower()
 
 # ----------------------------------------------------------------
-# Main command handler
+# Main command handler for [Minigames]
 # ----------------------------------------------------------------
 
 async def handle_minigames_commands(client, message, user_message):
-
-    # !rps command
+    
+    # ----------------------------------------------------------------
+    # Command: !rps
+    # Category: Minigames
+    # Type: Full Command
+    # Description: Start a game of Rock-Paper-Scissors
+    # ----------------------------------------------------------------
     if user_message == '!rps':
         choices = ['🪨', '📄', '✂️']
         embed = discord.Embed(title="Rock Paper Scissors",
@@ -246,7 +249,12 @@ async def handle_minigames_commands(client, message, user_message):
             await message.channel.send("⚠️ Timeout - Game cancelled!")
             logging.warning("⚠️ Timeout - Game cancelled!")
 
-    # !guess command
+    # ----------------------------------------------------------------
+    # Command: !guess
+    # Category: Minigames
+    # Type: Full Command
+    # Description: Start a number guessing game
+    # ----------------------------------------------------------------
     if user_message == '!guess':
         number = random.randint(1, 100)
         tries = 0
@@ -285,7 +293,12 @@ async def handle_minigames_commands(client, message, user_message):
         await message.channel.send(f"Game Over! The number was {number}")
         logging.info(f"Game Over! The number was {number}")
 
-    # !hangman command
+    # ----------------------------------------------------------------
+    # Command: !hangman
+    # Category: Minigames
+    # Type: Full Command
+    # Description: Start a game of Hangman with difficulty levels
+    # ----------------------------------------------------------------
     if user_message == '!hangman':
         word, difficulty = await get_hangman_word()
         if not word:
@@ -325,11 +338,13 @@ async def handle_minigames_commands(client, message, user_message):
             )
             await message.channel.send(embed=status_embed)
 
-            if display == word:  # Check if the word has been fully guessed
+            # Check if the word has been fully guessed
+            if display == word:
                 await message.channel.send("🎉 You win! The word has been guessed!")
                 logging.debug("🎉 Hangman: The word has been guessed!")
                 return
 
+            # Wait for the user's letter guess
             try:
                 guess_message = await client.wait_for(
                     'message',
@@ -362,7 +377,12 @@ async def handle_minigames_commands(client, message, user_message):
                 logging.warning("⚠️ Hangman: Timeout - Game cancelled!")
                 return
 
+    # ----------------------------------------------------------------
     # !quiz command
+    # Category: Minigames
+    # Type: Full Command
+    # Description: Start a quiz with customizable category and number of questions
+    # ----------------------------------------------------------------
     if user_message.startswith('!quiz'):
         # E.g.!quiz programming 10
         parts = user_message.split()
@@ -441,7 +461,12 @@ async def handle_minigames_commands(client, message, user_message):
 
         await message.channel.send(f"Quiz finished! You scored {score}/{quiz_size}.")
 
+    # ----------------------------------------------------------------
     # !roll command
+    # Category: Minigames
+    # Type: Full Command
+    # Description: Roll dice with customizable number and sides
+    # ----------------------------------------------------------------
     if user_message.startswith('!roll'):
         try:
             args = user_message.split()[1:] if len(user_message.split()) > 1 else []
@@ -508,7 +533,12 @@ async def handle_minigames_commands(client, message, user_message):
             await message.channel.send("ℹ️ Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
             logging.warning("ℹ️ Invalid format for dice roll command!")
 
+    # ----------------------------------------------------------------
     # !scrabble command
+    # Category: Minigames
+    # Type: Full Command
+    # Description: Play a game of Scrabble
+    # ----------------------------------------------------------------
     if user_message.startswith('!scrabble'):
         # Start a new game
         if user_message.startswith('!scrabble start'):
@@ -648,7 +678,12 @@ async def handle_minigames_commands(client, message, user_message):
             # Next player
             game["current_player"] = game["players"][(game["players"].index(message.author.id) + 1) % len(game["players"])]
 
-        # End the game
+        # ----------------------------------------------------------------
+        # Command: !scrabble end
+        # Category: Minigames
+        # Type: Full Command
+        # Description: End the current scrabble game manually
+        # ----------------------------------------------------------------
         if user_message.startswith('!scrabble end'):
             if hasattr(client, 'scrabble_game'):
                 del client.scrabble_game

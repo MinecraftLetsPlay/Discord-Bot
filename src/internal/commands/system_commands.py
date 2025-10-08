@@ -9,12 +9,9 @@ from internal import utils
 from dotenv import load_dotenv
 from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 
-#
-#
-# System Commands for Discord Bot
-#
-#
-
+# ----------------------------------------------------------------
+# Helper Functions and Initial Setup
+# ----------------------------------------------------------------
 # Load environment variables from .env file
 load_dotenv()
 
@@ -34,6 +31,9 @@ if not os.path.exists(log_directory):
         print(f"Permission denied: {e}")
         sys.exit(1)
         
+# ----------------------------------------------------------------
+# Component test function for [System Commands]
+# ----------------------------------------------------------------        
 def component_test():
     status = "🟩"
     messages = []
@@ -138,8 +138,16 @@ def remove_from_whitelist(user):
         log_.error(f"❌ Error removing from whitelist: {e}")
         return False
 
-# Setup system commands
+# ----------------------------------------------------------------
+# Main Command Handler for [System Commands]
+# ----------------------------------------------------------------
 def setup_system_commands(bot):
+    # -----------------------------------------------------------------
+    # Command: /shutdown
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Shut down the bot
+    # -----------------------------------------------------------------
     @bot.tree.command(name="shutdown", description="Shut down the bot")
     async def shutdown(interaction: discord.Interaction):
         if is_authorized(interaction.user):
@@ -155,6 +163,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for shutdown command. User: {interaction.user}")
 
+    # -----------------------------------------------------------------
+    # Command: /full_shutdown
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Shut down the bot and the Raspberry Pi
+    # -----------------------------------------------------------------
     @bot.tree.command(name="full_shutdown", description="Shut down the bot and the Raspberry Pi")
     async def full_shutdown(interaction: discord.Interaction):
         if is_authorized(interaction.user):
@@ -183,6 +197,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for full shutdown command. User: {interaction.user}")
 
+    # -----------------------------------------------------------------
+    # Command: /restart
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Restart the bot
+    # -----------------------------------------------------------------
     @bot.tree.command(name="restart", description="Restart the bot")
     async def restart(interaction: discord.Interaction):
         global last_restart_time
@@ -210,6 +230,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for restart command. User: {interaction.user}")
 
+    # -----------------------------------------------------------------
+    # Command: /log
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Get the latest log file
+    # -----------------------------------------------------------------
     @bot.tree.command(name="log", description="Get the latest log file")
     async def log(interaction: discord.Interaction):
         # Ensure log_directory is a string
@@ -238,6 +264,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for log command. User: {interaction.user}")
 
+    # -----------------------------------------------------------------
+    # Command: /whitelist_add
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Add a user to the whitelist
+    # -----------------------------------------------------------------
     @bot.tree.command(name="whitelist_add", description="Add a user to the whitelist")
     async def whitelist_add(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
@@ -270,6 +302,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for whitelist add command. User: {interaction.user}")
 
+    # -----------------------------------------------------------------
+    # Command: /whitelist_remove
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Remove a user from the whitelist
+    # -----------------------------------------------------------------
     @bot.tree.command(name="whitelist_remove", description="Remove a user from the whitelist")
     async def whitelist_remove(interaction: discord.Interaction, user: discord.Member):
         if is_authorized(interaction.user):
@@ -302,6 +340,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for whitelist remove command. User: {interaction.user}")
 
+    # -----------------------------------------------------------------
+    # Command: /logging
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Enable or disable logging
+    # -----------------------------------------------------------------
     @bot.tree.command(name="logging", description="Enable or disable logging")
     async def logging(interaction: discord.Interaction, action: str):
         global LoggingActivated
@@ -331,6 +375,12 @@ def setup_system_commands(bot):
             await interaction.response.send_message(embed=embed)
             log_.info(f"System: Permission denied for logging command. User: {interaction.user}")
     
+    # -----------------------------------------------------------------
+    # Command: /debugmode
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Enable or disable debug mode
+    # -----------------------------------------------------------------
     @bot.tree.command(name="debugmode", description="Enable or disable debug mode")
     async def debugmode(interaction: discord.Interaction, action: str):
         global config
