@@ -9,6 +9,7 @@ from internal import utils
 # ----------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------
+
 # Load environment variables from .env file
 load_dotenv()
 NASA_API_KEY = os.getenv('NASA_API_KEY')
@@ -18,6 +19,7 @@ NASA_API_KEY = os.getenv('NASA_API_KEY')
 # ----------------------------------------------------------------
 
 async def handle_sciencecific_commands(client, message, user_message):
+    
     # ----------------------------------------------------------------
     # Command: !apod
     # Category: Scientific Commands

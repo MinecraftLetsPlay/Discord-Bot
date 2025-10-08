@@ -429,4 +429,3 @@ async def handle_moderation_commands(client, message, user_message):
             )
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for reaction role command by {message.author}.")
-

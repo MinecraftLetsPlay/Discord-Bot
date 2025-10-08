@@ -14,6 +14,7 @@ from internal.commands.calculator import handle_calc_command
 # ----------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------
+
 # Load environment variables from .env file
 load_dotenv()
 
