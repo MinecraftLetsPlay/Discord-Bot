@@ -10,8 +10,15 @@ from internal import utils
 load_dotenv()
 NASA_API_KEY = os.getenv('NASA_API_KEY')
 
+# ----------------------------------------------------------------
+# Main Command Handler
+# ----------------------------------------------------------------
 async def handle_sciencecific_commands(client, message, user_message):
-    # !apod
+    # ----------------------------------------------------------------
+    # Command: !apod
+    # Category: Scientific Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message.startswith('!apod'):
         url = f'https://api.nasa.gov/planetary/apod?api_key={NASA_API_KEY}'
         async with aiohttp.ClientSession() as session:
@@ -32,7 +39,11 @@ async def handle_sciencecific_commands(client, message, user_message):
                     logging.error(f"APOD API error: {response.status}")
         return
 
-    # !marsphoto command
+    # ----------------------------------------------------------------
+    # Command: !marsphoto [rover] [date]
+    # Category: Scientific Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message.startswith('!marsphoto'):
         parts = user_message.split()
         # Default values
@@ -79,7 +90,11 @@ async def handle_sciencecific_commands(client, message, user_message):
                     logging.error(f"Mars photo API error: {response.status}")
         return
 
-
+    # ----------------------------------------------------------------
+    # Command: !asteroids
+    # Category: Scientific Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message.startswith('!asteroids'):
         try:
             today = datetime.now().strftime('%Y-%m-%d')
@@ -135,10 +150,19 @@ async def handle_sciencecific_commands(client, message, user_message):
             logging.error(f"Asteroids command error: {e}")
         return
 
+    # ----------------------------------------------------------------
+    # Command: !sun
+    # Category: Scientific Commands
+    # Type: <Placeholder>
+    # ----------------------------------------------------------------
     if user_message.startswith('!sun'):
         await message.channel.send("🌞 Sun command coming soon!")
         return
-
+    
+    # ----------------------------------------------------------------
+    # Command: !exoplanet
+    # Category: Scientific Commands
+    # Type: <Placeholder>
     if user_message.startswith('!exoplanet'):
         await message.channel.send("🪐 Exoplanet command coming soon!")
         return

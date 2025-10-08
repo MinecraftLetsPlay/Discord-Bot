@@ -3,12 +3,9 @@ from datetime import timedelta
 import logging
 from internal import utils
 
-#
-#
-# Moderation commands
-#
-#
-
+# ----------------------------------------------------------------
+# Component test function for [Moderation Commands]
+# ----------------------------------------------------------------
 def component_test():
     status = "🟩"
     messages = []
@@ -40,11 +37,10 @@ def component_test():
     return {"status": status, "msg": " | ".join(messages)}
 
 # ----------------------------------------------------------------
-# Main command handler
+# Main command handler for [Moderation Commands]
 # ----------------------------------------------------------------
-
+# Check if the user is authorized to execute moderation commands
 def is_authorized(user):
-    # Check if the user is authorized to execute moderation commands
     try:
         config = utils.load_config()  # Load config
         whitelist = config.get("whitelist", [])  # Get the whitelist from the config
@@ -56,7 +52,13 @@ def is_authorized(user):
 # Main def for handling moderation commands
 async def handle_moderation_commands(client, message, user_message):
 
-    # !kick command
+    # ----------------------------------------------------------------
+    # Command: !kick
+    # Category: Moderation Commands
+    # Type: Full Command
+    # Description: Kick a user from the server
+    # ----------------------------------------------------------------
+    # check if the message starts with !kick
     if user_message.startswith('!kick'):
         if is_authorized(message.author):
             # Check if a username or mention is provided
@@ -107,7 +109,12 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for kick command by {message.author}.")
 
-    # !ban command
+    # ----------------------------------------------------------------
+    # Command: !ban
+    # Category: Moderation Commands
+    # Type: Full Command
+    # Description: Ban a user from the server
+    # ----------------------------------------------------------------
     if user_message.startswith('!ban'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=2)  # Split command into parts
@@ -158,7 +165,12 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for ban command by {message.author}.")
 
-    # !unban command
+    # ----------------------------------------------------------------
+    # Command: !unban
+    # Category: Moderation Commands
+    # Type: Full Command
+    # Description: Unban a user from the server
+    # ----------------------------------------------------------------
     if user_message.startswith('!unban'):
         if is_authorized(message.author):
             try:
@@ -202,7 +214,12 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for unban command by {message.author}.")
 
-    # !timeout command
+    # ----------------------------------------------------------------
+    # Command: !timeout
+    # Category: Moderation Commands
+    # Type: Full Command
+    # Description: Timeout a user for a specified duration
+    # ----------------------------------------------------------------
     if user_message.startswith('!timeout'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)  # Split the command into parts
@@ -247,7 +264,12 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for timeout command by {message.author}.")
 
-    # !untimeout command
+    # ----------------------------------------------------------------
+    # Command: !untimeout
+    # Category: Moderation Commands
+    # Type: Full Command
+    # Description: Remove timeout from a users
+    # ----------------------------------------------------------------
     if user_message.startswith('!untimeout'):
         if is_authorized(message.author):
             try:
@@ -275,7 +297,12 @@ async def handle_moderation_commands(client, message, user_message):
             await message.channel.send(embed=embed)
             logging.warning(f"❌ Permission denied for untimeout command by {message.author}.")
             
-    # !reactionrole command
+    # ----------------------------------------------------------------     
+    # Command: !reactionrole
+    # Category: Moderation Commands
+    # Type: Full Command
+    # Description: Set up reaction roles or clear all reaction roles for the server
+    # ----------------------------------------------------------------
     if user_message.startswith('!reactionrole'):
         if is_authorized(message.author):
             args = user_message.split(maxsplit=3)

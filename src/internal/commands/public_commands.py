@@ -3,13 +3,9 @@ import aiohttp
 import logging
 from internal import utils
 
-#
-#
-# Public commands
-#
-#
-
+# ----------------------------------------------------------------
 # Component test function for public commands
+# ----------------------------------------------------------------
 async def component_test():
 
     status = "🟩"
@@ -46,19 +42,27 @@ async def component_test():
 async def handle_public_commands(client, message, user_message):
     config = utils.load_config()
 
-    # !help command
+    # ----------------------------------------------------------------
+    # Command: !help
+    # Category: Public Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
         embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
-        embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo, !catfact", inline=False)
+        embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
-        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !poll, !reminder, !calc, /download", inline=False)
+        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !poll, !reminder, !calc, /download, !catfact", inline=False)
         embed.add_field(name="[Minecraft Server]", value="Prefix: !MCServer, (vote) Shutdown, (vote) Restart, status, command", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman, !scrabble", inline=False)
         await message.channel.send(embed=embed)
         logging.info("Displayed help message.")
 
-    # !info command
+    # ----------------------------------------------------------------
+    # Command: !info
+    # Category: Public Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message == '!info':
         embed = discord.Embed(title="Info", color=0x00ff00)
         embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
@@ -78,7 +82,11 @@ async def handle_public_commands(client, message, user_message):
         await message.channel.send(embed=embed, view=view)
         logging.info("Displayed info message.")
 
-    # !rules command
+    # ----------------------------------------------------------------
+    # Command: !rules
+    # Category: Public Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message == '!rules':
         rules_channel_name = config.get("rules_channel_name", "rules")
         rules_channel = discord.utils.get(message.guild.text_channels, name=rules_channel_name)
@@ -89,7 +97,11 @@ async def handle_public_commands(client, message, user_message):
             await message.channel.send("ℹ️ Sorry, I couldn't find the rules channel.")
             logging.warning("Rules channel not found.")
 
-    # !userinfo command
+    # ----------------------------------------------------------------
+    # Command: !userinfo
+    # Category: Public Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message.startswith('!userinfo'):
         user_identifier = user_message[len('!userinfo '):].strip()
 
@@ -130,7 +142,11 @@ async def handle_public_commands(client, message, user_message):
             await message.channel.send("⚠️ User not found. Please provide a valid username, mention, or ID.")
             logging.warning("User not found !userinfo command.")
 
-    # !serverinfo command
+    # ----------------------------------------------------------------
+    # Command: !serverinfo
+    # Category: Public Commands
+    # Type: Full Command
+    # ----------------------------------------------------------------
     if user_message.startswith('!serverinfo'):
         guild = message.guild  # Get the guild (server)
         embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
@@ -150,7 +166,9 @@ async def handle_public_commands(client, message, user_message):
         await message.channel.send(embed=embed)
         logging.info(f"Displayed server info for {guild.name}.")
 
+    # ----------------------------------------------------------------
     # !catfact command
+    # ----------------------------------------------------------------
     if user_message == '!catfact':
         async def get_catfact():
             try:
