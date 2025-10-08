@@ -6,6 +6,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 from internal import utils
 
+# ----------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------
 # Load environment variables from .env file
 load_dotenv()
 NASA_API_KEY = os.getenv('NASA_API_KEY')

@@ -6,6 +6,7 @@ from internal import utils
 # ----------------------------------------------------------------
 # Component test function for [Moderation Commands]
 # ----------------------------------------------------------------
+
 def component_test():
     status = "🟩"
     messages = []

@@ -11,12 +11,9 @@ from dotenv import load_dotenv
 from discord.ui import Button, View
 from internal.commands.calculator import handle_calc_command
 
-#
-#
-# Utility commands
-#
-#
-
+# ----------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------
 # Load environment variables from .env file
 load_dotenv()
 
@@ -50,6 +47,7 @@ async def component_test():
 # ----------------------------------------------------------------
 # Global variables and setup
 # ----------------------------------------------------------------
+
 # Store the bot start time
 bot_start_time = datetime.now(timezone.utc)
     
