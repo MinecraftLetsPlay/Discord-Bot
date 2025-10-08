@@ -9,12 +9,10 @@ from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.mcserver_commands import handle_mcserver_commands
 from internal.commands.sciencecific_commands import handle_sciencecific_commands
 
-#
-#
-# Passes commands to the appropriate handler based on the command group
-#
-#
 
+# ----------------------------------------------------------------
+# Type definitions
+# ----------------------------------------------------------------
 # Type alias for component test function
 ComponentTestFunc = Union[
     Callable[[], Dict[str, str]],
@@ -48,12 +46,11 @@ no_dm_commands = [
     '!whitelist add', '!whitelist remove', '!poll', '!MCServer'
 ]
 
+# ----------------------------------------------------------------
+# Component test function for command handlers
+# ----------------------------------------------------------------
 # Component test function for all command handlers
 async def component_test() -> List[Tuple[str, Dict[str, str]]]:
-    """
-    Runs a test for each command handler to check if they are properly set up.
-    Returns a list of tuples with the command group name and the test result.
-    """
     results: List[Tuple[str, Dict[str, str]]] = []
     
     print("Hello from command_router:")
@@ -90,9 +87,8 @@ async def component_test() -> List[Tuple[str, Dict[str, str]]]:
     return results
 
 # ----------------------------------------------------------------
-# Main command handler
+# Main command handler for routing commands
 # ----------------------------------------------------------------
-
 async def handle_command(client, message):
     user_message = message.content.strip()
     
