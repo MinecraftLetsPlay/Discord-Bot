@@ -1,8 +1,8 @@
-import discord # Discord API
-import logging # Logging support
+import discord
+import logging
 import os
 import sys
-import nacl  # PyNaCl for voice support
+import nacl
 import asyncio
 import time
 from dotenv import load_dotenv

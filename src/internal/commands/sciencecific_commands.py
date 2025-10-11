@@ -2,9 +2,9 @@ import discord
 import logging
 import os
 import aiohttp
+import asyncio
 from datetime import datetime
 from dotenv import load_dotenv
-from internal import utils
 
 # ----------------------------------------------------------------
 # Helper Functions
@@ -190,8 +190,100 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!sun'):
-        await message.channel.send("🌞 Sun command coming soon!")
-        return
+        try:
+            args = user_message.split()
+            today = datetime.utcnow().strftime("%Y-%m-%d")
+
+            endpoints = {
+                "cme": "CME",
+                "flare": "FLR",
+                "storm": "GST",
+                "shock": "IPS",
+                "particle": "SEP"
+            }
+
+            base_url = "https://api.nasa.gov/DONKI/"
+            selected = args[1].lower() if len(args) > 1 else "all"
+            results = []
+
+            async with aiohttp.ClientSession() as session:
+                # fetch single or all endpoints
+                endpoints_to_fetch = (
+                    {selected: endpoints[selected]} if selected in endpoints else endpoints
+                )
+                for key, endpoint in endpoints_to_fetch.items():
+                    url = f"{base_url}{endpoint}?startDate={today}&api_key={NASA_API_KEY}"
+                    async with session.get(url) as resp:
+                        if resp.status == 200:
+                            data = await resp.json()
+                            results.append((endpoint, data))
+                        else:
+                            logging.warning(f"NASA API {endpoint} returned {resp.status}")
+                    await asyncio.sleep(0.25)
+
+            embed = discord.Embed(
+                title="🌞 Solar Activity Overview",
+                description=f"Space weather events for **{today} UTC**",
+                color=discord.Color.gold()
+            )
+
+            total_events = 0
+            for endpoint, data in results:
+                if not data:
+                    continue
+
+                total_events += len(data)
+
+                for idx, event in enumerate(data[:2]):  # max. 2 Events pro Typ
+                    start = event.get("startTime") or event.get("beginTime") or "Unknown"
+                    note = event.get("note", "")
+                    link = event.get("link", "")
+                    field_title = f"{endpoint} #{idx + 1}"
+
+                    # Extra Infos, wenn vorhanden
+                    extras = []
+                    if "speed" in event:
+                        extras.append(f"🚀 **Speed:** {event['speed']} km/s")
+                    if "latitude" in event and "longitude" in event:
+                        extras.append(f"📍 **Direction:** {event['latitude']}, {event['longitude']}")
+                    if "sourceLocation" in event:
+                        extras.append(f"☀️ **Source Region:** {event['sourceLocation']}")
+                    if "activeRegionNum" in event:
+                        extras.append(f"🔢 **Active Region:** {event['activeRegionNum']}")
+
+                    # Fallback für „CME Analyses“ (Detaildaten in separatem Array)
+                    if "cmeAnalyses" in event and event["cmeAnalyses"]:
+                        analysis = event["cmeAnalyses"][0]
+                        if analysis.get("speed"):
+                            extras.append(f"💨 **Analysis Speed:** {analysis['speed']} km/s")
+                        if analysis.get("type"):
+                            extras.append(f"🧭 **CME Type:** {analysis['type']}")
+                        if analysis.get("note"):
+                            extras.append(f"📄 {analysis['note'][:150]}...")
+
+                    details = f"🕓 **Start:** {start}\n"
+                    if note:
+                        details += f"🧾 {note[:300]}...\n"
+                    if extras:
+                        details += "\n".join(extras) + "\n"
+                    if link:
+                        details += f"[More Info]({link})"
+
+                    embed.add_field(name=field_title, value=details, inline=False)
+
+            if total_events == 0:
+                embed.description = (embed.description or "") + "\n✅ No solar events recorded today. The Sun is calm."
+            else:
+                embed.set_footer(
+                    text=f"Data source: NASA DONKI • {datetime.utcnow().strftime('%H:%M:%S')} UTC"
+                )
+
+            await message.channel.send(embed=embed)
+
+        except Exception as e:
+            await message.channel.send("❌ Error while fetching solar activity data.")
+            logging.exception("Sun command error: %s", e)
+
     
     # ----------------------------------------------------------------
     # Command: !exoplanet
