@@ -41,16 +41,35 @@ def run_discord_bot():
     # Run component tests before starting the bot
     async def run_component_tests():
         print()
-        print("Component Test:")
+        print("──────────────────────────────")
+        print(" Startup Component Summary")
+        print("──────────────────────────────")
         results = await command_router.component_test()
         for name, result in results:
-            print(f"Hello from {name}:")
-            print(f"  Status: {result['status']} {result['msg']}")
+            display_name = name.capitalize()
+            status = result['status']
+            msg = result['msg']
+            
+            # Detailed output in debug mode
+            if DebugModeActivated:
+                print(f"Hello from {display_name}:")
+                print(f"  Status: {status} {msg}")
+                
+            # Summary output if debug mode is not activated
+            else:
+                if status == "🟩":
+                    print(f"{status} {display_name}")
+                elif status == "🟨":
+                    print(f"{status} {display_name} (Warning)")
+                elif status == "🟧":
+                    print(f"{status} {display_name} ({msg})")
+                elif status == "🟥":
+                    print(f"{status} {display_name} (Error: {msg})")
+        print("──────────────────────────────")
         print()
         return results
     
-    if DebugModeActivated:
-        asyncio.run(run_component_tests())
+    asyncio.run(run_component_tests())
 
     # Check for the bot to be ready
     @bot.event

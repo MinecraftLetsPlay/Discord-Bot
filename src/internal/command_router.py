@@ -1,5 +1,6 @@
 import logging
 import inspect
+from internal import utils
 from typing import Any, Awaitable, Callable, Dict, List, Tuple, Union
 from internal.commands.calculator import handle_calc_command
 from internal.commands.minigames import handle_minigames_commands
@@ -17,6 +18,9 @@ from internal.commands.sciencecific_commands import handle_sciencecific_commands
 # ----------------------------------------------------------------
 # Type definitions
 # ----------------------------------------------------------------
+
+config = utils.load_config()
+DebugModeActivated = config.get("DebugModeActivated", False)
 
 # Type alias for component test function
 ComponentTestFunc = Union[
@@ -59,9 +63,8 @@ no_dm_commands = [
 async def component_test() -> List[Tuple[str, Dict[str, str]]]:
     results: List[Tuple[str, Dict[str, str]]] = []
     
-    print("Hello from command_router:")
-    print("  Status: 🟩 Command router loaded.")
-    
+    results.append(("command_router", {"status": "🟩", "msg": "Command router loaded."}))
+
     # Component test for calculator module
     try:
         import internal.commands.calculator as calc
