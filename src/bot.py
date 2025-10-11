@@ -116,20 +116,24 @@ def run_discord_bot():
                 await message.channel.send(response)
         except Exception as e:
             logging.error(f"❌ Error handling message: {e}")
-
+            
+    # Reaction role handling
     async def handle_reaction_role(payload, action):
         try:
+            # Load reaction role data
             reaction_role_data = utils.load_reaction_role_data()
             guild_id = str(payload.guild_id)
             if guild_id not in reaction_role_data:
                 logging.warning(f"Guild ID {guild_id} not found in reaction role data.")
                 return
-
+            
+            # Find the matching message and emoji
             for message_data in reaction_role_data[guild_id]:
                 if message_data["messageID"] == str(payload.message_id):
                     for role_data in message_data["roles"]:
                         if str(payload.emoji) == role_data["emoji"]:
                             guild = bot.get_guild(payload.guild_id)
+                            # Check for missig data
                             if not guild:
                                 logging.error(f"Guild {guild_id} not found.")
                                 return
@@ -141,6 +145,7 @@ def run_discord_bot():
                             if not member:
                                 logging.error(f"Member ID {payload.user_id} not found in guild {guild.name}.")
                                 return
+                            # Add or remove the role based on the action
                             if action == "add":
                                 await member.add_roles(role)
                                 logging.info(f"Added role {role.name} to {member.name}")
@@ -151,13 +156,15 @@ def run_discord_bot():
             logging.warning(f"No matching reaction role found for message {payload.message_id} and emoji {payload.emoji}.")
         except Exception as e:
             logging.error(f"Error in handle_reaction_role ({action}): {e}")
-
+            
+    # Bot event reaction add
     @bot.event
     async def on_raw_reaction_add(payload):
         if bot.user is not None and payload.user_id == bot.user.id:
             return
         await handle_reaction_role(payload, "add")
-
+        
+    # Bot event reaction remove
     @bot.event
     async def on_raw_reaction_remove(payload):
         if bot.user is not None and payload.user_id == bot.user.id:
