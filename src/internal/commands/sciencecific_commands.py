@@ -14,6 +14,30 @@ from internal import utils
 load_dotenv()
 NASA_API_KEY = os.getenv('NASA_API_KEY')
 
+async def component_test():
+    status = "🟩"
+    messages = ["Sciencecific commands module loaded."]
+
+    # Test 1: OPENWEATHERMAP_API_KEY present?
+    if not os.getenv("NASA_API_KEY"):
+        status = "🟧"
+        messages.append("Warning: NASA_API_KEY not present in .env file.")
+        
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.nasa.gov/planetary/apod', timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 403:
+                    messages.append("NASA API reachable.")
+                else:
+                    status = "🟧"
+                    messages.append(f"NASA API error: Status {response.status}")
+
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"API not reachable: {e}")
+        
+    return {"status": status, "msg": " | ".join(messages)}
+
 # ----------------------------------------------------------------
 # Main Command Handler
 # ----------------------------------------------------------------

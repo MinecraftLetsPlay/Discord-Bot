@@ -12,7 +12,7 @@ from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils funct
 
 async def component_test():
     status = "🟩"
-    messages = []
+    messages = ["Minigames commands module loaded."]
 
     try:
         initialize_game_data()

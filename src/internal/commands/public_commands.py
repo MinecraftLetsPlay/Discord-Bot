@@ -10,7 +10,7 @@ from internal import utils
 async def component_test():
 
     status = "🟩"
-    messages = []
+    messages = ["Public commands module loaded."]
 
     # Test 1: Rules Channel in Config
     config = utils.load_config()

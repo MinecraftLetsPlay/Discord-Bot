@@ -60,7 +60,7 @@ def run_discord_bot():
                 if status == "🟩":
                     print(f"{status} {display_name}")
                 elif status == "🟨":
-                    print(f"{status} {display_name} (Warning)")
+                    print(f"{status} {display_name} ({msg})")
                 elif status == "🟧":
                     print(f"{status} {display_name} ({msg})")
                 elif status == "🟥":

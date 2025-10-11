@@ -9,7 +9,7 @@ from internal import utils
 
 def component_test():
     status = "🟩"
-    messages = []
+    messages = ["Moderation commands module loaded."]
 
     # Test 1: Check if config.json exists and is valid
     try:

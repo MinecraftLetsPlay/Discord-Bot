@@ -12,7 +12,7 @@ from internal.commands.system_commands import is_authorized  # Import the is_aut
 async def component_test():
     
     status = "🟩"
-    messages = []
+    messages = ["MCServer commands module loaded."]
 
     api_key = os.getenv("NITRADO_API_KEY")
     service_id = os.getenv("NITRADO_SERVICE_ID")
