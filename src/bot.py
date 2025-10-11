@@ -117,57 +117,52 @@ def run_discord_bot():
         except Exception as e:
             logging.error(f"❌ Error handling message: {e}")
 
-    # Register event listeners for reaction roles
-    @bot.event
-    async def on_raw_reaction_add(payload):
-        if bot.user is not None and payload.user_id == bot.user.id: # Ignore reactions from the bot itself
-            return
+    async def handle_reaction_role(payload, action):
+        try:
+            reaction_role_data = utils.load_reaction_role_data()
+            guild_id = str(payload.guild_id)
+            if guild_id not in reaction_role_data:
+                logging.warning(f"Guild ID {guild_id} not found in reaction role data.")
+                return
 
-        reaction_role_data = utils.load_reaction_role_data()
-        guild_id = str(payload.guild_id)
-
-        # Adding roles based on reactions
-        if guild_id in reaction_role_data:
-            # Search for the correct message
             for message_data in reaction_role_data[guild_id]:
                 if message_data["messageID"] == str(payload.message_id):
-                    # Search for the matching role
                     for role_data in message_data["roles"]:
                         if str(payload.emoji) == role_data["emoji"]:
                             guild = bot.get_guild(payload.guild_id)
-                            if guild:
-                                role = guild.get_role(int(role_data["roleID"]))
-                                member = guild.get_member(payload.user_id)
-                                if role and member:
-                                    await member.add_roles(role)
-                                    logging.info(f"Added role {role.name} to {member.name}")
-                                    return
+                            if not guild:
+                                logging.error(f"Guild {guild_id} not found.")
+                                return
+                            role = guild.get_role(int(role_data["roleID"]))
+                            if not role:
+                                logging.error(f"Role ID {role_data['roleID']} not found in guild {guild.name}.")
+                                return
+                            member = guild.get_member(payload.user_id)
+                            if not member:
+                                logging.error(f"Member ID {payload.user_id} not found in guild {guild.name}.")
+                                return
+                            if action == "add":
+                                await member.add_roles(role)
+                                logging.info(f"Added role {role.name} to {member.name}")
+                            elif action == "remove":
+                                await member.remove_roles(role)
+                                logging.info(f"Removed role {role.name} from {member.name}")
+                            return
+            logging.warning(f"No matching reaction role found for message {payload.message_id} and emoji {payload.emoji}.")
+        except Exception as e:
+            logging.error(f"Error in handle_reaction_role ({action}): {e}")
+
+    @bot.event
+    async def on_raw_reaction_add(payload):
+        if bot.user is not None and payload.user_id == bot.user.id:
+            return
+        await handle_reaction_role(payload, "add")
 
     @bot.event
     async def on_raw_reaction_remove(payload):
-        # Ignore reactions from the bot itself
         if bot.user is not None and payload.user_id == bot.user.id:
             return
-
-        reaction_role_data = utils.load_reaction_role_data()
-        guild_id = str(payload.guild_id)
-
-        # Removing roles based on reactions
-        if guild_id in reaction_role_data:
-            # Search for the correct message
-            for message_data in reaction_role_data[guild_id]:
-                if message_data["messageID"] == str(payload.message_id):
-                    # Search for the matching role
-                    for role_data in message_data["roles"]:
-                        if str(payload.emoji) == role_data["emoji"]:
-                            guild = bot.get_guild(payload.guild_id)
-                            if guild:
-                                role = guild.get_role(int(role_data["roleID"]))
-                                member = guild.get_member(payload.user_id)
-                                if role and member:
-                                    await member.remove_roles(role)
-                                    logging.info(f"Removed role {role.name} from {member.name}")
-                                    return
+        await handle_reaction_role(payload, "remove")
 
     # Load system commands
     from internal.commands.system_commands import setup_system_commands
