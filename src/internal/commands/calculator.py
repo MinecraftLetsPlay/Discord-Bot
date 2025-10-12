@@ -160,6 +160,8 @@ def solve_equation_system(equations):
     except Exception as e:
         logging.error(f"Error solving equation system: {equations} - {str(e)}")
         return f"Error solving equation system: {str(e)}"
+    
+# For safety, only allow specific math functions. Gets used in is_safe_expression and calculate_with_timeout.
 
 # Safe math functions for the calculator
 SAFE_FUNCTIONS = {
@@ -204,10 +206,128 @@ SAFE_FUNCTIONS = {
     'prod': lambda expr, start, end: math.prod(sympify(expr).subs('n', i) for i in range(start, end + 1)),
     
     # Unit conversions
+    
+    # Temperature
     'c_to_f': lambda x: x * 9/5 + 32,
     'f_to_c': lambda x: (x - 32) * 5/9,
+    'c_to_k': lambda x: x + 273.15,
+    'k_to_c': lambda x: x - 273.15,
+    'f_to_k': lambda x: (x - 32) * 5/9 + 273.15,
+    'k_to_f': lambda x: (x - 273.15) * 9/5 + 32,
+
+    # Distance / Length
     'km_to_mi': lambda x: x * 0.621371,
     'mi_to_km': lambda x: x / 0.621371,
+    'm_to_ft': lambda x: x * 3.28084,
+    'ft_to_m': lambda x: x / 3.28084,
+    'cm_to_in': lambda x: x / 2.54,
+    'in_to_cm': lambda x: x * 2.54,
+    'mm_to_in': lambda x: x / 25.4,
+    'in_to_mm': lambda x: x * 25.4,
+    'km_to_m': lambda x: x * 1000,
+    'm_to_km': lambda x: x / 1000,
+    'cm_to_m': lambda x: x / 100,
+    'm_to_cm': lambda x: x * 100,
+    'mm_to_cm': lambda x: x / 10,
+    'cm_to_mm': lambda x: x * 10,
+
+    # Weight / Mass
+    'kg_to_lb': lambda x: x * 2.20462,
+    'lb_to_kg': lambda x: x / 2.20462,
+    'g_to_oz': lambda x: x * 0.035274,
+    'oz_to_g': lambda x: x / 0.035274,
+    'kg_to_g': lambda x: x * 1000,
+    'g_to_kg': lambda x: x / 1000,
+    'lb_to_oz': lambda x: x * 16,
+    'oz_to_lb': lambda x: x / 16,
+
+    # Area
+    'm2_to_ft2': lambda x: x * 10.7639,
+    'ft2_to_m2': lambda x: x / 10.7639,
+    'km2_to_mi2': lambda x: x * 0.386102,
+    'mi2_to_km2': lambda x: x / 0.386102,
+    'ha_to_acre': lambda x: x * 2.47105,
+    'acre_to_ha': lambda x: x / 2.47105,
+    'm2_to_cm2': lambda x: x * 10000,
+    'cm2_to_m2': lambda x: x / 10000,
+
+    # Volume
+    'l_to_ml': lambda x: x * 1000,
+    'ml_to_l': lambda x: x / 1000,
+    'l_to_gal': lambda x: x * 0.264172,
+    'gal_to_l': lambda x: x / 0.264172,
+    'm3_to_l': lambda x: x * 1000,
+    'l_to_m3': lambda x: x / 1000,
+    'ft3_to_m3': lambda x: x / 35.3147,
+    'm3_to_ft3': lambda x: x * 35.3147,
+
+    # Speed
+    'kmh_to_ms': lambda x: x / 3.6,
+    'ms_to_kmh': lambda x: x * 3.6,
+    'kmh_to_mph': lambda x: x * 0.621371,
+    'mph_to_kmh': lambda x: x / 0.621371,
+    'ms_to_mph': lambda x: x * 2.23694,
+    'mph_to_ms': lambda x: x / 2.23694,
+    'knots_to_kmh': lambda x: x * 1.852,
+    'kmh_to_knots': lambda x: x / 1.852,
+    'knots_to_mph': lambda x: x * 1.15078,
+    'mph_to_knots': lambda x: x / 1.15078,
+
+    # Pressure
+    'pa_to_bar': lambda x: x / 100000,
+    'bar_to_pa': lambda x: x * 100000,
+    'pa_to_psi': lambda x: x / 6894.76,
+    'psi_to_pa': lambda x: x * 6894.76,
+    'bar_to_psi': lambda x: x * 14.5038,
+    'psi_to_bar': lambda x: x / 14.5038,
+
+    # Time
+    's_to_min': lambda x: x / 60,
+    'min_to_s': lambda x: x * 60,
+    'min_to_h': lambda x: x / 60,
+    'h_to_min': lambda x: x * 60,
+    'h_to_d': lambda x: x / 24,
+    'd_to_h': lambda x: x * 24,
+    'd_to_y': lambda x: x / 365.25,
+    'y_to_d': lambda x: x * 365.25,
+    'min_to_d': lambda x: x / (60*24),
+    'd_to_min': lambda x: x * 60 * 24,
+
+    # Energy
+    'j_to_kj': lambda x: x / 1000,
+    'kj_to_j': lambda x: x * 1000,
+    'j_to_cal': lambda x: x / 4.184,
+    'cal_to_j': lambda x: x * 4.184,
+    'wh_to_kwh': lambda x: x / 1000,
+    'kwh_to_wh': lambda x: x * 1000,
+    'v_to_mv': lambda x: x * 1000,
+    'mv_to_v': lambda x: x / 1000,
+    'a_to_ma': lambda x: x * 1000,
+    'ma_to_a': lambda x: x / 1000,
+    'ohm_to_kohm': lambda x: x / 1000,
+    'kohm_to_ohm': lambda x: x * 1000,
+    'w_to_kw': lambda x: x / 1000,
+    'kw_to_w': lambda x: x * 1000,
+
+    # Data
+    'b_to_kb': lambda x: x / 1024,
+    'kb_to_b': lambda x: x * 1024,
+    'kb_to_mb': lambda x: x / 1024,
+    'mb_to_kb': lambda x: x * 1024,
+    'mb_to_gb': lambda x: x / 1024,
+    'gb_to_mb': lambda x: x * 1024,
+    'gb_to_tb': lambda x: x / 1024,
+    'tb_to_gb': lambda x: x * 1024,
+    
+    # Decimal-based data units
+    'b_to_kB': lambda x: x / 1000,
+    'kB_to_b': lambda x: x * 1000,
+    'kB_to_MB': lambda x: x / 1000,
+    'MB_to_kB': lambda x: x * 1000,
+    'MB_to_GB': lambda x: x / 1000,
+    'GB_to_MB': lambda x: x * 1000,
+    'GB_to_TB': lambda x: x / 1000,
+    'TB_to_GB': lambda x: x * 1000,
 
     # SymPy functions
     'solve': solve,
@@ -216,7 +336,15 @@ SAFE_FUNCTIONS = {
     'solve': solve_equation,
     'pq': lambda p, q: solve_pq(p, q),
     'quad': lambda a, b, c: solve_quadratic(a, b, c),
-    'solve_system': solve_equation_system
+    'solve_system': solve_equation_system,
+    'deg': math.degrees,
+    'rad': math.radians,
+    'gamma': math.gamma,
+    'erf': math.erf,
+    'comb': math.comb,
+    'perm': math.perm,
+    'mod': lambda a, b: a % b,
+
 }
 
 # Custom calculator exception

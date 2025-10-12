@@ -132,13 +132,10 @@ async def handle_utility_commands(client, message, user_message):
         await message.channel.send(uptime_message)
         logging.info(f"Uptime: {days}d {hours}h {minutes}m {seconds}s")
 
-    # ---------------------------------------------------
-    # Command: !weather
-    # Category: Utility Commands
-    # Type: Full Command
-    # Description: Get weather information for a location
-    # ---------------------------------------------------
-    
+    # --------------------------------------------------
+    # Helper functions for !weather
+    # --------------------------------------------------
+        
     def load_config():
         try:
             with open('config.json', 'r') as file:
