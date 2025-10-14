@@ -27,13 +27,19 @@ aiohttp
 sympy
 asyncio
 os
+re
 sys
+csv
+time
 json
+math
+inspect
+typing
 logging
 random
+string
 datetime
 dotenv # From python-dotenv
 importlib
+urllib.parse
 builtins
-time
-re
