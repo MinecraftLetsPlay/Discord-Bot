@@ -73,7 +73,7 @@ Designed for **private server use** with sophisticated permission handling and l
 - **OpenWeatherMap API** → <http://api.openweathermap.org/data/2.5/weather> <br>
 → Real-time weather data (also used for city data)
 
-- **NASA API** → <https://api.nasa.gov/planetary/earth/imagery>
+- **NASA API** → <https://api.nasa.gov/planetary>
 → Mars Rover photos, asteroides, astronomy picture of the day, space weather and exoplanets.
 
 - **Nitrado API** → <https://api.nitrado.net/services/> → game server management
