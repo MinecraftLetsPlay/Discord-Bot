@@ -80,7 +80,7 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ## 🛠️ Setup  
 
-> **Important!** <br>
+**Important!** <br>
 See [`requirements.txt`](./requirements.txt) for full dependencies.  
 
 ---
