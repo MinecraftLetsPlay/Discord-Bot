@@ -39,7 +39,7 @@ Designed for **private server use** with sophisticated permission handling and l
 ---
 
 ## ⚙️ Tech Stack  
-
+### Some of the core packages:
 - 🐍 **Python 3.11.4**  
 - 💬 **Discord.py 2.6.3**  
 - 🔊 **PyNaCl 1.6.0** → voice support  
@@ -50,7 +50,7 @@ Designed for **private server use** with sophisticated permission handling and l
 - 📅 **DateTime 5.5** → time-based utilities
 - 🌍 **pytz 2025.2** → timezone handling
 
-**Development Tools:**  
+### **Development Tools:**  
 
 - 📦 **JSON** → lightweight data storage: configs, quiz data, scrabble
 - 📝 **Logging system with rotation** → auto log management, error tracing
