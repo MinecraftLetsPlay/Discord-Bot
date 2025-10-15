@@ -489,7 +489,7 @@ async def handle_utility_commands(client, message, user_message):
             elif reminder_type == 'everyone':
                 location_text = "@everyone (Channel)"
             else:
-                location_text = "nur dich (Channel)"
+                location_text = "only you (Channel)"
 
             embed = discord.Embed(
                 title="⏰ Reminder Created",

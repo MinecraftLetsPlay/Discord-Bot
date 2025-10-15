@@ -199,7 +199,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     if user_message.startswith('!sun'):
         try:
             args = user_message.split()
-            today = datetime.utcnow().strftime("%Y-%m-%d")
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
             endpoints = {
                 "cme": "CME",
@@ -302,6 +302,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
 
     if user_message.startswith('!exoplanet'):
+        message.channel.send("Usage: !exoplanet <name|nearest|latest|count> \nExamples: !exoplanet Kepler-22b, !exoplanet nearest, !exoplanet latest, !exoplanet count")
         parts = user_message.split(maxsplit=1)
 
         # Function: Determine habitability based on extended criteria
