@@ -39,7 +39,7 @@ Designed for **private server use** with sophisticated permission handling and l
 ---
 
 ## ⚙️ Tech Stack  
-
+### Some of the core packages:
 - 🐍 **Python 3.11.4**  
 - 💬 **Discord.py 2.6.3**  
 - 🔊 **PyNaCl 1.6.0** → voice support  
@@ -50,7 +50,7 @@ Designed for **private server use** with sophisticated permission handling and l
 - 📅 **DateTime 5.5** → time-based utilities
 - 🌍 **pytz 2025.2** → timezone handling
 
-**Development Tools:**  
+### **Development Tools:**  
 
 - 📦 **JSON** → lightweight data storage: configs, quiz data, scrabble
 - 📝 **Logging system with rotation** → auto log management, error tracing
@@ -73,14 +73,14 @@ Designed for **private server use** with sophisticated permission handling and l
 - **OpenWeatherMap API** → <http://api.openweathermap.org/data/2.5/weather> <br>
 → Real-time weather data (also used for city data)
 
-- **NASA API** → <https://api.nasa.gov/planetary/earth/imagery>
+- **NASA API** → <https://api.nasa.gov/planetary>
 → Mars Rover photos, asteroides, astronomy picture of the day, space weather and exoplanets.
 
 - **Nitrado API** → <https://api.nitrado.net/services/> → game server management
 
 ## 🛠️ Setup  
 
-> **Important!** <br>
+**Important!** <br>
 See [`requirements.txt`](./requirements.txt) for full dependencies.  
 
 ---
