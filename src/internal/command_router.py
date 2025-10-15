@@ -117,7 +117,7 @@ async def handle_command(client, message):
             return await handle_calc_command(client, message, user_message)
         except Exception as e:
             logging.error(f"Error in !calc command handler: {e}", exc_info=True)
-            return "⚠️ An error occurred while processing your command."
+            await message.channel.send("⚠️ An error occurred while processing your command.")
     
     # Handle other commands
     for group, commands in command_groups.items():
