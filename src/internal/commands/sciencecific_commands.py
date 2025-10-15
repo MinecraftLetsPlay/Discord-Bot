@@ -440,12 +440,113 @@ async def handle_sciencecific_commands(client, message, user_message):
                     return
 
             # Latest discovered exoplanets
-            if len(parts) == 1:
-                sql = (
-                    "SELECT TOP 5 pl_name, hostname, disc_year, sy_dist, pl_rade, pl_bmasse, pl_eqt, discoverymethod "
+            if len(parts) == 2 and parts[1].lower() == "latest":
+                query = (
+                    "SELECT pl_name, hostname, disc_year, sy_dist, pl_rade, pl_bmasse, pl_eqt, discoverymethod "
                     "FROM ps WHERE disc_year IS NOT NULL ORDER BY disc_year DESC"
                 )
-                url = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=" + urllib.parse.quote(sql) + "&format=csv"
+                url = (
+                    "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?"
+                    f"query={query.replace(' ', '+')}&format=csv&MAXREC=20"
+                )
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                        if response.status != 200:
+                            raise Exception(f"API returned {response.status}")
+
+                        text = await response.text()
+                        reader = csv.DictReader(io.StringIO(text))
+                        results = list(reader)
+
+                        # No results check
+                        if not results:
+                            await message.channel.send("❌ No exoplanet data found.")
+                            return
+
+                        # Only 5 newest unique planet names
+                        seen = set()
+                        unique_planets = []
+                        for planet in results:
+                            name = planet.get("pl_name")
+                            if name and name not in seen:
+                                unique_planets.append(planet)
+                                seen.add(name)
+                            if len(unique_planets) >= 5:
+                                break
+
+                        embed = discord.Embed(
+                            title="🪐 Latest Discovered Exoplanets",
+                            color=discord.Color.purple()
+                        )
+
+                        for p in unique_planets:
+                            dist_display = "N/A"
+                            temp_str = "N/A"
+                            habitable = False
+
+                            try:
+                                # Parse data
+                                radius = float(p.get("pl_rade") or 0)
+                                mass = float(p.get("pl_bmasse") or 0)
+                                temp_k = float(p.get("pl_eqt") or 0)
+
+                                # Kelvin → Celsius
+                                temp_c = temp_k - 273.15 if temp_k else None
+                                dist_pc = float(p.get("sy_dist") or 0)
+                                dist_ly = dist_pc * 3.26156 if dist_pc else None
+
+                                if temp_k:
+                                    temp_str = f"{temp_k:.2f} K ({temp_c:.1f} °C)" if temp_c is not None else "N/A"
+                                if dist_pc:
+                                    dist_display = f"{dist_pc:.2f} pc (≈ {dist_ly:.2f} ly)" if dist_ly is not None else "N/A"
+
+                                # Habitability Check (°C)
+                                habitable = (
+                                    0.8 <= radius <= 1.8 and
+                                    (mass == 0 or mass <= 10) and
+                                    (temp_c is not None and -93 <= temp_c <= 37)
+                                )
+                            except Exception as e:
+                                habitable = False
+                                temp_str = "N/A"
+                                logging.warning(f"Habitable check failed for planet: {p.get('pl_name', 'Unknown')} ({e})")
+
+                            embed.add_field(
+                                name=p.get("pl_name", "Unknown"),
+                                value=(
+                                    f"Host Star: {p.get('hostname', 'N/A')}\n"
+                                    f"Discovery: {p.get('disc_year', 'N/A')} ({p.get('discoverymethod', 'N/A')})\n"
+                                    f"Distance: {dist_display}\n"
+                                    f"Radius: {p.get('pl_rade', 'N/A')} R⊕\n"
+                                    f"Mass: {p.get('pl_bmasse', 'N/A')} M⊕\n"
+                                    f"Temperature: {temp_str}\n"
+                                    f"Habitable: {'✅ Possibly' if habitable else '❌ Unlikely'}"
+                                ),
+                                inline=False
+                            )
+
+                        await message.channel.send(embed=embed)
+                        logging.info("Displayed latest discovered unique exoplanets")
+                return
+
+            # Specific exoplanet search
+            if len(parts) >= 2:
+                planet_name = " ".join(parts[1:])  # Falls der Name Leerzeichen enthält
+                # Entferne Trennzeichen und bereite flexible Suche vor
+                search_key = planet_name.replace("-", "").replace(" ", "")
+
+                # SQL: Ignoriere Leerzeichen und Bindestriche im Vergleich
+                query = (
+                    "SELECT DISTINCT pl_name, hostname, disc_year, sy_dist, pl_rade, pl_bmasse, pl_eqt, discoverymethod "
+                    "FROM ps WHERE REPLACE(REPLACE(pl_name, '-', ''), ' ', '') "
+                    f"LIKE '%{search_key}%'"
+                )
+
+                url = (
+                    "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?"
+                    f"query={urllib.parse.quote(query)}&format=csv&MAXREC=3"
+                )
 
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
@@ -454,64 +555,59 @@ async def handle_sciencecific_commands(client, message, user_message):
                         text = await response.text()
                         reader = csv.DictReader(io.StringIO(text))
                         results = list(reader)
+
                         if not results:
-                            await message.channel.send("❌ No exoplanet data found.")
+                            await message.channel.send(f"❌ No exoplanet found matching '{planet_name}'.")
                             return
 
-                        embed = discord.Embed(title="🪐 Latest Discovered Exoplanets", color=discord.Color.purple())
-                        for p in results:
-                            hab = "✅ True" if await is_habitable(p) else "❌ False"
-                            embed.add_field(
-                                name=p.get("pl_name", "Unknown"),
-                                value=(
-                                    f"Host Star: {p.get('hostname', 'N/A')}\n"
-                                    f"Discovery: {p.get('disc_year', 'N/A')} ({p.get('discoverymethod', 'N/A')})\n"
-                                    f"Distance: {p.get('sy_dist', 'N/A')} ly\n"
-                                    f"Radius: {p.get('pl_rade', 'N/A')} Earth radii\n"
-                                    "Mass: {p.get('pl_bmasse', 'N/A')} Earth masses\n"
-                                    f"Temperature: {p.get('pl_eqt', 'N/A')} K\n"
-                                    f"Habitable: {hab}"
-                                ),
-                                inline=False
+                        # Nimm den ersten Treffer
+                        p = results[0]
+
+                        # Temperatur & Distanz konvertieren
+                        dist_display = "N/A"
+                        temp_str = "N/A"
+                        habitable = False
+
+                        try:
+                            radius = float(p.get("pl_rade") or 0)
+                            mass = float(p.get("pl_bmasse") or 0)
+                            temp_k = float(p.get("pl_eqt") or 0)
+
+                            temp_c = temp_k - 273.15 if temp_k else None
+                            dist_pc = float(p.get("sy_dist") or 0)
+                            dist_ly = dist_pc * 3.26156 if dist_pc else None
+
+                            if dist_pc:
+                                dist_display = f"{dist_pc:.2f} pc (≈ {dist_ly:.2f} ly)"
+                            if temp_k:
+                                temp_str = f"{temp_k:.2f} K ({temp_c:.1f} °C)" if temp_c is not None else "N/A"
+
+                            habitable = (
+                                0.8 <= radius <= 1.8 and
+                                (mass == 0 or mass <= 10) and
+                                (temp_c is not None and -93 <= temp_c <= 37)
                             )
+                        except Exception as e:
+                            habitable = False
+                            logging.warning(f"Habitable check failed for planet: {p.get('pl_name', 'Unknown')} ({e})")
+
+                        # Embed formatieren
+                        embed = discord.Embed(
+                            title=f"🪐 {p.get('pl_name', 'Unknown')}",
+                            color=discord.Color.blurple()
+                        )
+                        embed.add_field(name="Host Star", value=p.get("hostname", "N/A"))
+                        embed.add_field(name="Discovery Year", value=p.get("disc_year", "N/A"))
+                        embed.add_field(name="Method", value=p.get("discoverymethod", "N/A"))
+                        embed.add_field(name="Distance", value=dist_display)
+                        embed.add_field(name="Radius", value=f"{p.get('pl_rade', 'N/A')} R⊕")
+                        embed.add_field(name="Mass", value=f"{p.get('pl_bmasse', 'N/A')} M⊕")
+                        embed.add_field(name="Temperature", value=temp_str)
+                        embed.add_field(name="Habitable", value="✅ Possibly" if habitable else "❌ Unlikely")
+
                         await message.channel.send(embed=embed)
-                        logging.info("Displayed latest exoplanets")
-                return  
-            
-            # Specific exoplanet search
-            planet_name = parts[1]
-            sql = (
-                "SELECT TOP 1 pl_name, hostname, disc_year, sy_dist, pl_rade, pl_bmasse, pl_eqt, discoverymethod "
-                f"FROM ps WHERE pl_name LIKE '%{planet_name}%'"
-            )
-            url = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=" + urllib.parse.quote(sql) + "&format=csv"
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                    if response.status != 200:
-                        raise Exception(f"API returned {response.status}")
-                    text = await response.text()
-                    reader = csv.DictReader(io.StringIO(text))
-                    results = list(reader)
-                    if not results:
-                        await message.channel.send(f"❌ No exoplanet found matching '{planet_name}'.")
-                        return
-
-                    p = results[0]
-                    hab = "✅ True" if await is_habitable(p) else "❌ False"
-                    embed = discord.Embed(title=f"🪐 {p.get('pl_name', 'Unknown')}", color=discord.Color.dark_purple())
-                    embed.add_field(name="Host Star", value=p.get("hostname", "N/A"))
-                    embed.add_field(name="Discovery Year", value=p.get("disc_year", "N/A"))
-                    embed.add_field(name="Method", value=p.get("discoverymethod", "N/A"))
-                    embed.add_field(name="Distance (ly)", value=p.get("sy_dist", "N/A"))
-                    embed.add_field(name="Radius (Earth radii)", value=p.get("pl_rade", "N/A"))
-                    embed.add_field(name="Mass (Earth masses)", value=p.get("pl_bmasse", "N/A"))
-                    embed.add_field(name="Temperature (K)", value=p.get("pl_eqt", "N/A"))
-                    embed.add_field(name="Habitable", value=hab)
-                    await message.channel.send(embed=embed)
-                    logging.info(f"Displayed exoplanet data for '{planet_name}'")
-
+                        logging.info(f"Displayed exoplanet data for '{planet_name}'")
+                return
         except Exception as e:
-            logging.error(f"Error in !exoplanet command: {e}")
-            await message.channel.send("❌ An error occurred while fetching exoplanet data. Please try again later.")
-            return
+            await message.channel.send("❌ Error while fetching exoplanet data.")
+            logging.exception("Exoplanet command error: %s", e)
