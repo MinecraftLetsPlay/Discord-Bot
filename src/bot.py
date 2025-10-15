@@ -143,7 +143,7 @@ def run_discord_bot():
             reaction_role_data = utils.load_reaction_role_data()
             guild_id = str(payload.guild_id)
             if guild_id not in reaction_role_data:
-                logging.warning(f"Guild ID {guild_id} not found in reaction role data.")
+                logging.debug(f"Guild ID {guild_id} not found in reaction role data.")
                 return
             
             # Find the matching message and emoji
