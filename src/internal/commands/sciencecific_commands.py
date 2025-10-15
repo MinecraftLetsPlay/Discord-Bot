@@ -302,7 +302,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
 
     if user_message.startswith('!exoplanet'):
-        await message.channel.send("Usage: !exoplanet <name|nearest|latest|count> \nExamples: !exoplanet Kepler-22b, !exoplanet nearest, !exoplanet latest, !exoplanet count")
+        await message.channel.send("Usage: !exoplanet <name | nearest | latest | count> \nExamples: !exoplanet Kepler-22b, !exoplanet nearest, !exoplanet latest, !exoplanet count")
         parts = user_message.split(maxsplit=1)
 
         # Function: Determine habitability based on extended criteria
