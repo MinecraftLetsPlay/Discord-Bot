@@ -295,7 +295,7 @@ async def handle_sciencecific_commands(client, message, user_message):
         return
     
     # ----------------------------------------------------------------
-    # Command: !exoplanet
+    # Command: !exoplanet <name|nearest|latest|count>
     # Category: Scientific Commands
     # Type: Full Command
     # Get data about exoplanets from NASA Exoplanet Archive
