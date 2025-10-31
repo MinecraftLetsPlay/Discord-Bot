@@ -4,6 +4,7 @@ import sys
 import asyncio
 import logging as log_
 import json
+from discord import app_commands
 from datetime import datetime, timedelta
 from internal import utils
 from dotenv import load_dotenv
@@ -174,7 +175,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for shutdown command. User: {interaction.user}")
+            log_.info(f"Permission denied for shutdown command. User: {interaction.user}")
 
     # -----------------------------------------------------------------
     # Command: /full_shutdown
@@ -209,7 +210,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for full shutdown command. User: {interaction.user}")
+            log_.info(f"Permission denied for full shutdown command. User: {interaction.user}")
 
     # -----------------------------------------------------------------
     # Command: /restart
@@ -243,7 +244,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for restart command. User: {interaction.user}")
+            log_.info(f"Permission denied for restart command. User: {interaction.user}")
 
     # -----------------------------------------------------------------
     # Command: /log
@@ -278,7 +279,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for log command. User: {interaction.user}")
+            log_.info(f"Permission denied for log command. User: {interaction.user}")
 
     # -----------------------------------------------------------------
     # Command: /whitelist_add
@@ -317,7 +318,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for whitelist add command. User: {interaction.user}")
+            log_.info(f"Permission denied for whitelist add command. User: {interaction.user}")
 
     # -----------------------------------------------------------------
     # Command: /whitelist_remove
@@ -356,7 +357,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for whitelist remove command. User: {interaction.user}")
+            log_.info(f"Permission denied for whitelist remove command. User: {interaction.user}")
 
     # -----------------------------------------------------------------
     # Command: /logging
@@ -392,7 +393,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for logging command. User: {interaction.user}")
+            log_.info(f"Permission denied for logging command. User: {interaction.user}")
     
     # -----------------------------------------------------------------
     # Command: /debugmode
@@ -426,4 +427,54 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"System: Permission denied for debugmode command. User: {interaction.user}")
+            log_.info(f"Permission denied for debugmode command. User: {interaction.user}")
+
+    # -----------------------------------------------------------------
+    # Command: /status
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Set the bot activity/status (type + text)
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="status", description="Set the bot activity/status (type + text)")
+    @app_commands.describe(
+        status_type="Type of activity: playing, listening, watching, competing",
+        text="The status text to display"
+    )
+    async def status(interaction: discord.Interaction, status_type: str, text: str):
+        # Permission check
+        if not is_authorized(interaction.user):
+            embed = discord.Embed(
+                title="❌ Permission denied",
+                description=f"{interaction.user.mention} You don't have the permission to execute this command.",
+                color=0xff0000
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            log_.info(f"Permission denied for status command. User: {interaction.user}")
+            return
+
+        # Normalize and map to discord.ActivityType
+        t = status_type.strip().lower()
+        mapping = {
+            "playing": discord.ActivityType.playing,
+            "listening": discord.ActivityType.listening,
+            "watching": discord.ActivityType.watching,
+            "competing": discord.ActivityType.competing
+        }
+
+        if t not in mapping:
+            await interaction.response.send_message(
+                "ℹ️ Invalid status type. Use one of: `playing`, `listening`, `watching`, `competing`",
+                ephemeral=True
+            )
+            return
+
+        try:
+            await bot.change_presence(activity=discord.Activity(type=mapping[t], name=text))
+            await interaction.response.send_message(f"✅ Bot status set to: {t} {text}", ephemeral=True)
+            log_.info(f"System: Status set by {interaction.user} -> {t}: {text}")
+        except Exception as e:
+            await interaction.response.send_message("❌ Failed to set status.", ephemeral=True)
+            log_.error(f"System: Failed to set status: {e}")
+
+

@@ -89,12 +89,15 @@ def run_discord_bot():
         logging.info("--------------------------")
         print()
         
-        # Set the bots status to "Listening to your commands"
-        activity = discord.Activity(type=discord.ActivityType.listening, name="euren Befehlen")
-        await bot.change_presence(activity=activity)
-        # Sync the slash commands with Discord
         await bot.tree.sync()
         logging.info('Slash commands synchronized.')
+        
+        try:
+            for guild in bot.guilds:
+                await bot.tree.sync(guild=discord.Object(id=guild.id))
+            logging.info('Slash commands synchronized per guild.')
+        except Exception as e:
+            logging.warning(f'Guild sync warning: {e}')
 
     # Check for messages
     @bot.event
