@@ -51,7 +51,7 @@ async def handle_public_commands(client, message, user_message):
     
     if user_message == '!help':
         embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
-        embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /whitelist, /whitelist remove", inline=False)
+        embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /status, /whitelist, /whitelist remove", inline=False)
         embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo", inline=False)
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
         embed.add_field(name="[Science]", value="!apod, !marsphoto, !asteroids, !sun, !exoplanet", inline=False)
@@ -72,7 +72,7 @@ async def handle_public_commands(client, message, user_message):
         embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
         embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
         embed.add_field(name="", value="The bot is mainly developed by myself, but there is also a co-developer who is \n helping me finding ideas and solve problems: Jirasrel.", inline=False)
-        embed.add_field(name="", value="The bot is hosted inside my home on a Raspberry Pi 3 Model B \n (Quad-Core 64bit 1.2GHz CPU and 1GB of LPDDR2 SDRAM).", inline=False)
+        embed.add_field(name="", value="The bot is hosted inside my home on a Raspberry Pi 3 Model B \n (Quad-Core 64bit 2.4GHz CPU and 8GB of LPDDR4X RAM).", inline=False)
         embed.add_field(name="", value="The Bot is using several APIs for some of its functioalities. \n For example the Nitrado API for Minecraft Server control.", inline=False)
         embed.add_field(name="", value="The programming language the Bot is made of is Python. \n For core functionality it is using the Discord.py API Wrapper.", inline=False)
         embed.add_field(name="", value="New functionalities and features will be added in the future and existing ones will be refined and / or expanded. Suggestions are welcome!", inline=False)

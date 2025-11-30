@@ -99,6 +99,31 @@ def run_discord_bot():
         except Exception as e:
             logging.warning(f'Guild sync warning: {e}')
 
+        # Load and apply saved bot status
+        try:
+            bot_status = config.get("BotStatus", None)
+            
+            if bot_status and "type" in bot_status and "text" in bot_status:
+                status_type = bot_status["type"].lower()
+                status_text = bot_status["text"]
+                
+                mapping = {
+                    "playing": discord.ActivityType.playing,
+                    "listening": discord.ActivityType.listening,
+                    "watching": discord.ActivityType.watching,
+                    "competing": discord.ActivityType.competing
+                }
+                
+                if status_type in mapping:
+                    await bot.change_presence(activity=discord.Activity(type=mapping[status_type], name=status_text))
+                    logging.info(f"✅ Bot status loaded from config: {status_type} {status_text}")
+                else:
+                    logging.warning(f"⚠️ Invalid status type in config: {status_type}")
+            else:
+                logging.info("ℹ️ No saved bot status found in config.")
+        except Exception as e:
+            logging.error(f"❌ Error loading bot status: {e}")
+
     # Check for messages
     @bot.event
     async def on_message(message):

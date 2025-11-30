@@ -471,6 +471,12 @@ def setup_system_commands(bot):
 
         try:
             await bot.change_presence(activity=discord.Activity(type=mapping[t], name=text))
+            
+            # Save to config
+            config["BotStatus"] = {"type": t, "text": text}
+            with open(config_file_path, 'w') as f:
+                json.dump(config, f, indent=4)
+            
             await interaction.response.send_message(f"✅ Bot status set to: {t} {text}", ephemeral=True)
             log_.info(f"System: Status set by {interaction.user} -> {t}: {text}")
         except Exception as e:
