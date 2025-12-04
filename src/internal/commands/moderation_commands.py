@@ -1,7 +1,8 @@
 import discord
-from datetime import timedelta
 import logging
 from internal import utils
+from datetime import timedelta
+from internal.commands.system_commands import is_authorized_server
 
 # ----------------------------------------------------------------
 # Component test function for [Moderation Commands]
@@ -41,16 +42,6 @@ def component_test():
 # Main command handler for [Moderation Commands]
 # ----------------------------------------------------------------
 
-# Check if the user is authorized to execute moderation commands
-def is_authorized(user):
-    try:
-        config = utils.load_config()  # Load config
-        whitelist = config.get("whitelist", [])  # Get the whitelist from the config
-        return str(user.id) in whitelist  # Validate UserID
-    except Exception as e:
-        logging.error(f"❌ Error checking authorization: {e}")
-        return False
-
 # Main def for handling moderation commands
 async def handle_moderation_commands(client, message, user_message):
 
@@ -63,7 +54,7 @@ async def handle_moderation_commands(client, message, user_message):
     
     # check if the message starts with !kick
     if user_message.startswith('!kick'):
-        if is_authorized(message.author):
+        if is_authorized_server(message.author, guild_id=message.guild.id):
             # Check if a username or mention is provided
             args = user_message.split()
             if len(args) < 2:  # No username/mention provided
@@ -120,7 +111,7 @@ async def handle_moderation_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!ban'):
-        if is_authorized(message.author):
+        if is_authorized_server(message.author, guild_id=message.guild.id):
             args = user_message.split(maxsplit=2)  # Split command into parts
             if len(args) < 2:  # Check if a user mention/username is provided
                 await message.channel.send("ℹ️ Please specify a user to ban. Usage: `!ban <username> [reason]`")
@@ -177,7 +168,7 @@ async def handle_moderation_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!unban'):
-        if is_authorized(message.author):
+        if is_authorized_server(message.author, guild_id=message.guild.id):
             try:
                 args = user_message.split(maxsplit=2)  # Split the command into parts
                 if len(args) < 2:
@@ -227,7 +218,7 @@ async def handle_moderation_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!timeout'):
-        if is_authorized(message.author):
+        if is_authorized_server(message.author, guild_id=message.guild.id):
             args = user_message.split(maxsplit=3)  # Split the command into parts
             if len(args) < 3:
                 await message.channel.send("ℹ️ Usage: `!timeout @username <duration_in_minutes> [reason]`")
@@ -278,7 +269,7 @@ async def handle_moderation_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!untimeout'):
-        if is_authorized(message.author):
+        if is_authorized_server(message.author, guild_id=message.guild.id):
             try:
                 # Get the mentioned member
                 member = message.mentions[0]
@@ -312,7 +303,7 @@ async def handle_moderation_commands(client, message, user_message):
     # -----------------------------------------------------------------------------
     
     if user_message.startswith('!reactionrole'):
-        if is_authorized(message.author):
+        if is_authorized_server(message.author, guild_id=message.guild.id):
             args = user_message.split(maxsplit=3)
             
             # Check for clear command
@@ -385,7 +376,7 @@ async def handle_moderation_commands(client, message, user_message):
                 # Check if the message already exists in the data
                 message_entry = next(
                     (item for item in reaction_role_data[guild_id] 
-                     if item["messageID"] == message_id), 
+                    if item["messageID"] == message_id), 
                     None
                 )
 

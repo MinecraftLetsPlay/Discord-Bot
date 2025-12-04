@@ -23,8 +23,8 @@ def run_discord_bot():
     load_dotenv()
 
     # Load config and get the token from the environment variable or config file
-    config = utils.load_config()
-    DebugModeActivated = config.get("DebugModeActivated", False)
+    DebugModeActivated = utils.get_config_value("DebugModeActivated", default=False)
+    
     TOKEN = os.getenv('DISCORD_BOT_TOKEN')
     if not TOKEN:
         logging.critical("❌ DISCORD_BOT_TOKEN is missing. Please set it in the .env file.")
@@ -84,8 +84,8 @@ def run_discord_bot():
         logging.info(f"Discord.py version: {discord.__version__}")
         logging.info(f"PyNaCl version: {nacl.__version__}")
         logging.info(f"Application ID: {bot.application_id}")
-        logging.info(f"Logging activated: {config.get('LoggingActivated', True)}")
-        logging.info(f"Debug mode activated: {config.get('DebugModeActivated', False)}")
+        logging.info(f"Logging activated: {utils.get_config_value('LoggingActivated', default=True)}")
+        logging.info(f"Debug mode activated: {utils.get_config_value('DebugModeActivated', default=False)}")
         logging.info("--------------------------")
         print()
         
@@ -101,7 +101,7 @@ def run_discord_bot():
 
         # Load and apply saved bot status
         try:
-            bot_status = config.get("BotStatus", None)
+            bot_status = utils.get_config_value("BotStatus", default=None)
             
             if bot_status and "type" in bot_status and "text" in bot_status:
                 status_type = bot_status["type"].lower()
@@ -127,39 +127,43 @@ def run_discord_bot():
     # Check for messages
     @bot.event
     async def on_message(message):
-        config = utils.load_config()
-        LoggingActivated = config.get("LoggingActivated", True) # Check if logging is activated in the config file
+        # Load server-specific config
+        if message.guild:
+            server_config = utils.load_server_config(message.guild.id)
+            LoggingActivated = utils.get_config_value("LoggingActivated", guild_id=message.guild.id, default=True)
+            is_logged = utils.is_channel_logged(message.guild.id, message.channel.id)
+        else:
+            LoggingActivated = utils.get_config_value("LoggingActivated", default=True)
+            is_logged = LoggingActivated
         
-        if message.author == bot.user: # Ignore messages from the bot itself
+        if message.author == bot.user:
             return
         
-        if message.guild is None:  # This means it's a DM
-            if LoggingActivated:
+        if message.guild is None:  # DM
+            if LoggingActivated and is_logged:
                 logging.info(f"📩 DM from {message.author}: {message.content}")
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
-            if LoggingActivated:
+            if LoggingActivated and is_logged:
                 logging.info(f'{username} said: "{user_message}" (DM / {message.author})')
-        else: # Server enviroment
+        else:  # Server environment
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
-            if LoggingActivated:
+            if LoggingActivated and is_logged:
                 logging.info(f'{username} said: "{user_message}" ({message.guild.name} / {channel})')
 
         # Pass the client object to handle_command
         try:
             response = await command_router.handle_command(bot, message)
-            if response is not None:  # Check for a valid response
-                # Log the response based on channel type
+            if response is not None:
                 if message.guild is None:  # DM
-                    if LoggingActivated:
+                    if LoggingActivated and is_logged:
                         logging.info(f'{bot.user} said: "{response}" (DM / {message.author})')
                 else:  # Server
-                    if LoggingActivated:
+                    if LoggingActivated and is_logged:
                         logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
-                # Send the response
                 await message.channel.send(response)
         except Exception as e:
             logging.error(f"❌ Error handling message: {e}")

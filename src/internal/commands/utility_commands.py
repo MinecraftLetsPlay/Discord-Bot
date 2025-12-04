@@ -135,15 +135,7 @@ async def handle_utility_commands(client, message, user_message):
     # --------------------------------------------------
     # Helper functions for !weather
     # --------------------------------------------------
-        
-    def load_config():
-        try:
-            with open('config.json', 'r') as file:
-                return json.load(file)
-        except Exception as e:
-            logging.error(f"❌ Error loading config file: {e}")
-            return {}
-
+    
     # Asynchronous function to get weather data
     async def get_weather(location):
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
@@ -399,7 +391,7 @@ async def handle_utility_commands(client, message, user_message):
                     results = "No votes yet"
                 else:
                     results = "\n".join([f"{option}: {votes} vote{'s' if votes != 1 else ''} ({votes / self.total_votes * 100:.1f}%)" 
-                                       for option, votes in self.votes.items()])
+                                    for option, votes in self.votes.items()])
                 embed = message.embeds[0]
                 embed.set_field_at(0, name="Results", value=results, inline=False)
                 embed.set_footer(text=f"Total: {self.total_votes} vote{'s' if self.total_votes != 1 else ''}")

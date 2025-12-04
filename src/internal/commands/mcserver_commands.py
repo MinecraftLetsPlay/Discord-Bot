@@ -4,7 +4,7 @@ import asyncio
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from internal.commands.system_commands import is_authorized  # Import the is_authorized function
+from internal.commands.system_commands import is_authorized_server  # ✅ Aus utils, nicht system_commands!
 
 # --------------------------------------------------
 # Component test function for [MCServer commands]
@@ -184,7 +184,7 @@ async def handle_mcserver_commands(client, message, user_message):
         return
 
     # Whitelist check for all other commands
-    if not is_authorized(message.author):
+    if not is_authorized_server(message.author, guild_id=message.guild.id):
         embed = discord.Embed(
             title="❌ Permission denied",
             description=f"{message.author.mention} You don't have permission to execute this command.",

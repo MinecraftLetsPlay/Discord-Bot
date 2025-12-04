@@ -1,14 +1,18 @@
 {
-    "whitelist": [
-        "761212453727895564",
-        "831902298938015745"
-    ],
-    "log_file_location": "/home/dennis/Desktop/Storage/Logs",
-    "download_folders": {
-        "pack": "/home/dennis/Desktop/Storage/Modpacks",
-        "documents": "/home/dennis/Desktop/Storage/Documents",
-        "logs": "/home/dennis/Desktop/Storage/Logs"
-    },
-    "LoggingActivated": true,
-    "DebugModeActivated": true
+  "whitelist": [
+    "761212453727895564",
+    "831902298938015745"
+  ],
+  "log_file_location": "/home/dennis/Desktop/Storage/Logs",
+  "download_folders": {
+    "pack": "/home/dennis/Desktop/Storage/Modpacks",
+    "documents": "/home/dennis/Desktop/Storage/Documents",
+    "logs": "/home/dennis/Desktop/Storage/Logs"
+  },
+  "LoggingActivated": true,
+  "DebugModeActivated": true,
+  "BotStatus": {
+    "type": "listening",
+    "text": "Listening to your commands."
+  }
 }
