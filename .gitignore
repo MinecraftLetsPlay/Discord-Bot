@@ -2,10 +2,10 @@
 .env
 __pycache__/
 .venv/
+/src/internal/data/servers/
 console_to_discord.py
 #### other
 .vscode/
 Lavalink/
 ideas.txt
 logs/
-servers/*
