@@ -7,6 +7,6 @@
   "logging_config": {
     "log_all_by_default": true,
     "enabled_channels": [],
-    "disabled_channels": [952525019500646465]
+    "disabled_channels": ["952525019500646465"]
   }
 }

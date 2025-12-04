@@ -8,3 +8,4 @@ console_to_discord.py
 Lavalink/
 ideas.txt
 logs/
+src/internal/data/servers/*

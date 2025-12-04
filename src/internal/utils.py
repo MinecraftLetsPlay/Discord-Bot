@@ -164,12 +164,18 @@ def is_channel_logged(guild_id: int, channel_id: int) -> bool:
         srv = load_server_config(guild_id)
         logging_config = srv.get("logging_config", {})
         log_all = logging_config.get("log_all_by_default", True)
-        enabled = logging_config.get("enabled_channels", [])
-        disabled = logging_config.get("disabled_channels", [])
+        enabled = logging_config.get("enabled_channels", []) or []
+        disabled = logging_config.get("disabled_channels", []) or []
+
         cid = str(channel_id)
-        if cid in disabled:
+
+        # Normalize entries (accept both ints and strings)
+        enabled_set = {str(x) for x in enabled}
+        disabled_set = {str(x) for x in disabled}
+
+        if cid in disabled_set:
             return False
-        if cid in enabled:
+        if enabled_set and cid in enabled_set:
             return True
         return bool(log_all)
     except Exception as e:
