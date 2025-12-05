@@ -15,7 +15,7 @@ from typing import Optional
 
 logging.basicConfig(level=logging.INFO)
 
-# simple in-process locks for each file
+# Simple in-process locks for each file
 _file_locks = {}
 def _get_lock(path: str) -> threading.Lock:
     return _file_locks.setdefault(path, threading.Lock())
@@ -24,7 +24,7 @@ def _get_lock(path: str) -> threading.Lock:
 def _ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
     
-# helpers to resolve data paths
+# Helpers to resolve data paths
 BASE_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 def _abs_path(*parts):
     return os.path.join(BASE_DATA_DIR, *parts)
@@ -78,6 +78,52 @@ def load_json_file(rel_path: str) -> dict:
     except Exception as e:
         logging.error(f"❌ Error loading json file '{rel_path}': {e}")
         return {}
+    
+    
+# --------------------------
+# Authorization helpers
+# --------------------------
+
+# Global authorization uses global config
+def is_authorized_global(user):
+    try:
+        cfg = load_config()
+        whitelist = cfg.get("whitelist", []) or []
+        return str(user.id) in whitelist
+    except Exception as e:
+        logging.error(f"❌ Error checking global authorization: {e}")
+        return False
+
+# Server-specific authorization uses per-server config and auto trusts guild.owner
+def is_authorized_server(user, guild_id: int):
+    try:
+        import discord
+        
+        server_config = load_server_config(guild_id)
+        whitelist = server_config.get("whitelist", []) or []
+
+        # If whitelist is not empty, honor it
+        if whitelist:
+            return str(user.id) in whitelist
+
+        # Whitelist empty -> auto-trust only the guild owner (persisted)
+        if isinstance(user, discord.Member):
+            try:
+                if user.guild is not None and user.id == user.guild.owner_id:
+                    whitelist.append(str(user.id))
+                    server_config["whitelist"] = whitelist
+                    save_server_config(guild_id, server_config)
+                    logging.info(f"Auto-added guild owner {user.id} to whitelist for guild {guild_id}.")
+                    return True
+            except Exception as e:
+                logging.warning(f"Could not evaluate member as guild owner for guild {guild_id}: {e}")
+
+        # No match in server whitelist and not guild owner -> deny
+        return False
+        
+    except Exception as e:
+        logging.error(f"❌ Error checking server authorization for {guild_id}: {e}")
+        return False
 
 # --------------------------
 # Global config

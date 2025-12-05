@@ -3,12 +3,12 @@ import os
 import sys
 import asyncio
 import logging as log_
-import json
+from dotenv import load_dotenv
 from typing import Optional
 from discord import app_commands
 from datetime import datetime, timedelta
 from internal import utils
-from dotenv import load_dotenv
+from internal.utils import is_authorized_global, is_authorized_server
 from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 
 # Copyright (c) 2025 Dennis Plischke.
@@ -26,6 +26,11 @@ from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Store the bot start time
+bot_start_time = datetime.now()
+
+last_restart_time = None
 
 log_directory = utils.get_config_value("log_file_location", default="logs")
 if not isinstance(log_directory, str) or not log_directory:
@@ -102,54 +107,6 @@ def rotate_logs():
                 log_.error(f"Failed to delete log file {file_path}: {e}")
 
 rotate_logs()
-
-# ----------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------
-
-# Store the bot start time
-bot_start_time = datetime.now()
-
-last_restart_time = None
-
-def is_authorized_global(user):
-    try:
-        cfg = utils.load_config()
-        whitelist = cfg.get("whitelist", []) or []
-        return str(user.id) in whitelist
-    except Exception as e:
-        log_.error(f"❌ Error checking global authorization: {e}")
-        return False
-
-def is_authorized_server(user, guild_id):
-    try:
-        import discord
-        
-        server_config = utils.load_server_config(guild_id)
-        whitelist = server_config.get("whitelist", []) or []
-
-        # If whitelist is not empty, honor it
-        if whitelist:
-            return str(user.id) in whitelist
-
-        # Whitelist empty -> auto-trust only the guild owner (persisted)
-        if isinstance(user, discord.Member):
-            try:
-                if user.guild is not None and user.id == user.guild.owner_id:
-                    whitelist.append(str(user.id))
-                    server_config["whitelist"] = whitelist
-                    utils.save_server_config(guild_id, server_config)
-                    log_.info(f"Auto-added guild owner {user.id} to whitelist for guild {guild_id}.")
-                    return True
-            except Exception as e:
-                log_.warning(f"Could not evaluate member as guild owner for guild {guild_id}: {e}")
-
-        # No match in server whitelist and not guild owner -> deny
-        return False
-        
-    except Exception as e:
-        log_.error(f"❌ Error checking server authorization for {guild_id}: {e}")
-        return False
 
 # ----------------------------------------------------------------
 # Main Command Handler for [System Commands]

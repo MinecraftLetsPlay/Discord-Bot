@@ -2,7 +2,7 @@ import discord
 import logging
 from internal import utils
 from datetime import timedelta
-from internal.commands.system_commands import is_authorized_server
+from internal.utils import is_authorized_server
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.

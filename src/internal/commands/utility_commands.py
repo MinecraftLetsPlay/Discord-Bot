@@ -9,7 +9,6 @@ from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
 from discord.ui import Button, View
-from internal.commands.calculator import handle_calc_command
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
@@ -539,7 +538,8 @@ def setup_utility_commands(bot):
             return
 
         folder_path = download_folders[folder_key]
-        file_path = os.path.join(folder_path, filename)
+        safe_name = os.path.basename(filename)
+        file_path = os.path.join(folder_path, safe_name)
 
         if os.path.isfile(file_path):
             await interaction.response.send_message(
