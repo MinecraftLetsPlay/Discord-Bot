@@ -9,6 +9,14 @@ import urllib.parse
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: Sciencific_commands.py
+# Description: Handles science comand like !exoplanet or !sun
+# ----------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------
