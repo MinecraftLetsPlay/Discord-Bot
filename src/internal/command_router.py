@@ -14,7 +14,7 @@ from internal.commands.sciencecific_commands import handle_sciencecific_commands
 # All rights reserved.
 
 # ----------------------------------------------------------------
-# Module: Command Router.py
+# Module: Command_router.py
 # Description: Appends the right command handler based on the command
 # ----------------------------------------------------------------
 
