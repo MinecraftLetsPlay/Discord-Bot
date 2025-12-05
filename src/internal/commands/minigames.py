@@ -11,7 +11,7 @@ from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils funct
 
 # ----------------------------------------------------------------
 # Module: Minigames.py
-# Description: Contains the code for thr minigames lile hangman
+# Description: Contains the code for the minigames like hangman
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
