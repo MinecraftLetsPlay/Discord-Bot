@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 # ----------------------------------------------------------------
 # Module: Sciencecific_commands.py
-# Description: Handles science comand like !exoplanet or !sun
+# Description: Handles science comands like !exoplanet or !sun
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
