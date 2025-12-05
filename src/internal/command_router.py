@@ -10,6 +10,9 @@ from internal.commands.moderation_commands import handle_moderation_commands
 from internal.commands.mcserver_commands import handle_mcserver_commands
 from internal.commands.sciencecific_commands import handle_sciencecific_commands
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
 # ----------------------------------------------------------------
 # Module: Command Router
 # Description: Appends the right command handler based on the command
