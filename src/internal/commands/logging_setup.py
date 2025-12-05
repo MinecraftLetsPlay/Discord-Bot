@@ -5,6 +5,9 @@ from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
 # ----------------------------------------------------------------
 # Module: Logging Setup
 # Description: Sets up logging with daily rotation and custom filenames
