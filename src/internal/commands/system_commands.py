@@ -11,6 +11,15 @@ from internal import utils
 from dotenv import load_dotenv
 from internal.commands.logging_setup import CustomTimedRotatingFileHandler
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: System_commands.py
+# Description: Handles system commands like /shutdown 
+# and contains authorization and logging mechanisms
+# ----------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Helper Functions and Initial Setup
 # ----------------------------------------------------------------
