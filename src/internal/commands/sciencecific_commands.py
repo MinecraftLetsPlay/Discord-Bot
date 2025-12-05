@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 # All rights reserved.
 
 # ----------------------------------------------------------------
-# Module: Sciencific_commands.py
+# Module: Sciencecific_commands.py
 # Description: Handles science comand like !exoplanet or !sun
 # ----------------------------------------------------------------
 
