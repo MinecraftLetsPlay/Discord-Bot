@@ -8,7 +8,7 @@ from internal import utils
 
 # ----------------------------------------------------------------
 # Module: Public_commands.py
-# Description: Handles pinlic commands like !userinfo or !serverinfo
+# Description: Handles public commands like !userinfo or !serverinfo
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
