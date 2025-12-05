@@ -6,6 +6,14 @@ import logging
 import string
 from internal.utils import load_hangman, load_quiz, load_scrabble  # Utils functions for loading data
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: Minigames.py
+# Description: Contains the code for thr minigames lile hangman
+# ----------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Component test function for [Minigames]
 # ----------------------------------------------------------------
