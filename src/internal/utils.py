@@ -5,6 +5,14 @@ import threading
 import tempfile
 from typing import Optional
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: Utils.py
+# Description: File loding and read / write operations
+# ----------------------------------------------------------------
+
 logging.basicConfig(level=logging.INFO)
 
 # simple in-process locks for each file
