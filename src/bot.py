@@ -10,6 +10,9 @@ from discord.ext import commands
 from internal import utils
 from internal import command_router
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
 # ----------------------------------------------------------------
 # Module: Bot.py
 # Description: Main loop and handlers for messages and reactions
