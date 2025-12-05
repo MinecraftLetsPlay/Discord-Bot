@@ -11,6 +11,14 @@ from dotenv import load_dotenv
 from discord.ui import Button, View
 from internal.commands.calculator import handle_calc_command
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: Utility_commands.py
+# Description: Contains logic for the utility functions like weather fetching
+# ----------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------
