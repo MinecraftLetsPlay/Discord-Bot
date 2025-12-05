@@ -6,6 +6,14 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from internal.commands.system_commands import is_authorized_server  # ✅ Aus utils, nicht system_commands!
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: MCServer_commands.py
+# Description: Handeling Minecraft Server remote control
+# ----------------------------------------------------------------
+
 # --------------------------------------------------
 # Component test function for [MCServer commands]
 # --------------------------------------------------
