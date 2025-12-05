@@ -3,6 +3,14 @@ import aiohttp
 import logging
 from internal import utils
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: Public_commands.py
+# Description: Handles pinlic commands like !userinfo or !serverinfo
+# ----------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Component test function for public commands
 # ----------------------------------------------------------------
