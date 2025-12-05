@@ -1,6 +1,9 @@
 import bot as bot
 from internal.commands.logging_setup import setup_logging
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
 # Main entry point
 if __name__ == '__main__':
     # Initialize logging first
