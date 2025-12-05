@@ -384,15 +384,18 @@ async def handle_calc_command(client, message, user_message):
         if not expression:
             logging.debug("Empty expression, sending help message")  # Debug-Log
             await send_help_message(message)
-            return
+            return " ⚠️ You need to provide an expression to calculate."
 
         result = await process_calculation(message, expression)
         if result is not None:
             await send_calculation_result(message, expression, result)
             
+        if result is None:
+            return "❌ Calculation could not be completed."
+            
     except Exception as e:
         logging.error(f"Calculator error: {str(e)}", exc_info=True)  # Detailed error log
-        await message.channel.send(f"❌ Error: {str(e)}")
+        return f"❌ Error: {str(e)}"
 
 # Processes the calculation and returns the result
 async def process_calculation(message, expression):
