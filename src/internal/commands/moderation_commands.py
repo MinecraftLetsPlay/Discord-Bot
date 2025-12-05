@@ -8,7 +8,7 @@ from internal.commands.system_commands import is_authorized_server
 # All rights reserved.
 
 # ----------------------------------------------------------------
-# Module: Moderation.py
+# Module: Moderation_commands.py
 # Description: Discord moderation like kick and ban
 # ----------------------------------------------------------------
 
