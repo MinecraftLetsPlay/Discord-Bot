@@ -7,6 +7,14 @@ import asyncio
 import time
 from sympy import solve, symbols, parse_expr, sympify, Number
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# -----------------------------------------------------------------------------
+# Module: Calculator.py
+# Description: A all around, text-based calculator capable of equation solving
+# -----------------------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Component test function for calculator module
 # ----------------------------------------------------------------
