@@ -4,6 +4,14 @@ from internal import utils
 from datetime import timedelta
 from internal.commands.system_commands import is_authorized_server
 
+# Copyright (c) 2025 Dennis Plischke.
+# All rights reserved.
+
+# ----------------------------------------------------------------
+# Module: Moderation.py
+# Description: Discord moderation like kick and ban
+# ----------------------------------------------------------------
+
 # ----------------------------------------------------------------
 # Component test function for [Moderation Commands]
 # ----------------------------------------------------------------
