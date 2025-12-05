@@ -9,7 +9,7 @@ from internal import utils
 # All rights reserved.
 
 # ----------------------------------------------------------------
-# Module: Logging Setup
+# Module: Logging Setup.py
 # Description: Sets up logging with daily rotation and custom filenames
 # ----------------------------------------------------------------
 
