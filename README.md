@@ -105,17 +105,17 @@ Permission is granted to view the source code for **personal reference and educa
 
 ### Version 1.0
 
-- Utils.py now handles authorization and uses atomic read / write functions to enable simotainles file access.
+- utils.py now handles all authorization logic and uses atomic read/write functions to support simultaneous file access.
 
-- All data accesses now use the atomic read / write functionality of utils.py.
+- All data operations now rely on the atomic read/write functionality provided by utils.py.
 
-- Changed authorization from global to global and server-based and enabled server-specific configs.
+- Authorization has been expanded from global-only to both global and server-based, enabling server-specific configurations.
 
-- Logging can now be configured to exclude server completely or to include / exclude specific channels.
+- Logging can now be configured to either exclude entire servers or include/exclude specific channels.
 
-- Each server automatically has its own config.json file to save server-specific configuration.
+- Each server automatically receives its own config.json file to store server-specific settings.
 
-- Optimized and unified file access and authorization functions.
+- File access and authorization logic have been optimized and unified.
 
 ---
 
