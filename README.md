@@ -17,13 +17,13 @@ Designed for **private server use** with sophisticated permission handling and l
 ### 🗂️ Command Modules  
 
 - `moderation_commands.py` – 🔒 Discord moderation - Kick, Ban, Timeout etc.
-- `minigames.py` – 🎮 Text-based minigames - RPS, Hangman, Quiz, scrabble etc.
-- `utility_commands.py` – 🛠️ Utility tools - Weather, Time, reminder etc.  
+- `minigames.py` – 🎮 Text-based minigames - RPS, Hangman, Quiz, Scrabble etc.
+- `utility_commands.py` – 🛠️ Utility tools - Weather, Time, Reminder etc.  
 - `public_commands.py` – 👥 Public commands - Help, Info, Serverinfo etc.
 - `system_commands.py` – 🖥️ Admin controls, logging configuration and system commands.
 - `calculator.py` – ➗ Advanced text-based calculator with eqaution solving.
 - `mcserver_commands.py` – ⛏️ Minecraft-Server controls. (Nitrado API)
-- `Sciencecific_commands.py` - 🔬 Science commands - Exoplanets, sun activity etc.
+- `Sciencecific_commands.py` - 🔬 Sciencecific commands - Exoplanets, Sun activity etc.
 
 ### 🔌 Support Modules  
 
@@ -40,8 +40,8 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ## ⚙️ Tech Stack  
 ### Some of the core packages:
-- 🐍 **Python 3.13.5**  
-- 💬 **Discord.py 2.6.4**  
+- 🐍 **Python 3.13.5** → Python-version the Bot runs on
+- 💬 **Discord.py 2.6.4** → API Wrapper
 - 🔊 **PyNaCl 1.6.1** → voice support  
 - 🌐 **aiohttp 3.13.2** → HTTP/WebSocket
 - ⏳ **asyncio 4.0.0** → async operations
