@@ -11,43 +11,43 @@ Designed for **private server use** with sophisticated permission handling and l
 ### 📂 Source Files  
 
 - `main.py` – 📝 Entry point
-- `bot.py` – 🔧 Main bot initialization and event handling
-- `console_to_discord.py` – 💬 Console ↔ Discord messaging  
+- `bot.py` – 🔧 Main bot initialization and event handling 
 - `command_router.py` – 🚦 Command routing system  
 
 ### 🗂️ Command Modules  
 
-- `moderation_commands.py` – 🔒 Kick, Ban, Timeout  
-- `minigames.py` – 🎮 RPS, Hangman, Quiz, scrabble etc
-- `utility_commands.py` – 🛠️ Weather, Time, reminder etc.  
-- `public_commands.py` – 👥 Help, Info and some public commands
-- `system_commands.py` – 🖥️ Admin controls and system commands
-- `calculator.py` – ➗ Advanced calculator with eqaution solving
-- `mcserver_commands.py` – ⛏️ Minecraft-Server controls (Nitrado API)  
+- `moderation_commands.py` – 🔒 Discord moderation - Kick, Ban, Timeout etc.
+- `minigames.py` – 🎮 Text-based minigames - RPS, Hangman, Quiz, scrabble etc.
+- `utility_commands.py` – 🛠️ Utility tools - Weather, Time, reminder etc.  
+- `public_commands.py` – 👥 Public commands - Help, Info, Serverinfo etc.
+- `system_commands.py` – 🖥️ Admin controls, logging configuration and system commands.
+- `calculator.py` – ➗ Advanced text-based calculator with eqaution solving.
+- `mcserver_commands.py` – ⛏️ Minecraft-Server controls. (Nitrado API)
+- `Sciencecific_commands.py` - 🔬 Science commands - Exoplanets, sun activity etc.
 
 ### 🔌 Support Modules  
 
-- `utils.py` – 🧩 Helper functions for loading data
-- `logging_setup.py` – 📜 Advanced logging with rotation  
+- `utils.py` – 🧩 Helper functions for loading / writing data and authorization.
+- `logging_setup.py` – 📜 Advanced logging with rotation.
 
 ---
 
 ## 🚧 Features Under Development  
 
-- 🎵 **Music Bot Features** – Voice channel audio with YTMusic  
+- 🎵 **Music Bot Features** – Voice channel audio with Spotify as search engine and YTMusic as provider.
 
 ---
 
 ## ⚙️ Tech Stack  
 ### Some of the core packages:
-- 🐍 **Python 3.11.4**  
-- 💬 **Discord.py 2.6.3**  
-- 🔊 **PyNaCl 1.6.0** → voice support  
-- 🌐 **aiohttp 3.13.0** → HTTP/WebSocket
+- 🐍 **Python 3.13.5**  
+- 💬 **Discord.py 2.6.4**  
+- 🔊 **PyNaCl 1.6.1** → voice support  
+- 🌐 **aiohttp 3.13.2** → HTTP/WebSocket
 - ⏳ **asyncio 4.0.0** → async operations
-- 🔑 **python-dotenv 1.1.1** → environment variables
+- 🔑 **python-dotenv 1.2.1** → environment variables
 - 📐 **sympy 1.14.0** → advanced math & calculator
-- 📅 **DateTime 5.5** → time-based utilities
+- 📅 **DateTime 6.0** → time-based utilities
 - 🌍 **pytz 2025.2** → timezone handling
 
 ### **Development Tools:**  
@@ -55,6 +55,12 @@ Designed for **private server use** with sophisticated permission handling and l
 - 📦 **JSON** → lightweight data storage: configs, quiz data, scrabble
 - 📝 **Logging system with rotation** → auto log management, error tracing
 - 🔄 **Virtual Environment (venv)** → for isolated dependencies
+
+### **Runtime environment**
+
+- The Bot itself runs on a Raspberry Pi 5 B with a Quad-Core 64-Bit 2.4 Ghz CPU and 8 GB LPDDR4X RAM.
+
+- The bot runs inside a Python venv with Python 3.13.5.
 
 ---
 
@@ -92,6 +98,24 @@ Permission is granted to view the source code for **personal reference and educa
 🚫 Any other use (copy, modify, distribute, commercial) requires prior written consent.  
 
 > [`license.txt`](./license.txt)
+
+---
+
+## 📝 Changelog
+
+### Version 1.0
+
+- Utils.py now handles authorization and uses atomic read / write functions to enable simotainles file access.
+
+- All data accesses now use the atomic read / write functionality of utils.py.
+
+- Changed authorization from global to global and server-based and enabled server-specific configs.
+
+- Logging can now be configured to exclude server completely or to include / exclude specific channels.
+
+- Each server automatically has its own config.json file to save server-specific configuration.
+
+- Optimized and unified file access and authorization functions.
 
 ---
 
