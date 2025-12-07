@@ -1,11 +1,16 @@
-#### python
+# Python
 .env
 __pycache__/
 .venv/
 /src/internal/data/servers/
 console_to_discord.py
-#### other
-.vscode/
+
+# Miscellaneous
+.DS_Store 
 Lavalink/
 ideas.txt
 logs/
+
+# IDE Folders
+.idea/
+.vscode/
