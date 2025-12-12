@@ -75,27 +75,35 @@ LoggingActivated = utils.get_config_value("LoggingActivated", default=True)
 
 # Setup logging with TimedRotatingFileHandler
 log_file = os.path.join(log_directory, 'bot.log')
-handler = CustomTimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=10, encoding="utf-8")
-handler.suffix = "%d.%m.%Y_%H.%M.%S"
+handler = CustomTimedRotatingFileHandler(
+    log_file,
+    when="midnight",
+    interval=1,
+    backupCount=10,
+    encoding="utf-8"
+)
 
-log_.basicConfig(level=log_.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    handler,
-    log_.StreamHandler(sys.stdout)
-])
+log_.basicConfig(
+    level=log_.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        handler,
+        log_.StreamHandler(sys.stdout)
+    ]
+)
 
-# Function to rotate logs
+# Function to handle deletion of old files
 def rotate_logs():
-    # Make sure log_directory is a string
     directory = log_directory if isinstance(log_directory, str) else "logs"
+
+    # Get all new-style logfiles (bot.log-TIMESTAMP.txt)
     log_files = sorted(
-        [f for f in os.listdir(directory) if f.startswith('bot.log') and f.endswith('.txt')],
+        [f for f in os.listdir(directory)
+        if f.startswith('bot.log-') and f.endswith('.txt')],
         key=lambda x: os.path.getmtime(os.path.join(directory, x))
     )
-    current_log_file = os.path.join(directory, 'bot.log')
-    if os.path.exists(current_log_file):
-        log_files.append('bot.log')
 
-    # Check if the number of files exceeds the limit
+    # Delete old files if more than 10
     if len(log_files) > 10:
         files_to_delete = log_files[:len(log_files) - 10]
         for file in files_to_delete:
@@ -216,19 +224,24 @@ def setup_system_commands(bot):
     async def log(interaction: discord.Interaction):
         # Ensure log_directory is a string
         directory = log_directory if isinstance(log_directory, str) else "logs"
-        
+    
         if is_authorized_global(interaction.user):
-            # Guard: ensure channel is TextChannel (not CategoryChannel, ForumChannel, etc.)
+
+            # Make sure it's a text channel
             if not isinstance(interaction.channel, discord.TextChannel):
                 await interaction.response.send_message("❌ This command can only be used in a text channel.", ephemeral=True)
                 return
-            
+        
+            # Only match new log format: bot.log-TIMESTAMP.txt
             log_files = [
                 os.path.join(directory, f)
                 for f in os.listdir(directory)
-                if f.startswith('bot.log') and f.endswith('.txt')
+                if f.startswith('bot.log-') and f.endswith('.txt')
             ]
+
+            # Sort newest → oldest
             log_files = sorted(log_files, key=os.path.getmtime, reverse=True)
+
             if log_files:
                 latest_log_file = log_files[0]
                 await interaction.response.send_message(file=discord.File(latest_log_file))
@@ -236,6 +249,7 @@ def setup_system_commands(bot):
             else:
                 await interaction.response.send_message("⚠️ No log files found.")
                 log_.info(f"System: No log files found. User: {interaction.user}")
+
         else:
             embed = discord.Embed(
                 title="❌ Permission denied",
