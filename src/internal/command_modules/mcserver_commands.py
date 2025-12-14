@@ -4,7 +4,7 @@ import asyncio
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from internal.commands.system_commands import is_authorized_server
+from internal.command_modules.system_commands import is_authorized_server
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.

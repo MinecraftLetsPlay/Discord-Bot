@@ -226,11 +226,11 @@ def run_discord_bot():
         await handle_reaction_role(payload, "remove")
 
     # Load system commands
-    from internal.commands.system_commands import setup_system_commands
+    from internal.command_modules.system_commands import setup_system_commands
     setup_system_commands(bot)
     
     # Load /download command
-    from internal.commands.utility_commands import setup_utility_commands
+    from internal.command_modules.utility_commands import setup_utility_commands
     setup_utility_commands(bot)
     
     bot.run(TOKEN)

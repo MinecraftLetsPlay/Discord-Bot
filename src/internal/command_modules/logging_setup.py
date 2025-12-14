@@ -43,7 +43,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
 
     # Do log rotation
     def doRollover(self):
-        from internal.commands.system_commands import rotate_logs
+        from internal.command_modules.system_commands import rotate_logs
         super().doRollover()
         rotate_logs()
 

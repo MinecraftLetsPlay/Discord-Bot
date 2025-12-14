@@ -2,14 +2,14 @@ import logging
 import inspect
 from internal import utils
 from typing import Any, Awaitable, Callable, Dict, List, Tuple, Union
-from internal.commands.calculator import handle_calc_command
-from internal.commands.minigames import handle_minigames_commands
-from internal.commands.utility_commands import handle_utility_commands
-from internal.commands.public_commands import handle_public_commands
-from internal.commands.moderation_commands import handle_moderation_commands
-from internal.commands.mcserver_commands import handle_mcserver_commands
-from internal.commands.sciencecific_commands import handle_sciencecific_commands
-from internal.commands.calculator import handle_calc_command
+from internal.command_modules.calculator import handle_calc_command
+from internal.command_modules.minigames import handle_minigames_commands
+from internal.command_modules.utility_commands import handle_utility_commands
+from internal.command_modules.public_commands import handle_public_commands
+from internal.command_modules.moderation_commands import handle_moderation_commands
+from internal.command_modules.mcserver_commands import handle_mcserver_commands
+from internal.command_modules.sciencecific_commands import handle_sciencecific_commands
+from internal.command_modules.calculator import handle_calc_command
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
@@ -71,7 +71,7 @@ async def component_test() -> List[Tuple[str, Dict[str, str]]]:
 
     # Component test for calculator module
     try:
-        import internal.commands.calculator as calc
+        import internal.command_modules.calculator as calc
         if hasattr(calc, "component_test"):
             result = calc.component_test()
             results.append(("calculator", result))

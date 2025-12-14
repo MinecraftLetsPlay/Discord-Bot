@@ -9,7 +9,7 @@ from discord import app_commands
 from datetime import datetime, timedelta
 from internal import utils
 from internal.utils import is_authorized_global, is_authorized_server
-from internal.commands.logging_setup import CustomTimedRotatingFileHandler
+from internal.command_modules.logging_setup import CustomTimedRotatingFileHandler
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
