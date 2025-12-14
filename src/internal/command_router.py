@@ -9,6 +9,7 @@ from internal.command_modules.public_commands import handle_public_commands
 from internal.command_modules.moderation_commands import handle_moderation_commands
 from internal.command_modules.mcserver_commands import handle_mcserver_commands
 from internal.command_modules.sciencecific_commands import handle_sciencecific_commands
+from internal.command_modules.music_commands import handle_music_commands
 from internal.command_modules.calculator import handle_calc_command
 
 # Copyright (c) 2025 Dennis Plischke.
@@ -39,6 +40,7 @@ command_groups = {
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'sciencecific': ['!apod', '!marsphoto', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
+    'mucic': ['!music-channel', '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop', '!queue', '!nowplaying'],
     'mcserver': ['!MCServer']
 }
 
@@ -48,15 +50,18 @@ command_handlers = {
     'minigames': handle_minigames_commands,
     'public': handle_public_commands,
     'moderation': handle_moderation_commands,
-    'mcserver': handle_mcserver_commands,
-    'sciencecific': handle_sciencecific_commands
+    'sciencecific': handle_sciencecific_commands,
+    'mucic': handle_music_commands,
+    'mcserver': handle_mcserver_commands
 }
 
 # Commands that cannot be executed in a DM
 no_dm_commands = [
     '!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole',
     '!userinfo', '!rules', '!serverinfo', '!reactionrole', '!scrabble',
-    '!whitelist add', '!whitelist remove', '!poll', '!MCServer'
+    '!whitelist add', '!whitelist remove', '!poll', '!MCServer', '!music-channel',
+    '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop',
+    '!queue', '!nowplaying'
 ]
 
 # ----------------------------------------------------------------

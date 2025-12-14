@@ -1,10 +1,10 @@
 import discord
-from discord import app_commands
 import aiohttp
 import asyncio
 import json
 import os
 import logging
+from discord import app_commands
 from datetime import datetime, timezone, timedelta
 from internal import utils
 from dotenv import load_dotenv
@@ -375,21 +375,21 @@ async def handle_utility_commands(client, message, user_message):
                         self.total_votes -= 1
                         del self.user_votes[user_id]
                         await interaction.response.send_message(f"Your vote for **{option}** has been removed!", ephemeral=True)
-                        logging.info(f"User {interaction.user} removed their vote for {option}")
+                        logging.debug(f"User {interaction.user} removed their vote for {option}")
                     else:
                         # Remove previous vote if exists
                         if user_id in self.user_votes:
                             previous_option = self.user_votes[user_id]
                             self.votes[previous_option] -= 1
                             self.total_votes -= 1
-                            logging.info(f"User {interaction.user} changed their vote from {previous_option} to {option}")
+                            logging.debug(f"User {interaction.user} changed their vote from {previous_option} to {option}")
 
                         # Add new vote
                         self.votes[option] += 1
                         self.total_votes += 1
                         self.user_votes[user_id] = option
                         await interaction.response.send_message(f"You voted for **{option}**!", ephemeral=True)
-                        logging.info(f"User {interaction.user} voted for {option}")
+                        logging.debug(f"User {interaction.user} voted for {option}")
 
                     await self.update_poll_message(interaction.message)
 
