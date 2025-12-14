@@ -168,6 +168,7 @@ def _default_server_config() -> dict:
             "enabled_channels": [],
             "disabled_channels": []
         },
+        "music_channel_id": ""
     }
 
 # Create server config file if it does not exist

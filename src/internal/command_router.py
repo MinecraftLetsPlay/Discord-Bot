@@ -40,7 +40,7 @@ command_groups = {
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'sciencecific': ['!apod', '!marsphoto', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
-    'mucic': ['!music-channel', '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop', '!queue', '!nowplaying'],
+    'music': ['!music-channel', '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop', '!queue', '!nowplaying'],
     'mcserver': ['!MCServer']
 }
 
@@ -51,7 +51,7 @@ command_handlers = {
     'public': handle_public_commands,
     'moderation': handle_moderation_commands,
     'sciencecific': handle_sciencecific_commands,
-    'mucic': handle_music_commands,
+    'music': handle_music_commands,
     'mcserver': handle_mcserver_commands
 }
 

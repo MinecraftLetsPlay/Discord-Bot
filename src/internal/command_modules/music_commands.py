@@ -1,6 +1,5 @@
 import discord
 import logging
-from discord.ext import commands
 from internal.utils import load_server_config, save_server_config
 
 # Copyright (c) 2025 Dennis Plischke.
@@ -47,8 +46,6 @@ async def handle_music_commands(client, message, user_message):
     # Command: !music-channel
     # Description: Sets the current channel as the music channel
     # ----------------------------------------------------------------
-    
-    async def set_music_channel(message, user_message):
         if user_message.startswith("!music-channel"):
             if not message.guild:
                 return
@@ -67,8 +64,7 @@ async def handle_music_commands(client, message, user_message):
     # Description: Bot joins the specified voice channel
     # ----------------------------------------------------------------
 
-    async def join_voice_channel(message, user_message, client):
-        if user_message.startswith("!join"):
+        if user_message == "!join" or user_message.startswith("!join"):
             if not message.guild:
                 return
 
@@ -107,22 +103,18 @@ async def handle_music_commands(client, message, user_message):
     # Description: Bot leaves the current voice channel
     # ----------------------------------------------------------------
 
-    async def leave_voice_channel(message, user_message):
-        if user_message != "!leave":
-            return
+        if user_message == "!leave":
+            if not message.guild:
+                return
 
-        if not message.guild:
-            return
+            if not await is_music_channel(message):
+                return
 
-        if not await is_music_channel(message):
-            return
+            vc = message.guild.voice_client
+            if not vc:
+                await message.channel.send("❌ I'm not connected to a voice channel.")
+                return
 
-        vc = message.guild.voice_client
-        
-        if not vc:
-            await message.channel.send("❌ Im not connected to any voice channel.")
-            logging.debug("Leave command issued but bot is not in a voice channel.")
+            await vc.disconnect()
+            await message.channel.send("👋 Left the voice channel.")
             return
-
-        await vc.disconnect()
-        await message.channel.send("👋 Left the voice channel.")
