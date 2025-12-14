@@ -9,7 +9,7 @@ from internal.command_modules.public_commands import handle_public_commands
 from internal.command_modules.moderation_commands import handle_moderation_commands
 from internal.command_modules.mcserver_commands import handle_mcserver_commands
 from internal.command_modules.sciencecific_commands import handle_sciencecific_commands
-from internal.command_modules.music_commands import handle_music_commands
+from internal.command_modules.music.music_commands import handle_music_commands
 from internal.command_modules.calculator import handle_calc_command
 
 # Copyright (c) 2025 Dennis Plischke.
