@@ -124,9 +124,11 @@ async def handle_music_commands(client, message, user_message):
         parts = user_message.split()
         
         if len(parts) < 2:
-            await message.channel.send("❌ Please specify a voice channel name or ID to join.")
-            logging.debug("No voice channel specified in !join command.")
-            return
+            if message.author.voice and message.author.voice.channel:
+                channel = message.author.voice.channel
+            else:
+                await message.channel.send("❌ Join a voice channel or specify one.")
+                return
         
         try:
             channel_id = int(parts[1])
