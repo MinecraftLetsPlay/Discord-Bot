@@ -38,6 +38,40 @@ async def is_music_channel(message):
     return True
 
 # ----------------------------------------------------------------
+# Component test function for [Music Commands]
+# ----------------------------------------------------------------
+
+async def component_test():
+    status = "🟩"
+    messages = ["Music commands module loaded."]
+
+    # Test 1: Check if ffmpeg is available
+    try:
+        ffmpeg_exec = player.resolve_ffmpeg_executable()
+        if ffmpeg_exec:
+            messages.append(f"FFmpeg found: {ffmpeg_exec}")
+        else:
+            status = "🟧"
+            messages.append("Warning: FFmpeg not found.")
+    except player.PlayerError as e:
+        status = "🟧"
+        messages.append(f"Warning: {e}")
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"Warning: FFmpeg check failed: {e}")
+
+    # Test 2: Check music channel config
+    try:
+        from internal.utils import load_config
+        cfg = load_config()
+        messages.append("Config loaded.")
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"Warning: Config load failed: {e}")
+
+    return {"status": status, "msg": " | ".join(messages)}
+
+# ----------------------------------------------------------------
 # Main command handler for music commands
 # ----------------------------------------------------------------
 
@@ -215,3 +249,5 @@ async def handle_music_commands(client, message, user_message):
             return
         await message.channel.send(f"🎶 Now playing: **{current['title']}**")
         return
+
+

@@ -43,6 +43,8 @@ class YtDlpParams(TypedDict, total=False):
     quiet: bool
     default_search: str
     js_runtimes: dict[str, dict[str, Any]]
+    socket_timeout: int
+    extractor_args: dict[str, dict[str, list[str]]]
 
 class FFmpegParams(TypedDict, total=False):
     executable: str
@@ -60,7 +62,13 @@ YTDLP_OPTIONS: YtDlpParams = {
     "noplaylist": True,
     "quiet": True,
     "default_search": "ytsearch",
-    "js_runtimes": {"node": {}}
+    "socket_timeout": 30,
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["web"],  # Avoid signature challenges
+            "skip": ["hls", "dash"]
+        }
+    }
 }
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
