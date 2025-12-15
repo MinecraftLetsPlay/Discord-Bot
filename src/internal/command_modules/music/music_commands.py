@@ -2,6 +2,7 @@ import discord
 import logging
 from internal.utils import load_server_config, save_server_config
 from internal.command_modules.music import player
+from internal.command_modules.music.player import PlayerError
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
@@ -47,13 +48,14 @@ async def component_test():
 
     # Test 1: Check if ffmpeg is available
     try:
-        ffmpeg_exec = player.resolve_ffmpeg_executable()
+        from internal.command_modules.music.player import resolve_ffmpeg_executable
+        ffmpeg_exec = resolve_ffmpeg_executable()
         if ffmpeg_exec:
             messages.append(f"FFmpeg found: {ffmpeg_exec}")
         else:
             status = "🟧"
             messages.append("Warning: FFmpeg not found.")
-    except player.PlayerError as e:
+    except PlayerError as e:
         status = "🟧"
         messages.append(f"Warning: {e}")
     except Exception as e:
@@ -68,6 +70,19 @@ async def component_test():
     except Exception as e:
         status = "🟧"
         messages.append(f"Warning: Config load failed: {e}")
+    
+    # Test 3: Check if player.py module is functional
+    try:
+        test_guild_id = 0  # Dummy guild ID for testing
+        state = player.get_guild_state(test_guild_id)
+        if isinstance(state, dict):
+            messages.append("Player module functional.")
+        else:
+            status = "🟧"
+            messages.append("Warning: Player module returned invalid state.")
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"Warning: Player module test failed: {e}")
 
     return {"status": status, "msg": " | ".join(messages)}
 
