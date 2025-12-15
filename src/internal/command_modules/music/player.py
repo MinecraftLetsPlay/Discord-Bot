@@ -20,7 +20,7 @@ from typing import Any, TypedDict, IO, cast
 
 bot_loop = None
 music_state = {}
-
+max_queue_size = 50
 
 class PlayerError(Exception):
     """Raised when playback prerequisites are missing (e.g., ffmpeg)."""
@@ -145,6 +145,9 @@ async def play_next(guild: discord.Guild):
 # Add a song to the queue
 async def add_to_queue(guild: discord.Guild, query: str):
     state = get_guild_state(guild.id)
+    
+    if len(state["queue"]) >= max_queue_size:
+        raise PlayerError(f"Queue limit reached ({max_queue_size} songs).")
 
     song = extract_audio(query)
     state["queue"].append(song)

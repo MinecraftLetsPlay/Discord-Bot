@@ -96,6 +96,7 @@ async def handle_music_commands(client, message, user_message):
     # Command: !music-channel
     # Description: Sets the current channel as the music channel
     # ----------------------------------------------------------------
+    
     if user_message.startswith("!music-channel"):
         if not message.guild:
             return
@@ -180,6 +181,7 @@ async def handle_music_commands(client, message, user_message):
     # ----------------------------------------------------------------
     # Command: !play <query or URL>
     # ----------------------------------------------------------------
+    
     if user_message.startswith("!play"):
         if not message.guild or not await is_music_channel(message):
             return
@@ -204,21 +206,40 @@ async def handle_music_commands(client, message, user_message):
     # ----------------------------------------------------------------
     # Command: !pause / !resume
     # ----------------------------------------------------------------
+    
     if user_message == "!pause":
-        if message.guild and await is_music_channel(message):
-            player.pause(message.guild.id)
-            await message.channel.send("⏸️ Paused.")
+        if not message.guild or not await is_music_channel(message):
+            return
+
+        state = player.get_guild_state(message.guild.id)
+        vc = state.get("voice_client")
+
+        if not vc or not vc.is_playing():
+            await message.channel.send("ℹ️ Nothing is playing.")
+            return
+
+        player.pause(message.guild.id)
+        await message.channel.send("⏸️ Paused.")
         return
 
     if user_message == "!resume":
-        if message.guild and await is_music_channel(message):
-            player.resume(message.guild.id)
-            await message.channel.send("▶️ Resumed.")
+        if not message.guild or not await is_music_channel(message):
+            return
+
+        state = player.get_guild_state(message.guild.id)
+        vc = state.get("voice_client")
+        if not vc or not vc.is_paused():
+            await message.channel.send("ℹ️ Nothing to resume.")
+            return
+
+        player.resume(message.guild.id)
+        await message.channel.send("▶️ Resumed.")
         return
 
     # ----------------------------------------------------------------
     # Command: !skip (stop current, continue queue)
     # ----------------------------------------------------------------
+    
     if user_message == "!skip":
         if not message.guild or not await is_music_channel(message):
             return
@@ -233,15 +254,30 @@ async def handle_music_commands(client, message, user_message):
     # ----------------------------------------------------------------
     # Command: !stop (clear queue + stop)
     # ----------------------------------------------------------------
+    
     if user_message == "!stop":
-        if message.guild and await is_music_channel(message):
-            player.stop(message.guild.id)
-            await message.channel.send("⏹️ Stopped and cleared the queue.")
-        return
+        if not message.guild or not await is_music_channel(message):
+            return
 
+        state = player.get_guild_state(message.guild.id)
+        vc = state.get("voice_client")
+
+        if not vc:
+            await message.channel.send("ℹ️ Nothing to stop.")
+            return
+
+        player.stop(message.guild.id)
+
+        if vc.is_playing() or vc.is_paused():
+            vc.stop()
+
+        await message.channel.send("⏹️ Stopped playback and cleared the queue.")
+        return
+    
     # ----------------------------------------------------------------
     # Command: !queue
     # ----------------------------------------------------------------
+    
     if user_message == "!queue":
         if not message.guild or not await is_music_channel(message):
             return
@@ -256,6 +292,7 @@ async def handle_music_commands(client, message, user_message):
     # ----------------------------------------------------------------
     # Command: !nowplaying
     # ----------------------------------------------------------------
+    
     if user_message == "!nowplaying":
         if not message.guild or not await is_music_channel(message):
             return
