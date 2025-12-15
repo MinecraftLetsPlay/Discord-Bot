@@ -91,7 +91,6 @@ async def component_test():
 # ----------------------------------------------------------------
 
 async def handle_music_commands(client, message, user_message):
-    
     # ----------------------------------------------------------------
     # Command: !music-channel
     # Description: Sets the current channel as the music channel
@@ -125,25 +124,27 @@ async def handle_music_commands(client, message, user_message):
         parts = user_message.split()
         
         if len(parts) < 2:
+            # No channel ID provided, use author's current voice channel
             if message.author.voice and message.author.voice.channel:
                 channel = message.author.voice.channel
             else:
                 await message.channel.send("❌ Join a voice channel or specify one.")
                 return
-        
-        try:
-            channel_id = int(parts[1])
-        except ValueError:
-            await message.channel.send("❌ Invalid channel ID. Please provide a numeric channel ID.")
-            logging.debug(f"Invalid channel ID provided: {parts[1]}")
-            return
-        
-        channel = message.guild.get_channel(channel_id)
-        
-        if channel is None or not isinstance(channel, discord.VoiceChannel):
-            await message.channel.send("❌ Specified channel is not a valid voice channel.")
-            logging.debug(f"Channel ID {channel_id} is not a valid voice channel.")
-            return
+        else:
+            # Channel ID provided
+            try:
+                channel_id = int(parts[1])
+            except ValueError:
+                await message.channel.send("❌ Invalid channel ID. Please provide a numeric channel ID.")
+                logging.debug(f"Invalid channel ID provided: {parts[1]}")
+                return
+            
+            channel = message.guild.get_channel(channel_id)
+            
+            if channel is None or not isinstance(channel, discord.VoiceChannel):
+                await message.channel.send("❌ Specified channel is not a valid voice channel.")
+                logging.debug(f"Channel ID {channel_id} is not a valid voice channel.")
+                return
         
         if message.guild.voice_client:
             await message.guild.voice_client.disconnect()
@@ -153,8 +154,8 @@ async def handle_music_commands(client, message, user_message):
         vc = message.guild.voice_client
         state = player.get_guild_state(message.guild.id)
         state["voice_client"] = vc
+        return
 
-        
     # ----------------------------------------------------------------
     # Command: !leave
     # Description: Bot leaves the current voice channel

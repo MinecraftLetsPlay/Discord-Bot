@@ -37,12 +37,7 @@ def get_guild_state(guild_id: int):
     return music_state[guild_id]
 
 # Youtube-dl and FFMPEG parameter types
-class YtDlpParams(TypedDict, total=False):
-    format: str
-    noplaylist: bool
-    quiet: bool
-    default_search: str
-    js_runtimes: dict[str, dict[str, Any]]
+YtDlpParams = dict[str, Any]
 
 class FFmpegParams(TypedDict, total=False):
     executable: str
@@ -60,8 +55,17 @@ YTDLP_OPTIONS: YtDlpParams = {
     "noplaylist": True,
     "quiet": True,
     "default_search": "ytsearch",
-    "js_runtimes": {"node": {}}
+    "extract_flat": False,
+    "skip_download": True,
+    "nocheckcertificate": True,
+    "retries": 3,
+    "fragment_retries": 3,
+    "concurrent_fragment_downloads": 1,
+    "http_chunk_size": 10485760,
+    "js_runtimes": {"node": {}},
+    "remote_components": ["ejs:github"],
 }
+
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -92,8 +96,11 @@ def get_ffmpeg_options() -> FFmpegParams:
 
 # Extract audio information using yt-dlp
 def extract_audio(query: str):
-    with yt_dlp.YoutubeDL(cast(dict[str, Any], YTDLP_OPTIONS)) as ydl:  # type: ignore[arg-type]
+    with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
         info = ydl.extract_info(query, download=False)
+
+        if not info:
+            raise PlayerError("No results found.")
 
         if "entries" in info:
             info = info["entries"][0]
@@ -102,7 +109,7 @@ def extract_audio(query: str):
             "title": info.get("title"),
             "url": info.get("url"),
             "webpage_url": info.get("webpage_url"),
-            "duration": info.get("duration")
+            "duration": info.get("duration"),
         }
         
 # ------------------------------------------------------------
@@ -145,9 +152,9 @@ async def play_next(guild: discord.Guild):
 # Add a song to the queue
 async def add_to_queue(guild: discord.Guild, query: str):
     state = get_guild_state(guild.id)
-    
+
     if len(state["queue"]) >= max_queue_size:
-        raise PlayerError(f"Queue limit reached ({max_queue_size} songs).")
+        raise PlayerError(f"Queue limit reached ({max_queue_size} tracks).")
 
     song = extract_audio(query)
     state["queue"].append(song)
