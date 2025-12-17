@@ -64,6 +64,7 @@ async def handle_public_commands(client, message, user_message):
         embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
         embed.add_field(name="[Science]", value="!apod, !marsphoto, !asteroids, !sun, !exoplanet", inline=False)
         embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !poll, !reminder, !calc, /download, !catfact", inline=False)
+        embed.add_field(name="[Music]", value="!join, !leave, !play, !pause, !resume, !stop, !skip, !repeat, !queue, !nowplaying", inline=False)
         embed.add_field(name="[Minecraft Server]", value="Prefix: !MCServer, (vote) Shutdown, (vote) Restart, status, command", inline=False)
         embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman, !scrabble", inline=False)
         await message.channel.send(embed=embed)

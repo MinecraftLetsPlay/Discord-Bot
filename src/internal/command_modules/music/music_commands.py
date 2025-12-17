@@ -32,7 +32,6 @@ class QueueView(ui.View):
     
     # Update button states based on current page
     def _update_button_states(self):
-        """Update button states based on current page."""
         state = player.get_guild_state(self.guild_id)
         queue = state.get("queue", [])
         total_pages = (len(queue) + QUEUE_ITEMS_PER_PAGE - 1) // QUEUE_ITEMS_PER_PAGE if queue else 1
@@ -65,21 +64,18 @@ class QueueView(ui.View):
     
     # Update the message with new page content
     async def update_message(self, interaction: discord.Interaction):
-        """Update the message with new page content."""
         embed = create_queue_embed(self.guild_id, self.current_page)
         self._update_button_states()
         await interaction.response.edit_message(embed=embed, view=self)
     
     # Disable buttons on timeout
     async def on_timeout(self):
-        """Disable all buttons when timeout expires."""
         for item in self.children:
             if hasattr(item, 'disabled'):
                 item.disabled = True  # type: ignore
 
 # Create embed for queue display
 def create_queue_embed(guild_id: int, page: int = 0) -> discord.Embed:
-    """Create a beautiful embed for queue display."""
     state = player.get_guild_state(guild_id)
     queue = state.get("queue", [])
     current = state.get("current")
