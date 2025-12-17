@@ -40,7 +40,7 @@ command_groups = {
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'sciencecific': ['!apod', '!marsphoto', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
-    'music': ['!music-channel', '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop', '!queue', '!nowplaying'],
+    'music': ['!music-channel', '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop', '!repeat', '!queue', '!nowplaying'],
     'mcserver': ['!MCServer']
 }
 
