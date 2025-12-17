@@ -349,7 +349,7 @@ async def handle_music_commands(client, message, user_message):
             await message.guild.voice_client.disconnect()
             
         await channel.connect()
-        await message.channel.send(f"Joined voice channel: {channel.name}")
+        await message.channel.send(f"**Joined voice channel:** {channel.name}")
         vc = message.guild.voice_client
         state = player.get_guild_state(message.guild.id)
         state["voice_client"] = vc
@@ -373,7 +373,7 @@ async def handle_music_commands(client, message, user_message):
         
         # Use new graceful disconnect function
         await player.disconnect(message.guild.id)
-        await message.channel.send("👋 Left the voice channel.")
+        await message.channel.send("👋 **Left the voice channel.**")
         return
 
     # ----------------------------------------------------------------
@@ -413,11 +413,11 @@ async def handle_music_commands(client, message, user_message):
         vc = state.get("voice_client")
 
         if not vc or not vc.is_playing():
-            await message.channel.send("ℹ️ Nothing is playing.")
+            await message.channel.send("ℹ️ **Nothing is playing.**")
             return
 
         player.pause(message.guild.id)
-        await message.channel.send("⏸️ Paused.")
+        await message.channel.send("⏸️ **Paused.**")
         return
 
     if user_message == "!resume":
@@ -427,11 +427,11 @@ async def handle_music_commands(client, message, user_message):
         state = player.get_guild_state(message.guild.id)
         vc = state.get("voice_client")
         if not vc or not vc.is_paused():
-            await message.channel.send("ℹ️ Nothing to resume.")
+            await message.channel.send("ℹ️ **Nothing to resume.**")
             return
 
         player.resume(message.guild.id)
-        await message.channel.send("▶️ Resumed.")
+        await message.channel.send("▶️ **Resumed.**")
         return
 
     # ----------------------------------------------------------------
@@ -443,10 +443,10 @@ async def handle_music_commands(client, message, user_message):
             return
         vc = message.guild.voice_client
         if not vc or not vc.is_playing():
-            await message.channel.send("ℹ️ Nothing is playing.")
+            await message.channel.send("ℹ️ **Nothing is playing.**")
             return
         vc.stop()  # triggers after-callback to play_next
-        await message.channel.send("⏭️ Skipped.")
+        await message.channel.send("⏭️ **Skipped.**")
         return
 
     # ----------------------------------------------------------------
@@ -461,7 +461,7 @@ async def handle_music_commands(client, message, user_message):
         vc = state.get("voice_client")
 
         if not vc:
-            await message.channel.send("ℹ️ Nothing to stop.")
+            await message.channel.send("ℹ️ **Nothing to stop.**")
             return
 
         await player.stop(message.guild.id)
@@ -494,7 +494,7 @@ async def handle_music_commands(client, message, user_message):
                 pass
         
         if not queue and not state.get("current"):
-            await message.channel.send("📭 Queue is empty.")
+            await message.channel.send("📭 **Queue is empty.**")
             return
         
         # Create embed and view
@@ -516,7 +516,7 @@ async def handle_music_commands(client, message, user_message):
         current = state.get("current")
         
         if not current:
-            await message.channel.send("📭 Nothing is playing.")
+            await message.channel.send("📭 **Nothing is playing.**")
             return
         
         # Create and send the nowplaying embed
