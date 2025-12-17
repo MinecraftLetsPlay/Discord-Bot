@@ -34,7 +34,7 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ## 🚧 Features Under Development  
 
-- 🎵 **Music Bot Features** – Voice channel audio with Spotify as search engine and YTMusic as provider.
+
 
 ---
 
