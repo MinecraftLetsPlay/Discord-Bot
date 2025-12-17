@@ -469,7 +469,7 @@ async def handle_music_commands(client, message, user_message):
         if vc.is_playing() or vc.is_paused():
             vc.stop()
 
-        await message.channel.send("⏹️ Stopped playback and cleared the queue.")
+        await message.channel.send("⏹️ **Stopped playback and cleared the queue.**")
         return
     
     # ----------------------------------------------------------------
@@ -547,11 +547,11 @@ async def handle_music_commands(client, message, user_message):
         
         # Send feedback
         if mode == "one":
-            await message.channel.send("🔂 Repeat: Current song")
+            await message.channel.send("🔂 **Repeat: Current song**")
         elif mode == "all":
-            await message.channel.send("🔁 Repeat: Entire queue")
+            await message.channel.send("🔁 **Repeat: Entire queue**")
         else:
-            await message.channel.send("⏹️ Repeat: Off")
+            await message.channel.send("⏹️ **Repeat: Off**")
         
         logging.debug(f"Repeat mode set to: {mode}")
         return

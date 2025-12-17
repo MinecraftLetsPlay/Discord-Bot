@@ -32,7 +32,8 @@ def get_guild_state(guild_id: int):
             "queue": [],
             "current": None,
             "voice_client": None,
-            "playing": False
+            "playing": False,
+            "repeat_mode": "off"  # off, one, or all
         }
     return music_state[guild_id]
 
@@ -119,13 +120,25 @@ def extract_audio(query: str):
 # Play the next song in the queue
 async def play_next(guild: discord.Guild):
     state = get_guild_state(guild.id)
+    repeat_mode = state.get("repeat_mode", "off")
+    current = state.get("current")
 
-    if not state["queue"]:
-        state["playing"] = False
-        state["current"] = None
-        return
-
-    song = state["queue"].pop(0)
+    # Handle repeat modes
+    if repeat_mode == "one" and current:
+        # Repeat current song: re-add it to front of queue
+        song = current
+    elif repeat_mode == "all" and current and not state["queue"]:
+        # Repeat all queue: if queue is empty and we had a song, restart
+        song = current
+    else:
+        # Normal playback: get next song from queue
+        if not state["queue"]:
+            state["playing"] = False
+            state["current"] = None
+            return
+        
+        song = state["queue"].pop(0)
+    
     state["current"] = song
     state["playing"] = True
     
