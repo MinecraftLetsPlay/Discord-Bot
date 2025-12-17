@@ -4,42 +4,17 @@
 ###################################################
 # Use the command `pip install -r requirements.txt` to install them.
 ###################################################
-# Bot runs on Python 3.11.2 to 3.11.4
-# Important! Make sure that you are running this bot in a Python enviroment with python version 3.11.2 at miminum bot not higher than 3.11.4 as it introduced some errors with discord.py.
+# Bot runs on Python 3.11.2 to 3.13.5
+# make sure you have a compatible version installed.
 ###################################################
 
 
 #Versions 
 
-discord.py==2.6.3 
-PyNaCl==1.6.0
-python-dotenv==1.1.1
-aiohttp==3.12.15
-sympy==1.14.0
-asyncio==3.4.3
-
-# Full list of requirements:
-
-discord.py
-PyNaCl
-python-dotenv
-aiohttp
-sympy
-asyncio
-os
-re
-sys
-csv
-time
-json
-math
-inspect
-typing
-logging
-random
-string
-datetime
-dotenv # From python-dotenv
-importlib
-urllib.parse
-builtins
+discord.py==2.6.4
+python-dotenv==1.2.1
+yt-dlp==2025.12.8
+PyNaCl==1.6.1
+redis==7.1.0
+spotipy==2.25.2
+requests==2.32.5

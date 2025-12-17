@@ -117,6 +117,24 @@ Permission is granted to view the source code for **personal reference and educa
 
 - File access and authorization logic have been optimized and unified.
 
+
+
+### Version 1.1
+
+- Music-Bot feature is now fully implemented
+
+- Renamed commands to command_modules and added a new subfolder called music.
+
+- The new module music_commands.py handles all the music commands like !join !play !pause !resume etc.
+
+- The new module player.py has the search and playback logic for the music.
+
+- Updated /logging_channel to use both enabled_channels and disabled_channels accordingly.
+
+- Updated public_commands and command_router to include the new commands.
+
+- Updated requirements.txt
+
 ---
 
 ## 👥 Authors  
