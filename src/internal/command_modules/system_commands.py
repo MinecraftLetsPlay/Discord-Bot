@@ -351,69 +351,148 @@ def setup_system_commands(bot):
     # Command: /logging_channel
     # Category: System Commands
     # Type: Full Command
-    # Description: Enable or disable logging for a Channel (server-specific)
+    # Description: Include or exclude channels from logging (server-specific)
     # -----------------------------------------------------------------
     
-    @bot.tree.command(name="logging_channel", description="Configure which channels to log")
+    @bot.tree.command(name="logging_channel", description="Include or exclude channels from logging")
     @app_commands.describe(
-        action="add, remove, or list",
-        channel="Channel to add/remove (optional for list)"
+        action="add to / remove from include / exclude or list current config",
+        channel="Channel to include/exclude (optional for list)"
     )
     async def logging_channel(interaction: discord.Interaction, action: str, channel: Optional[discord.TextChannel] = None):
-        # must be used in a guild
+        # Must be used in a guild
         if interaction.guild is None:
-            await interaction.response.send_message("❌ This command can only be used in a server (guild).", ephemeral=True)
+            await interaction.response.send_message("❌ **This command can only be used in a server.**", ephemeral=True)
             return
 
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
-            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            await interaction.response.send_message("❌ **Permission denied.**", ephemeral=True)
             return
 
         # Load server config
         server_config = utils.load_server_config(interaction.guild.id)
-        logging_config = server_config.get("logging_config", {})
+        
+        # Initialize logging_config if not exists
+        if "logging_config" not in server_config:
+            server_config["logging_config"] = {
+                "log_all_by_default": True,
+                "enabled_channels": [],
+                "disabled_channels": []
+            }
+        
+        logging_config = server_config["logging_config"]
+        enabled = logging_config.get("enabled_channels", [])
+        disabled = logging_config.get("disabled_channels", [])
 
+        # --- ADD action: Include channel in logging ---
         if action.lower() == "add":
             if channel is None:
-                await interaction.response.send_message("ℹ️ Please specify a channel.", ephemeral=True)
+                await interaction.response.send_message("ℹ️ **Please specify a channel.**", ephemeral=True)
                 return
-            enabled = logging_config.get("enabled_channels", [])
-            if str(channel.id) not in enabled:
-                enabled.append(str(channel.id))
+            
+            channel_id = str(channel.id)
+            
+            # Remove from disabled list if present
+            if channel_id in disabled:
+                disabled.remove(channel_id)
+                logging_config["disabled_channels"] = disabled
+                server_config["logging_config"] = logging_config
+                utils.save_server_config(interaction.guild.id, server_config)
+                await interaction.response.send_message(f"✅ **Channel {channel.mention} is now INCLUDED in logging.**", ephemeral=True)
+                log_.info(f"System: Channel {channel.name} ({channel_id}) included in logging for guild {interaction.guild.id} by {interaction.user}")
+                return
+            
+            # Add to enabled list if not present
+            if channel_id not in enabled:
+                enabled.append(channel_id)
                 logging_config["enabled_channels"] = enabled
                 server_config["logging_config"] = logging_config
                 utils.save_server_config(interaction.guild.id, server_config)
-                await interaction.response.send_message(f"✅ {channel.mention} added to logging.", ephemeral=True)
+                await interaction.response.send_message(f"✅ **Channel {channel.mention} is now INCLUDED in logging.**", ephemeral=True)
+                log_.info(f"System: Channel {channel.name} ({channel_id}) included in logging for guild {interaction.guild.id} by {interaction.user}")
             else:
-                await interaction.response.send_message(f"ℹ️ {channel.mention} is already logged.", ephemeral=True)
+                await interaction.response.send_message(f"ℹ️ **Channel {channel.mention} is already included in logging.**", ephemeral=True)
 
+        # --- REMOVE action: Exclude channel from logging ---
         elif action.lower() == "remove":
             if channel is None:
-                await interaction.response.send_message("ℹ️ Please specify a channel.", ephemeral=True)
+                await interaction.response.send_message("ℹ️ **Please specify a channel.**", ephemeral=True)
                 return
-            enabled = logging_config.get("enabled_channels", [])
-            if str(channel.id) in enabled:
-                enabled.remove(str(channel.id))
+            
+            channel_id = str(channel.id)
+            
+            # Remove from enabled list if present
+            if channel_id in enabled:
+                enabled.remove(channel_id)
                 logging_config["enabled_channels"] = enabled
                 server_config["logging_config"] = logging_config
                 utils.save_server_config(interaction.guild.id, server_config)
-                await interaction.response.send_message(f"✅ {channel.mention} removed from logging.", ephemeral=True)
+                await interaction.response.send_message(f"✅ **Channel {channel.mention} is now EXCLUDED from logging.**", ephemeral=True)
+                log_.info(f"System: Channel {channel.name} ({channel_id}) excluded from logging for guild {interaction.guild.id} by {interaction.user}")
+                return
+            
+            # Add to disabled list if not present
+            if channel_id not in disabled:
+                disabled.append(channel_id)
+                logging_config["disabled_channels"] = disabled
+                server_config["logging_config"] = logging_config
+                utils.save_server_config(interaction.guild.id, server_config)
+                await interaction.response.send_message(f"✅ **Channel {channel.mention} is now EXCLUDED from logging.**", ephemeral=True)
+                log_.info(f"System: Channel {channel.name} ({channel_id}) excluded from logging for guild {interaction.guild.id} by {interaction.user}")
             else:
-                await interaction.response.send_message(f"ℹ️ {channel.mention} is not in logging list.", ephemeral=True)
-                
-        # Lists all logging settings
-        elif action.lower() == "list":
-            enabled = logging_config.get("enabled_channels", [])
-            disabled = logging_config.get("disabled_channels", [])
-            log_all = logging_config.get("log_all_by_default", True)
+                await interaction.response.send_message(f"ℹ️ **Channel {channel.mention} is already excluded from logging.**", ephemeral=True)
 
-            embed = discord.Embed(title="📊 Logging Configuration", color=discord.Color.blue())
-            embed.add_field(name="Log All by Default", value=str(log_all), inline=False)
-            embed.add_field(name="Enabled Channels", value=" | ".join([f"<#{cid}>" for cid in enabled]) or "None", inline=False)
-            embed.add_field(name="Disabled Channels", value=" | ".join([f"<#{cid}>" for cid in disabled]) or "None", inline=False)
+        # --- LIST action: Show current logging configuration ---
+        elif action.lower() == "list":
+            log_all = logging_config.get("log_all_by_default", True)
+            
+            # Build channel mention lists
+            enabled_text = "None"
+            if enabled:
+                enabled_mentions = [f"<#{cid}>" for cid in enabled if interaction.guild.get_channel(int(cid))]
+                enabled_text = ", ".join(enabled_mentions) if enabled_mentions else "None (invalid channels)"
+            
+            disabled_text = "None"
+            if disabled:
+                disabled_mentions = [f"<#{cid}>" for cid in disabled if interaction.guild.get_channel(int(cid))]
+                disabled_text = ", ".join(disabled_mentions) if disabled_mentions else "None (invalid channels)"
+            
+            mode = "✅ **Log all channels by default**" if log_all else "❌ **Log no channels by default**"
+            
+            embed = discord.Embed(
+                title="📊 **Logging Configuration**",
+                color=discord.Color.from_rgb(88, 173, 218),
+                description=f"**Mode:** {mode}"
+            )
+            
+            embed.add_field(
+                name="✅ Included Channels",
+                value=enabled_text,
+                inline=False
+            )
+            
+            embed.add_field(
+                name="❌ Excluded Channels",
+                value=disabled_text,
+                inline=False
+            )
+            
+            embed.add_field(
+                name="📝 **How to use:**",
+                value="• `/logging_channel add #channel` - Include channel\n"
+                      "• `/logging_channel remove #channel` - Exclude channel\n"
+                      "• `/logging_channel list` - Show this configuration",
+                inline=False
+            )
+            
             await interaction.response.send_message(embed=embed, ephemeral=True)
+            log_.info(f"System: Logging configuration listed by {interaction.user} for guild {interaction.guild.id}")
+
         else:
-            await interaction.response.send_message("ℹ️ Usage: `/logging_channel add|remove|list #channel`", ephemeral=True)
+            await interaction.response.send_message(
+                "ℹ️ **Usage:** `/logging_channel add|remove|list #channel`",
+                ephemeral=True
+            )
 
     # -----------------------------------------------------------------
     # Command: /whitelist (server-scoped)
