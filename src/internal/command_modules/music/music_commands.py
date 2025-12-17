@@ -383,14 +383,19 @@ async def handle_music_commands(client, message, user_message):
     if user_message.startswith("!play"):
         if not message.guild or not await is_music_channel(message):
             return
+        
+        # ✅ Prüfe ob Bot wirklich verbunden ist
         vc = message.guild.voice_client
-        if not vc:
-            await message.channel.send("❌ I'm not connected to a voice channel. Use !join first.")
+        if not vc or not vc.is_connected():
+            await message.channel.send("❌ Bot is not connected. Use `!join` first.")
+            logging.warning(f"Play attempted without voice connection in guild {message.guild.id}")
             return
+        
         query = user_message[len("!play"):].strip()
         if not query:
             await message.channel.send("❌ Please provide a search query or URL.")
             return
+        
         try:
             song = await player.add_to_queue(message.guild, query)
             await message.channel.send(f"▶️ Added to queue: **{song['title']}**")
@@ -399,7 +404,7 @@ async def handle_music_commands(client, message, user_message):
             await message.channel.send(f"❌ {e}")
         except Exception as e:
             logging.error(f"Play failed: {e}")
-            await message.channel.send("❌ Could not add the track. Check the query/URL.")
+            await message.channel.send("❌ Could not add the track.")
 
     # ----------------------------------------------------------------
     # Command: !pause / !resume

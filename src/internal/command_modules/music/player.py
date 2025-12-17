@@ -18,6 +18,9 @@ from typing import Any, TypedDict, IO, cast
 # Helper Functions and Initial Setup
 # ----------------------------------------------------------------
 
+VOICE_TIMEOUT = 30.0
+FFMPEG_TIMEOUT = 10.0
+
 bot_loop = None
 music_state = {}
 max_queue_size = 50
@@ -125,13 +128,10 @@ async def play_next(guild: discord.Guild):
 
     # Handle repeat modes
     if repeat_mode == "one" and current:
-        # Repeat current song: re-add it to front of queue
         song = current
     elif repeat_mode == "all" and current and not state["queue"]:
-        # Repeat all queue: if queue is empty and we had a song, restart
         song = current
     else:
-        # Normal playback: get next song from queue
         if not state["queue"]:
             state["playing"] = False
             state["current"] = None
@@ -142,26 +142,33 @@ async def play_next(guild: discord.Guild):
     state["current"] = song
     state["playing"] = True
     
-    # Get or reuse voice client
-    vc = state["voice_client"] or guild.voice_client
+    # ✅ WICHTIG: Immer guild.voice_client verwenden, nicht state["voice_client"]
+    vc = guild.voice_client
     if not vc:
-        logging.warning(f"No voice client for guild {guild.id}, stopping playback.")
+        logging.warning(f"No active voice connection for guild {guild.id}")
         state["playing"] = False
         state["current"] = None
         return
-
+    
+    # Cast to VoiceClient for type checking
     voice_client = cast(discord.VoiceClient, vc)
-    state["voice_client"] = voice_client
-
-    source = discord.FFmpegPCMAudio(song["url"], **get_ffmpeg_options())
-    loop = vc.client.loop  # use bot loop for thread-safe scheduling
-
-    def after_play(error):
-        if error:
-            logging.error(f"Playback error: {error}")
-        loop.call_soon_threadsafe(asyncio.create_task, play_next(guild))
-
-    voice_client.play(source, after=after_play)
+    
+    try:
+        source = discord.FFmpegPCMAudio(song["url"], **get_ffmpeg_options())
+        loop = voice_client.client.loop
+        
+        def after_play(error):
+            if error:
+                logging.error(f"Playback error: {error}")
+            loop.call_soon_threadsafe(asyncio.create_task, play_next(guild))
+        
+        voice_client.play(source, after=after_play)
+        logging.info(f"Now playing: {song['title']} on guild {guild.id}")
+        
+    except Exception as e:
+        logging.error(f"Failed to play audio: {e}")
+        state["playing"] = False
+        state["current"] = None
 
 # Add a song to the queue
 async def add_to_queue(guild: discord.Guild, query: str):
