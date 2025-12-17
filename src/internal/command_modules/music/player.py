@@ -64,8 +64,8 @@ YTDLP_OPTIONS: YtDlpParams = {
     "http_chunk_size": 10485760,
     "js_runtimes": {"node": {}},
     "remote_components": ["ejs:github"],
+    "match_filter": {"!is_live": True, "duration": lambda d: d <= 600}
 }
-
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -128,7 +128,8 @@ async def play_next(guild: discord.Guild):
     song = state["queue"].pop(0)
     state["current"] = song
     state["playing"] = True
-
+    
+    # Get or reuse voice client
     vc = state["voice_client"] or guild.voice_client
     if not vc:
         logging.warning(f"No voice client for guild {guild.id}, stopping playback.")
@@ -181,11 +182,54 @@ def resume(guild_id: int):
     if state and state["voice_client"]:
         state["voice_client"].resume()
 
+# Graceful Stop
+async def stop(guild_id: int):
+    state = get_guild_state(guild_id)
+    voice_client = state.get("voice_client")
+    
+    if voice_client:
+        try:
+            # Give FFmpeg time to gracefully stop
+            if voice_client.is_playing() or voice_client.is_paused():
+                voice_client.stop()
+                
+                # Wait for FFmpeg to terminate properly
+                import asyncio
+                await asyncio.sleep(0.5)
+                
+        except Exception as e:
+            logging.error(f"Error stopping playback: {e}")
+    
+    # Clear queue and reset state
+    state["queue"].clear()
+    state["current"] = None
+    state["playing"] = False
+    logging.info(f"Playback stopped for guild {guild_id}")
 
-def stop(guild_id: int):
-    state = music_state.get(guild_id)
-    if state and state["voice_client"]:
-        state["queue"].clear()
-        state["voice_client"].stop()
-        state["playing"] = False
-        state["current"] = None
+# Graceful Disconnect
+async def disconnect(guild_id: int):
+    state = get_guild_state(guild_id)
+    voice_client = state.get("voice_client")
+    
+    if voice_client:
+        try:
+            # Stop playback first
+            if voice_client.is_playing() or voice_client.is_paused():
+                voice_client.stop()
+                
+                # Give FFmpeg time to terminate
+                import asyncio
+                await asyncio.sleep(0.5)
+            
+            # Disconnect
+            await voice_client.disconnect(force=True)
+            
+        except Exception as e:
+            logging.error(f"Error disconnecting: {e}")
+        finally:
+            state["voice_client"] = None
+            state["queue"].clear()
+            state["current"] = None
+            state["playing"] = False
+    
+    logging.info(f"Disconnected from voice for guild {guild_id}")

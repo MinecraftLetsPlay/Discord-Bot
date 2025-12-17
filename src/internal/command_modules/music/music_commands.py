@@ -1,5 +1,6 @@
 import discord
 import logging
+from discord import ui
 from internal.utils import load_server_config, save_server_config
 from internal.command_modules.music import player
 from internal.command_modules.music.player import PlayerError
@@ -16,22 +17,223 @@ from internal.command_modules.music.player import PlayerError
 # Helper Functions and Initial Setup
 # ----------------------------------------------------------------
 
+# Constants for queue pagination
+QUEUE_ITEMS_PER_PAGE = 10
+
+# Use a Discord UI View for queue pagination
+class QueueView(ui.View):
+    
+    # Initialize the view with buttons
+    def __init__(self, guild_id: int, current_page: int = 0):
+        super().__init__(timeout=180)  # 3 minutes timeout
+        self.guild_id = guild_id
+        self.current_page = current_page
+        self._update_button_states()
+    
+    # Update button states based on current page
+    def _update_button_states(self):
+        """Update button states based on current page."""
+        state = player.get_guild_state(self.guild_id)
+        queue = state.get("queue", [])
+        total_pages = (len(queue) + QUEUE_ITEMS_PER_PAGE - 1) // QUEUE_ITEMS_PER_PAGE if queue else 1
+        
+        # Disable buttons at boundaries
+        for item in self.children:
+            if hasattr(item, 'label') and hasattr(item, 'disabled'):
+                if item.label == "⬅️ Previous":  # type: ignore
+                    item.disabled = self.current_page <= 0  # type: ignore
+                elif item.label == "➡️ Next":  # type: ignore
+                    item.disabled = self.current_page >= total_pages - 1  # type: ignore
+    
+    # Previous page button
+    @ui.button(label="⬅️ Previous", style=discord.ButtonStyle.blurple)
+    async def previous_page(self, interaction: discord.Interaction, button: ui.Button):
+        if self.current_page > 0:
+            self.current_page -= 1
+            await self.update_message(interaction)
+    
+    # Netx page button
+    @ui.button(label="➡️ Next", style=discord.ButtonStyle.blurple)
+    async def next_page(self, interaction: discord.Interaction, button: ui.Button):
+        state = player.get_guild_state(self.guild_id)
+        queue = state.get("queue", [])
+        total_pages = (len(queue) + QUEUE_ITEMS_PER_PAGE - 1) // QUEUE_ITEMS_PER_PAGE if queue else 1
+        
+        if self.current_page < total_pages - 1:
+            self.current_page += 1
+            await self.update_message(interaction)
+    
+    # Update the message with new page content
+    async def update_message(self, interaction: discord.Interaction):
+        """Update the message with new page content."""
+        embed = create_queue_embed(self.guild_id, self.current_page)
+        self._update_button_states()
+        await interaction.response.edit_message(embed=embed, view=self)
+    
+    # Disable buttons on timeout
+    async def on_timeout(self):
+        """Disable all buttons when timeout expires."""
+        for item in self.children:
+            if hasattr(item, 'disabled'):
+                item.disabled = True  # type: ignore
+
+# Create embed for queue display
+def create_queue_embed(guild_id: int, page: int = 0) -> discord.Embed:
+    """Create a beautiful embed for queue display."""
+    state = player.get_guild_state(guild_id)
+    queue = state.get("queue", [])
+    current = state.get("current")
+    
+    # Calculate pagination information
+    total_items = len(queue)
+    total_pages = (total_items + QUEUE_ITEMS_PER_PAGE - 1) // QUEUE_ITEMS_PER_PAGE if total_items > 0 else 1
+    start_idx = page * QUEUE_ITEMS_PER_PAGE
+    end_idx = min(start_idx + QUEUE_ITEMS_PER_PAGE, total_items)
+    
+    # Create the embed
+    embed = discord.Embed(
+        title="🎵 Music Queue",
+        color=discord.Color.from_rgb(88, 173, 218),  # Nice blue
+        description="Current playback queue"
+    )
+    
+    # Currently playing song
+    if current:
+        duration_str = ""
+        if current.get("duration"):
+            mins, secs = divmod(current["duration"], 60)
+            duration_str = f" | ⏱️ {mins}:{secs:02d}"
+        embed.add_field(
+            name="▶️ Now Playing",
+            value=f"**{current['title']}**{duration_str}",
+            inline=False
+        )
+    
+    # Queue items
+    if total_items == 0:
+        embed.add_field(
+            name="📭 Queue is empty",
+            value="Use `!play [Song/URL]` to add music!",
+            inline=False
+        )
+    else:
+        # Build queue text for current page
+        queue_text = ""
+        for idx in range(start_idx, end_idx):
+            item = queue[idx]
+            duration_str = ""
+            if item.get("duration"):
+                mins, secs = divmod(item["duration"], 60)
+                duration_str = f" | ⏱️ {mins}:{secs:02d}"
+            queue_text += f"{idx+1}. **{item['title']}**{duration_str}\n"
+        
+        embed.add_field(
+            name=f"📜 Queue ({start_idx+1}-{end_idx} of {total_items})",
+            value=queue_text,
+            inline=False
+        )
+    
+    # Footer with page info
+    embed.set_footer(text=f"Page {page+1}/{total_pages}")
+    
+    return embed
+
+# Create embed for now playing display
+def create_nowplaying_embed(guild_id: int) -> discord.Embed:
+    state = player.get_guild_state(guild_id)
+    current = state.get("current")
+    voice_client = state.get("voice_client")
+    
+    # If nothing is playing
+    if not current:
+        embed = discord.Embed(
+            title="🎶 Now Playing",
+            color=discord.Color.from_rgb(88, 173, 218),
+            description="Nothing is playing."
+        )
+        return embed
+    
+    # Extract song information
+    title = current.get("title", "Unknown")
+    duration = current.get("duration", 0)
+    thumbnail = current.get("thumbnail", "")
+    webpage_url = current.get("webpage_url", "")
+    
+    # Create embed with title and description
+    embed = discord.Embed(
+        title="🎶 Now Playing",
+        description=f"**{title}**",
+        color=discord.Color.from_rgb(88, 173, 218),
+        url=webpage_url if webpage_url else None
+    )
+    
+    # Add thumbnail if available
+    if thumbnail:
+        embed.set_thumbnail(url=thumbnail)
+    
+    # Add duration field
+    if duration > 0:
+        total_mins, total_secs = divmod(duration, 60)
+        time_str = f"⏱️ `{total_mins}:{total_secs:02d}`"
+        embed.add_field(
+            name="Duration",
+            value=time_str,
+            inline=False
+        )
+    else:
+        embed.add_field(
+            name="⏱️ Duration",
+            value="Unknown duration",
+            inline=False
+        )
+    
+    # Add status
+    if voice_client:
+        if voice_client.is_playing():
+            status = "▶️ Playing"
+        elif voice_client.is_paused():
+            status = "⏸️ Paused"
+        else:
+            status = "⏹️ Stopped"
+    else:
+        status = "⏹️ Not connected"
+    
+    embed.add_field(
+        name="Status",
+        value=status,
+        inline=True
+    )
+    
+    # Add queue position
+    queue = state.get("queue", [])
+    queue_position = len(queue)
+    embed.add_field(
+        name="Queue",
+        value=f"**{queue_position}** song(s) in queue",
+        inline=True
+    )
+    
+    return embed
+
 # Helper function to check if command is used in the designated music channel
 async def is_music_channel(message):
     if not message.guild:
-        return False  # keine DMs
-
+        return False  # No DMs
+    
+    # Load server config
     cfg = load_server_config(message.guild.id)
     music_channel_id = cfg.get("music_channel_id")
-
+    
+    # If no music channel set
     if music_channel_id is None:
         await message.channel.send("❌ Music channel is not set. Please set it using !music-channel command.")
         logging.warning(f"Music channel not set for guild {message.guild.id}")
         return False
-
+    
+    # Check if used in the correct channel
     if message.channel.id != int(music_channel_id):
         await message.channel.send(
-            f"❌ Please use the designated Music-Channel <#{music_channel_id}>."
+            f"❌ Please use the designated music channel <#{music_channel_id}>."
         )
         logging.debug(f"Wrong music channel used: {message.channel.id} (expected {music_channel_id})")
         return False
@@ -141,6 +343,7 @@ async def handle_music_commands(client, message, user_message):
             
             channel = message.guild.get_channel(channel_id)
             
+            # Validate channel
             if channel is None or not isinstance(channel, discord.VoiceChannel):
                 await message.channel.send("❌ Specified channel is not a valid voice channel.")
                 logging.debug(f"Channel ID {channel_id} is not a valid voice channel.")
@@ -166,16 +369,14 @@ async def handle_music_commands(client, message, user_message):
             return
         if not await is_music_channel(message):
             return
+        
         vc = message.guild.voice_client
         if not vc:
             await message.channel.send("❌ I'm not connected to a voice channel.")
             return
-        await vc.disconnect()
-        state = player.get_guild_state(message.guild.id)
-        state["voice_client"] = None
-        state["playing"] = False
-        state["current"] = None
-        state["queue"].clear()
+        
+        # Use new graceful disconnect function
+        await player.disconnect(message.guild.id)
         await message.channel.send("👋 Left the voice channel.")
         return
 
@@ -267,7 +468,7 @@ async def handle_music_commands(client, message, user_message):
             await message.channel.send("ℹ️ Nothing to stop.")
             return
 
-        player.stop(message.guild.id)
+        await player.stop(message.guild.id)
 
         if vc.is_playing() or vc.is_paused():
             vc.stop()
@@ -279,15 +480,32 @@ async def handle_music_commands(client, message, user_message):
     # Command: !queue
     # ----------------------------------------------------------------
     
-    if user_message == "!queue":
+    if user_message == "!queue" or user_message.startswith("!queue "):
         if not message.guild or not await is_music_channel(message):
             return
+        
         state = player.get_guild_state(message.guild.id)
-        if not state["queue"]:
+        queue = state.get("queue", [])
+        
+        # Check if there is a page parameter
+        page = 0
+        if user_message.startswith("!queue "):
+            try:
+                page = int(user_message.split()[1]) - 1  # User provides 1-based page number
+                if page < 0:
+                    page = 0
+            except (ValueError, IndexError):
+                pass
+        
+        if not queue and not state.get("current"):
             await message.channel.send("📭 Queue is empty.")
             return
-        lines = [f"{idx+1}. {item['title']}" for idx, item in enumerate(state['queue'])]
-        await message.channel.send("📜 Queue:\n" + "\n".join(lines))
+        
+        # Create embed and view
+        embed = create_queue_embed(message.guild.id, page)
+        view = QueueView(message.guild.id, page)
+        
+        await message.channel.send(embed=embed, view=view)
         return
 
     # ----------------------------------------------------------------
@@ -297,12 +515,48 @@ async def handle_music_commands(client, message, user_message):
     if user_message == "!nowplaying":
         if not message.guild or not await is_music_channel(message):
             return
+        
         state = player.get_guild_state(message.guild.id)
         current = state.get("current")
+        
         if not current:
-            await message.channel.send("ℹ️ Nothing is playing.")
+            await message.channel.send("📭 Nothing is playing.")
             return
-        await message.channel.send(f"🎶 Now playing: **{current['title']}**")
+        
+        # Create and send the nowplaying embed
+        embed = create_nowplaying_embed(message.guild.id)
+        await message.channel.send(embed=embed)
         return
-
+    
+    # ----------------------------------------------------------------
+    # Command: !repeat
+    # ----------------------------------------------------------------
+    
+    if user_message == "!repeat" or user_message.startswith("!repeat "):
+        if not message.guild or not await is_music_channel(message):
+            return
+        
+        state = player.get_guild_state(message.guild.id)
+        
+        # Get repeat mode (one/all/off)
+        mode = "all"  # Default: repeat all queue
+        if user_message.startswith("!repeat "):
+            mode = user_message.split()[1].lower()
+        
+        if mode not in ["one", "all", "off"]:
+            await message.channel.send("❌ Invalid repeat mode. Use: `!repeat one`, `!repeat all`, or `!repeat off`")
+            return
+        
+        state["repeat_mode"] = mode
+        
+        # Send feedback
+        if mode == "one":
+            await message.channel.send("🔂 Repeat: Current song")
+        elif mode == "all":
+            await message.channel.send("🔁 Repeat: Entire queue")
+        else:
+            await message.channel.send("⏹️ Repeat: Off")
+        
+        logging.debug(f"Repeat mode set to: {mode}")
+        return
 
