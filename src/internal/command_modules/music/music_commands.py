@@ -349,7 +349,7 @@ async def handle_music_commands(client, message, user_message):
             await message.guild.voice_client.disconnect()
             
         await channel.connect()
-        await message.channel.send(f"**Joined voice channel:** {channel.name}")
+        await message.channel.send(f"**Joined voice channel: {channel.name}**")
         vc = message.guild.voice_client
         state = player.get_guild_state(message.guild.id)
         state["voice_client"] = vc
