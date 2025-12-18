@@ -24,6 +24,8 @@ Designed for **private server use** with sophisticated permission handling and l
 - `calculator.py` – ➗ Advanced text-based calculator with eqaution solving.
 - `mcserver_commands.py` – ⛏️ Minecraft-Server controls. (Nitrado API)
 - `Sciencecific_commands.py` - 🔬 Sciencecific commands - Exoplanets, Sun activity etc.
+- `music_commands.py` - 🎵 Music commands / voice channel controls - !join / leave !play etc.
+- `player-py` - 📻 Plays the music and houses the code to search for the song
 
 ### 🔌 Support Modules  
 
@@ -49,6 +51,9 @@ Designed for **private server use** with sophisticated permission handling and l
 - 📐 **sympy 1.14.0** → advanced math & calculator
 - 📅 **DateTime 6.0** → time-based utilities
 - 🌍 **pytz 2025.2** → timezone handling
+- 🎶 **YT-Dlp** → Youtube Music streaming and searching
+
+- **Binaries:** FFMPEG → Audio Encoding / Decoding
 
 ### **Development Tools:**  
 
