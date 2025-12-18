@@ -23,28 +23,45 @@ def now_local():
     return datetime.now(LOCAL_TZ)
 
 # A custom TimedRotatingFileHandler that uses local time and stable filenames
-class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
+class CustomTimedRotatingFileHandler(logging.FileHandler):
     def __init__(self, filename, when='midnight', interval=1, backupCount=0, encoding=None):
-        # base filename without timestamp
         self.base_filename = filename
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-
-        # create first file
-        timestamp = now_local().strftime("%d.%m.%Y_%H.%M.%S")
-        current_file = f"{self.base_filename}-{timestamp}.txt"
-
-        super().__init__(current_file, when, interval, backupCount, encoding=encoding, utc=False)
+        self.when = when
+        self.interval = interval
+        self.backupCount = backupCount
         
-    # Override to use local time
-    def rotation_filename(self, default_name):
-        dir_name = os.path.dirname(self.base_filename)
-        timestamp = now_local().strftime("%d.%m.%Y_%H.%M.%S")
-        return os.path.join(dir_name, f"bot.log-{timestamp}.txt")
-
-    # Do log rotation
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        
+        # Create initial log file with timestamp
+        timestamp = now_local().strftime("%d.%m.%Y_%H:%M:%S")
+        current_file = f"{self.base_filename}-{timestamp}.txt"
+        
+        super().__init__(current_file, encoding=encoding)
+        self.last_rollover = now_local().date()
+    
+    def emit(self, record):
+        # Check if we need to rollover
+        current_date = now_local().date()
+        if current_date != self.last_rollover:
+            self.doRollover()
+            self.last_rollover = current_date
+        
+        super().emit(record)
+    
     def doRollover(self):
+        # Close current stream
+        if self.stream:
+            self.stream.close()
+        
+        # Create new file with new timestamp
+        timestamp = now_local().strftime("%d.%m.%Y_%H:%M:%S")
+        new_file = f"{self.base_filename}-{timestamp}.txt"
+        
+        self.baseFilename = new_file
+        self.stream = self._open()
+        
+        # Cleanup old log files if exceeding backupCount
         from internal.command_modules.system_commands import rotate_logs
-        super().doRollover()
         rotate_logs()
 
 

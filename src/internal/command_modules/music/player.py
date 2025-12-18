@@ -115,6 +115,53 @@ def extract_audio(query: str):
             "webpage_url": info.get("webpage_url"),
             "duration": info.get("duration"),
         }
+
+# Search for top 5 results
+def search_audio(query: str) -> list[dict[str, Any]]:
+    with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
+        info = ydl.extract_info(query, download=False)
+
+        if not info:
+            raise PlayerError("No results found.")
+
+        results: list[dict[str, Any]] = []
+        
+        # Handle search results
+        if "entries" in info and info["entries"]:
+            entries = cast(list[Any], info["entries"])
+            for entry in entries[:5]:  # Top 5 results
+                if entry:
+                    results.append({
+                        "title": entry.get("title"),
+                        "webpage_url": entry.get("webpage_url"),
+                        "duration": entry.get("duration"),
+                        "channel": entry.get("uploader"),
+                    })
+        else:
+            # Single video result
+            results.append({
+                "title": info.get("title"),
+                "webpage_url": info.get("webpage_url"),
+                "duration": info.get("duration"),
+                "channel": info.get("uploader"),
+            })
+
+        return results
+
+# Extract full audio info from a selected URL
+def extract_audio_from_url(webpage_url: str) -> dict[str, Any]:
+    with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
+        info = ydl.extract_info(webpage_url, download=False)
+
+        if not info:
+            raise PlayerError("Could not extract audio from URL.")
+
+        return {
+            "title": info.get("title"),
+            "url": info.get("url"),
+            "webpage_url": info.get("webpage_url"),
+            "duration": info.get("duration"),
+        }
         
 # ------------------------------------------------------------
 # Playback Logic

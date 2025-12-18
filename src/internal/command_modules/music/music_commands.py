@@ -74,6 +74,57 @@ class QueueView(ui.View):
             if hasattr(item, 'disabled'):
                 item.disabled = True  # type: ignore
 
+# Search Results View - UI for selecting from top 5 search results
+class SearchResultsView(ui.View):
+    
+    def __init__(self, results: list[dict], guild: discord.Guild, callback):
+        super().__init__(timeout=60)  # 1 minute timeout for selection
+        self.results = results
+        self.guild = guild
+        self.callback = callback
+        self.selected = None
+    
+    @ui.button(label="1️⃣", style=discord.ButtonStyle.blurple)
+    async def select_1(self, interaction: discord.Interaction, button: ui.Button):
+        await self._select_result(interaction, 0)
+    
+    @ui.button(label="2️⃣", style=discord.ButtonStyle.blurple)
+    async def select_2(self, interaction: discord.Interaction, button: ui.Button):
+        await self._select_result(interaction, 1)
+    
+    @ui.button(label="3️⃣", style=discord.ButtonStyle.blurple)
+    async def select_3(self, interaction: discord.Interaction, button: ui.Button):
+        await self._select_result(interaction, 2)
+    
+    @ui.button(label="4️⃣", style=discord.ButtonStyle.blurple)
+    async def select_4(self, interaction: discord.Interaction, button: ui.Button):
+        await self._select_result(interaction, 3)
+    
+    @ui.button(label="5️⃣", style=discord.ButtonStyle.blurple)
+    async def select_5(self, interaction: discord.Interaction, button: ui.Button):
+        await self._select_result(interaction, 4)
+    
+    async def _select_result(self, interaction: discord.Interaction, index: int):
+        if index >= len(self.results):
+            await interaction.response.defer()
+            return
+        
+        self.selected = index
+        # Disable all buttons
+        for item in self.children:
+            if isinstance(item, ui.Button):
+                item.disabled = True
+        
+        await interaction.response.defer()
+        # Call the callback to add the song
+        await self.callback(interaction, self.results[index])
+        self.stop()
+    
+    async def on_timeout(self):
+        for item in self.children:
+            if isinstance(item, ui.Button):
+                item.disabled = True
+
 # Create embed for queue display
 def create_queue_embed(guild_id: int, page: int = 0) -> discord.Embed:
     state = player.get_guild_state(guild_id)
@@ -208,6 +259,33 @@ def create_nowplaying_embed(guild_id: int) -> discord.Embed:
         value=f"**{queue_position}** song(s) in queue",
         inline=True
     )
+    
+    return embed
+
+# Create embed for search results
+def create_search_results_embed(results: list[dict]) -> discord.Embed:
+    embed = discord.Embed(
+        title="🔍 Search Results",
+        description="Select a song by clicking the numbered button (1️⃣-5️⃣)",
+        color=discord.Color.from_rgb(88, 173, 218)
+    )
+    
+    for idx, result in enumerate(results, 1):
+        title = result.get("title", "Unknown")
+        channel = result.get("channel", "Unknown Channel")
+        duration = result.get("duration", 0)
+        
+        # Format duration
+        duration_str = ""
+        if duration:
+            mins, secs = divmod(duration, 60)
+            duration_str = f" | ⏱️ {mins}:{secs:02d}"
+        
+        embed.add_field(
+            name=f"{idx}️⃣ {title}",
+            value=f"🎤 {channel}{duration_str}",
+            inline=False
+        )
     
     return embed
 
@@ -384,7 +462,7 @@ async def handle_music_commands(client, message, user_message):
         if not message.guild or not await is_music_channel(message):
             return
         
-        # ✅ Prüfe ob Bot wirklich verbunden ist
+        # Check voice connection
         vc = message.guild.voice_client
         if not vc or not vc.is_connected():
             await message.channel.send("❌ Bot is not connected. Use `!join` first.")
@@ -397,8 +475,54 @@ async def handle_music_commands(client, message, user_message):
             return
         
         try:
-            song = await player.add_to_queue(message.guild, query)
-            await message.channel.send(f"▶️ Added to queue: **{song['title']}**")
+            # Check if it's a direct URL or a search query
+            # URLs typically start with http or are YouTube short links
+            is_url = query.startswith("http") or query.startswith("www") or query.startswith("youtu")
+            
+            if is_url:
+                # Direct URL - add directly
+                song = await player.add_to_queue(message.guild, query)
+                await message.channel.send(f"▶️ Added to queue: **{song['title']}**")
+            else:
+                # Search query - show top 5 results
+                search_results = player.search_audio(query)
+                
+                if not search_results:
+                    await message.channel.send("❌ No search results found.")
+                    return
+                
+                # Create callback for when user selects a song
+                async def song_selected(interaction: discord.Interaction, result: dict):
+                    try:
+                        # Extract full audio info from the selected URL
+                        song = player.extract_audio_from_url(result["webpage_url"])
+                        state = player.get_guild_state(message.guild.id)
+                        
+                        # Check queue size
+                        if len(state["queue"]) >= player.max_queue_size:
+                            await message.channel.send(f"❌ Queue limit reached ({player.max_queue_size} tracks).")
+                            return
+                        
+                        state["queue"].append(song)
+                        
+                        # Start playing if nothing is playing
+                        if not state["playing"]:
+                            await player.play_next(message.guild)
+                        
+                        await message.channel.send(f"▶️ Added to queue: **{song['title']}**")
+                        logging.info(f"Added song from search result: {song['title']}")
+                    except player.PlayerError as e:
+                        await message.channel.send(f"❌ Error: {e}")
+                        logging.error(f"Failed to add selected song: {e}")
+                    except Exception as e:
+                        await message.channel.send(f"❌ Could not add the track.")
+                        logging.error(f"Failed to add selected song: {e}")
+                
+                # Show search results with selection buttons
+                embed = create_search_results_embed(search_results)
+                view = SearchResultsView(search_results, message.guild, song_selected)
+                await message.channel.send(embed=embed, view=view)
+                
         except player.PlayerError as e:
             logging.error(f"Play failed: {e}")
             await message.channel.send(f"❌ {e}")
