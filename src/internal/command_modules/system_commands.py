@@ -134,6 +134,14 @@ def setup_system_commands(bot):
         if is_authorized_global(interaction.user):
             await interaction.response.send_message("Shutting down the bot...")
             log_.info(f"System: Shutdown command executed by: {interaction.user}")
+            
+            # Cleanup music before shutdown
+            try:
+                from internal.command_modules.music.player import cleanup_all_guilds
+                await cleanup_all_guilds(bot)
+            except Exception as e:
+                log_.error(f"Error during music cleanup: {e}")
+            
             await bot.close()
         else:
             embed = discord.Embed(
@@ -173,6 +181,14 @@ def setup_system_commands(bot):
             await bot.wait_for("reaction_add", timeout=30.0, check=check)
             await interaction.response.send_message("Shutting down the bot and the Raspberry Pi...", ephemeral=True)
             log_.info(f"System: Full shutdown command executed by: {interaction.user}")
+            
+            # Cleanup music before shutdown
+            try:
+                from internal.command_modules.music.player import cleanup_all_guilds
+                await cleanup_all_guilds(bot)
+            except Exception as e:
+                log_.error(f"Error during music cleanup: {e}")
+            
             await bot.close()
             os.system("sudo shutdown now")
         except asyncio.TimeoutError:
@@ -203,6 +219,14 @@ def setup_system_commands(bot):
                 last_restart_time = current_time
                 await interaction.response.send_message("Restarting the bot...")
                 log_.info(f"System: Restart command executed by: {interaction.user}")
+                
+                # Cleanup music before restart
+                try:
+                    from internal.command_modules.music.player import cleanup_all_guilds
+                    await cleanup_all_guilds(bot)
+                except Exception as e:
+                    log_.error(f"Error during music cleanup: {e}")
+                
                 os.execv(sys.executable, ['python'] + sys.argv)
         else:
             embed = discord.Embed(

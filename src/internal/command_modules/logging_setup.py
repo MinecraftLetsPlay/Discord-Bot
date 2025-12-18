@@ -33,7 +33,7 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         
         # Create initial log file with timestamp
-        timestamp = now_local().strftime("%d.%m.%Y_%H:%M:%S")
+        timestamp = now_local().strftime("%d.%m.%Y_%H-%M-%S")
         current_file = f"{self.base_filename}-{timestamp}.txt"
         
         super().__init__(current_file, encoding=encoding)

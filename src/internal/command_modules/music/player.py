@@ -1,4 +1,5 @@
 import discord
+import discord.ext.commands
 import asyncio
 import logging
 import yt_dlp
@@ -108,53 +109,6 @@ def extract_audio(query: str):
 
         if "entries" in info:
             info = info["entries"][0]
-
-        return {
-            "title": info.get("title"),
-            "url": info.get("url"),
-            "webpage_url": info.get("webpage_url"),
-            "duration": info.get("duration"),
-        }
-
-# Search for top 5 results
-def search_audio(query: str) -> list[dict[str, Any]]:
-    with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
-        info = ydl.extract_info(query, download=False)
-
-        if not info:
-            raise PlayerError("No results found.")
-
-        results: list[dict[str, Any]] = []
-        
-        # Handle search results
-        if "entries" in info and info["entries"]:
-            entries = cast(list[Any], info["entries"])
-            for entry in entries[:5]:  # Top 5 results
-                if entry:
-                    results.append({
-                        "title": entry.get("title"),
-                        "webpage_url": entry.get("webpage_url"),
-                        "duration": entry.get("duration"),
-                        "channel": entry.get("uploader"),
-                    })
-        else:
-            # Single video result
-            results.append({
-                "title": info.get("title"),
-                "webpage_url": info.get("webpage_url"),
-                "duration": info.get("duration"),
-                "channel": info.get("uploader"),
-            })
-
-        return results
-
-# Extract full audio info from a selected URL
-def extract_audio_from_url(webpage_url: str) -> dict[str, Any]:
-    with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
-        info = ydl.extract_info(webpage_url, download=False)
-
-        if not info:
-            raise PlayerError("Could not extract audio from URL.")
 
         return {
             "title": info.get("title"),
@@ -300,3 +254,21 @@ async def disconnect(guild_id: int):
             state["playing"] = False
     
     logging.info(f"Disconnected from voice for guild {guild_id}")
+
+async def cleanup_all_guilds(bot: discord.ext.commands.Bot):
+    """Cleanup all voice connections and clear music state before shutdown."""
+    try:
+        for guild in bot.guilds:
+            try:
+                vc = guild.voice_client
+                if vc:
+                    await disconnect(guild.id)
+                    logging.info(f"Disconnected from voice in guild {guild.id} during cleanup")
+            except Exception as e:
+                logging.error(f"Error disconnecting from guild {guild.id}: {e}")
+        
+        # Clear all music states
+        music_state.clear()
+        logging.info("Music state cleaned up")
+    except Exception as e:
+        logging.error(f"Error during music cleanup: {e}")
