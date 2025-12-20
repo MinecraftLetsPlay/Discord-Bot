@@ -6,7 +6,7 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ---
 
-## ✨ Core Functionality  
+## Core Functionality  
 
 ### 📂 Source Files  
 
@@ -16,10 +16,10 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ### 🗂️ Command Modules  
 
-- `moderation_commands.py` – 🔒 Discord moderation - Kick, Ban, Timeout etc.
+- `moderation_commands.py` – 🔨 Discord moderation - Kick, Ban, Timeout etc.
 - `minigames.py` – 🎮 Text-based minigames - RPS, Hangman, Quiz, Scrabble etc.
 - `utility_commands.py` – 🛠️ Utility tools - Weather, Time, Reminder etc.  
-- `public_commands.py` – 👥 Public commands - Help, Info, Serverinfo etc.
+- `public_commands.py` – 🔓 Public commands - Help, Info, Serverinfo etc.
 - `system_commands.py` – 🖥️ Admin controls, logging configuration and system commands.
 - `calculator.py` – ➗ Advanced text-based calculator with eqaution solving.
 - `mcserver_commands.py` – ⛏️ Minecraft-Server controls. (Nitrado API)
@@ -144,5 +144,5 @@ Permission is granted to view the source code for **personal reference and educa
 
 ## 👥 Authors  
 
-- 🧑‍💻 Minecraft Lets Play (@MinecraftLetsPlay) → Dennis Plischke  
-- 👨‍💻 Jirasrel (@Jirasrel)  
+- Minecraft Lets Play (@MinecraftLetsPlay) → Dennis Plischke  
+- Jirasrel (@Jirasrel)  
