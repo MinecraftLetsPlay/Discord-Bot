@@ -56,25 +56,30 @@ class FFmpegParams(TypedDict, total=False):
 # ----------------------------------------------------------------
 
 YTDLP_OPTIONS: YtDlpParams = {
-    "format": "bestaudio/best",
+    "format": "bestaudio[ext=m4a]/bestaudio",  # Prefer m4a for better compatibility
     "noplaylist": True,
     "quiet": True,
     "default_search": "ytsearch",
     "extract_flat": False,
     "skip_download": True,
     "nocheckcertificate": True,
-    "retries": 3,
-    "fragment_retries": 3,
+    "retries": 5,  # Increased retries for Pi stability
+    "fragment_retries": 5,  # More resilient to network issues
     "concurrent_fragment_downloads": 1,
-    "http_chunk_size": 10485760,
-    "js_runtimes": {"node": {}},
-    "remote_components": ["ejs:github"],
+    "http_chunk_size": 1048576,  # Smaller chunks for Raspberry Pi (1MB instead of 10MB)
+    "socket_timeout": 30,  # Add explicit socket timeout
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["web", "tv"],  # More flexible clients
+            "skip": ["hls", "dash"],  # Avoid problematic formats on Pi
+        }
+    },
     "match_filter": {"!is_live": True, "duration": lambda d: d <= 600}
 }
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
-    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-    "options": "-vn",
+    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 10 -rw_timeout 20000000",
+    "options": "-vn -q:a 5",  # -q:a 5 for better quality/speed balance on Pi
 }
 
 
@@ -160,16 +165,29 @@ async def play_next(guild: discord.Guild):
         
         def after_play(error):
             if error:
-                logging.error(f"Playback error: {error}")
+                error_str = str(error).lower()
+                # Ignore harmless reconnect messages from FFmpeg
+                if "connection reset" in error_str or "io error" in error_str:
+                    logging.warning(f"Network blip during playback (expected on unstable connections): {error}")
+                else:
+                    logging.error(f"Playback error: {error}")
             loop.call_soon_threadsafe(asyncio.create_task, play_next(guild))
         
         voice_client.play(source, after=after_play)
         logging.info(f"Now playing: {song['title']} on guild {guild.id}")
         
     except Exception as e:
-        logging.error(f"Failed to play audio: {e}")
-        state["playing"] = False
-        state["current"] = None
+        error_str = str(e).lower()
+        if "connection" in error_str or "timeout" in error_str:
+            logging.warning(f"Network issue while starting playback: {e}")
+            state["playing"] = False
+            state["current"] = None
+            # Try next song instead of stopping
+            await play_next(guild)
+        else:
+            logging.error(f"Failed to play audio: {e}")
+            state["playing"] = False
+            state["current"] = None
 
 # Add a song to the queue
 async def add_to_queue(guild: discord.Guild, query: str):

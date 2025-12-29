@@ -6,6 +6,7 @@ import sympy
 import asyncio
 import time
 from sympy import solve, symbols, parse_expr, sympify, Number
+from typing import Tuple, Optional, Dict, Any
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
@@ -13,11 +14,30 @@ from sympy import solve, symbols, parse_expr, sympify, Number
 # -----------------------------------------------------------------------------
 # Module: Calculator.py
 # Description: A all around, text-based calculator capable of equation solving
+# Security: Code injection prevention, input validation, timeout protection
 # -----------------------------------------------------------------------------
 
-# ----------------------------------------------------------------
+# ================================================================
+# CONSTANTS & SECURITY CONFIGURATION
+# ================================================================
+
+# Expression validation
+MAX_EXPRESSION_LENGTH = 500
+CALCULATION_TIMEOUT = 5.0  # Seconds
+MAX_VARIABLES_IN_EQUATION = 10
+MAX_EQUATION_COMPLEXITY = 100  # Maximum number of operations
+
+# Custom calculator exception
+class CalculatorError(Exception):
+    pass
+
+# Raised when a security violation is detected
+class SecurityError(CalculatorError):
+    pass
+
+# ================================================================
 # Component test function for calculator module
-# ----------------------------------------------------------------
+# ================================================================
 
 def component_test():
     status = "🟩"
@@ -25,36 +45,210 @@ def component_test():
     
     return {"status": status, "msg": " | ".join(messages)}
 
-# ----------------------------------------------------------------
-# Additional Helpers and Globals
-# ----------------------------------------------------------------
+# ================================================================
+# SECURITY & INPUT VALIDATION
+# ================================================================
 
 # Store last result for 'ans' functionality
-LAST_RESULT = {}
+LAST_RESULT: Dict[int, Any] = {}
 
-# Security configuration
-MAX_EXPRESSION_LENGTH = 500
-CALCULATION_TIMEOUT = 5  # Seconds
+# Check expression complexity to prevent DoS
+def check_expression_complexity(expression: str) -> Tuple[bool, str]:
+    try:
+        # Check nesting depth (parentheses, brackets, braces)
+        max_depth = 0
+        current_depth = 0
+        for char in expression:
+            if char in '([{':
+                current_depth += 1
+                max_depth = max(max_depth, current_depth)
+            elif char in ')]}':
+                current_depth -= 1
+        
+        MAX_NESTING_DEPTH = 10
+        if max_depth > MAX_NESTING_DEPTH:
+            logging.warning(f"Expression nesting too deep: {max_depth} (max {MAX_NESTING_DEPTH})")
+            return False, f"Expression nesting too deep (max {MAX_NESTING_DEPTH} levels)"
+        
+        # Count operations to prevent DoS
+        operation_count = (
+            expression.count('+') + expression.count('-') +
+            expression.count('*') + expression.count('/') +
+            expression.count('^') + expression.count('**') +
+            expression.count('(') + expression.count('[')
+        )
+        
+        MAX_OPERATIONS = 50
+        if operation_count > MAX_OPERATIONS:
+            logging.warning(f"Too many operations: {operation_count} (max {MAX_OPERATIONS})")
+            return False, f"Expression too complex (max {MAX_OPERATIONS} operations)"
+        
+        return True, ""
+    
+    except Exception as e:
+        logging.error(f"Error in check_expression_complexity: {str(e)}")
+        return False, "Could not validate expression complexity"
 
-# Checks if an expression is safe to evaluate
-def is_safe_expression(expression):
+# Validate variable names against whitelist
+def validate_variable_names(expression: str) -> Tuple[bool, str]:
+    try:
+        # Extract all identifiers (variable/function names)
+        # Pattern: word characters, but exclude numbers at start
+        identifier_pattern = r'\b([a-zA-Z_]\w*)\b'
+        found_identifiers = set(re.findall(identifier_pattern, expression))
+        
+        # Remove known safe identifiers
+        safe_identifiers = set(SAFE_FUNCTIONS.keys()) | {'ans', 'x', 'y', 'z', 'n', 'i', 'j', 'k'}
+        
+        # Check for unknown identifiers
+        unknown_identifiers = found_identifiers - safe_identifiers
+        
+        if unknown_identifiers:
+            logging.warning(f"Unknown identifiers detected: {unknown_identifiers}")
+            return False, f"Unknown identifiers: {', '.join(list(unknown_identifiers)[:3])}"
+        
+        return True, ""
+    
+    except Exception as e:
+        logging.error(f"Error in validate_variable_names: {str(e)}")
+        return False, "Could not validate variable names"
+
+# Validate function calls against whitelist
+def validate_function_calls(expression: str) -> Tuple[bool, str]:
+    try:
+        # Extract function calls: identifier followed by (
+        function_pattern = r'([a-zA-Z_]\w*)\s*\('
+        found_functions = set(re.findall(function_pattern, expression))
+        
+        # Get allowed functions from SAFE_FUNCTIONS
+        allowed_functions = set(SAFE_FUNCTIONS.keys())
+        
+        # Check for disallowed functions
+        disallowed = found_functions - allowed_functions
+        
+        if disallowed:
+            logging.warning(f"Disallowed functions detected: {disallowed}")
+            return False, f"Function(s) not allowed: {', '.join(list(disallowed)[:3])}"
+        
+        return True, ""
+    
+    except Exception as e:
+        logging.error(f"Error in validate_function_calls: {str(e)}")
+        return False, "Could not validate function calls"
+
+
+# Replaces special characters with Python-compatible ones and check for invalid patterns
+def is_safe_expression(expression: str) -> Tuple[bool, str]:
+    if not expression or len(expression) == 0:
+        return False, "Expression cannot be empty"
+    
     if len(expression) > MAX_EXPRESSION_LENGTH:
-        return False, "Expression too long (max 500 characters)"
+        return False, f"Expression too long (max {MAX_EXPRESSION_LENGTH} chars)"
+    
+    # Check for null bytes
+    if '\x00' in expression:
+        return False, "Expression contains null bytes"
+    
+    # Normalize whitespace and convert to lowercase for pattern matching
+    normalized = ' '.join(expression.split()).lower()
+    
+    # ========== LAYER 1: BLACKLIST DANGEROUS PATTERNS ==========
+    dangerous_patterns = [
+        # Code execution
+        r'\b__import__\b',
+        r'\beval\b',
+        r'\bexec\b',
+        r'\bcompile\b',
+        r'\bglobals\b',
+        r'\blocals\b',
+        r'\bvars\b',
+        r'\bdir\b',
+        r'\bgetattr\b',
+        r'\bsetattr\b',
+        r'\bhasattr\b',
+        r'\bdelattr\b',
         
-    dangerous_keywords = ['import', 'eval', 'exec', 'open', '__', 'javascript:', 'js:', 'file:', 'ftp:', 'http:', 'https:', 'data:', r"\\x[0-9a-fA-F]{2}"]
-    if any(keyword in expression.lower() for keyword in dangerous_keywords):
-        return False, "Forbidden keywords detected"
+        # Module imports
+        r'\bimport\s',
+        r'\bfrom\s',
         
+        # File/System operations
+        r'\bopen\b',
+        r'\bfile\b',
+        r'\bos\.',
+        r'\bsys\.',
+        r'\bsubprocess\b',
+        r'\bpathlib\b',
+        
+        # Object/Class manipulation
+        r'__[a-z]+__',  # Dunder methods
+        r'\.__bases__',
+        r'\.__class__',
+        r'\.__dict__',
+        r'\.__code__',
+        r'\.__globals__',
+        
+        # Dangerous builtins
+        r'\bexecfile\b',
+        r'\binput\b',
+        r'\braw_input\b',
+        r'\breload\b',
+        
+        # Lambda abuse
+        r'lambda\s+.*:.*import',
+    ]
+    
+    for pattern in dangerous_patterns:
+        if re.search(pattern, normalized):
+            logging.warning(f"Dangerous pattern detected: {pattern}")
+            return False, "Expression contains forbidden keywords or patterns"
+    
+    # Check for suspicious character sequences
+    suspicious_sequences = [
+        '\\\\',  # Escaped backslashes
+        '\\x',   # Hex escapes
+        '\\u',   # Unicode escapes
+    ]
+    
+    for sequence in suspicious_sequences:
+        if sequence in expression:
+            logging.warning(f"Suspicious sequence detected: {sequence}")
+            return False, "Expression contains suspicious escape sequences"
+    
+    # ========== LAYER 2: CHECK COMPLEXITY ==========
+    is_valid, error_msg = check_expression_complexity(expression)
+    if not is_valid:
+        return False, error_msg
+    
+    # ========== LAYER 3: VALIDATE FUNCTION CALLS (WHITELIST) ==========
+    is_valid, error_msg = validate_function_calls(expression)
+    if not is_valid:
+        return False, error_msg
+    
+    # ========== LAYER 4: VALIDATE VARIABLE NAMES (WHITELIST) ==========
+    is_valid, error_msg = validate_variable_names(expression)
+    if not is_valid:
+        return False, error_msg
+    
+    # ========== LAYER 5: CHECK BALANCED BRACKETS ==========
     if expression.count('(') != expression.count(')'):
         return False, "Unbalanced parentheses"
-        
+    
+    if expression.count('[') != expression.count(']'):
+        return False, "Unbalanced brackets"
+    
+    if expression.count('{') != expression.count('}'):
+        return False, "Unbalanced braces"
+    
     return True, ""
 
-# Executes calculation with timeout
-async def calculate_with_timeout(expression):
+# Calculate with timeout protection
+async def calculate_with_timeout(expression: str) -> str:
     try:
+        # Run calculation in executor to avoid blocking
+        loop = asyncio.get_event_loop()
         result = await asyncio.wait_for(
-            asyncio.get_event_loop().run_in_executor(
+            loop.run_in_executor(
                 None, 
                 lambda: sympify(expression, locals=SAFE_FUNCTIONS)
             ),
@@ -62,54 +256,104 @@ async def calculate_with_timeout(expression):
         )
         
         # Format the result
-        if isinstance(result, (int, float, Number)):
-            return format_number(float(result))
-        return str(result)
+        try:
+            if isinstance(result, (int, float, Number)):
+                return format_number(float(result))
+            return str(result)
+        except (ValueError, TypeError) as e:
+            logging.error(f"Error formatting result: {str(e)}")
+            return str(result)
         
+    # Error handling
     except asyncio.TimeoutError:
-        raise CalculatorError("Calculation timed out")
+        logging.warning(f"Calculation timeout for expression: {expression[:50]}")
+        raise CalculatorError(f"Calculation timed out (exceeded {CALCULATION_TIMEOUT}s)")
+    except ZeroDivisionError:
+        logging.warning(f"Zero division in expression: {expression[:50]}")
+        raise CalculatorError("Cannot divide by zero")
+    except sympy.SympifyError as e:
+        logging.warning(f"Sympy parsing error: {str(e)}")
+        raise CalculatorError(f"Invalid mathematical expression: {str(e)}")
+    except ValueError as e:
+        logging.warning(f"Value error in calculation: {str(e)}")
+        raise CalculatorError(f"Invalid value: {str(e)}")
+    except TypeError as e:
+        logging.warning(f"Type error in calculation: {str(e)}")
+        raise CalculatorError(f"Invalid operation: {str(e)}")
+    except OverflowError:
+        logging.warning(f"Overflow in calculation for: {expression[:50]}")
+        raise CalculatorError("Result exceeds allowed range")
+    except Exception as e:
+        logging.error(f"Unexpected error in calculate_with_timeout: {str(e)}", exc_info=True)
+        raise CalculatorError(f"Calculation failed: {str(e)}")
     
-# ----------------------------------------------------------------
-# Equation Solvers
-# ----------------------------------------------------------------
+# ================================================================
+# EQUATION SOLVERS WITH ERROR HANDLING
+# ================================================================
 
-# Solves a PQ-Equation: x² + px + q = 0    
-def solve_pq(p, q):
-    discriminant = (p / 2) ** 2 - q
+# pq-formula solver (uses formatted output)
+def solve_pq(p: float, q: float) -> str:
+    try:
+        discriminant = (p / 2) ** 2 - q
 
-    if discriminant < 0:
-        return "No real roots (discriminant < 0)"
-    elif discriminant == 0:
-        x = -p / 2
-        return f"x = {format_number(x)} (repeated root)"
-    else:
-        x1 = -p / 2 + math.sqrt(discriminant)
-        x2 = -p / 2 - math.sqrt(discriminant)
+        if discriminant < 0:
+            return "No real roots (discriminant < 0)"
+        elif abs(discriminant) < 1e-10:
+            x = -p / 2
+            return f"x = {format_number(x)} (repeated root)"
+        else:
+            x1 = -p / 2 + math.sqrt(discriminant)
+            x2 = -p / 2 - math.sqrt(discriminant)
+            return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
+    except (ValueError, OverflowError) as e:
+        logging.error(f"Error in solve_pq: {str(e)}")
+        raise CalculatorError(f"Cannot solve PQ equation: {str(e)}")
+
+# Quadratic formula solver (uses formatted output)
+def solve_quadratic(a: float, b: float, c: float) -> str:
+    try:
+        if abs(a) < 1e-10:
+            raise CalculatorError("Coefficient 'a' cannot be zero")
+        
+        discriminant = b ** 2 - 4 * a * c
+        if discriminant < 0:
+            return "No real solutions (discriminant < 0)"
+        
+        sqrt_disc = math.sqrt(discriminant)
+        x1 = (-b + sqrt_disc) / (2 * a)
+        x2 = (-b - sqrt_disc) / (2 * a)
         return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
-    
-# Solves a quadratic equation: ax² + bx + c = 0
-def solve_quadratic(a, b, c):
-    discriminant = b ** 2 - 4 * a * c
-    if discriminant < 0:
-        return "No real solutions (discriminant < 0)"
-    x1 = (-b + math.sqrt(discriminant)) / (2 * a)
-    x2 = (-b - math.sqrt(discriminant)) / (2 * a)
-    return f"x₁ = {format_number(x1)}\nx₂ = {format_number(x2)}"
+    except (ValueError, ZeroDivisionError) as e:
+        logging.error(f"Error in solve_quadratic: {str(e)}")
+        raise CalculatorError(f"Cannot solve quadratic: {str(e)}")
 
-# Solves an equation system using sympy.
+# Equation solver with error handling and formatting
 def solve_equation(equation_str: str) -> str:
     try:
-        # define x
+        # Input validation
+        if not equation_str or len(equation_str) > MAX_EXPRESSION_LENGTH:
+            raise CalculatorError("Invalid equation format")
+        
+        # Define x
         x = symbols('x')
+        
         # Remove quotes if present
         equation_str = equation_str.strip('"\'')
+        
         # Replace ^ and ² with **
         equation_str = equation_str.replace('^', '**').replace('²', '**2')
+        
         # Replace 2x with 2*x for proper multiplication
         equation_str = re.sub(r'(\d)([xy])', r'\1*\2', equation_str)
         
         # Parse and solve the equation
-        expr = sympify(equation_str)
+        try:
+            expr = sympify(equation_str)
+        except sympy.SympifyError as e:
+            logging.error(f"Invalid equation syntax: {str(e)}")
+            raise CalculatorError(f"Invalid equation format: {str(e)}")
+        
+        # Solve with timeout
         solutions = solve(expr, x)
 
         if not solutions:
@@ -118,41 +362,68 @@ def solve_equation(equation_str: str) -> str:
         # Format solutions
         formatted_solutions = []
         for i, sol in enumerate(solutions, start=1):
-            sol = complex(sol.evalf())  # Convert to Complex for better handling
-            if abs(sol.imag) < 1e-10:  # Real number
-                formatted_solutions.append(f"x{i} = {format_number(sol.real)}")
-            else:  # Complex number
-                formatted_solutions.append(f"x{i} = {format_number(sol.real)} + {format_number(sol.imag)}i")
+            try:
+                sol = complex(sol.evalf())
+                if abs(sol.imag) < 1e-10:
+                    formatted_solutions.append(f"x{i} = {format_number(sol.real)}")
+                else:
+                    formatted_solutions.append(f"x{i} = {format_number(sol.real)} + {format_number(sol.imag)}i")
+            except (ValueError, TypeError) as e:
+                logging.warning(f"Error formatting solution {i}: {str(e)}")
+                formatted_solutions.append(f"x{i} = {str(sol)}")
 
         return "\n".join(formatted_solutions)
-
+    
+    # Error handling
+    except CalculatorError:
+        raise
     except sympy.SympifyError as e:
-        logging.error(f"Error parsing equation: {equation_str} - {str(e)}")
-        return f"Invalid equation format: {str(e)}"
+        logging.error(f"Sympy error in solve_equation: {str(e)}")
+        raise CalculatorError(f"Invalid equation: {str(e)}")
     except Exception as e:
-        logging.error(f"Error solving equation: {equation_str} - {str(e)}")
-        return f"An error occurred while solving: {str(e)}"
+        logging.error(f"Unexpected error in solve_equation: {str(e)}", exc_info=True)
+        raise CalculatorError(f"Failed to solve equation: {str(e)}")
 
-# Solves a system of equations using sympy
-def solve_equation_system(equations):
+# System of equations solver with error handling (formatted output)
+def solve_equation_system(equations: list) -> str:
     try:
+        if not equations or len(equations) == 0:
+            raise CalculatorError("No equations provided")
+        
+        if len(equations) > MAX_VARIABLES_IN_EQUATION:
+            raise CalculatorError(f"Too many equations (max {MAX_VARIABLES_IN_EQUATION})")
+        
         # Parse the equations
         parsed_equations = []
         for eq in equations:
-            # Replace '^' with '**' for exponentiation
+            if not eq or len(eq) > MAX_EXPRESSION_LENGTH:
+                raise CalculatorError("Invalid equation format")
+            
+            # Replace '^' with '**'
             eq = eq.replace('^', '**')
-            # Replace 2x with 2*x for proper multiplication
+            
+            # Replace 2x with 2*x
             eq = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', eq)
+            
             # Convert 'x + y = 5' to 'x + y - 5'
             if '=' in eq:
-                lhs, rhs = eq.split('=')
+                lhs, rhs = eq.split('=', 1)
                 eq = f"({lhs}) - ({rhs})"
-            parsed_equations.append(sympify(eq))
+            
+            try:
+                parsed_equations.append(sympify(eq))
+            except sympy.SympifyError as e:
+                logging.error(f"Invalid equation: {eq}")
+                raise CalculatorError(f"Invalid equation: {str(e)}")
 
-        # Define variables (x, y, z, etc.)
-        variables = symbols(' '.join(set(re.findall(r'[a-zA-Z]', ' '.join(equations)))))
+        # Define variables
+        all_vars = set(re.findall(r'[a-zA-Z]', ' '.join(equations)))
+        if len(all_vars) == 0:
+            raise CalculatorError("No variables found in equations")
+        
+        variables = symbols(' '.join(sorted(all_vars)))
 
-        # Solve the system of equations
+        # Solve the system
         solutions = solve(parsed_equations, variables)
 
         if not solutions:
@@ -165,11 +436,20 @@ def solve_equation_system(equations):
                 f"Solution {i+1}: " + ", ".join([f"{var} = {format_number(float(sol[j]))}" for j, var in enumerate(variables)])
                 for i, sol in enumerate(solutions)
             ])
-    except Exception as e:
-        logging.error(f"Error solving equation system: {equations} - {str(e)}")
-        return f"Error solving equation system: {str(e)}"
     
-# For safety, only allow specific math functions. Gets used in is_safe_expression and calculate_with_timeout.
+    # Error handling
+    except CalculatorError:
+        raise
+    except ValueError as e:
+        logging.error(f"Value error in solve_equation_system: {str(e)}")
+        raise CalculatorError(f"Cannot solve system: {str(e)}")
+    except Exception as e:
+        logging.error(f"Unexpected error in solve_equation_system: {str(e)}", exc_info=True)
+        raise CalculatorError(f"Failed to solve system: {str(e)}")
+
+# ================================================================
+# SAFE FUNCTIONS FOR CALCULATOR
+# ================================================================
 
 # Safe math functions for the calculator
 SAFE_FUNCTIONS = {
@@ -355,10 +635,6 @@ SAFE_FUNCTIONS = {
 
 }
 
-# Custom calculator exception
-class CalculatorError(Exception):
-    pass
-
 # Formats error messages user-friendly
 def format_error(error):
     error_mapping = {
@@ -371,55 +647,78 @@ def format_error(error):
     }
     return error_mapping.get(type(error), str(error))
 
-# ----------------------------------------------------------------
-# Main handler for !calc command
-# ----------------------------------------------------------------
+# ================================================================
+# MAIN COMMAND HANDLER
+# ================================================================
 
-async def handle_calc_command(client, message, user_message):
-    logging.debug(f"Calculator command received: {user_message}")  # Debug-Log
+# Handles the !calc command and sends results with error handling
+async def handle_calc_command(client, message, user_message: str) -> Optional[str]:
+    logging.debug(f"Calculator command received: {user_message}")
     try:
         expression = user_message[6:].strip()  # Remove '!calc ' prefix
-        logging.debug(f"Parsed expression: {expression}")  # Debug-Log
         
         if not expression:
-            logging.debug("Empty expression, sending help message")  # Debug-Log
-            await send_help_message(message)
-            return " ⚠️ You need to provide an expression to calculate."
+            logging.debug("Empty expression, sending help message")
+            try:
+                await send_help_message(message)
+            except discord.Forbidden:
+                logging.error(f"No permission to send help message in {message.channel}")
+                return "❌ I don't have permission to send messages here."
+            except discord.HTTPException as e:
+                logging.error(f"Failed to send help message: {e}")
+                return "❌ Failed to send help message."
+            return None
 
         result = await process_calculation(message, expression)
         if result is not None:
-            await send_calculation_result(message, expression, result)
-            
-        if result is None:
+            try:
+                await send_calculation_result(message, expression, result)
+            except discord.Forbidden:
+                logging.error(f"No permission to send embed in {message.channel}")
+                return "❌ I don't have permission to send messages here."
+            except discord.HTTPException as e:
+                logging.error(f"Failed to send result embed: {e}")
+                return "❌ Failed to send result."
+        else:
             return "❌ Calculation could not be completed."
             
+    except CalculatorError as e:
+        logging.warning(f"Calculator validation error: {str(e)}")
+        return f"❌ {str(e)}"
     except Exception as e:
-        logging.error(f"Calculator error: {str(e)}", exc_info=True)  # Detailed error log
-        return f"❌ Error: {str(e)}"
+        logging.error(f"Unexpected error in handle_calc_command: {str(e)}", exc_info=True)
+        return "❌ An unexpected error occurred."
 
-# Processes the calculation and returns the result
-async def process_calculation(message, expression):
-    # Processes the calculation and returns the result
+# Processes the calculation with security checks and 'ans' support
+async def process_calculation(message, expression: str) -> Optional[str]:
     calc_start = time.time()
-
-    # Check for previous result
-    if 'ans' in expression:
-        if message.author.id not in LAST_RESULT:
-            await message.channel.send("❌ No previous calculation found. Cannot use 'ans'.")
-            return None
-        expression = expression.replace('ans', str(LAST_RESULT[message.author.id]))
-
-    # Safety checks
-    is_safe, error_msg = is_safe_expression(expression)
-    if not is_safe:
-        await message.channel.send(f"❌ {error_msg}")
-        return None
-
-    # Replace special characters
-    expression = replace_special_characters(expression)
-
-    # Check if the expression contains a solve function
+    
     try:
+        # Check for previous result
+        if 'ans' in expression:
+            if message.author.id not in LAST_RESULT:
+                try:
+                    await message.channel.send("❌ No previous calculation found. Cannot use 'ans'.")
+                except discord.Forbidden:
+                    logging.error(f"No permission to send message in {message.channel}")
+                return None
+            expression = expression.replace('ans', str(LAST_RESULT[message.author.id]))
+            logging.debug(f"Replaced 'ans' with: {LAST_RESULT[message.author.id]}")
+
+        # Safety checks
+        is_safe, error_msg = is_safe_expression(expression)
+        if not is_safe:
+            try:
+                await message.channel.send(f"❌ {error_msg}")
+            except discord.Forbidden:
+                logging.error(f"No permission to send message in {message.channel}")
+            return None
+
+        # Replace special characters
+        expression = replace_special_characters(expression)
+        logging.debug(f"Expression after character replacement: {expression}")
+
+        # Check if the expression contains a solve function
         if expression.startswith("solve(") and expression.endswith(")"):
             # Extract the equation inside solve()
             equation = expression[6:-1].strip()
@@ -434,71 +733,113 @@ async def process_calculation(message, expression):
         logging.debug(f"Calculation processed in {calc_duration:.2f} seconds.")
         
         return result
-    except Exception as e:
-        error_msg = format_error(e)
-        await message.channel.send(f"❌ {error_msg}")
-        logging.error(f"Calculation error for {message.author}: {error_msg}")
+    
+    # Error handling
+    except CalculatorError as e:
+        try:
+            await message.channel.send(f"❌ {str(e)}")
+        except discord.Forbidden:
+            logging.error(f"No permission to send message in {message.channel}")
+        except discord.HTTPException as ex:
+            logging.error(f"Failed to send error message: {ex}")
+        logging.warning(f"Calculator error for {message.author}: {str(e)}")
         return None
-    
-# Sends the calculation result as an embed
-async def send_calculation_result(message, original_expression, result):
-    if isinstance(result, (int, float, str)):
-        formatted_result = format_number(result)
-    else:
-        formatted_result = str(result)
-    
-    embed = discord.Embed(
-        title="🔢 Calculator",
-        color=discord.Color.blue()
-    )
-    embed.add_field(name="Expression", value=f"**{original_expression}**", inline=False)
-    embed.add_field(name="Result", value=f"**{formatted_result}**", inline=False)
-    embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use the last result!!")
+    except discord.Forbidden:
+        logging.error(f"No permission to send message in {message.channel}")
+        return None
+    except discord.HTTPException as e:
+        logging.error(f"HTTP error when sending message: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"Unexpected error in process_calculation: {str(e)}", exc_info=True)
+        try:
+            await message.channel.send("❌ An unexpected error occurred during calculation.")
+        except Exception:
+            logging.error("Failed to send error notification")
+        return None
 
-    await message.channel.send(embed=embed)
-    logging.debug(f"Calculation performed for {message.author}: {original_expression} = {result}")
+# Sends calculation result as an embed with error handling
+async def send_calculation_result(message, original_expression: str, result) -> None:
+    try:
+        if isinstance(result, (int, float, str)):
+            formatted_result = format_number(result)
+        else:
+            formatted_result = str(result)
+        
+        embed = discord.Embed(
+            title="🔢 Calculator",
+            color=discord.Color.blue()
+        )
+        embed.add_field(name="Expression", value=f"**{original_expression}**", inline=False)
+        embed.add_field(name="Result", value=f"**{formatted_result}**", inline=False)
+        embed.set_footer(text="💡 Tip: Use 'ans' in your next calculation to use the last result!")
 
-# Sends the help message for the calculator
-async def send_help_message(message):
-    help_msg = (
-        "📝 **How to use the calculator:**\n\n"
-        "`!calc <expression>`\n\n"
-        "**Basic Operations:**\n"
-        "  - Addition (+), Subtraction (-)\n"
-        "  - Multiplication (×, *), Division (÷, /)\n"
-        "  - Powers (^, x², x³, x⁴, x⁵, x⁶, x⁷, x⁸, x⁹)\n"
-        "  - Square Root (√), Cubic Root (∛), Fourth Root (∜)\n"
-        "\n**Mathematical Functions:**\n"
-        "  - Logarithms: ln(x), log(x), log2(x)\n"
-        "  - Trigonometry: sin(x), cos(x), tan(x)\n"
-        "  - Inverse Trig: asin(x), acos(x), atan(x)\n"
-        "  - Hyperbolic: sinh(x), cosh(x), tanh(x)\n"
-        "\n**Other Functions:**\n"
-        "  - exp(x), abs(x), factorial(x)\n"
-        "  - floor(x), ceil(x), round(x)\n"
-        "\n**Constants:**\n"
-        "  - π (pi), e, τ (tau), ∞ (inf)\n"
-        "\n **Special Features:**\n"
-        "  - Previous result: ans\n"
-        "  - Equation solving: solve(equation)\n"
-        "  - PQ formula: pq(p,q)\n"
-        "  - Quadratic: quad(a,b,c)\n"
-        "  - Equation systems: solve_system(['eq1', 'eq2', ...])\n"
-        "  - Summation: sum(expr, start, end)\n"
-        "  - Product: prod(expr, start, end)\n"
-        "  - Unit conversion: c_to_f(x), km_to_mi(x)\n"
-        "\n**Examples:**\n"
-        "• `!calc 2 + 2`\n"
-        "• `!calc sin(45) + cos(30)`\n"
-        "• `!calc √(16) + ∛(27)`\n"
-        "• `!calc 2³ + π`\n"
-        "• `!calc solve(x^2 + 2x + 1)`\n"
-        "• `!calc ans + 5`\n"
-        "• `!calc solve_system(['x + y = 5', 'x - y = 1'])`\n"
-        "• `!calc sum('n**2', 1, 5)`\n"
-        "• `!calc c_to_f(20)`"
-    )
-    await message.channel.send(help_msg)
+        await message.channel.send(embed=embed)
+        logging.debug(f"Calculation result sent for {message.author}: {original_expression} = {result}")
+        
+    except discord.Forbidden:
+        logging.error(f"No permission to send embed in {message.channel}")
+        raise
+    except discord.HTTPException as e:
+        logging.error(f"Failed to send embed: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error in send_calculation_result: {str(e)}", exc_info=True)
+        raise
+
+# Sends help message with usage instructions and examples
+async def send_help_message(message) -> None:
+    try:
+        help_msg = (
+            "📝 **How to use the calculator:**\n\n"
+            "`!calc <expression>`\n\n"
+            "**Basic Operations:**\n"
+            "  - Addition (+), Subtraction (-)\n"
+            "  - Multiplication (×, *), Division (÷, /)\n"
+            "  - Powers (^, x², x³, x⁴, x⁵, x⁶, x⁷, x⁸, x⁹)\n"
+            "  - Square Root (√), Cubic Root (∛), Fourth Root (∜)\n"
+            "\n**Mathematical Functions:**\n"
+            "  - Logarithms: ln(x), log(x), log2(x)\n"
+            "  - Trigonometry: sin(x), cos(x), tan(x)\n"
+            "  - Inverse Trig: asin(x), acos(x), atan(x)\n"
+            "  - Hyperbolic: sinh(x), cosh(x), tanh(x)\n"
+            "\n**Other Functions:**\n"
+            "  - exp(x), abs(x), factorial(x)\n"
+            "  - floor(x), ceil(x), round(x)\n"
+            "\n**Constants:**\n"
+            "  - π (pi), e, τ (tau), ∞ (inf)\n"
+            "\n**Special Features:**\n"
+            "  - Previous result: ans\n"
+            "  - Equation solving: solve(equation)\n"
+            "  - PQ formula: pq(p,q)\n"
+            "  - Quadratic: quad(a,b,c)\n"
+            "  - Equation systems: solve_system(['eq1', 'eq2', ...])\n"
+            "  - Summation: sum(expr, start, end)\n"
+            "  - Product: prod(expr, start, end)\n"
+            "  - Unit conversion: c_to_f(x), km_to_mi(x)\n"
+            "\n**Examples:**\n"
+            "• `!calc 2 + 2`\n"
+            "• `!calc sin(45) + cos(30)`\n"
+            "• `!calc √(16) + ∛(27)`\n"
+            "• `!calc 2³ + π`\n"
+            "• `!calc solve(x^2 + 2x + 1)`\n"
+            "• `!calc ans + 5`\n"
+            "• `!calc solve_system(['x + y = 5', 'x - y = 1'])`\n"
+            "• `!calc sum('n**2', 1, 5)`\n"
+            "• `!calc c_to_f(20)`"
+        )
+        await message.channel.send(help_msg)
+        logging.debug(f"Help message sent to {message.author} in {message.channel}")
+        
+    except discord.Forbidden:
+        logging.error(f"No permission to send message in {message.channel}")
+        raise
+    except discord.HTTPException as e:
+        logging.error(f"Failed to send help message: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error in send_help_message: {str(e)}", exc_info=True)
+        raise
 
 # Replaces special mathematical characters with their python equivalents
 def replace_special_characters(expression):

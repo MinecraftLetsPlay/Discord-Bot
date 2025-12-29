@@ -167,9 +167,14 @@ def run_discord_bot():
                 else:  # Server
                     if LoggingActivated and is_logged:
                         logging.info(f'{bot.user} said: "{response}" ({message.guild.name} / {channel})')
-                await message.channel.send(response)
+                try:
+                    await message.channel.send(response)
+                except discord.Forbidden:
+                    logging.error(f"No permission to send message in {message.channel}")
+                except discord.HTTPException as e:
+                    logging.error(f"Failed to send message: {e}")
         except Exception as e:
-            logging.error(f"❌ Error handling message: {e}")
+            logging.error(f"❌ Error handling message: {e}", exc_info=True)
             
     # Reaction role handling
     async def handle_reaction_role(payload, action):

@@ -108,7 +108,7 @@ async def component_test() -> List[Tuple[str, Dict[str, str]]]:
 # Main command handler for routing commands
 # ----------------------------------------------------------------
 
-async def handle_command(client, message):
+async def handle_command(client, message) -> Union[str, None]:
     user_message = message.content.strip()
     
     # Check if the command can be executed in DM enviroment
@@ -116,7 +116,7 @@ async def handle_command(client, message):
         if any(user_message.startswith(cmd) for cmd in no_dm_commands):
             await message.channel.send("⚠️ This command cannot be executed in a DM enviroment.")
             logging.warning(f"Command '{user_message}' blocked in DM enviroment.")
-            return
+            return None
     
     logging.debug(f"Received command: {user_message}")  # Debug log
 
@@ -126,7 +126,7 @@ async def handle_command(client, message):
             return await handle_calc_command(client, message, user_message)
         except Exception as e:
             logging.error(f"Error in !calc command handler: {e}", exc_info=True)
-            await message.channel.send("⚠️ An error occurred while processing your command.")
+            return "⚠️ An error occurred while processing your command."
     
     # Handle other commands
     for group, commands in command_groups.items():
@@ -142,3 +142,5 @@ async def handle_command(client, message):
     if user_message.startswith('!'):  # Only log unknown commands that start with !
         logging.warning(f"Unknown command: {user_message}")
         await message.channel.send("❓ Unknown command. Type !help for a list of available commands.")
+    
+    return None
