@@ -1,5 +1,6 @@
 import discord
 import aiohttp
+import asyncio
 import logging
 from internal import utils
 
@@ -9,6 +10,7 @@ from internal import utils
 # ----------------------------------------------------------------
 # Module: Public_commands.py
 # Description: Handles public commands like !userinfo or !serverinfo
+# Error handling for API requests and message sending included
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -58,17 +60,24 @@ async def handle_public_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!help':
-        embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
-        embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /status, /debugmode, /whitelist, /logging, /logging_channel ", inline=False)
-        embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo", inline=False)
-        embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
-        embed.add_field(name="[Science]", value="!apod, !marsphoto, !asteroids, !sun, !exoplanet", inline=False)
-        embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !poll, !reminder, !calc, /download, !catfact", inline=False)
-        embed.add_field(name="[Music]", value="!join, !leave, !play, !pause, !resume, !stop, !skip, !repeat, !queue, !nowplaying", inline=False)
-        embed.add_field(name="[Minecraft Server]", value="Prefix: !MCServer, (vote) Shutdown, (vote) Restart, status, command", inline=False)
-        embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman, !scrabble", inline=False)
-        await message.channel.send(embed=embed)
-        logging.info("Displayed help message.")
+        try:
+            embed = discord.Embed(title="Help", description="Possible Commands", color=0x00ff00)
+            embed.add_field(name="[System]", value="/shutdown, /full-shutdown, /restart, /log, /status, /debugmode, /whitelist, /logging, /logging_channel ", inline=False)
+            embed.add_field(name="[Public]", value="!help, !info, !rules, !userinfo, !serverinfo", inline=False)
+            embed.add_field(name="[Moderation]", value="!kick, !ban, !unban, !timeout, !untimeout, !reactionrole", inline=False)
+            embed.add_field(name="[Science]", value="!apod, !marsphoto, !asteroids, !sun, !exoplanet", inline=False)
+            embed.add_field(name="[Utils]", value="!ping, !uptime, !weather, !city, !time, !poll, !reminder, !calc, /download, !catfact", inline=False)
+            embed.add_field(name="[Music]", value="!join, !leave, !play, !pause, !resume, !stop, !skip, !repeat, !queue, !nowplaying", inline=False)
+            embed.add_field(name="[Minecraft Server]", value="Prefix: !MCServer, (vote) Shutdown, (vote) Restart, status, command", inline=False)
+            embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman, !scrabble", inline=False)
+            await message.channel.send(embed=embed)
+            logging.info("Displayed help message.")
+        except discord.Forbidden:
+            logging.error("Missing permission to send help message.")
+            await message.channel.send("⚠️ I don't have permission to send messages here.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to send help message: {e}")
+            await message.channel.send("⚠️ An error occurred while sending the help message.")
 
     # ----------------------------------------------------------------
     # Command: !info
@@ -77,23 +86,30 @@ async def handle_public_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!info':
-        embed = discord.Embed(title="Info", color=0x00ff00)
-        embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
-        embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
-        embed.add_field(name="", value="The bot is mainly developed by myself, but there is also a co-developer who is \n helping me finding ideas and solve problems: Jirasrel.", inline=False)
-        embed.add_field(name="", value="The bot is hosted inside my home on a Raspberry Pi 3 Model B \n (Quad-Core 64bit 2.4GHz CPU and 8GB of LPDDR4X RAM).", inline=False)
-        embed.add_field(name="", value="The Bot is using several APIs for some of its functioalities. \n For example the Nitrado API for Minecraft Server control.", inline=False)
-        embed.add_field(name="", value="The programming language the Bot is made of is Python. \n For core functionality it is using the Discord.py API Wrapper.", inline=False)
-        embed.add_field(name="", value="New functionalities and features will be added in the future and existing ones will be refined and / or expanded. Suggestions are welcome!", inline=False)
+        try:
+            embed = discord.Embed(title="Info", color=0x00ff00)
+            embed.add_field(name="", value="This is a Discord Bot created by Minecraft Lets Play.", inline=False)
+            embed.add_field(name="", value="The bot is currently in development and is regularly updated.", inline=False)
+            embed.add_field(name="", value="The bot is mainly developed by myself, but there is also a co-developer who is \n helping me finding ideas and solve problems: Jirasrel.", inline=False)
+            embed.add_field(name="", value="The bot is hosted inside my home on a Raspberry Pi 3 Model B \n (Quad-Core 64bit 2.4GHz CPU and 8GB of LPDDR4X RAM).", inline=False)
+            embed.add_field(name="", value="The Bot is using several APIs for some of its functioalities. \n For example the Nitrado API for Minecraft Server control.", inline=False)
+            embed.add_field(name="", value="The programming language the Bot is made of is Python. \n For core functionality it is using the Discord.py API Wrapper.", inline=False)
+            embed.add_field(name="", value="New functionalities and features will be added in the future and existing ones will be refined and / or expanded. Suggestions are welcome!", inline=False)
 
-        # Create buttons
-        view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="Creator's Github", url="https://github.com/MinecraftLetsPlay"))
-        view.add_item(discord.ui.Button(label="Contributer's Github", url="https://github.com/Jirasrel"))
-        view.add_item(discord.ui.Button(label="API Wrapper Docs", url="https://discordpy.readthedocs.io/en/stable/"))
+            # Create buttons
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(label="Creator's Github", url="https://github.com/MinecraftLetsPlay"))
+            view.add_item(discord.ui.Button(label="Contributer's Github", url="https://github.com/Jirasrel"))
+            view.add_item(discord.ui.Button(label="API Wrapper Docs", url="https://discordpy.readthedocs.io/en/stable/"))
 
-        await message.channel.send(embed=embed, view=view)
-        logging.info("Displayed info message.")
+            await message.channel.send(embed=embed, view=view)
+            logging.info("Displayed info message.")
+        except discord.Forbidden:
+            logging.error("Missing permission to send info message.")
+            await message.channel.send("⚠️ I don't have permission to send messages here.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to send info message: {e}")
+            await message.channel.send("⚠️ An error occurred while sending the info message.")
 
     # ----------------------------------------------------------------
     # Command: !rules
@@ -102,14 +118,21 @@ async def handle_public_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!rules':
-        rules_channel_name = config.get("rules_channel_name", "rules")
-        rules_channel = discord.utils.get(message.guild.text_channels, name=rules_channel_name)
-        if rules_channel:
-            await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
-            logging.info("Displayed rules channel mention.")
-        else:
-            await message.channel.send("ℹ️ Sorry, I couldn't find the rules channel.")
-            logging.warning("Rules channel not found.")
+        try:
+            rules_channel_name = config.get("rules_channel_name", "rules")
+            rules_channel = discord.utils.get(message.guild.text_channels, name=rules_channel_name)
+            if rules_channel:
+                await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
+                logging.info("Displayed rules channel mention.")
+            else:
+                await message.channel.send("ℹ️ Sorry, I couldn't find the rules channel.")
+                logging.warning("Rules channel not found.")
+        except discord.Forbidden:
+            logging.error("Missing permission to send rules message.")
+            await message.channel.send("⚠️ I don't have permission to send messages here.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to send rules message: {e}")
+            await message.channel.send("⚠️ An error occurred while sending the rules message.")
 
     # ----------------------------------------------------------------
     # Command: !userinfo
@@ -146,15 +169,28 @@ async def handle_public_commands(client, message, user_message):
             user = message.author  # Default to the author if no input is provided
 
         if user:
-            embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
-            embed.add_field(name="Joined at", value=user.joined_at.strftime("%B %d, %Y"))
-            roles = " • ".join([role.name for role in user.roles if role.name != "@everyone"])
-            embed.add_field(name="Roles", value=roles if roles else "No roles")
-            embed.set_thumbnail(url=user.avatar.url)
-            await message.channel.send(embed=embed)
-            logging.info(f"Displayed user info for {user.name}.")
+            try:
+                embed = discord.Embed(title=f"User Info: {user.name}", color=discord.Color.blue())
+                # Handle joined_at being None
+                joined_date = user.joined_at.strftime("%B %d, %Y") if user.joined_at else "Unknown"
+                embed.add_field(name="Joined at", value=joined_date)
+                roles = " • ".join([role.name for role in user.roles if role.name != "@everyone"])
+                embed.add_field(name="Roles", value=roles if roles else "No roles")
+                if user.avatar:
+                    embed.set_thumbnail(url=user.avatar.url)
+                await message.channel.send(embed=embed)
+                logging.info(f"Displayed user info for {user.name}.")
+            except discord.Forbidden:
+                logging.error("Missing permission to send user info.")
+                await message.channel.send("⚠️ I don't have permission to send messages here.")
+            except discord.HTTPException as e:
+                logging.error(f"Failed to send user info: {e}")
+                await message.channel.send("⚠️ An error occurred while sending the user info.")
         else:
-            await message.channel.send("⚠️ User not found. Please provide a valid username, mention, or ID.")
+            try:
+                await message.channel.send("⚠️ User not found. Please provide a valid username, mention, or ID.")
+            except discord.HTTPException:
+                logging.error("Failed to send user not found message.")
             logging.warning("User not found !userinfo command.")
 
     # ----------------------------------------------------------------
@@ -164,23 +200,35 @@ async def handle_public_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!serverinfo'):
-        guild = message.guild  # Get the guild (server)
-        embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
+        try:
+            guild = message.guild  # Get the guild (server)
+            if not guild:
+                await message.channel.send("⚠️ This command can only be used in a server.")
+                logging.warning("!serverinfo used in DM environment.")
+                return
+            
+            embed = discord.Embed(title=f"Server Info: {guild.name}", color=discord.Color.blue())
 
-        # Server details
-        embed.add_field(name="Server ID", value=guild.id)
-        embed.add_field(name="Created At", value=guild.created_at.strftime("%B %d, %Y"))
-        embed.add_field(name="Owner", value=guild.owner)
-        embed.add_field(name="Member Count", value=guild.member_count)
-        embed.add_field(name="Total Channels", value=f"Text: {len(guild.text_channels)}, Voice: {len(guild.voice_channels)}")
-        embed.add_field(name="Roles", value=len(guild.roles))
+            # Server details
+            embed.add_field(name="Server ID", value=guild.id)
+            embed.add_field(name="Created At", value=guild.created_at.strftime("%B %d, %Y"))
+            embed.add_field(name="Owner", value=guild.owner)
+            embed.add_field(name="Member Count", value=guild.member_count)
+            embed.add_field(name="Total Channels", value=f"Text: {len(guild.text_channels)}, Voice: {len(guild.voice_channels)}")
+            embed.add_field(name="Roles", value=len(guild.roles))
 
-        # Set server icon (if available)
-        if guild.icon:
-            embed.set_thumbnail(url=guild.icon.url)
+            # Set server icon (if available)
+            if guild.icon:
+                embed.set_thumbnail(url=guild.icon.url)
 
-        await message.channel.send(embed=embed)
-        logging.info(f"Displayed server info for {guild.name}.")
+            await message.channel.send(embed=embed)
+            logging.info(f"Displayed server info for {guild.name}.")
+        except discord.Forbidden:
+            logging.error("Missing permission to send server info.")
+            await message.channel.send("⚠️ I don't have permission to send messages here.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to send server info: {e}")
+            await message.channel.send("⚠️ An error occurred while sending the server info.")
 
     # ----------------------------------------------------------------
     # !catfact command
@@ -190,20 +238,30 @@ async def handle_public_commands(client, message, user_message):
         async def get_catfact():
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get('https://catfact.ninja/fact') as response:
+                    async with session.get('https://catfact.ninja/fact', timeout=aiohttp.ClientTimeout(total=5)) as response:
                         if response.status == 200:
-                            data = await response.json()
-                            return data.get('fact')
+                            try:
+                                data = await response.json()
+                                return data.get('fact')
+                            except (ValueError, aiohttp.ContentTypeError) as e:
+                                logging.error(f"Failed to parse JSON response: {e}")
                         else:
                             logging.warning(f"Failed to fetch cat fact. Status code: {response.status}")
+            except asyncio.TimeoutError:
+                logging.error("Cat fact API request timed out.")
             except aiohttp.ClientError as e:
                 logging.error(f"❌ API request failed: {e}")
             return None
 
         catfact = await get_catfact()
-        if catfact:
-            await message.channel.send(catfact)
-            logging.info("Displayed a cat fact.")
-        else:
-            await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")
-            logging.warning("Failed to fetch a cat fact.")
+        try:
+            if catfact:
+                await message.channel.send(catfact)
+                logging.info("Displayed a cat fact.")
+            else:
+                await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")
+                logging.warning("Failed to fetch a cat fact.")
+        except discord.Forbidden:
+            logging.error("Missing permission to send cat fact.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to send cat fact message: {e}")

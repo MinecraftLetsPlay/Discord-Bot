@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 # ----------------------------------------------------------------
 # Module: Sciencecific_commands.py
 # Description: Handles science comands like !exoplanet or !sun
+# Error handling for API requests and data parsing included
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -24,6 +25,17 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 NASA_API_KEY = os.getenv('NASA_API_KEY')
+
+# Safe Discord Message Sending with Error Handling
+async def safe_send(message_obj, content=None, embed=None, view=None):
+    try:
+        return await message_obj.channel.send(content=content, embed=embed, view=view)
+    except discord.Forbidden:
+        logging.error(f"Missing permission to send message in {message_obj.channel}")
+        return None
+    except discord.HTTPException as e:
+        logging.error(f"Failed to send message: {e}")
+        return None
 
 async def component_test():
     status = "🟩"
@@ -64,22 +76,33 @@ async def handle_sciencecific_commands(client, message, user_message):
     
     if user_message.startswith('!apod'):
         url = f'https://api.nasa.gov/planetary/apod?api_key={NASA_API_KEY}'
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    embed = discord.Embed(
-                        title=data.get('title', 'Astronomy Picture of the Day'),
-                        description=data.get('explanation', 'No explanation available.'),
-                        color=discord.Color.blue()
-                    )
-                    embed.set_image(url=data.get('url'))
-                    embed.set_footer(text=f"Date: {data.get('date', '')} | Copyright: {data.get('copyright', 'NASA')}")
-                    await message.channel.send(embed=embed)
-                    logging.info("Displayed APOD")
-                else:
-                    await message.channel.send("❌ Could not fetch APOD from NASA API.")
-                    logging.error(f"APOD API error: {response.status}")
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        try:
+                            data = await response.json()
+                            embed = discord.Embed(
+                                title=data.get('title', 'Astronomy Picture of the Day'),
+                                description=data.get('explanation', 'No explanation available.'),
+                                color=discord.Color.blue()
+                            )
+                            embed.set_image(url=data.get('url'))
+                            embed.set_footer(text=f"Date: {data.get('date', '')} | Copyright: {data.get('copyright', 'NASA')}")
+                            await safe_send(message, embed=embed)
+                            logging.info("Displayed APOD")
+                        except (ValueError, aiohttp.ContentTypeError) as e:
+                            logging.error(f"Failed to parse APOD response: {e}")
+                            await safe_send(message, content="❌ Error parsing APOD data from NASA API.")
+                    else:
+                        await safe_send(message, content="❌ Could not fetch APOD from NASA API.")
+                        logging.error(f"APOD API error: {response.status}")
+        except asyncio.TimeoutError:
+            logging.error("APOD API request timed out")
+            await safe_send(message, content="❌ Request timed out. Please try again.")
+        except aiohttp.ClientError as e:
+            logging.error(f"APOD API request failed: {e}")
+            await safe_send(message, content="❌ Could not connect to NASA API.")
         return
 
     # ----------------------------------------------------------------
@@ -106,33 +129,43 @@ async def handle_sciencecific_commands(client, message, user_message):
             rover = parts[1].lower()
             date = parts[2]
         else:
-            await message.channel.send("❌ Usage: `!marsphoto [rover] [YYYY-MM-DD]` (rover: curiosity, spirit)")
+            await safe_send(message, content="❌ Usage: `!marsphoto [rover] [YYYY-MM-DD]` (rover: curiosity, spirit)")
             return
             
         # Build URL and fetch data
-
         url = f'https://api.nasa.gov/mars-photos/api/v1/rovers/{rover}/photos?earth_date={date}&api_key={NASA_API_KEY}'
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    photos = data.get('photos', [])
-                    if photos:
-                        import random
-                        photo = random.choice(photos)
-                        embed = discord.Embed(
-                            title=f"Mars Rover Photo ({photo['rover']['name']})",
-                            description=f"Camera: {photo['camera']['full_name']}\nDate: {photo['earth_date']}",
-                            color=discord.Color.red()
-                        )
-                        embed.set_image(url=photo['img_src'])
-                        await message.channel.send(embed=embed)
-                        logging.info(f"Displayed Mars photo from {rover} on {date}")
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        try:
+                            data = await response.json()
+                            photos = data.get('photos', [])
+                            if photos:
+                                import random
+                                photo = random.choice(photos)
+                                embed = discord.Embed(
+                                    title=f"Mars Rover Photo ({photo['rover']['name']})",
+                                    description=f"Camera: {photo['camera']['full_name']}\nDate: {photo['earth_date']}",
+                                    color=discord.Color.red()
+                                )
+                                embed.set_image(url=photo['img_src'])
+                                await safe_send(message, embed=embed)
+                                logging.info(f"Displayed Mars photo from {rover} on {date}")
+                            else:
+                                await safe_send(message, content=f"❌ No photos found for {rover.title()} on {date}.")
+                        except (ValueError, aiohttp.ContentTypeError) as e:
+                            logging.error(f"Failed to parse Mars photo response: {e}")
+                            await safe_send(message, content="❌ Error parsing Mars photo data from NASA API.")
                     else:
-                        await message.channel.send(f"❌ No photos found for {rover.title()} on {date}.")
-                else:
-                    await message.channel.send("❌ Could not fetch Mars photo from NASA API.")
-                    logging.error(f"Mars photo API error: {response.status}")
+                        await safe_send(message, content="❌ Could not fetch Mars photo from NASA API.")
+                        logging.error(f"Mars photo API error: {response.status}")
+        except asyncio.TimeoutError:
+            logging.error("Mars photo API request timed out")
+            await safe_send(message, content="❌ Request timed out. Please try again.")
+        except aiohttp.ClientError as e:
+            logging.error(f"Mars photo API request failed: {e}")
+            await safe_send(message, content="❌ Could not connect to NASA API.")
         return
 
     # ----------------------------------------------------------------
@@ -147,53 +180,63 @@ async def handle_sciencecific_commands(client, message, user_message):
             today = datetime.now().strftime('%Y-%m-%d')
             url = f"https://api.nasa.gov/neo/rest/v1/feed?start_date={today}&end_date={today}&api_key={NASA_API_KEY}"
             async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
                     if response.status == 200:
-                        data = await response.json()
-                        neos = []
-                        # The API returns a dictionary with dates as keys
-                        for date_key in data.get("near_earth_objects", {}):
-                            neos.extend(data["near_earth_objects"][date_key])
-                        if not neos:
-                            await message.channel.send("☄️ No near-Earth asteroids found for today!")
-                            return
-                        # Sort by distance
-                        neos.sort(key=lambda n: float(n["close_approach_data"][0]["miss_distance"]["kilometers"]))
-                        # Next 5 ones
-                        embed = discord.Embed(
-                            title="☄️ Next 5 Near-Earth Asteroids",
-                            description=f"Found for {today}",
-                            color=discord.Color.orange()
-                        )
-                        for neo in neos[:5]:
-                            name = neo["name"]
-                            size = neo["estimated_diameter"]["meters"]
-                            diameter = f"{size['estimated_diameter_min']:.1f}–{size['estimated_diameter_max']:.1f} m"
-                            miss_distance = float(neo["close_approach_data"][0]["miss_distance"]["kilometers"])
-                            velocity = float(neo["close_approach_data"][0]["relative_velocity"]["kilometers_per_hour"])
-                            hazardous = "⚠️" if neo["is_potentially_hazardous_asteroid"] else ""
-                            abs_mag = neo.get("absolute_magnitude_h", "N/A")
-                            approach_date = neo["close_approach_data"][0]["close_approach_date"]
-                            orbiting_body = neo["close_approach_data"][0]["orbiting_body"]
-                            jpl_url = neo.get("nasa_jpl_url", "")
-                            embed.add_field(
-                                name=f"{name} {hazardous}",
-                                value=(
-                                    f"Size: {diameter}\n"
-                                    f"Absolute Magnitude: {abs_mag}\n"
-                                    f"Distance: {miss_distance:,.0f} km\n"
-                                    f"Velocity: {velocity:,.0f} km/h\n"
-                                    f"Approach Date: {approach_date}\n"
-                                    f"Orbiting Body: {orbiting_body}\n"
-                                ),
-                                inline=False
+                        try:
+                            data = await response.json()
+                            neos = []
+                            # The API returns a dictionary with dates as keys
+                            for date_key in data.get("near_earth_objects", {}):
+                                neos.extend(data["near_earth_objects"][date_key])
+                            if not neos:
+                                await safe_send(message, content="☄️ No near-Earth asteroids found for today!")
+                                return
+                            # Sort by distance
+                            neos.sort(key=lambda n: float(n["close_approach_data"][0]["miss_distance"]["kilometers"]))
+                            # Next 5 ones
+                            embed = discord.Embed(
+                                title="☄️ Next 5 Near-Earth Asteroids",
+                                description=f"Found for {today}",
+                                color=discord.Color.orange()
                             )
-                        await message.channel.send(embed=embed)
-                        logging.info("Displayed asteroid data")
+                            for neo in neos[:5]:
+                                name = neo["name"]
+                                size = neo["estimated_diameter"]["meters"]
+                                diameter = f"{size['estimated_diameter_min']:.1f}–{size['estimated_diameter_max']:.1f} m"
+                                miss_distance = float(neo["close_approach_data"][0]["miss_distance"]["kilometers"])
+                                velocity = float(neo["close_approach_data"][0]["relative_velocity"]["kilometers_per_hour"])
+                                hazardous = "⚠️" if neo["is_potentially_hazardous_asteroid"] else ""
+                                abs_mag = neo.get("absolute_magnitude_h", "N/A")
+                                approach_date = neo["close_approach_data"][0]["close_approach_date"]
+                                orbiting_body = neo["close_approach_data"][0]["orbiting_body"]
+                                jpl_url = neo.get("nasa_jpl_url", "")
+                                embed.add_field(
+                                    name=f"{name} {hazardous}",
+                                    value=(
+                                        f"Size: {diameter}\n"
+                                        f"Absolute Magnitude: {abs_mag}\n"
+                                        f"Distance: {miss_distance:,.0f} km\n"
+                                        f"Velocity: {velocity:,.0f} km/h\n"
+                                        f"Approach Date: {approach_date}\n"
+                                        f"Orbiting Body: {orbiting_body}\n"
+                                    ),
+                                    inline=False
+                                )
+                            await safe_send(message, embed=embed)
+                            logging.info("Displayed asteroid data")
+                        except (ValueError, aiohttp.ContentTypeError) as e:
+                            logging.error(f"Failed to parse asteroid response: {e}")
+                            await safe_send(message, content="❌ Error parsing asteroid data from NASA API.")
                     else:
-                        await message.channel.send("❌ Error fetching asteroid data from NASA API.")
+                        await safe_send(message, content="❌ Error fetching asteroid data from NASA API.")
+        except asyncio.TimeoutError:
+            logging.error("Asteroids API request timed out")
+            await safe_send(message, content="❌ Request timed out. Please try again.")
+        except aiohttp.ClientError as e:
+            logging.error(f"Asteroids API request failed: {e}")
+            await safe_send(message, content="❌ Could not connect to NASA API.")
         except Exception as e:
-            await message.channel.send("❌ Error processing asteroid data.")
+            await safe_send(message, content="❌ Error processing asteroid data.")
             logging.error(f"Asteroids command error: {e}")
         return
 
@@ -228,13 +271,21 @@ async def handle_sciencecific_commands(client, message, user_message):
                 )
                 for key, endpoint in endpoints_to_fetch.items():
                     url = f"{base_url}{endpoint}?startDate={today}&api_key={NASA_API_KEY}"
-                    async with session.get(url) as resp:
-                        if resp.status == 200:
-                            data = await resp.json()
-                            results.append((endpoint, data))
-                        else:
-                            message.channel.send(f"❌ Error fetching {endpoint} data from NASA API.")
-                            logging.warning(f"NASA API {endpoint} returned {resp.status}")
+                    try:
+                        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                            if resp.status == 200:
+                                try:
+                                    data = await resp.json()
+                                    results.append((endpoint, data))
+                                except (ValueError, aiohttp.ContentTypeError) as e:
+                                    logging.error(f"Failed to parse {endpoint} response: {e}")
+                            else:
+                                await safe_send(message, content=f"❌ Error fetching {endpoint} data from NASA API.")
+                                logging.warning(f"NASA API {endpoint} returned {resp.status}")
+                    except asyncio.TimeoutError:
+                        logging.error(f"Solar activity {endpoint} API request timed out")
+                    except aiohttp.ClientError as e:
+                        logging.error(f"Solar activity {endpoint} API request failed: {e}")
                     await asyncio.sleep(0.25)
 
             embed = discord.Embed(
@@ -294,11 +345,11 @@ async def handle_sciencecific_commands(client, message, user_message):
                     text=f"Data source: NASA DONKI • {datetime.now(timezone.utc).strftime('%H:%M:%S')} UTC"
                 )
 
-            await message.channel.send(embed=embed)
+            await safe_send(message, embed=embed)
             logging.info("Displayed solar activity data")
 
         except Exception as e:
-            await message.channel.send("❌ Error while fetching solar activity data.")
+            await safe_send(message, content="❌ Error while fetching solar activity data.")
             logging.exception("Sun command error: %s", e)
         return
     
@@ -310,7 +361,7 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
 
     if user_message.startswith('!exoplanet'):
-        await message.channel.send("Usage: !exoplanet <name | nearest | latest | count> \nExamples: !exoplanet Kepler-22b, !exoplanet nearest, !exoplanet latest, !exoplanet count")
+        await safe_send(message, content="Usage: !exoplanet <name | nearest | latest | count> \nExamples: !exoplanet Kepler-22b, !exoplanet nearest, !exoplanet latest, !exoplanet count")
         parts = user_message.split(maxsplit=1)
 
         # Function: Determine habitability based on extended criteria
@@ -354,7 +405,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                         reader = csv.DictReader(io.StringIO(text))
                         data = list(reader)
                         total = int(data[0].get("total", 0))
-                        await message.channel.send(f"🪐 There are currently **{total:,}** confirmed exoplanets in NASA's Exoplanet Archive.")
+                        await safe_send(message, content=f"🪐 There are currently **{total:,}** confirmed exoplanets in NASA's Exoplanet Archive.")
                         logging.info("Displayed exoplanet count")
                 return
 
@@ -390,7 +441,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                 break
 
                         if not unique_planets:
-                            await message.channel.send("❌ No nearby exoplanets found.")
+                            await safe_send(message, content="❌ No nearby exoplanets found.")
                             return
 
                         embed = discord.Embed(
@@ -444,7 +495,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                 inline=False
                             )
 
-                        await message.channel.send(embed=embed)
+                        await safe_send(message, embed=embed)
                         logging.info("Displayed nearest unique exoplanets")
                     return
 
@@ -470,7 +521,7 @@ async def handle_sciencecific_commands(client, message, user_message):
 
                         # No results check
                         if not results:
-                            await message.channel.send("❌ No exoplanet data found.")
+                            await safe_send(message, content="❌ No exoplanet data found.")
                             return
 
                         # Only 5 newest unique planet names
@@ -535,7 +586,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                 inline=False
                             )
 
-                        await message.channel.send(embed=embed)
+                        await safe_send(message, embed=embed)
                         logging.info("Displayed latest discovered unique exoplanets")
                 return
 
@@ -566,7 +617,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                         results = list(reader)
 
                         if not results:
-                            await message.channel.send(f"❌ No exoplanet found matching '{planet_name}'.")
+                            await safe_send(message, content=f"❌ No exoplanet found matching '{planet_name}'.")
                             return
 
                         # Nimm den ersten Treffer
@@ -614,9 +665,9 @@ async def handle_sciencecific_commands(client, message, user_message):
                         embed.add_field(name="Temperature", value=temp_str)
                         embed.add_field(name="Habitable", value="✅ Possibly" if habitable else "❌ Unlikely")
 
-                        await message.channel.send(embed=embed)
+                        await safe_send(message, embed=embed)
                         logging.info(f"Displayed exoplanet data for '{planet_name}'")
                 return
         except Exception as e:
-            await message.channel.send("❌ Error while fetching exoplanet data.")
+            await safe_send(message, content="❌ Error while fetching exoplanet data.")
             logging.exception("Exoplanet command error: %s", e)

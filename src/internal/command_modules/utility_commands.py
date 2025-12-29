@@ -16,6 +16,7 @@ from discord.ui import Button, View
 # ----------------------------------------------------------------
 # Module: Utility_commands.py
 # Description: Contains logic for the utility functions like weather fetching
+# Error handling for API requests and message sending included (special definitions)
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -24,6 +25,38 @@ from discord.ui import Button, View
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Safe Discord Message Sending with Error Handling
+async def safe_send(message_obj, content=None, embed=None, view=None, ephemeral=False):
+    try:
+        return await message_obj.channel.send(content=content, embed=embed, view=view)
+    except discord.Forbidden:
+        logging.error(f"Missing permission to send message in {message_obj.channel}")
+        return None
+    except discord.HTTPException as e:
+        logging.error(f"Failed to send message: {e}")
+        return None
+    except AttributeError:
+        # Handle case where message_obj is already a channel
+        try:
+            return await message_obj.send(content=content, embed=embed, view=view)
+        except discord.Forbidden:
+            logging.error(f"Missing permission to send message")
+            return None
+        except discord.HTTPException as e:
+            logging.error(f"Failed to send message: {e}")
+            return None
+
+# Safe Interaction Response with Error Handling
+async def safe_interaction_send(interaction, content=None, embed=None, view=None, ephemeral=True):
+    try:
+        await interaction.response.send_message(content=content, embed=embed, view=view, ephemeral=ephemeral)
+    except discord.Forbidden:
+        logging.error(f"Missing permission to respond to interaction")
+    except discord.HTTPException as e:
+        logging.error(f"Failed to send interaction response: {e}")
+    except discord.InteractionResponded:
+        logging.warning(f"Interaction already responded to")
 
 # ----------------------------------------------------------------
 # Component test function for [Utility Commands]
@@ -118,7 +151,7 @@ async def handle_utility_commands(client, message, user_message):
     
     if user_message == '!ping':
         latency = round(client.latency * 1000)  # Latency in milliseconds
-        await message.channel.send(f'Pong! Latency is {latency}ms')
+        await safe_send(message, content=f'Pong! Latency is {latency}ms')
         logging.info(f"Pong! Latency is {latency}ms")
 
     # --------------------------------------------------
@@ -136,7 +169,7 @@ async def handle_utility_commands(client, message, user_message):
         minutes = (seconds % 3600) // 60
         seconds = seconds % 60
         uptime_message = f"Uptime: {days}d {hours}h {minutes}m {seconds}s"
-        await message.channel.send(uptime_message)
+        await safe_send(message, content=uptime_message)
         logging.info(f"Uptime: {days}d {hours}h {minutes}m {seconds}s")
 
     # --------------------------------------------------
@@ -154,12 +187,19 @@ async def handle_utility_commands(client, message, user_message):
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(base_url) as response:
+                async with session.get(base_url, timeout=aiohttp.ClientTimeout(total=5)) as response:
                     if response.status == 200:
-                        return await response.json()
+                        try:
+                            return await response.json()
+                        except (ValueError, aiohttp.ContentTypeError) as e:
+                            logging.error(f"Failed to parse weather API response: {e}")
+                            return None
                     else:
                         logging.warning(f"⚠️ Failed to fetch weather data. Status code: {response.status}")
                         return None
+        except asyncio.TimeoutError:
+            logging.error(f"Weather API request timed out for location: {location}")
+            return None
         except aiohttp.ClientError as e:
             logging.error(f"❌ API request failed: {e}")
             return None
@@ -225,10 +265,10 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}° ({wind_dir})", inline=False)
 
             # Send the embed message
-            await message.channel.send(embed=embed)
+            await safe_send(message, embed=embed)
             logging.info(f"Displayed weather information for {city_name}, {country}.")
         else:
-            await message.channel.send("⚠️ Could not retrieve weather information. Make sure the location is valid.")
+            await safe_send(message, content="⚠️ Could not retrieve weather information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve weather information. Invalid location.")
 
     # ---------------------------------------------------------
@@ -278,10 +318,10 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Sunset", value=sunset_time, inline=False)
 
             # Send the embed message
-            await message.channel.send(embed=embed)
+            await safe_send(message, embed=embed)
             logging.info(f"Displayed city information for {city_name}, {country}.")
         else:
-            await message.channel.send("⚠️ Could not retrieve city information. Make sure the location is valid.")
+            await safe_send(message, content="⚠️ Could not retrieve city information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve city information. Invalid location.")
             
     # ------------------------------------------------------
@@ -316,10 +356,10 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Your Date/Time", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
 
             # Send the embed message
-            await message.channel.send(embed=embed)
+            await safe_send(message, embed=embed)
             logging.info(f"Displayed time information for {city_name}, {country}.")
         else:
-            await message.channel.send("⚠️ Could not retrieve time information. Make sure the location is valid.")
+            await safe_send(message, content="⚠️ Could not retrieve time information. Make sure the location is valid.")
             logging.warning("⚠️ Could not retrieve time information. Invalid location.")
             
     # --------------------------------------------------
@@ -335,7 +375,7 @@ async def handle_utility_commands(client, message, user_message):
         parts = message.content.split('"')
 
         if len(parts) < 3:
-            await message.channel.send("❌ Usage: !poll \"Question\" \"Option1\" \"Option2\" ...")
+            await safe_send(message, content="❌ Usage: !poll \"Question\" \"Option1\" \"Option2\" ...")
             logging.debug(f"User {message.author} tried to create a poll without correct parameters")
             return
 
@@ -344,11 +384,11 @@ async def handle_utility_commands(client, message, user_message):
         options = [part for part in parts[2:] if part.strip()]  # Keep original case for options
 
         if len(options) < 2:
-            await message.channel.send("❌ You must provide at least two options.")
+            await safe_send(message, content="❌ You must provide at least two options.")
             logging.debug(f"User {message.author} tried to create a poll with less than 2 options")
             return
         if len(options) > 10:
-            await message.channel.send("❌ You can provide a maximum of ten options.")
+            await safe_send(message, content="❌ You can provide a maximum of ten options.")
             logging.debug(f"User {message.author} tried to create a poll with more than 10 options")
             return
 
@@ -374,7 +414,7 @@ async def handle_utility_commands(client, message, user_message):
                         self.votes[option] -= 1
                         self.total_votes -= 1
                         del self.user_votes[user_id]
-                        await interaction.response.send_message(f"Your vote for **{option}** has been removed!", ephemeral=True)
+                        await safe_interaction_send(interaction, content=f"Your vote for **{option}** has been removed!", ephemeral=True)
                         logging.debug(f"User {interaction.user} removed their vote for {option}")
                     else:
                         # Remove previous vote if exists
@@ -384,11 +424,12 @@ async def handle_utility_commands(client, message, user_message):
                             self.total_votes -= 1
                             logging.debug(f"User {interaction.user} changed their vote from {previous_option} to {option}")
 
+
                         # Add new vote
                         self.votes[option] += 1
                         self.total_votes += 1
                         self.user_votes[user_id] = option
-                        await interaction.response.send_message(f"You voted for **{option}**!", ephemeral=True)
+                        await safe_interaction_send(interaction, content=f"You voted for **{option}**!", ephemeral=True)
                         logging.debug(f"User {interaction.user} voted for {option}")
 
                     await self.update_poll_message(interaction.message)
@@ -409,8 +450,8 @@ async def handle_utility_commands(client, message, user_message):
         embed.add_field(name="Results", value="No votes yet", inline=False)
         embed.set_footer(text="No votes yet")
         view = PollView(options)
-        poll_message = await message.channel.send(embed=embed, view=view)
-        logging.info(f"Poll created by {message.author}: '{question}' with options: {', '.join(options)}")#
+        poll_message = await safe_send(message, embed=embed, view=view)
+        logging.info(f"Poll created by {message.author}: '{question}' with options: {', '.join(options)}")
         
     # -----------------------------------------------------------
     # Command: !reminder
@@ -427,7 +468,7 @@ async def handle_utility_commands(client, message, user_message):
         parts = normalized_message.split('"')
 
         if len(parts) < 2:
-            await message.channel.send("❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel/everyone]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
+            await safe_send(message, content="❌ Usage: !reminder \"Text\" DD.MM.YYYY HH:MM [dm/channel/everyone]\nExample: !reminder \"Meeting\" 25.03.2024 14:30 dm")
             logging.debug(f"User {message.author} tried to create a reminder without correct parameters")
             return
 
@@ -436,7 +477,7 @@ async def handle_utility_commands(client, message, user_message):
             # Extract remaining parameters after the text
             params = parts[2].strip().split()
             if len(params) < 2:
-                await message.channel.send("❌ Please provide a date (DD.MM.YYYY) and time (HH:MM)!")
+                await safe_send(message, content="❌ Please provide a date (DD.MM.YYYY) and time (HH:MM)!")
                 return
 
             date_str = params[0]
@@ -449,7 +490,7 @@ async def handle_utility_commands(client, message, user_message):
             
             # Check if the time is in the future
             if reminder_datetime <= datetime.now():
-                await message.channel.send("❌ The reminder time must be in the future!")
+                await safe_send(message, content="❌ The reminder time must be in the future!")
                 return
 
             # Calculate delay until reminder
@@ -466,18 +507,18 @@ async def handle_utility_commands(client, message, user_message):
                     # Channel @everyone (Only if not DM)
                     elif reminder_type == 'everyone':
                         if isinstance(message.channel, discord.DMChannel):
-                            await message.channel.send("❌ @everyone cannot be used in private messages.")
+                            await safe_send(message, content="❌ @everyone cannot be used in private messages.")
                             return
-                        await message.channel.send(f"@everyone ⏰ **Reminder:** {reminder_text}")
+                        await safe_send(message, content=f"@everyone ⏰ **Reminder:** {reminder_text}")
                         logging.debug(f"Reminder for everyone in channel {message.channel} sent: {reminder_text}")
                     # Channel (Only user)
                     else:
-                        await message.channel.send(f"🔔 Hey {message.author.mention}, here's your reminder: {reminder_text}")
+                        await safe_send(message, content=f"🔔 Hey {message.author.mention}, here's your reminder: {reminder_text}")
                         logging.debug(f"Reminder for {message.author} sent in channel: {reminder_text}")
                 except Exception as e:
                     logging.error(f"Error sending reminder: {e}")
                     if reminder_type == 'dm':
-                        await message.channel.send(f"⚠️ Could not send reminder as DM to {message.author.mention}. Make sure DMs are enabled.")
+                        await safe_send(message, content=f"⚠️ Could not send reminder as DM to {message.author.mention}. Make sure DMs are enabled.")
 
             # Start reminder task
             asyncio.create_task(send_reminder())
@@ -498,15 +539,15 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Date", value=date_str, inline=True)
             embed.add_field(name="Time", value=time_str, inline=True)
             embed.add_field(name="Type", value=location_text, inline=True)
-            await message.channel.send(embed=embed)
+            await safe_send(message, embed=embed)
     
             logging.debug(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type or 'user'})")
 
         except ValueError:
-            await message.channel.send("❌ Invalid date/time format! Use DD.MM.YYYY HH:MM")
+            await safe_send(message, content="❌ Invalid date/time format! Use DD.MM.YYYY HH:MM")
             logging.warning(f"Invalid date/time format in reminder from {message.author}")
         except Exception as e:
-            await message.channel.send("❌ An error occurred while creating the reminder.")
+            await safe_send(message, content="❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from {message.author}: {e}")
 
 # ----------------------------------------------------------------

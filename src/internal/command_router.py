@@ -10,7 +10,6 @@ from internal.command_modules.moderation_commands import handle_moderation_comma
 from internal.command_modules.mcserver_commands import handle_mcserver_commands
 from internal.command_modules.sciencecific_commands import handle_sciencecific_commands
 from internal.command_modules.music.music_commands import handle_music_commands
-from internal.command_modules.calculator import handle_calc_command
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
@@ -18,6 +17,7 @@ from internal.command_modules.calculator import handle_calc_command
 # ----------------------------------------------------------------
 # Module: Command_router.py
 # Description: Appends the right command handler based on the command
+# Error handling for command routing and component tests included
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
