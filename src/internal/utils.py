@@ -22,7 +22,15 @@ def _get_lock(path: str) -> threading.Lock:
 
 # Ensure directory exists
 def _ensure_dir(path: str):
-    os.makedirs(path, exist_ok=True)
+    """Ensure directory exists with proper error handling."""
+    try:
+        os.makedirs(path, exist_ok=True)
+    except PermissionError as e:
+        logging.error(f"Permission denied creating directory {path}: {e}")
+        raise
+    except OSError as e:
+        logging.error(f"Failed to create directory {path}: {e}")
+        raise
     
 # Helpers to resolve data paths
 BASE_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -31,6 +39,7 @@ def _abs_path(*parts):
 
 # Atomic write function using locks
 def _atomic_write(file_path: str, data: dict):
+    """Atomically write data to file with proper error handling."""
     lock = _get_lock(file_path)
     with lock:
         _ensure_dir(os.path.dirname(file_path))
@@ -39,30 +48,45 @@ def _atomic_write(file_path: str, data: dict):
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
                 json.dump(data, fh, ensure_ascii=False, indent=2)
                 fh.flush()
-                os.fsync(fh.fileno())
+                try:
+                    os.fsync(fh.fileno())
+                except OSError as e:
+                    logging.error(f"Failed to sync {file_path} to disk: {e}")
+                    raise
             os.replace(tmp_path, file_path)
-        except Exception:
+            logging.debug(f"Successfully wrote {file_path}")
+        except Exception as e:
+            # Cleanup temp file on error
             if os.path.exists(tmp_path):
                 try:
                     os.remove(tmp_path)
-                except:
-                    pass
+                except Exception as cleanup_err:
+                    logging.error(f"Failed to cleanup temp file {tmp_path}: {cleanup_err}")
+            logging.error(f"Failed to write {file_path}: {e}")
             raise
 
 # Atomic read function using locks
 def _atomic_read(file_path: str) -> dict:
+    """Atomically read data from file with proper error handling."""
     lock = _get_lock(file_path)
     with lock:
         if not os.path.exists(file_path):
+            logging.debug(f"File does not exist, creating default: {file_path}")
             return {}
         try:
             with open(file_path, "r", encoding="utf-8") as fh:
                 return json.load(fh)
-        except json.JSONDecodeError:
-            logging.error(f"❌ Invalid JSON in {file_path}")
+        except json.JSONDecodeError as e:
+            logging.error(f"Invalid JSON in {file_path}: {e}")
+            return {}
+        except PermissionError as e:
+            logging.error(f"Permission denied reading {file_path}: {e}")
+            return {}
+        except IOError as e:
+            logging.error(f"I/O error reading {file_path}: {e}")
             return {}
         except Exception as e:
-            logging.error(f"❌ Error reading {file_path}: {e}")
+            logging.error(f"Unexpected error reading {file_path}: {e}")
             return {}
 
 # For scrabble data files
@@ -86,43 +110,69 @@ def load_json_file(rel_path: str) -> dict:
 
 # Global authorization uses global config
 def is_authorized_global(user):
+    """Check global authorization with consistent snapshot."""
     try:
         cfg = load_config()
         whitelist = cfg.get("whitelist", []) or []
-        return str(user.id) in whitelist
+        user_id = str(user.id)
+        
+        if user_id in whitelist:
+            return True
+        
+        logging.debug(f"User {user.id} not in global whitelist")
+        return False
+    except AttributeError:
+        logging.error(f"Invalid user object: {user}")
+        return False
     except Exception as e:
-        logging.error(f"❌ Error checking global authorization: {e}")
+        logging.error(f"Error checking global authorization: {e}")
         return False
 
 # Server-specific authorization uses per-server config and auto trusts guild.owner
 def is_authorized_server(user, guild_id: int):
+    """Check server-specific authorization with proper error handling."""
     try:
+        _validate_guild_id(guild_id)
+        
         import discord
+        
+        # Validate user object
+        if not hasattr(user, 'id'):
+            logging.error(f"Invalid user object for authorization check")
+            return False
         
         server_config = load_server_config(guild_id)
         whitelist = server_config.get("whitelist", []) or []
+        user_id = str(user.id)
 
         # If whitelist is not empty, honor it
         if whitelist:
-            return str(user.id) in whitelist
+            return user_id in whitelist
 
         # Whitelist empty -> auto-trust only the guild owner (persisted)
         if isinstance(user, discord.Member):
             try:
                 if user.guild is not None and user.id == user.guild.owner_id:
-                    whitelist.append(str(user.id))
+                    # Add owner to whitelist for future use
+                    whitelist.append(user_id)
                     server_config["whitelist"] = whitelist
                     save_server_config(guild_id, server_config)
-                    logging.info(f"Auto-added guild owner {user.id} to whitelist for guild {guild_id}.")
+                    logging.info(f"Auto-added guild owner {user.id} to whitelist for guild {guild_id}")
                     return True
+            except AttributeError as e:
+                logging.warning(f"Could not evaluate member as guild owner: {e}")
             except Exception as e:
-                logging.warning(f"Could not evaluate member as guild owner for guild {guild_id}: {e}")
+                logging.warning(f"Error checking guild owner status for guild {guild_id}: {e}")
 
         # No match in server whitelist and not guild owner -> deny
+        logging.debug(f"User {user.id} not authorized for guild {guild_id}")
         return False
         
+    except ValueError as e:
+        logging.error(f"Invalid guild ID: {e}")
+        return False
     except Exception as e:
-        logging.error(f"❌ Error checking server authorization for {guild_id}: {e}")
+        logging.error(f"Error checking server authorization for guild {guild_id}: {e}")
         return False
 
 # --------------------------
@@ -135,7 +185,28 @@ def load_config() -> dict:
 
 # Helper to save JSON file at given relative path
 def save_json_file(data: dict, rel_path: str):
-    path = _abs_path(*rel_path.split("/")[2:]) if rel_path.startswith("internal/") else _abs_path(rel_path)
+    """Save JSON file with path traversal protection."""
+    # Validate path to prevent directory traversal attacks
+    if rel_path.startswith("/") or ".." in rel_path:
+        raise ValueError(f"Invalid path: {rel_path} (path traversal not allowed)")
+    
+    # Safely construct path
+    if rel_path.startswith("internal/"):
+        # Strip internal/data/ prefix and use remaining parts
+        parts = rel_path.split("/")
+        if len(parts) < 3:  # Must be at least internal/data/file.json
+            raise ValueError(f"Invalid path format: {rel_path}")
+        parts = parts[2:]  # Skip internal/data/
+    else:
+        parts = rel_path.split("/")
+    
+    # Prevent any path traversal in the parts
+    for part in parts:
+        if part == ".." or part == ".":
+            raise ValueError(f"Invalid path component: {part}")
+    
+    path = _abs_path(*parts)
+    logging.debug(f"Saving JSON to {path}")
     _atomic_write(path, data)
 
 # Helper to set config value
@@ -171,8 +242,14 @@ def _default_server_config() -> dict:
         "music_channel_id": ""
     }
 
+def _validate_guild_id(guild_id: int) -> None:
+    """Validate guild ID format."""
+    if not isinstance(guild_id, int) or guild_id < 0:
+        raise ValueError(f"Invalid guild ID: {guild_id} (must be a non-negative integer)")
+
 # Create server config file if it does not exist
 def create_server_config(guild_id: int) -> dict:
+    _validate_guild_id(guild_id)
     servers_dir = _abs_path("servers")
     _ensure_dir(servers_dir)
     path = os.path.join(servers_dir, f"{guild_id}.json")
@@ -182,19 +259,29 @@ def create_server_config(guild_id: int) -> dict:
 
 # Function to load server config with the atomic read function
 def load_server_config(guild_id: int) -> dict:
+    """Load server config with TOCTOU protection."""
+    _validate_guild_id(guild_id)
     servers_dir = _abs_path("servers")
     _ensure_dir(servers_dir)
     path = os.path.join(servers_dir, f"{guild_id}.json")
-    if not os.path.exists(path):
-        return create_server_config(guild_id)
+    
+    # Try to read existing file
     data = _atomic_read(path)
+    
+    # If file doesn't exist or is empty/invalid, create default config
     if not data:
-        # file exists but empty/invalid -> overwrite with defaults
+        logging.info(f"Creating default config for guild {guild_id}")
         return create_server_config(guild_id)
+    
     return data
 
 # Function to save server config with the atomic write function
 def save_server_config(guild_id: int, data: dict):
+    """Save server config with validation."""
+    _validate_guild_id(guild_id)
+    if not isinstance(data, dict):
+        raise ValueError(f"Invalid data: must be a dictionary")
+    
     servers_dir = _abs_path("servers")
     _ensure_dir(servers_dir)
     path = os.path.join(servers_dir, f"{guild_id}.json")

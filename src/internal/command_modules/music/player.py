@@ -3,6 +3,7 @@ import discord.ext.commands
 import asyncio
 import logging
 import yt_dlp
+from yt_dlp.utils import DownloadError, ExtractorError
 import os
 import shutil
 from typing import Any, TypedDict, IO, cast
@@ -84,14 +85,30 @@ BASE_FFMPEG_OPTIONS: FFmpegParams = {
 
 
 def resolve_ffmpeg_executable() -> str:
+    """Resolve ffmpeg executable with detailed error messages."""
+    # Check environment variable first
     env_path = os.getenv("FFMPEG_PATH")
-    if env_path and shutil.which(env_path):
-        return env_path
+    if env_path:
+        if os.path.isfile(env_path):
+            return env_path
+        else:
+            raise PlayerError(f"FFMPEG_PATH is set to '{env_path}' but file not found. Check the path.")
+    
+    # Check PATH for ffmpeg
     for candidate in ("ffmpeg", "ffmpeg.exe"):
         resolved = shutil.which(candidate)
         if resolved:
             return resolved
-    raise PlayerError("ffmpeg was not found. Install ffmpeg or set FFMPEG_PATH.")
+    
+    # Detailed error message with instructions
+    error_msg = (
+        "ffmpeg not found. Please install ffmpeg:\n"
+        "  - Linux: sudo apt install ffmpeg\n"
+        "  - macOS: brew install ffmpeg\n"
+        "  - Windows: Download from https://ffmpeg.org/download.html\n"
+        "  - Or set FFMPEG_PATH environment variable"
+    )
+    raise PlayerError(error_msg)
 
 
 def get_ffmpeg_options() -> FFmpegParams:
@@ -106,21 +123,38 @@ def get_ffmpeg_options() -> FFmpegParams:
 
 # Extract audio information using yt-dlp
 def extract_audio(query: str):
-    with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
-        info = ydl.extract_info(query, download=False)
+    """Extract audio information from a query using yt-dlp with error handling."""
+    try:
+        with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
+            try:
+                info = ydl.extract_info(query, download=False)
+            except DownloadError as e:
+                # Video not found, age-restricted, or removed
+                raise PlayerError(f"Cannot download: {str(e)[:100]}")
+            except ExtractorError as e:
+                # Extractor-specific error (wrong platform, auth required, etc.)
+                raise PlayerError(f"Extractor error: {str(e)[:100]}")
+            except (TimeoutError, Exception) as e:
+                # Network timeout or connection error
+                raise PlayerError(f"Network timeout while searching: {str(e)[:100]}")
 
-        if not info:
-            raise PlayerError("No results found.")
+            if not info:
+                raise PlayerError("No results found.")
 
-        if "entries" in info:
-            info = info["entries"][0]
+            if "entries" in info:
+                info = info["entries"][0]
 
-        return {
-            "title": info.get("title"),
-            "url": info.get("url"),
-            "webpage_url": info.get("webpage_url"),
-            "duration": info.get("duration"),
-        }
+            return {
+                "title": info.get("title"),
+                "url": info.get("url"),
+                "webpage_url": info.get("webpage_url"),
+                "duration": info.get("duration"),
+            }
+    except PlayerError:
+        raise  # Re-raise PlayerError as-is
+    except Exception as e:
+        logging.error(f"Unexpected error during audio extraction: {e}")
+        raise PlayerError(f"Audio extraction failed: {str(e)[:100]}")
         
 # ------------------------------------------------------------
 # Playback Logic
@@ -160,7 +194,23 @@ async def play_next(guild: discord.Guild):
     voice_client = cast(discord.VoiceClient, vc)
     
     try:
-        source = discord.FFmpegPCMAudio(song["url"], **get_ffmpeg_options())
+        # Validate song URL before creating FFmpeg source
+        if not song.get("url"):
+            logging.error(f"Invalid song: no URL available for '{song.get('title', 'Unknown')}'")
+            # Skip to next song instead of stopping
+            await play_next(guild)
+            return
+        
+        # Create FFmpeg source with timeout handling
+        try:
+            source = discord.FFmpegPCMAudio(song["url"], **get_ffmpeg_options())
+        except FileNotFoundError as e:
+            raise PlayerError(f"ffmpeg executable not found: {e}")
+        except ValueError as e:
+            # Invalid URL or codec
+            logging.warning(f"Invalid audio source for '{song.get('title', 'Unknown')}': {e}")
+            raise PlayerError(f"Invalid audio source: {str(e)[:100]}")
+        
         loop = voice_client.client.loop
         
         def after_play(error):
@@ -176,27 +226,46 @@ async def play_next(guild: discord.Guild):
         voice_client.play(source, after=after_play)
         logging.info(f"Now playing: {song['title']} on guild {guild.id}")
         
+    except PlayerError as e:
+        logging.error(f"Player error: {e}")
+        state["playing"] = False
+        state["current"] = None
+        # Try next song instead of stopping
+        await play_next(guild)
+    except discord.ClientException as e:
+        logging.error(f"Discord error while playing: {e}")
+        state["playing"] = False
+        state["current"] = None
+        # Try next song
+        await play_next(guild)
     except Exception as e:
         error_str = str(e).lower()
         if "connection" in error_str or "timeout" in error_str:
             logging.warning(f"Network issue while starting playback: {e}")
-            state["playing"] = False
-            state["current"] = None
-            # Try next song instead of stopping
-            await play_next(guild)
         else:
-            logging.error(f"Failed to play audio: {e}")
-            state["playing"] = False
-            state["current"] = None
+            logging.error(f"Unexpected error during playback: {e}")
+        state["playing"] = False
+        state["current"] = None
+        # Try next song instead of stopping
+        await play_next(guild)
 
 # Add a song to the queue
 async def add_to_queue(guild: discord.Guild, query: str):
+    """Add a song to the queue with error handling."""
     state = get_guild_state(guild.id)
 
     if len(state["queue"]) >= max_queue_size:
         raise PlayerError(f"Queue limit reached ({max_queue_size} tracks).")
 
-    song = extract_audio(query)
+    try:
+        song = extract_audio(query)
+    except PlayerError as e:
+        # Re-raise player errors (already formatted)
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error extracting audio: {e}")
+        raise PlayerError(f"Failed to add track: {str(e)[:100]}")
+    
     state["queue"].append(song)
 
     if not state["playing"]:
@@ -211,15 +280,51 @@ async def add_to_queue(guild: discord.Guild, query: str):
 # Pause, Resume, Stop
 
 def pause(guild_id: int):
+    """Pause playback with error handling."""
     state = music_state.get(guild_id)
-    if state and state["voice_client"]:
-        state["voice_client"].pause()
+    if not state:
+        logging.warning(f"No music state for guild {guild_id}")
+        return
+    
+    voice_client = state.get("voice_client")
+    if not voice_client:
+        logging.warning(f"No voice client for guild {guild_id}")
+        return
+    
+    try:
+        if voice_client.is_playing():
+            voice_client.pause()
+            logging.info(f"Playback paused for guild {guild_id}")
+        else:
+            logging.debug(f"Nothing playing to pause in guild {guild_id}")
+    except discord.ClientException as e:
+        logging.error(f"Discord error while pausing: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error while pausing: {e}")
 
 
 def resume(guild_id: int):
+    """Resume playback with error handling."""
     state = music_state.get(guild_id)
-    if state and state["voice_client"]:
-        state["voice_client"].resume()
+    if not state:
+        logging.warning(f"No music state for guild {guild_id}")
+        return
+    
+    voice_client = state.get("voice_client")
+    if not voice_client:
+        logging.warning(f"No voice client for guild {guild_id}")
+        return
+    
+    try:
+        if voice_client.is_paused():
+            voice_client.resume()
+            logging.info(f"Playback resumed for guild {guild_id}")
+        else:
+            logging.debug(f"Playback not paused in guild {guild_id}")
+    except discord.ClientException as e:
+        logging.error(f"Discord error while resuming: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error while resuming: {e}")
 
 # Graceful Stop
 async def stop(guild_id: int):

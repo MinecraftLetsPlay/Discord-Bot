@@ -161,6 +161,7 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="full_shutdown", description="Shut down the bot and the Raspberry Pi")
     async def full_shutdown(interaction: discord.Interaction):
+        # Authorization check first
         if not is_authorized_global(interaction.user):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -170,30 +171,48 @@ def setup_system_commands(bot):
             await interaction.response.send_message("❌ This command can only be used in a text channel.", ephemeral=True)
             return
 
-        # send confirmation as normal message so we get a Message object
-        confirm_msg = await interaction.channel.send(f"{interaction.user.mention}, react with ✅ to confirm shutdown (30s).")
-        await confirm_msg.add_reaction('✅')
-
-        def check(reaction, user):
-            return user == interaction.user and reaction.message.id == confirm_msg.id and str(reaction.emoji) == '✅'
+        # Defer the interaction first so we can handle the confirmation later
+        await interaction.response.defer()
 
         try:
-            await bot.wait_for("reaction_add", timeout=30.0, check=check)
-            await interaction.response.send_message("Shutting down the bot and the Raspberry Pi...", ephemeral=True)
-            log_.info(f"System: Full shutdown command executed by: {interaction.user}")
+            # Send confirmation as normal message so we get a Message object
+            confirm_msg = await interaction.channel.send(
+                f"{interaction.user.mention}, react with ✅ to confirm shutdown (30s)."
+            )
             
-            # Cleanup music before shutdown
+            # Add reaction with error handling
             try:
-                from internal.command_modules.music.player import cleanup_all_guilds
-                await cleanup_all_guilds(bot)
-            except Exception as e:
-                log_.error(f"Error during music cleanup: {e}")
-            
-            await bot.close()
-            os.system("sudo shutdown now")
-        except asyncio.TimeoutError:
-            await interaction.response.send_message("❌ Shutdown canceled due to no confirmation.", ephemeral=True)
-            log_.info(f"System: Full shutdown canceled. User: {interaction.user}")
+                await confirm_msg.add_reaction('✅')
+            except discord.Forbidden:
+                await interaction.followup.send("❌ I don't have permission to add reactions.")
+                log_.error(f"System: Missing permission to add reactions in {interaction.channel.name}")
+                return
+
+            def check(reaction, user):
+                return (user == interaction.user and 
+                        reaction.message.id == confirm_msg.id and 
+                        str(reaction.emoji) == '✅')
+
+            try:
+                await bot.wait_for("reaction_add", timeout=30.0, check=check)
+                await interaction.followup.send("Shutting down the bot and the Raspberry Pi...")
+                log_.info(f"System: Full shutdown command executed by: {interaction.user}")
+                
+                # Cleanup music before shutdown
+                try:
+                    from internal.command_modules.music.player import cleanup_all_guilds
+                    await cleanup_all_guilds(bot)
+                except Exception as e:
+                    log_.error(f"Error during music cleanup: {e}")
+                
+                await bot.close()
+                os.system("sudo shutdown now")
+            except asyncio.TimeoutError:
+                await interaction.followup.send("❌ Shutdown canceled due to no confirmation.")
+                log_.info(f"System: Full shutdown canceled. User: {interaction.user}")
+        except Exception as e:
+            await interaction.followup.send(f"❌ An error occurred: {e}")
+            log_.error(f"System: Error in full_shutdown command: {e}")
 
     # -----------------------------------------------------------------
     # Command: /restart
@@ -210,9 +229,9 @@ def setup_system_commands(bot):
             current_time = datetime.now()
 
             if last_restart_time and current_time - last_restart_time < timedelta(seconds=60):
-                remaining_time = 60 - (current_time - last_restart_time).seconds
+                remaining_time = 60 - int((current_time - last_restart_time).total_seconds())
                 await interaction.response.send_message(
-                    f"⚠️ The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again."
+                    f"⚠️ The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again.", ephemeral=True
                 )
                 log_.info(f"System: Restart command on cooldown for {remaining_time} seconds by: {interaction.user}")
             else:
@@ -256,12 +275,23 @@ def setup_system_commands(bot):
                 await interaction.response.send_message("❌ This command can only be used in a text channel.", ephemeral=True)
                 return
         
+            # Check if directory exists
+            if not os.path.exists(directory):
+                await interaction.response.send_message(f"⚠️ Log directory does not exist: {directory}")
+                log_.warning(f"System: Log directory not found: {directory}")
+                return
+
             # Only match new log format: bot.log-TIMESTAMP.txt
-            log_files = [
-                os.path.join(directory, f)
-                for f in os.listdir(directory)
-                if f.startswith('bot.log-') and f.endswith('.txt')
-            ]
+            try:
+                log_files = [
+                    os.path.join(directory, f)
+                    for f in os.listdir(directory)
+                    if f.startswith('bot.log-') and f.endswith('.txt')
+                ]
+            except PermissionError:
+                await interaction.response.send_message(f"❌ Permission denied accessing log directory: {directory}")
+                log_.error(f"System: Permission denied accessing log directory: {directory}")
+                return
 
             # Sort newest → oldest
             log_files = sorted(log_files, key=os.path.getmtime, reverse=True)
@@ -357,16 +387,32 @@ def setup_system_commands(bot):
             )
             return
         
+        # Validate text length (Discord limit is ~128 characters for activity names)
+        text_stripped = text.strip()
+        if not text_stripped:
+            await interaction.response.send_message(
+                "⚠️ Status text cannot be empty.",
+                ephemeral=True
+            )
+            return
+        
+        if len(text_stripped) > 128:
+            await interaction.response.send_message(
+                f"⚠️ Status text is too long ({len(text_stripped)}/128 characters). Please use a shorter text.",
+                ephemeral=True
+            )
+            return
+        
         # Set the bot presence
         try:
-            await bot.change_presence(activity=discord.Activity(type=mapping[t], name=text))
+            await bot.change_presence(activity=discord.Activity(type=mapping[t], name=text_stripped))
             
             # Save to config using utils.set_config_value for global setting
-            utils.set_config_value("BotStatus", {"type": t, "text": text})
+            utils.set_config_value("BotStatus", {"type": t, "text": text_stripped})
             config = utils.load_config()
             
-            await interaction.response.send_message(f"✅ Bot status set to: {t} {text}", ephemeral=True)
-            log_.info(f"System: Status set by {interaction.user} -> {t}: {text}")
+            await interaction.response.send_message(f"✅ Bot status set to: {t} {text_stripped}", ephemeral=True)
+            log_.info(f"System: Status set by {interaction.user} -> {t}: {text_stripped}")
         except Exception as e:
             await interaction.response.send_message("❌ Failed to set status.", ephemeral=True)
             log_.error(f"System: Failed to set status: {e}")
@@ -472,13 +518,35 @@ def setup_system_commands(bot):
                 )
                 log_.info(f"System: Channel {channel.name} ({channel_id}) removed from {list_name} list by {interaction.user}")
 
-        # --- LIST action (bonus) ---
+        # --- LIST action ---
         elif action.lower() == "list":
             enabled = logging_config.get("enabled_channels", []) or []
             disabled = logging_config.get("disabled_channels", []) or []
             
-            enabled_mentions = [f"<#{cid}>" for cid in enabled if interaction.guild.get_channel(int(cid))]
-            disabled_mentions = [f"<#{cid}>" for cid in disabled if interaction.guild.get_channel(int(cid))]
+            # Build mention lists with proper error handling for deleted channels
+            enabled_mentions = []
+            for cid in enabled:
+                try:
+                    ch = interaction.guild.get_channel(int(cid))
+                    if ch is not None:
+                        enabled_mentions.append(f"<#{cid}>")
+                    else:
+                        # Channel was deleted, mark it
+                        enabled_mentions.append(f"<#{cid}> (deleted)")
+                except (ValueError, TypeError):
+                    log_.warning(f"Invalid channel ID in enabled list: {cid}")
+            
+            disabled_mentions = []
+            for cid in disabled:
+                try:
+                    ch = interaction.guild.get_channel(int(cid))
+                    if ch is not None:
+                        disabled_mentions.append(f"<#{cid}>")
+                    else:
+                        # Channel was deleted, mark it
+                        disabled_mentions.append(f"<#{cid}> (deleted)")
+                except (ValueError, TypeError):
+                    log_.warning(f"Invalid channel ID in disabled list: {cid}")
             
             enabled_text = ", ".join(enabled_mentions) if enabled_mentions else "None"
             disabled_text = ", ".join(disabled_mentions) if disabled_mentions else "None"
@@ -570,7 +638,27 @@ def setup_system_commands(bot):
 
         elif action.lower() == "list":
             embed = discord.Embed(title="📋 Server Whitelist", color=discord.Color.blue())
-            embed.add_field(name="Whitelisted Users", value=" | ".join([f"<@{uid}>" for uid in whitelist_list]) or "None", inline=False)
+            whitelist_mentions = []
+            
+            for uid in whitelist_list:
+                try:
+                    # Ensure uid is string format for consistency
+                    uid_str = str(uid)
+                    fetched_user = await interaction.client.fetch_user(int(uid_str))
+                    whitelist_mentions.append(f"{fetched_user.mention} ({fetched_user.name})")
+                except (ValueError, TypeError):
+                    # Invalid ID format
+                    log_.warning(f"Invalid user ID in whitelist: {uid}")
+                    whitelist_mentions.append(f"`{uid}` (invalid ID)")
+                except discord.NotFound:
+                    # User no longer exists
+                    whitelist_mentions.append(f"`{uid}` (user deleted)")
+                except discord.HTTPException as e:
+                    log_.error(f"Error fetching user {uid}: {e}")
+                    whitelist_mentions.append(f"`{uid}` (fetch error)")
+            
+            whitelist_text = " | ".join(whitelist_mentions) if whitelist_mentions else "None"
+            embed.add_field(name="Whitelisted Users", value=whitelist_text, inline=False)
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             await interaction.response.send_message("ℹ️ Usage: `/whitelist add|remove|list @user`", ephemeral=True)

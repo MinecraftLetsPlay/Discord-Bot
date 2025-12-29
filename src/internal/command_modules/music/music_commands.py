@@ -297,6 +297,11 @@ async def handle_music_commands(client, message, user_message):
     if user_message.startswith("!music-channel"):
         if not message.guild:
             return
+        
+        # Check if user has admin permissions
+        if not message.author.guild_permissions.administrator:
+            await message.channel.send("❌ You need administrator permissions to set the music channel.")
+            return
     
         guild_id = message.guild.id
         cfg = load_server_config(guild_id)
@@ -305,7 +310,7 @@ async def handle_music_commands(client, message, user_message):
         save_server_config(guild_id, cfg)
     
         await message.channel.send(f"Music channel has been set to <#{message.channel.id}>.")
-        logging.debug(f"Set music channel to {message.channel.id} for guild {guild_id}.")
+        logging.info(f"Music channel set to {message.channel.id} for guild {guild_id} by {message.author}.")
         
     # ----------------------------------------------------------------
     # Command: !join <channel_id>
@@ -345,14 +350,26 @@ async def handle_music_commands(client, message, user_message):
                 logging.debug(f"Channel ID {channel_id} is not a valid voice channel.")
                 return
         
-        if message.guild.voice_client:
-            await message.guild.voice_client.disconnect()
-            
-        await channel.connect()
-        await message.channel.send(f"**Joined voice channel: {channel.name}**")
-        vc = message.guild.voice_client
-        state = player.get_guild_state(message.guild.id)
-        state["voice_client"] = vc
+        # Disconnect from existing voice channel if connected
+        try:
+            if message.guild.voice_client:
+                await message.guild.voice_client.disconnect()
+        except Exception as e:
+            logging.error(f"Error disconnecting from voice channel: {e}")
+        
+        # Connect to new voice channel
+        try:
+            await channel.connect()
+            await message.channel.send(f"**Joined voice channel: {channel.name}**")
+            vc = message.guild.voice_client
+            state = player.get_guild_state(message.guild.id)
+            state["voice_client"] = vc
+        except discord.ClientException as e:
+            await message.channel.send(f"❌ Failed to connect to voice channel: {e}")
+            logging.error(f"Voice channel connect failed: {e}")
+        except Exception as e:
+            await message.channel.send("❌ An error occurred while joining the voice channel.")
+            logging.error(f"Unexpected error connecting to voice channel: {e}")
         return
 
     # ----------------------------------------------------------------
@@ -493,10 +510,14 @@ async def handle_music_commands(client, message, user_message):
         if user_message.startswith("!queue "):
             try:
                 page = int(user_message.split()[1]) - 1  # User provides 1-based page number
+                # Validate page bounds
                 if page < 0:
                     page = 0
+                total_pages = (len(queue) + QUEUE_ITEMS_PER_PAGE - 1) // QUEUE_ITEMS_PER_PAGE if queue else 1
+                if page >= total_pages:
+                    page = total_pages - 1
             except (ValueError, IndexError):
-                pass
+                page = 0
         
         if not queue and not state.get("current"):
             await message.channel.send("📭 **Queue is empty.**")
@@ -538,6 +559,7 @@ async def handle_music_commands(client, message, user_message):
             return
         
         state = player.get_guild_state(message.guild.id)
+        cfg = load_server_config(message.guild.id)
         
         # Get repeat mode (one/all/off)
         mode = "all"  # Default: repeat all queue
@@ -548,7 +570,10 @@ async def handle_music_commands(client, message, user_message):
             await message.channel.send("❌ Invalid repeat mode. Use: `!repeat one`, `!repeat all`, or `!repeat off`")
             return
         
+        # Save to both state (RAM) and config (persistent)
         state["repeat_mode"] = mode
+        cfg["repeat_mode"] = mode
+        save_server_config(message.guild.id, cfg)
         
         # Send feedback
         if mode == "one":
@@ -558,6 +583,6 @@ async def handle_music_commands(client, message, user_message):
         else:
             await message.channel.send("⏹️ **Repeat: Off**")
         
-        logging.debug(f"Repeat mode set to: {mode}")
+        logging.info(f"Repeat mode set to: {mode} for guild {message.guild.id}")
         return
 
