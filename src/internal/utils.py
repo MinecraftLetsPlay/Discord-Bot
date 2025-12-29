@@ -248,15 +248,3 @@ def load_hangman() -> dict:
 
 def load_quiz() -> dict:
     return _atomic_read(_abs_path("quiz.json")) or {}
-
-def load_scrabble(language):
-    file_mapping = {
-        'En': 'internal/data/scrabble_letters_en.json',
-        'De': 'internal/data/scrabble_letters_de.json'
-    }
-
-    if language not in file_mapping:
-        logging.error(f"❌ Unsupported language '{language}' for Scrabble data.")
-        return {}
-
-    return load_json_file(file_mapping[language])

@@ -36,7 +36,7 @@ ComponentTestFunc = Union[
 # Command groups definition
 command_groups = {
     'utility': ['!ping', '!uptime', '!weather', '!city', '!time', '!poll', '!reminder'],
-    'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll', '!scrabble'],
+    'minigames': ['!rps', '!hangman', '!quiz', '!guess', '!roll'],
     'public': ['!help', '!info', '!rules', '!userinfo', '!serverinfo', '!catfact'],
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'sciencecific': ['!apod', '!marsphoto', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
@@ -58,8 +58,8 @@ command_handlers = {
 # Commands that cannot be executed in a DM
 no_dm_commands = [
     '!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole',
-    '!userinfo', '!rules', '!serverinfo', '!reactionrole', '!scrabble',
-    '!whitelist add', '!whitelist remove', '!poll', '!MCServer', '!music-channel',
+    '!userinfo', '!rules', '!serverinfo', '!reactionrole', '!poll',
+    '!whitelist add', '!whitelist remove',  '!MCServer', '!music-channel',
     '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop',
     '!queue', '!nowplaying'
 ]
