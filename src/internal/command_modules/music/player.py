@@ -85,7 +85,8 @@ BASE_FFMPEG_OPTIONS: FFmpegParams = {
 
 
 def resolve_ffmpeg_executable() -> str:
-    """Resolve ffmpeg executable with detailed error messages."""
+# Resolve the ffmpeg executable path with error handling
+
     # Check environment variable first
     env_path = os.getenv("FFMPEG_PATH")
     if env_path:
@@ -123,7 +124,9 @@ def get_ffmpeg_options() -> FFmpegParams:
 
 # Extract audio information using yt-dlp
 def extract_audio(query: str):
-    """Extract audio information from a query using yt-dlp with error handling."""
+    
+# Extract audio information from a query using yt-dlp with error handling.
+
     try:
         with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
             try:
@@ -251,7 +254,8 @@ async def play_next(guild: discord.Guild):
 
 # Add a song to the queue
 async def add_to_queue(guild: discord.Guild, query: str):
-    """Add a song to the queue with error handling."""
+# Add a song to the queue with error handling.
+
     state = get_guild_state(guild.id)
 
     if len(state["queue"]) >= max_queue_size:
@@ -280,7 +284,8 @@ async def add_to_queue(guild: discord.Guild, query: str):
 # Pause, Resume, Stop
 
 def pause(guild_id: int):
-    """Pause playback with error handling."""
+# Pause playback with error handling.
+
     state = music_state.get(guild_id)
     if not state:
         logging.warning(f"No music state for guild {guild_id}")
@@ -304,7 +309,8 @@ def pause(guild_id: int):
 
 
 def resume(guild_id: int):
-    """Resume playback with error handling."""
+# Resume playback with error handling.
+
     state = music_state.get(guild_id)
     if not state:
         logging.warning(f"No music state for guild {guild_id}")
@@ -379,7 +385,8 @@ async def disconnect(guild_id: int):
     logging.info(f"Disconnected from voice for guild {guild_id}")
 
 async def cleanup_all_guilds(bot: discord.ext.commands.Bot):
-    """Cleanup all voice connections and clear music state before shutdown."""
+# Cleanup all voice connections and clear music state before shutdown.
+
     try:
         for guild in bot.guilds:
             try:

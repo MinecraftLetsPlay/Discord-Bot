@@ -512,7 +512,7 @@ async def handle_moderation_commands(client, message, user_message):
                     # Check if this emoji/role combination already exists
                     existing_role = next(
                         (role_item for role_item in message_entry["roles"]
-                         if role_item["emoji"] == emoji),
+                        if role_item["emoji"] == emoji),
                         None
                     )
                     

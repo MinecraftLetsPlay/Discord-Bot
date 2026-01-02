@@ -22,7 +22,7 @@ def _get_lock(path: str) -> threading.Lock:
 
 # Ensure directory exists
 def _ensure_dir(path: str):
-    """Ensure directory exists with proper error handling."""
+# Ensure directory exists with error handling
     try:
         os.makedirs(path, exist_ok=True)
     except PermissionError as e:
@@ -39,7 +39,8 @@ def _abs_path(*parts):
 
 # Atomic write function using locks
 def _atomic_write(file_path: str, data: dict):
-    """Atomically write data to file with proper error handling."""
+    
+    # Atomically write data to file with proper error handling.
     lock = _get_lock(file_path)
     with lock:
         _ensure_dir(os.path.dirname(file_path))
@@ -67,7 +68,8 @@ def _atomic_write(file_path: str, data: dict):
 
 # Atomic read function using locks
 def _atomic_read(file_path: str) -> dict:
-    """Atomically read data from file with proper error handling."""
+    
+    # Atomically read data from file with proper error handling.
     lock = _get_lock(file_path)
     with lock:
         if not os.path.exists(file_path):
@@ -110,7 +112,6 @@ def load_json_file(rel_path: str) -> dict:
 
 # Global authorization uses global config
 def is_authorized_global(user):
-    """Check global authorization with consistent snapshot."""
     try:
         cfg = load_config()
         whitelist = cfg.get("whitelist", []) or []
@@ -130,7 +131,6 @@ def is_authorized_global(user):
 
 # Server-specific authorization uses per-server config and auto trusts guild.owner
 def is_authorized_server(user, guild_id: int):
-    """Check server-specific authorization with proper error handling."""
     try:
         _validate_guild_id(guild_id)
         
@@ -185,7 +185,7 @@ def load_config() -> dict:
 
 # Helper to save JSON file at given relative path
 def save_json_file(data: dict, rel_path: str):
-    """Save JSON file with path traversal protection."""
+    # Save JSON file with path traversal protection.
     # Validate path to prevent directory traversal attacks
     if rel_path.startswith("/") or ".." in rel_path:
         raise ValueError(f"Invalid path: {rel_path} (path traversal not allowed)")
@@ -243,7 +243,7 @@ def _default_server_config() -> dict:
     }
 
 def _validate_guild_id(guild_id: int) -> None:
-    """Validate guild ID format."""
+    #Validate guild ID format.
     if not isinstance(guild_id, int) or guild_id < 0:
         raise ValueError(f"Invalid guild ID: {guild_id} (must be a non-negative integer)")
 
@@ -259,7 +259,7 @@ def create_server_config(guild_id: int) -> dict:
 
 # Function to load server config with the atomic read function
 def load_server_config(guild_id: int) -> dict:
-    """Load server config with TOCTOU protection."""
+    # Load server config with TOCTOU protection.
     _validate_guild_id(guild_id)
     servers_dir = _abs_path("servers")
     _ensure_dir(servers_dir)
@@ -277,7 +277,7 @@ def load_server_config(guild_id: int) -> dict:
 
 # Function to save server config with the atomic write function
 def save_server_config(guild_id: int, data: dict):
-    """Save server config with validation."""
+    # Save server config with validation.
     _validate_guild_id(guild_id)
     if not isinstance(data, dict):
         raise ValueError(f"Invalid data: must be a dictionary")
