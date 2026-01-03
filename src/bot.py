@@ -33,7 +33,7 @@ def run_discord_bot():
     
     # CRITICAL: Security Check - MUST NOT BE SKIPPED
     if not TOKEN:
-        logging.critical("❌ DISCORD_BOT_TOKEN is missing. Please set it in the .env file.")
+        logging.critical("DISCORD_BOT_TOKEN is missing. Please set it in the .env file.")
         sys.exit(1)
 
     # Discord Intents
@@ -95,7 +95,7 @@ def run_discord_bot():
             duration = time.perf_counter() - start
             logging.info(f"Bot ready after {duration:.2f} seconds.")
             print()
-            logging.info(f'✅ {bot.user} is now running!')
+            logging.info(f'{bot.user} is now running!')
             print()
             logging.info("-" * 26)
             logging.info(f"Python version: {sys.version.split()[0]}")
@@ -112,11 +112,11 @@ def run_discord_bot():
         # Sync slash commands globally
         try:
             await bot.tree.sync()
-            logging.info('✅ Slash commands synchronized globally.')
+            logging.info('Slash commands synchronized globally.')
         except discord.Forbidden:
-            logging.error('❌ No permission to sync slash commands globally.')
+            logging.error('No permission to sync slash commands globally.')
         except discord.HTTPException as e:
-            logging.error(f'❌ Failed to sync slash commands: {e}')
+            logging.error(f'Failed to sync slash commands: {e}')
 
         # Sync commands per guild
         try:
@@ -124,10 +124,10 @@ def run_discord_bot():
                 try:
                     await bot.tree.sync(guild=discord.Object(id=guild.id))
                 except discord.Forbidden:
-                    logging.warning(f'⚠️ No permission to sync commands in guild {guild.name}')
+                    logging.warning(f'No permission to sync commands in guild {guild.name}')
                 except discord.HTTPException as e:
-                    logging.warning(f'⚠️ Failed to sync commands in guild {guild.name}: {e}')
-            logging.info('✅ Slash commands synchronized per guild.')
+                    logging.warning(f'Failed to sync commands in guild {guild.name}: {e}')
+            logging.info('Slash commands synchronized per guild.')
         except Exception as e:
             logging.error(f'Error iterating guilds: {e}')
 
@@ -147,17 +147,17 @@ def run_discord_bot():
                 }
                 
                 if status_type not in mapping:
-                    logging.warning(f"⚠️ Invalid status type in config: {status_type}")
+                    logging.warning(f"Invalid status type in config: {status_type}")
                 else:
                     try:
                         await bot.change_presence(
                             activity=discord.Activity(type=mapping[status_type], name=status_text)
                         )
-                        logging.info(f"✅ Bot status set: {status_type} {status_text}")
+                        logging.info(f"Bot status set: {status_type} {status_text}")
                     except discord.HTTPException as e:
-                        logging.warning(f"⚠️ Failed to set bot status: {e}")
+                        logging.warning(f"Failed to set bot status: {e}")
             else:
-                logging.info("ℹ️ No saved bot status found in config.")
+                logging.info("No saved bot status found in config.")
         except Exception as e:
             logging.error(f"Error loading bot status: {e}")
 
@@ -296,30 +296,15 @@ def run_discord_bot():
         if bot.user and payload.user_id == bot.user.id:
             return
         await handle_reaction_role(payload, "remove")
-
-    # Load Commands
-    try:
-        from internal.command_modules.system_commands import setup_system_commands
-        setup_system_commands(bot)
-        logging.info("✅ System commands loaded")
-    except Exception as e:
-        logging.error(f"Failed to load system commands: {e}")
-    
-    try:
-        from internal.command_modules.utility_commands import setup_utility_commands
-        setup_utility_commands(bot)
-        logging.info("✅ Utility commands loaded")
-    except Exception as e:
-        logging.error(f"Failed to load utility commands: {e}")
     
     # Start Bot and test for common startup errors
     try:
         bot.run(TOKEN)
     except discord.LoginFailure:
-        logging.critical("❌ Invalid token. Check DISCORD_BOT_TOKEN.")
+        logging.critical("Invalid token. Check DISCORD_BOT_TOKEN.")
         sys.exit(1)
     except discord.PrivilegedIntentsRequired:
-        logging.critical("❌ Required intents not enabled in Discord Developer Portal.")
+        logging.critical("Required intents not enabled in Discord Developer Portal.")
         sys.exit(1)
     except KeyboardInterrupt:
         logging.info("Bot shutdown requested by user")

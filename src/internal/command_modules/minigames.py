@@ -65,9 +65,9 @@ def initialize_game_data():
     quiz_data = load_quiz()
     
     if not hangman_data:
-        logging.error("❌ Failed to load Hangman data.")
+        logging.error("Failed to load Hangman data.")
     if not quiz_data:
-        logging.error("❌ Failed to load Quiz data.")
+        logging.error("Failed to load Quiz data.")
 
 # Initialize game data when the bot starts
 initialize_game_data()
@@ -79,12 +79,12 @@ asked_questions = []
 async def get_hangman_word(difficulty=None):
     global hangman_data
     if not hangman_data:
-        logging.error("❌ Hangman data is not loaded.")
+        logging.error("Hangman data is not loaded.")
         return None, None
 
     categories = list(hangman_data.keys())
     if not categories:
-        logging.error("❌ No categories found in Hangman data.")
+        logging.error("No categories found in Hangman data.")
         return None, None
 
     category = random.choice(categories)
@@ -94,7 +94,7 @@ async def get_hangman_word(difficulty=None):
 
     words = hangman_data[category].get(difficulty, [])
     if not words:
-        logging.error(f"❌ No words found for {category}/{difficulty}")
+        logging.error(f"No words found for {category}/{difficulty}")
         return None, None
 
     return random.choice(words), difficulty
@@ -103,7 +103,7 @@ async def get_hangman_word(difficulty=None):
 async def get_quiz_question(category=None):
     global quiz_data
     if not quiz_data:
-        logging.error("❌ Quiz data is not loaded.")
+        logging.error("Quiz data is not loaded.")
         return None, None
 
     categories = list(quiz_data.keys())
@@ -120,7 +120,7 @@ async def get_quiz_question(category=None):
         questions = quiz_data.get(category, [])
 
     if not questions:
-        logging.error(f"❌ No questions found for category '{category}'.")
+        logging.error(f"No questions found for category '{category}'.")
         return None, None
 
     available_questions = [q for q in questions if q['id'] not in asked_questions]
@@ -152,13 +152,13 @@ def draw_letters(pool, count):
     letters = []
     for _ in range(count):
         if not pool:
-            logging.warning("⚠️ The letter pool is empty. Cannot draw more letters.")
+            logging.warning("The letter pool is empty. Cannot draw more letters.")
             break
         letter = random.choice(pool)
         pool.remove(letter)
         letters.append(letter)
     if not letters:
-        logging.warning("⚠️ No letters could be drawn because the pool is empty.")
+        logging.warning("No letters could be drawn because the pool is empty.")
     return letters
 
 # Check if a word is valid using the appropriate dictionary API
@@ -168,7 +168,7 @@ async def is_valid_word(word, language):
     elif language == "De":
         url = f"https://api.dictionaryapi.dev/api/v2/entries/de/{word.lower()}"
     else:
-        logging.error(f"❌ Unsupported language '{language}' for dictionary lookup.")
+        logging.error(f"Unsupported language '{language}' for dictionary lookup.")
         return False
 
     try:
@@ -179,10 +179,10 @@ async def is_valid_word(word, language):
                 elif response.status == 404:
                     return False  # Word does not exist
                 else:
-                    logging.warning(f"⚠️ Unexpected response from dictionary API: {response.status}")
+                    logging.warning(f"Unexpected response from dictionary API: {response.status}")
                     return False
     except aiohttp.ClientError as e:
-        logging.error(f"❌ Error connecting to dictionary API: {e}")
+        logging.error(f"Error connecting to dictionary API: {e}")
         return False
 
 def check_answer(question, user_answer):
@@ -245,7 +245,7 @@ async def handle_minigames_commands(client, message, user_message):
 
         except asyncio.TimeoutError:
             await safe_send(message, content="⚠️ Timeout - Game cancelled!")
-            logging.warning("⚠️ Timeout - Game cancelled!")
+            logging.warning("Timeout - Game cancelled!")
 
     # ----------------------------------------------------------------
     # Command: !guess
@@ -286,7 +286,7 @@ async def handle_minigames_commands(client, message, user_message):
 
             except asyncio.TimeoutError:
                 await safe_send(message, content="⚠️ Timeout - Game cancelled!")
-                logging.warning("⚠️ Timeout - Game cancelled!")
+                logging.warning("Timeout - Game cancelled!")
                 return
 
         await safe_send(message, content=f"Game Over! The number was {number}")
@@ -303,7 +303,7 @@ async def handle_minigames_commands(client, message, user_message):
         word, difficulty = await get_hangman_word()
         if not word:
             await message.channel.send("❌ Error loading words! Please try again later.")
-            logging.error("❌ Error loading words for Hangman!")
+            logging.error("Error loading words for Hangman!")
             return
 
         guessed = set()
@@ -341,7 +341,7 @@ async def handle_minigames_commands(client, message, user_message):
             # Check if the word has been fully guessed
             if display == word:
                 await safe_send(message, content="🎉 You win! The word has been guessed!")
-                logging.debug("🎉 Hangman: The word has been guessed!")
+                logging.debug("Hangman: The word has been guessed!")
                 return
 
             # Wait for the user's letter guess
@@ -369,12 +369,12 @@ async def handle_minigames_commands(client, message, user_message):
                     await safe_send(message, content=f"❌ Your letter, '{letter}', is not in the word.")
                     if tries == 0:
                         await safe_send(message, content=f"💀 Game Over! The word was: {word}")
-                        logging.debug(f"💀 Hangman: Game Over! The word was: {word}")
+                        logging.debug(f"Hangman: Game Over! The word was: {word}")
                         return
 
             except asyncio.TimeoutError:
                 await safe_send(message, content="⚠️ Timeout - Game cancelled!")
-                logging.warning("⚠️ Hangman: Timeout - Game cancelled!")
+                logging.warning("Hangman: Timeout - Game cancelled!")
                 return
 
     # ----------------------------------------------------------------------------
@@ -398,7 +398,7 @@ async def handle_minigames_commands(client, message, user_message):
             quiz_size = int(parts[2])
         except ValueError:
             await safe_send(message, content="⚠️ Number of questions must be a valid number.")
-            logging.warning(f"⚠️ Invalid quiz_size input: {parts[2]}")
+            logging.warning(f"Invalid quiz_size input: {parts[2]}")
             return
         
         # Validate quiz_size range (1-20 questions)
@@ -500,7 +500,7 @@ async def handle_minigames_commands(client, message, user_message):
                             return
                     except ValueError:
                         await safe_send(message, content=f"⚠️ Invalid dice count: '{arg[1:]}' is not a number.")
-                        logging.warning(f"⚠️ Invalid dice format: {arg}")
+                        logging.warning(f"Invalid dice format: {arg}")
                         return
                 elif arg.startswith('s'):
                     try:
@@ -510,7 +510,7 @@ async def handle_minigames_commands(client, message, user_message):
                             return
                     except ValueError:
                         await safe_send(message, content=f"⚠️ Invalid sides count: '{arg[1:]}' is not a number.")
-                        logging.warning(f"⚠️ Invalid sides format: {arg}")
+                        logging.warning(f"Invalid sides format: {arg}")
                         return
 
             # Roll dice
@@ -555,4 +555,4 @@ async def handle_minigames_commands(client, message, user_message):
 
         except (ValueError, IndexError):
             await safe_send(message, content="ℹ️ Invalid format! Example: !roll d3 s20 (3 dice with 20 sides each)")
-            logging.warning("ℹ️ Invalid format for dice roll command!")
+            logging.warning("Invalid format for dice roll command!")

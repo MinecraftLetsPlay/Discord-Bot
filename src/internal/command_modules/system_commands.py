@@ -698,7 +698,7 @@ def setup_system_commands(bot):
             log_.info(f"System: {user.mention} (ID: {user_id}) has been added to the whitelist by {interaction.user}.")
         except Exception as e:
             await interaction.response.send_message("❌ An error occurred while adding the user to the whitelist.", ephemeral=True)
-            log_.error(f"❌ Error adding user to whitelist: {e}")
+            log_.error(f"Error adding user to whitelist: {e}")
 
     # -----------------------------------------------------------------
     # Command: /whitelist_remove
@@ -735,7 +735,7 @@ def setup_system_commands(bot):
             log_.info(f"System: {user.mention} (ID: {user_id}) has been removed from the whitelist by {interaction.user}.")
         except Exception as e:
             await interaction.response.send_message("❌ An error occurred while removing the user from the whitelist.", ephemeral=True)
-            log_.error(f"❌ Error removing user from whitelist: {e}")
+            log_.error(f"Error removing user from whitelist: {e}")
 
     # -----------------------------------------------------------------
     # Command: /logging (works per-guild; falls back to global)

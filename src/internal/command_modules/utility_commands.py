@@ -181,7 +181,7 @@ async def handle_utility_commands(client, message, user_message):
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Get the API key from .env
 
         if not api_key:
-            logging.error("❌ API key is missing.")
+            logging.error("API key is missing.")
             return None
 
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
@@ -195,13 +195,13 @@ async def handle_utility_commands(client, message, user_message):
                             logging.error(f"Failed to parse weather API response: {e}")
                             return None
                     else:
-                        logging.warning(f"⚠️ Failed to fetch weather data. Status code: {response.status}")
+                        logging.warning(f"Failed to fetch weather data. Status code: {response.status}")
                         return None
         except asyncio.TimeoutError:
             logging.error(f"Weather API request timed out for location: {location}")
             return None
         except aiohttp.ClientError as e:
-            logging.error(f"❌ API request failed: {e}")
+            logging.error(f"API request failed: {e}")
             return None
 
     # Function to convert wind direction in degrees to compass direction
@@ -269,7 +269,7 @@ async def handle_utility_commands(client, message, user_message):
             logging.info(f"Displayed weather information for {city_name}, {country}.")
         else:
             await safe_send(message, content="⚠️ Could not retrieve weather information. Make sure the location is valid.")
-            logging.warning("⚠️ Could not retrieve weather information. Invalid location.")
+            logging.warning("Could not retrieve weather information. Invalid location.")
 
     # ---------------------------------------------------------
     # Command: !city
@@ -322,7 +322,7 @@ async def handle_utility_commands(client, message, user_message):
             logging.info(f"Displayed city information for {city_name}, {country}.")
         else:
             await safe_send(message, content="⚠️ Could not retrieve city information. Make sure the location is valid.")
-            logging.warning("⚠️ Could not retrieve city information. Invalid location.")
+            logging.warning("Could not retrieve city information. Invalid location.")
             
     # ------------------------------------------------------
     # Command: !time
@@ -360,7 +360,7 @@ async def handle_utility_commands(client, message, user_message):
             logging.info(f"Displayed time information for {city_name}, {country}.")
         else:
             await safe_send(message, content="⚠️ Could not retrieve time information. Make sure the location is valid.")
-            logging.warning("⚠️ Could not retrieve time information. Invalid location.")
+            logging.warning("Could not retrieve time information. Invalid location.")
             
     # --------------------------------------------------
     # Command: !poll

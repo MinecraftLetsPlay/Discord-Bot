@@ -102,7 +102,7 @@ def load_json_file(rel_path: str) -> dict:
             path = _abs_path(*parts)
         return _atomic_read(path) or {}
     except Exception as e:
-        logging.error(f"❌ Error loading json file '{rel_path}': {e}")
+        logging.error(f"Error loading json file '{rel_path}': {e}")
         return {}
     
     
@@ -321,7 +321,7 @@ def is_channel_logged(guild_id: int, channel_id: int) -> bool:
             return True
         return bool(log_all)
     except Exception as e:
-        logging.error(f"❌ Error evaluating channel logging for guild {guild_id}: {e}")
+        logging.error(f"Error evaluating channel logging for guild {guild_id}: {e}")
         return True  # safe default: log
 
 # --------------------------

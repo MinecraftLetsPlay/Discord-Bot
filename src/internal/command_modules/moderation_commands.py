@@ -142,7 +142,7 @@ async def handle_moderation_commands(client, message, user_message):
                 # Check role hierarchy
                 if not has_higher_role(message.author, member):
                     await safe_send(message, content="⚠️ You cannot kick a member with an equal or higher role.")
-                    logging.warning(f"⚠️ Role hierarchy check failed for kick command by {message.author}.")
+                    logging.warning(f"Role hierarchy check failed for kick command by {message.author}.")
                     return
 
                 # Kick the member
@@ -151,16 +151,16 @@ async def handle_moderation_commands(client, message, user_message):
                 logging.info(f"{member.mention} has been kicked by {message.author}. Reason: {reason}")
             except IndexError:
                 await safe_send(message, content="ℹ️ Please mention a valid user.")
-                logging.warning("ℹ️ Invalid user mention for kick command.")
+                logging.warning("Invalid user mention for kick command.")
             except discord.Forbidden:
                 await safe_send(message, content="⚠️ I don't have permission to kick members. Please check my role permissions.")
-                logging.warning("⚠️ Permission denied for kick command.")
+                logging.warning("Permission denied for kick command.")
             except Exception as e:
                 await safe_send(message, content="❌ Error kicking member. Make sure I have the proper permissions.")
-                logging.error(f"❌ Error kicking member: {e}")
+                logging.error(f"Error kicking member: {e}")
         else:
             await send_permission_denied(message, "kick members")
-            logging.warning(f"❌ Permission denied for kick command by {message.author}.")
+            logging.warning(f"Permission denied for kick command by {message.author}.")
 
     # ----------------------------------------------------------------
     # Command: !ban
@@ -206,7 +206,7 @@ async def handle_moderation_commands(client, message, user_message):
                 # Check role hierarchy
                 if not has_higher_role(message.author, member):
                     await safe_send(message, content="⚠️ You cannot ban a member with an equal or higher role.")
-                    logging.warning(f"⚠️ Role hierarchy check failed for ban command by {message.author}.")
+                    logging.warning(f"Role hierarchy check failed for ban command by {message.author}.")
                     return
 
                 # Ban the member with the provided reason
@@ -215,16 +215,16 @@ async def handle_moderation_commands(client, message, user_message):
                 logging.info(f"{member.mention} has been banned by {message.author}. Reason: {reason}")
             except discord.Forbidden:
                 await safe_send(message, content="⚠️ I don't have permission to ban members. Please check my role permissions.")
-                logging.warning("⚠️ Permission denied for ban command.")
+                logging.warning("Permission denied for ban command.")
             except IndexError:
                 await safe_send(message, content="ℹ️ Please mention a valid user.")
-                logging.warning("ℹ️ Invalid user mention for ban command.")
+                logging.warning("Invalid user mention for ban command.")
             except Exception as e:
                 await safe_send(message, content="❌ Error banning member. Make sure I have the proper permissions.")
-                logging.error(f"❌ Error banning member: {e}")
+                logging.error(f"Error banning member: {e}")
         else:
             await send_permission_denied(message, "ban members")
-            logging.warning(f"❌ Permission denied for ban command by {message.author}.")
+            logging.warning(f"Permission denied for ban command by {message.author}.")
 
     # ----------------------------------------------------------------
     # Command: !unban
@@ -255,7 +255,7 @@ async def handle_moderation_commands(client, message, user_message):
                     user_id = int(user_id_str)
                 except ValueError:
                     await safe_send(message, content="⚠️ Please provide a valid user ID (numeric).")
-                    logging.warning(f"⚠️ Invalid user ID format: {user_id_str}")
+                    logging.warning(f"Invalid user ID format: {user_id_str}")
                     return
 
                 # Fetch the list of banned users
@@ -274,13 +274,13 @@ async def handle_moderation_commands(client, message, user_message):
                     logging.info(f"{user_to_unban.mention} has been unbanned by {message.author}. Reason: {reason}")
                 else:
                     await safe_send(message, content=f"⚠️ User ID `{user_id}` not found in the ban list.")
-                    logging.warning(f"⚠️ User ID `{user_id}` not found in the ban list.")
+                    logging.warning(f"User ID `{user_id}` not found in the ban list.")
             except Exception as e:
                 await safe_send(message, content="❌ An error occurred while unbanning the user.")
-                logging.error(f"❌ Error unbanning user: {e}")
+                logging.error(f"Error unbanning user: {e}")
         else:
             await send_permission_denied(message, "unban members")
-            logging.warning(f"❌ Permission denied for unban command by {message.author}.")
+            logging.warning(f"Permission denied for unban command by {message.author}.")
 
     # ----------------------------------------------------------------
     # Command: !timeout
@@ -294,7 +294,7 @@ async def handle_moderation_commands(client, message, user_message):
             # Check if user mentioned someone
             if not message.mentions:
                 await safe_send(message, content="ℹ️ Please mention a valid user. Usage: `!timeout @user <duration_in_minutes> [reason]`")
-                logging.warning("ℹ️ Invalid user mention for timeout command.")
+                logging.warning("Invalid user mention for timeout command.")
                 return
             
             args = user_message.split(maxsplit=3)  # Split the command into parts
@@ -331,7 +331,7 @@ async def handle_moderation_commands(client, message, user_message):
                 # Check role hierarchy
                 if not has_higher_role(message.author, member):
                     await safe_send(message, content="⚠️ You cannot timeout a member with an equal or higher role.")
-                    logging.warning(f"⚠️ Role hierarchy check failed for timeout command by {message.author}.")
+                    logging.warning(f"Role hierarchy check failed for timeout command by {message.author}.")
                     return
 
                 # Apply timeout
@@ -342,19 +342,19 @@ async def handle_moderation_commands(client, message, user_message):
                 logging.info(f"{member.mention} has been timed out for {duration} minutes by {message.author}. Reason: {reason}")
             except ValueError:
                 await safe_send(message, content="ℹ️ Please provide a valid duration in minutes (numeric value).")
-                logging.warning("ℹ️ Invalid duration for timeout command.")
+                logging.warning("Invalid duration for timeout command.")
             except discord.Forbidden:
                 await safe_send(message, content="⚠️ I don't have permission to timeout members. Please check my role permissions.")
-                logging.warning("⚠️ Permission denied for timeout command.")
+                logging.warning("Permission denied for timeout command.")
             except discord.HTTPException as e:
                 await safe_send(message, content="❌ An error occurred while applying the timeout.")
-                logging.error(f"❌ Discord API error applying timeout: {e}")
+                logging.error(f"Discord API error applying timeout: {e}")
             except Exception as e:
                 await safe_send(message, content="❌ An error occurred while applying the timeout.")
-                logging.error(f"❌ Error applying timeout: {e}")
+                logging.error(f"Error applying timeout: {e}")
         else:
             await send_permission_denied(message, "timeout members")
-            logging.warning(f"❌ Permission denied for timeout command by {message.author}.")
+            logging.warning(f"Permission denied for timeout command by {message.author}.")
 
     # ----------------------------------------------------------------
     # Command: !untimeout
@@ -368,7 +368,7 @@ async def handle_moderation_commands(client, message, user_message):
             # Check if user mentioned someone
             if not message.mentions:
                 await safe_send(message, content="ℹ️ Please mention a valid user. Usage: `!untimeout @user`")
-                logging.warning("ℹ️ Invalid user mention for untimeout command.")
+                logging.warning("Invalid user mention for untimeout command.")
                 return
             
             try:
@@ -387,7 +387,7 @@ async def handle_moderation_commands(client, message, user_message):
                 # Check role hierarchy
                 if not has_higher_role(message.author, member):
                     await safe_send(message, content="⚠️ You cannot remove timeout from a member with an equal or higher role.")
-                    logging.warning(f"⚠️ Role hierarchy check failed for untimeout command by {message.author}.")
+                    logging.warning(f"Role hierarchy check failed for untimeout command by {message.author}.")
                     return
 
                 await member.timeout_until(None, reason="Timeout removed by moderator")
@@ -396,13 +396,13 @@ async def handle_moderation_commands(client, message, user_message):
                 logging.info(f"{member.mention}'s timeout has been removed by {message.author}.")
             except discord.Forbidden:
                 await safe_send(message, content="⚠️ I don't have permission to remove timeouts. Please check my role permissions.")
-                logging.warning("⚠️ Permission denied for untimeout command.")
+                logging.warning("Permission denied for untimeout command.")
             except Exception as e:
                 await safe_send(message, content="❌ An error occurred while removing the timeout.")
-                logging.error(f"❌ Error removing timeout: {e}")
+                logging.error(f"Error removing timeout: {e}")
         else:
             await send_permission_denied(message, "remove timeouts")
-            logging.warning(f"❌ Permission denied for untimeout command by {message.author}.")
+            logging.warning(f"Permission denied for untimeout command by {message.author}.")
             
     # -----------------------------------------------------------------------------
     # Command: !reactionrole
@@ -437,13 +437,13 @@ async def handle_moderation_commands(client, message, user_message):
                         utils.save_reaction_role_data(reaction_role_data)
                         
                         await safe_send(message, content="✅ All reaction roles for this server have been cleared.")
-                        logging.info(f"✅ Reaction roles cleared for server {guild_id} by {message.author}.")
+                        logging.info(f"Reaction roles cleared for server {guild_id} by {message.author}.")
                     else:
                         await safe_send(message, content="ℹ️ No reaction roles found for this server.")
                     return
                 except Exception as e:
                     await safe_send(message, content="❌ An error occurred while clearing reaction roles.")
-                    logging.error(f"❌ Error clearing reaction roles: {e}")
+                    logging.error(f"Error clearing reaction roles: {e}")
                     return
                 
             if len(args) < 4:
@@ -544,13 +544,13 @@ async def handle_moderation_commands(client, message, user_message):
 
             except discord.NotFound:
                 await safe_send(message, content="❌ Message not found. Please provide a valid message ID in the current channel.")
-                logging.error("❌ Message not found for reaction role setup.")
+                logging.error("Message not found for reaction role setup.")
             except discord.Forbidden:
                 await safe_send(message, content="⚠️ I don't have permission to add reactions. Check my permissions.")
-                logging.warning("⚠️ Permission denied for adding reaction.")
+                logging.warning("Permission denied for adding reaction.")
             except Exception as e:
-                await safe_send(message, content="❌ An error occurred while setting up the reaction role.")
-                logging.error(f"❌ Error setting up reaction role: {e}")
+                await safe_send(message, content="An error occurred while setting up the reaction role.")
+                logging.error(f"Error setting up reaction role: {e}")
         else:
             await send_permission_denied(message, "set up reaction roles")
-            logging.warning(f"❌ Permission denied for reaction role command by {message.author}.")
+            logging.warning(f"Permission denied for reaction role command by {message.author}.")

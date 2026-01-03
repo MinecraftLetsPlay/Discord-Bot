@@ -250,7 +250,7 @@ async def handle_public_commands(client, message, user_message):
             except asyncio.TimeoutError:
                 logging.error("Cat fact API request timed out.")
             except aiohttp.ClientError as e:
-                logging.error(f"❌ API request failed: {e}")
+                logging.error(f"API request failed: {e}")
             return None
 
         catfact = await get_catfact()
