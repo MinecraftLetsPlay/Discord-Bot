@@ -1,6 +1,7 @@
 import logging
 import inspect
 from internal import utils
+from internal import rate_limiter
 from typing import Any, Awaitable, Callable, Dict, List, Tuple, Union
 from internal.command_modules.calculator import handle_calc_command
 from internal.command_modules.minigames import handle_minigames_commands
@@ -73,6 +74,17 @@ async def component_test() -> List[Tuple[str, Dict[str, str]]]:
     results: List[Tuple[str, Dict[str, str]]] = []
     
     results.append(("command_router", {"status": "🟩", "msg": "Command router loaded."}))
+    
+    # Rate Limiter Component Test (add FIRST)
+    try:
+        import internal.rate_limiter as rate_lim
+        if hasattr(rate_lim, "component_test"):
+            result = rate_lim.component_test()
+            results.append(("rate_limiter", result))
+        else:
+            results.append(("rate_limiter", {"status": "🟧", "msg": "No component test found."}))
+    except Exception as e:
+        results.append(("rate_limiter", {"status": "🟥", "msg": f"Error during loading: {e}"}))
 
     # Component test for calculator module
     try:

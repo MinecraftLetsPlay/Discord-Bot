@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 def component_test():
     status = "🟩"
-    messages = ["Calculator module loaded."]
+    messages = ["Rate limiter module loaded."]
     
     return {"status": status, "msg": " | ".join(messages)}
 
