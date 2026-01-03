@@ -17,6 +17,21 @@ from internal import rate_limiter
 # ================================================================
 
 # ----------------------------------------------------------------
+# Game Configuration Constants
+# ----------------------------------------------------------------
+
+# API and Network Timeouts
+API_TIMEOUT = 5.0  # API request timeout in seconds
+REACTION_TIMEOUT = 60.0  # Timeout for reaction-based games (RPS, Hangman)
+GUESS_TIMEOUT = 30.0  # Timeout for text input in guess game
+QUIZ_CHOICE_TIMEOUT = 30.0  # Timeout for quiz choice selection
+QUIZ_TEXT_TIMEOUT = 40.0  # Timeout for text-based quiz answers
+
+# Game Mechanics
+GUESS_MAX_TRIES = 7  # Maximum attempts in guess the number game
+GUESS_MAX_NUMBER = 100  # Maximum number in guess the number game
+
+# ----------------------------------------------------------------
 # Component test function for [Minigames]
 # ----------------------------------------------------------------
 
@@ -38,7 +53,7 @@ async def component_test():
             messages.append("Quiz data loaded.")
                 
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.dictionaryapi.dev/api/v2/entries/en/example', timeout=aiohttp.ClientTimeout(total=5)) as response:
+            async with session.get('https://api.dictionaryapi.dev/api/v2/entries/en/example', timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)) as response:
                 if response.status == 200:
                     messages.append("Dictionary API reachable.")
                 else:
@@ -238,7 +253,7 @@ async def handle_minigames_commands(client, message, user_message):
         try:
             reaction, user = await client.wait_for(
             'reaction_add',
-            timeout=60.0,
+            timeout=REACTION_TIMEOUT,
             check=lambda reaction, user: user == message.author and str(reaction.emoji) in choices
         )
 
@@ -271,9 +286,9 @@ async def handle_minigames_commands(client, message, user_message):
         
         rate_limiter.command_cooldown.set_cooldown('guess')
         
-        number = random.randint(1, 100)
+        number = random.randint(1, GUESS_MAX_NUMBER)
         tries = 0
-        max_tries = 7
+        max_tries = GUESS_MAX_TRIES
 
         embed = discord.Embed(title="Guess the Number",
                             description="Guess a number between 1 and 100!",
@@ -284,7 +299,7 @@ async def handle_minigames_commands(client, message, user_message):
             try:
                 guess_message = await client.wait_for(
                     'message',
-                    timeout=30.0,
+                    timeout=GUESS_TIMEOUT,
                     check=lambda m: m.author == message.author and m.content.isdigit()
                 )
 
@@ -371,7 +386,7 @@ async def handle_minigames_commands(client, message, user_message):
             try:
                 guess_message = await client.wait_for(
                     'message',
-                    timeout=60.0,
+                    timeout=REACTION_TIMEOUT,
                     check=lambda m: m.author == message.author and len(m.content) == 1
                 )
 
@@ -470,7 +485,7 @@ async def handle_minigames_commands(client, message, user_message):
                     )
 
                 try:
-                    reaction, user = await client.wait_for('reaction_add', timeout=30.0, check=check)
+                    reaction, user = await client.wait_for('reaction_add', timeout=QUIZ_CHOICE_TIMEOUT, check=check)
                     user_answer = option_letters[emoji_map.index(str(reaction.emoji))]
                     if user_answer == question_data["correct"]:
                         await safe_send(message, content="✅ Correct!")
@@ -490,7 +505,7 @@ async def handle_minigames_commands(client, message, user_message):
                 try:
                     answer_message = await client.wait_for(
                         'message',
-                        timeout=40.0,
+                        timeout=QUIZ_TEXT_TIMEOUT,
                         check=lambda m: m.author == message.author
                     )
                     # Compare the answer
