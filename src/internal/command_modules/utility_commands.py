@@ -7,17 +7,18 @@ import logging
 from discord import app_commands
 from datetime import datetime, timezone, timedelta
 from internal import utils
+from internal import rate_limiter
 from dotenv import load_dotenv
 from discord.ui import Button, View
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Utility_commands.py
 # Description: Contains logic for the utility functions like weather fetching
 # Error handling for API requests and message sending included (special definitions)
-# ----------------------------------------------------------------
+# ================================================================
 
 # ----------------------------------------------------------------
 # Helper Functions
@@ -218,10 +219,21 @@ async def handle_utility_commands(client, message, user_message):
     # ---------------------------------------------------
     
     if user_message.startswith('!weather'):
-        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
+        allowed, error_msg = await rate_limiter.check_command_cooldown('weather')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_openweather, "OpenWeatherMap")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'Frankfurt am Main'
         weather_data = await get_weather(location)
 
         if weather_data and weather_data['cod'] == 200:
+            rate_limiter.command_cooldown.set_cooldown('weather')
             # Extract data from the weather response
             city_name = weather_data['name']
             country = weather_data['sys']['country']
@@ -279,10 +291,21 @@ async def handle_utility_commands(client, message, user_message):
     # ---------------------------------------------------------
     
     if user_message.startswith('!city'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('city')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_openweather, "OpenWeatherMap")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
 
         if weather_data and weather_data['cod'] == 200:
+            rate_limiter.command_cooldown.set_cooldown('city')
             # Extract data from the weather response
             city_name = weather_data['name']
             country_code = weather_data['sys']['country']  # Country code
@@ -332,10 +355,21 @@ async def handle_utility_commands(client, message, user_message):
     # ------------------------------------------------------
     
     if user_message.startswith('!time'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('time')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_openweather, "OpenWeatherMap")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
         location = user_message.split(' ', 1)[1] if len(user_message.split()) > 1 else 'London'
         weather_data = await get_weather(location)
 
         if weather_data and weather_data['cod'] == 200:
+            rate_limiter.command_cooldown.set_cooldown('time')
             # Extract data from the weather response
             city_name = weather_data['name']
             country_code = weather_data['sys']['country']  # Country code

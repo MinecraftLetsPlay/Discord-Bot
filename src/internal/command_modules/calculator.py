@@ -7,19 +7,20 @@ import asyncio
 import time
 from sympy import solve, symbols, parse_expr, sympify, Number
 from typing import Tuple, Optional, Dict, Any
+from internal import rate_limiter
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# -----------------------------------------------------------------------------
+# ================================================================
 # Module: Calculator.py
 # Description: A all around, text-based calculator capable of equation solving
 # Security: Code injection prevention, input validation, timeout protection
-# -----------------------------------------------------------------------------
+# ================================================================
 
-# ================================================================
+# ----------------------------------------------------------------
 # CONSTANTS & SECURITY CONFIGURATION
-# ================================================================
+# ----------------------------------------------------------------
 
 # Expression validation
 MAX_EXPRESSION_LENGTH = 500
@@ -35,9 +36,9 @@ class CalculatorError(Exception):
 class SecurityError(CalculatorError):
     pass
 
-# ================================================================
+# ----------------------------------------------------------------
 # Component test function for calculator module
-# ================================================================
+# ----------------------------------------------------------------
 
 def component_test():
     status = "🟩"
@@ -45,9 +46,9 @@ def component_test():
     
     return {"status": status, "msg": " | ".join(messages)}
 
-# ================================================================
+# ----------------------------------------------------------------
 # SECURITY & INPUT VALIDATION
-# ================================================================
+# ----------------------------------------------------------------
 
 # Store last result for 'ans' functionality
 LAST_RESULT: Dict[int, Any] = {}
@@ -287,9 +288,9 @@ async def calculate_with_timeout(expression: str) -> str:
         logging.error(f"Unexpected error in calculate_with_timeout: {str(e)}", exc_info=True)
         raise CalculatorError(f"Calculation failed: {str(e)}")
     
-# ================================================================
+# ----------------------------------------------------------------
 # EQUATION SOLVERS WITH ERROR HANDLING
-# ================================================================
+# ----------------------------------------------------------------
 
 # pq-formula solver (uses formatted output)
 def solve_pq(p: float, q: float) -> str:
@@ -447,9 +448,9 @@ def solve_equation_system(equations: list) -> str:
         logging.error(f"Unexpected error in solve_equation_system: {str(e)}", exc_info=True)
         raise CalculatorError(f"Failed to solve system: {str(e)}")
 
-# ================================================================
+# ----------------------------------------------------------------
 # SAFE FUNCTIONS FOR CALCULATOR
-# ================================================================
+# ----------------------------------------------------------------
 
 # Safe math functions for the calculator
 SAFE_FUNCTIONS = {
@@ -647,12 +648,25 @@ def format_error(error):
     }
     return error_mapping.get(type(error), str(error))
 
-# ================================================================
+# ----------------------------------------------------------------
 # MAIN COMMAND HANDLER
-# ================================================================
+# ----------------------------------------------------------------
 
 # Handles the !calc command and sends results with error handling
 async def handle_calc_command(client, message, user_message: str) -> Optional[str]:
+    if not user_message.startswith('!calc'):
+        return
+    
+    allowed, error_msg = await rate_limiter.check_command_cooldown('calc')
+    if not allowed:
+        try:
+            await message.channel.send(error_msg)
+        except discord.Forbidden:
+            logging.error(f"No permission to send message in {message.channel}")
+        return None
+    
+    rate_limiter.command_cooldown.set_cooldown('calc')
+    
     logging.debug(f"Calculator command received: {user_message}")
     try:
         expression = user_message[6:].strip()  # Remove '!calc ' prefix

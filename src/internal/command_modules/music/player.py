@@ -11,10 +11,11 @@ from typing import Any, TypedDict, IO, cast
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Player.py
 # Description: Music player functionality
-# ----------------------------------------------------------------
+# Error handling for ffmpeg and yt-dlp operations included
+# ================================================================
 
 # ----------------------------------------------------------------
 # Helper Functions and Initial Setup

@@ -7,11 +7,11 @@ from internal.utils import is_authorized_server
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Moderation_commands.py
 # Description: Discord moderation like kick and ban
 # Error handling for permission checks and Discord API calls included
-# ----------------------------------------------------------------
+# ================================================================
 
 # ----------------------------------------------------------------
 # Helper functions

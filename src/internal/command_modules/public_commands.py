@@ -3,15 +3,16 @@ import aiohttp
 import asyncio
 import logging
 from internal import utils
+from internal import rate_limiter
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Public_commands.py
 # Description: Handles public commands like !userinfo or !serverinfo
 # Error handling for API requests and message sending included
-# ----------------------------------------------------------------
+# ================================================================
 
 # ----------------------------------------------------------------
 # Component test function for public commands
@@ -235,6 +236,24 @@ async def handle_public_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!catfact':
+        allowed, error_msg = await rate_limiter.check_command_cooldown('catfact')
+        if not allowed:
+            try:
+                await message.channel.send(error_msg)
+            except discord.HTTPException as e:
+                logging.error(f"Failed to send cooldown message: {e}")
+            return
+
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_catfact, "CatFact API")
+        if not allowed:
+            try:
+                await message.channel.send(error_msg)
+            except discord.HTTPException as e:
+                logging.error(f"Failed to send rate limit message: {e}")
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('catfact')
+        
         async def get_catfact():
             try:
                 async with aiohttp.ClientSession() as session:

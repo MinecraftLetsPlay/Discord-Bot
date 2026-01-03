@@ -8,10 +8,11 @@ from internal.command_modules.music.player import PlayerError
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Music_commands.py
 # Description: Handles music related commands
-# ----------------------------------------------------------------
+# Error handling for voice connections and playback included
+# ================================================================
 
 # ----------------------------------------------------------------
 # Helper Functions and Initial Setup

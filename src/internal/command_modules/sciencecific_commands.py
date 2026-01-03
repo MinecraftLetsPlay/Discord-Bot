@@ -8,15 +8,16 @@ import asyncio
 import urllib.parse
 from datetime import datetime, timezone
 from dotenv import load_dotenv
+from internal import rate_limiter
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Sciencecific_commands.py
 # Description: Handles science comands like !exoplanet or !sun
 # Error handling for API requests and data parsing included
-# ----------------------------------------------------------------
+# ================================================================
 
 # ----------------------------------------------------------------
 # Helper Functions
@@ -75,6 +76,18 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!apod'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('apod')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_nasa, "NASA API")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('apod')
+        
         url = f'https://api.nasa.gov/planetary/apod?api_key={NASA_API_KEY}'
         try:
             async with aiohttp.ClientSession() as session:
@@ -113,6 +126,18 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!marsphoto'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('marsphoto')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_nasa, "NASA API")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('marsphoto')
+        
         parts = user_message.split()
         # Default values
         rover = "curiosity"
@@ -176,6 +201,18 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!asteroids'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('asteroids')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_nasa, "NASA API")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('asteroids')
+        
         try:
             today = datetime.now().strftime('%Y-%m-%d')
             url = f"https://api.nasa.gov/neo/rest/v1/feed?start_date={today}&end_date={today}&api_key={NASA_API_KEY}"
@@ -248,6 +285,18 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!sun'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('sun')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_nasa, "NASA API")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('sun')
+        
         try:
             args = user_message.split()
             today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -361,6 +410,18 @@ async def handle_sciencecific_commands(client, message, user_message):
     # ----------------------------------------------------------------
 
     if user_message.startswith('!exoplanet'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('exoplanet')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+
+        allowed, error_msg = await rate_limiter.check_api_limit(rate_limiter.api_limiter_nasa, "NASA API")
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('exoplanet')
+        
         await safe_send(message, content="Usage: !exoplanet <name | nearest | latest | count> \nExamples: !exoplanet Kepler-22b, !exoplanet nearest, !exoplanet latest, !exoplanet count")
         parts = user_message.split(maxsplit=1)
 

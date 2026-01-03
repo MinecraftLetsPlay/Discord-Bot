@@ -16,6 +16,10 @@ from internal import command_router
 # Error Handling: Strategic Try-Catch blocks only where needed
 # ================================================================
 
+# ----------------------------------------------------------------
+# Bot startup and configuration
+# ----------------------------------------------------------------
+
 start = time.perf_counter()
 
 def run_discord_bot():
@@ -85,9 +89,9 @@ def run_discord_bot():
     except Exception as e:
         logging.error(f"Critical error during component tests: {e}", exc_info=True)
 
-    # ================================================================
+    # ------------------------------------------------------------
     # BOT EVENTS
-    # ================================================================
+    # ------------------------------------------------------------
 
     @bot.event
     async def on_ready():

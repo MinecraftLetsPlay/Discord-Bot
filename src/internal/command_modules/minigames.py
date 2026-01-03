@@ -5,14 +5,16 @@ import aiohttp
 import logging
 import string
 from internal.utils import load_hangman, load_quiz  # Utils functions for loading data
+from internal import rate_limiter
 
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Minigames.py
 # Description: Contains the code for the minigames like hangman
-# ----------------------------------------------------------------
+# Error handling for game logic and API requests included
+# ================================================================
 
 # ----------------------------------------------------------------
 # Component test function for [Minigames]
@@ -217,6 +219,13 @@ async def handle_minigames_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!rps':
+        allowed, error_msg = await rate_limiter.check_command_cooldown('rps')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('rps')
+        
         choices = ['🪨', '📄', '✂️']
         embed = discord.Embed(title="Rock Paper Scissors",
                             description="Choose: 🪨, 📄, or ✂️",
@@ -255,6 +264,13 @@ async def handle_minigames_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!guess':
+        allowed, error_msg = await rate_limiter.check_command_cooldown('guess')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('guess')
+        
         number = random.randint(1, 100)
         tries = 0
         max_tries = 7
@@ -300,6 +316,13 @@ async def handle_minigames_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message == '!hangman':
+        allowed, error_msg = await rate_limiter.check_command_cooldown('hangman')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('hangman')
+        
         word, difficulty = await get_hangman_word()
         if not word:
             await message.channel.send("❌ Error loading words! Please try again later.")
@@ -385,6 +408,13 @@ async def handle_minigames_commands(client, message, user_message):
     # ----------------------------------------------------------------------------
     
     if user_message.startswith('!quiz'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('quiz')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('quiz')
+        
         # E.g.!quiz programming 10
         parts = user_message.split()
         if len(parts) < 3:
@@ -482,6 +512,13 @@ async def handle_minigames_commands(client, message, user_message):
     # ----------------------------------------------------------------
     
     if user_message.startswith('!roll'):
+        allowed, error_msg = await rate_limiter.check_command_cooldown('roll')
+        if not allowed:
+            await safe_send(message, content=error_msg)
+            return
+        
+        rate_limiter.command_cooldown.set_cooldown('roll')
+        
         try:
             args = user_message.split()[1:] if len(user_message.split()) > 1 else []
 

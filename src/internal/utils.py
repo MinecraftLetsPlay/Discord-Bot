@@ -8,10 +8,11 @@ from typing import Optional
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Utils.py
 # Description: File loding and read / write operations
-# ----------------------------------------------------------------
+# Error handling for file I/O and JSON parsing included
+# ================================================================
 
 logging.basicConfig(level=logging.INFO)
 

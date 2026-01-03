@@ -14,11 +14,11 @@ from internal.command_modules.music.music_commands import handle_music_commands
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: Command_router.py
 # Description: Appends the right command handler based on the command
 # Error handling for command routing and component tests included
-# ----------------------------------------------------------------
+# =========================================================================
 
 # ----------------------------------------------------------------
 # Type definitions

@@ -13,5 +13,42 @@
   "BotStatus": {
     "type": "listening",
     "text": "Listening to your commands."
+  },
+  "rate_limits": {
+    "nasa_api": {
+      "max_requests": 5,
+      "time_window": 60
+    },
+    "openweather_api": {
+      "max_requests": 10,
+      "time_window": 60
+    },
+    "dictionary_api": {
+      "max_requests": 20,
+      "time_window": 60
+    },
+    "catfact_api": {
+      "max_requests": 30,
+      "time_window": 60
+    },
+    "nitrado_api": {
+      "max_requests": 3,
+      "time_window": 60
+    }
+  },
+  "command_cooldowns": {
+    "calc": 2,
+    "quiz": 10,
+    "hangman": 15,
+    "weather": 5,
+    "city": 5,
+    "rps": 3,
+    "guess": 3,
+    "roll": 3,
+    "apod": 5,
+    "marsphoto": 5,
+    "asteroids": 5,
+    "sun": 5,
+    "exoplanet": 5
   }
 }

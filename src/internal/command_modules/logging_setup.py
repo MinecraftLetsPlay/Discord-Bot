@@ -133,9 +133,9 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
             print(f"⚠️ Error during log cleanup: {e}", file=sys.stderr)
 
 
-# ================================================================
+# ----------------------------------------------------------------
 # Main Logging Setup
-# ================================================================
+# ----------------------------------------------------------------
 
 # Setup logging function
 def setup_logging():

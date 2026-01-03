@@ -14,11 +14,11 @@ from internal.command_modules.logging_setup import CustomTimedRotatingFileHandle
 # Copyright (c) 2025 Dennis Plischke.
 # All rights reserved.
 
-# ----------------------------------------------------------------
+# ================================================================
 # Module: System_commands.py
 # Description: Handles system commands like /shutdown 
 # and contains authorization and logging mechanisms
-# ----------------------------------------------------------------
+# ================================================================
 
 # ----------------------------------------------------------------
 # Helper Functions and Initial Setup
