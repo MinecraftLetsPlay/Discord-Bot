@@ -4,7 +4,7 @@ from internal import utils
 from datetime import timedelta
 from internal.utils import is_authorized_server
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

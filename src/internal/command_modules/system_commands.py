@@ -11,7 +11,7 @@ from internal import utils
 from internal.utils import is_authorized_global, is_authorized_server
 from internal.command_modules.logging_setup import CustomTimedRotatingFileHandler
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

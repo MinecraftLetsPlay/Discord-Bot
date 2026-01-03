@@ -5,7 +5,7 @@ import threading
 import tempfile
 from typing import Optional
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

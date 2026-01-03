@@ -9,7 +9,7 @@ from sympy import solve, symbols, parse_expr, sympify, Number
 from typing import Tuple, Optional, Dict, Any
 from internal import rate_limiter
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

@@ -5,7 +5,7 @@ import logging
 from internal import utils
 from internal import rate_limiter
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

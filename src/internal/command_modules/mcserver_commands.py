@@ -6,7 +6,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from internal.command_modules.system_commands import is_authorized_server
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ----------------------------------------------------------------

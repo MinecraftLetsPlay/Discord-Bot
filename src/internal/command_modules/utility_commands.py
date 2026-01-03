@@ -11,7 +11,7 @@ from internal import rate_limiter
 from dotenv import load_dotenv
 from discord.ui import Button, View
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

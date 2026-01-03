@@ -7,7 +7,7 @@ import string
 from internal.utils import load_hangman, load_quiz  # Utils functions for loading data
 from internal import rate_limiter
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

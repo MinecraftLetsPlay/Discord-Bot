@@ -11,7 +11,7 @@ from internal.command_modules.mcserver_commands import handle_mcserver_commands
 from internal.command_modules.sciencecific_commands import handle_sciencecific_commands
 from internal.command_modules.music.music_commands import handle_music_commands
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

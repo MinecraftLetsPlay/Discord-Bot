@@ -1,7 +1,7 @@
 import bot as bot
 from internal.command_modules.logging_setup import setup_logging
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # Main entry point

@@ -8,7 +8,7 @@ import os
 import shutil
 from typing import Any, TypedDict, IO, cast
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

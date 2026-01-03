@@ -5,7 +5,7 @@ from internal.utils import load_server_config, save_server_config
 from internal.command_modules.music import player
 from internal.command_modules.music.player import PlayerError
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================

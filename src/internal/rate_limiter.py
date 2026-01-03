@@ -5,13 +5,23 @@ from typing import Dict, Tuple, Optional
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-# Copyright (c) 2025 Dennis Plischke.
+# Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
 
 # ================================================================
 # Module: Rate_limiter.py
 # Description: Centralized rate limiting for API calls and commands
 # ================================================================
+
+# ----------------------------------------------------------------
+# Component test function for calculator module
+# ----------------------------------------------------------------
+
+def component_test():
+    status = "🟩"
+    messages = ["Calculator module loaded."]
+    
+    return {"status": status, "msg": " | ".join(messages)}
 
 # ----------------------------------------------------------------
 # Logger setup & Rate Limiter Classes
