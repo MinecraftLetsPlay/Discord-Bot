@@ -9,7 +9,7 @@
     "logs": "/home/dennis/Desktop/Storage/Logs"
   },
   "LoggingActivated": true,
-  "DebugModeActivated": true,
+  "DebugModeActivated": false,
   "BotStatus": {
     "type": "listening",
     "text": "Listening to your commands."
