@@ -4,6 +4,8 @@
   "MD004": { "style": "consistent" },
   "MD013": { "line_length": 200 },
   "MD024": { "siblings_only": true },
+  "MD031": false,
+  "MD040": false,
   "MD022": false,
   "MD032": false,
   "MD033": false,
