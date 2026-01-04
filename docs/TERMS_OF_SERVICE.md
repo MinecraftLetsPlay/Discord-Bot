@@ -53,29 +53,24 @@ The Bot provides the following comprehensive features:
 - **Solar Data:** Sun activity information (`!sun`)
 - **Exoplanets:** Habitable exoplanet finder (`!exoplanet`)
 
-### 2.6 Minecraft Server Integration
-- **Server Control:** Start, stop, restart Minecraft server
-- **Server Status:** Real-time server info
-- **Whitelist Management:** Add/remove players
-- **Voting System:** Community voting on server actions
-- Requires Nitrado API credentials
-
-### 2.7 System & Admin Commands
+### 2.6 System & Admin Commands
 - **Logging Control:** Enable/disable per-server
 - **Bot Status:** Set custom bot activity/status
 - **Debug Mode:** Advanced debugging (owner only)
 - **System Logs:** Access log files (`/log`)
 - **Shutdown:** Emergency bot shutdown
+- **Restart** Restart the bot
 
-### 2.8 Advanced Features
+### 2.7 Advanced Features
 - **Calculator:** `!calc` with equation solving, sympy integration
 - **Command Router:** Intelligent command routing
 - **Rate Limiting:** Protection against abuse
 - **Error Handling:** Graceful error recovery
 
-### 2.9 Feature Availability Disclaimer
+### 2.8 Feature Availability Disclaimer
 
-The features listed above are provided as currently available. **Features may be added, modified, removed, or suspended at any time** without prior notice. While we strive to maintain stability, no feature is guaranteed to remain available indefinitely. Changes may occur due to:
+The features listed above are provided as currently available. **Features may be added, modified, removed, or suspended at any time** without prior notice.
+While we strive to maintain stability, no feature is guaranteed to remain available indefinitely. Changes may occur due to:
 - Technical limitations or compatibility issues
 - Third-party API changes or discontinuation
 - Security or stability concerns
@@ -103,7 +98,7 @@ We grant you a limited, non-exclusive, non-transferable license to use the Bot. 
 
 ## 4. User Responsibilities
 
-### 4.1 Server Administrators
+### 4.1 Server Administrators & Global Commands
 
 If you add the Bot to your server, you are responsible for:
 
@@ -112,9 +107,19 @@ If you add the Bot to your server, you are responsible for:
 - Configuring moderation appropriately via whitelist/permissions
 - Setting up logging channel restrictions (`/logging_channel`)
 - Not using the Bot to violate Discord ToS
-- Providing necessary API keys for advanced features (Nitrado)
 - Respecting rate limits and cooldowns
 - Backing up important configurations
+
+**Global Administrative Commands (Owner Only):**
+
+The following commands are restricted to the bot owner (Dennis Plischke) and co-developer (Robin Stiller):
+- `/shutdown` - Emergency bot shutdown
+- `/restart` - Bot restart
+- `/debugmode` - Activate debug logging mode
+- `/log` - Access system logs
+- `/logging` - Global logging configuration
+
+These commands require server-level access and are used only for maintenance and debugging.
 
 ### 4.2 All Users
 
@@ -172,16 +177,6 @@ Moderation commands (!kick, !ban, !timeout):
 - Repeated abuse may result in global blacklist
 - Appeals can be submitted to bot owner
 
-### 5.4 API Key Management (Nitrado)
-
-When using Minecraft server integration:
-
-- Keep your API keys private and secure
-- Use minimal permissions on API keys
-- Rotate keys regularly
-- Do NOT share API keys in public channels
-- Do NOT store keys in bot configuration files uploaded publicly
-
 ---
 
 ## 6. Logging and Monitoring
@@ -206,11 +201,12 @@ By using the Bot, you consent to this logging. You can:
 ### 6.3 Debug Mode
 
 Debug Mode (Global Whitelist Only):
-- Only bot owner (Dennis Plischke) can activate
+- Only bot owner (Dennis Plischke) and Co-developer (Robin Stiller) can activate
 - Temporarily logs message content and usernames
 - Used for technical debugging and troubleshooting
+- Always gets deactivated after debugging session
 - Logs still deleted after 14 days
-- Should be disabled after debugging
+- Requires server-level access to activate
 
 ### 6.4 Rate Limiting & Cooldowns
 
@@ -221,7 +217,6 @@ The Bot enforces rate limits to ensure fair service:
 - OpenWeatherMap: 10 requests/minute
 - Dictionary API: 20 requests/minute
 - CatFact API: 30 requests/minute
-- Nitrado API: 3 requests/minute
 
 **Command Cooldowns (per-server global):**
 - Quiz: 10 seconds
@@ -273,7 +268,6 @@ The Bot uses these third-party APIs and services:
 | **OpenWeatherMap**       | Weather/city data | openweathermap.org    | See OWM     |
 | **Free Dictionary**      | Definitions       | api.dictionaryapi.dev | Open API    |
 | **CatFact API**          | Cat facts         | catfact.ninja         | See site    |
-| **Nitrado API**          | Minecraft server  | nitrado.net           | See Nitrado |
 | **YouTube** (via yt-dlp) | Music playback    | youtube.com           | See YouTube |
 
 ### 8.2 Our Responsibility
@@ -356,7 +350,8 @@ We are NOT liable for:
 ## 11. Limitation of Liability
 
 **Maximum Liability:**  
-To the maximum extent permitted by applicable law, our total liability shall not exceed zero (0 USD). This limitation does not apply to liabilities that cannot be limited under applicable law, including but not limited to:
+To the maximum extent permitted by applicable law, our total liability shall not exceed zero (0 USD).
+This limitation does not apply to liabilities that cannot be limited under applicable law, including but not limited to:
 - Gross negligence or wilful misconduct
 - Liability for death or personal injury
 - Mandatory statutory consumer rights
@@ -425,7 +420,6 @@ The Bot is NOT:
 - Endorsed by Discord Inc.
 - Associated with NASA, OpenWeather, YouTube, or other APIs
 - Responsible for third-party content or policies
-- Endorsed by or affiliated with Nitrado
 
 ---
 
@@ -486,7 +480,8 @@ These Terms constitute the entire agreement between you and the Bot operator reg
 **For Questions About These Terms:**
 
 - **Discord:** Message the bot owner (Dennis Plischke)
-- **Server:** MCLP (MinecraftLetsPlay Discord)
+- **Server:** MCLP (MinecraftLetsPlay Discord) [text](https://discord.com/invite/tssKYweM3h)
+- **E-Mail:** Dennisplischke755@gmail.com
 - **Response Time:** 14 days
 
 **For Data Subject Rights (DSGVO):**  
@@ -524,7 +519,6 @@ GitHub Issues (if public repository available)
 | Reminders    | Any           | Anyone    | Basic   | None       |
 | Moderation   | Guild         | Whitelist | Full    | None       |
 | Music Server | Guild         | Owner     | Full    | None       |
-| Minecraft    | Guild         | Owner     | Full    | 3/min      |
 
 ---
 

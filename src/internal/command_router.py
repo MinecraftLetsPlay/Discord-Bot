@@ -8,7 +8,6 @@ from internal.command_modules.minigames import handle_minigames_commands
 from internal.command_modules.utility_commands import handle_utility_commands
 from internal.command_modules.public_commands import handle_public_commands
 from internal.command_modules.moderation_commands import handle_moderation_commands
-from internal.command_modules.mcserver_commands import handle_mcserver_commands
 from internal.command_modules.sciencecific_commands import handle_sciencecific_commands
 from internal.command_modules.music.music_commands import handle_music_commands
 
@@ -42,7 +41,6 @@ command_groups = {
     'moderation': ['!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole'],
     'sciencecific': ['!apod', '!marsphoto', '!asteroids', '!sun', '!exoplanet', '!spacefact'],
     'music': ['!music-channel', '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop', '!repeat', '!queue', '!nowplaying'],
-    'mcserver': ['!MCServer']
 }
 
 # Command handlers mapping
@@ -53,15 +51,14 @@ command_handlers = {
     'moderation': handle_moderation_commands,
     'sciencecific': handle_sciencecific_commands,
     'music': handle_music_commands,
-    'mcserver': handle_mcserver_commands
 }
 
 # Commands that cannot be executed in a DM
 no_dm_commands = [
     '!kick', '!ban', '!unban', '!timeout', '!untimeout', '!reactionrole',
     '!userinfo', '!rules', '!serverinfo', '!reactionrole', '!poll',
-    '!whitelist add', '!whitelist remove',  '!MCServer', '!music-channel',
-    '!join', '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop',
+    '!whitelist add', '!whitelist remove', '!music-channel','!join', 
+    '!leave', '!play', '!pause', '!resume', '!skip', '!last', '!stop',
     '!queue', '!nowplaying'
 ]
 

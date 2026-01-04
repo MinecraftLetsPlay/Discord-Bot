@@ -61,7 +61,7 @@ The Bot **explicitly does NOT** collect or log:
 
 When Debug Mode is activated (Global Whitelist Only):
 
-**Who can activate:** Bot owner only (Dennis Plischke)
+**Who can activate:** Bot owner (Dennis Plischke) and Co-developer (Robin Stiller)
 
 **What gets logged additionally:**
 - Full message content (including text)
@@ -72,8 +72,8 @@ When Debug Mode is activated (Global Whitelist Only):
 **Important Disclaimers:**
 - Debug Mode is temporary and intended for technical troubleshooting
 - Debug logs are deleted after 14 days (same as normal logs)
-- Only use in controlled environments
-- Should be disabled after debugging
+- Only used in controlled environment
+- Gets disabled after debugging
 
 ### 3.4 Configuration Data Stored
 
@@ -186,13 +186,63 @@ Under German and EU data protection law (DSGVO), we can only process your person
 
 ### 5.1 Storage Location
 
-- **Primary Location:** Germany 🇩🇪
-- **Storage Method:** Local JSON files on German server
-- **Encryption:** Files are not encrypted at rest, but protected by:
-  - Server file permissions (600/644)
-  - Access restricted to bot process only
-  - No cloud synchronization
-  - No backups beyond local logs
+**Primary Location:** Germany 🇩🇪
+
+**Storage Method:** Local JSON files on German server (Raspberry Pi)
+
+**Access Control:**
+Only Dennis Plischke and Robin Stiller (Co-developer) have access to the server.
+- Direct access via keyboard, mouse, and monitor
+- Remote tunnel access secured by Cloudflare Zero Trust and Cloudflare Access
+
+**Server-Level Security Measures:**
+
+1. **Firewall Protection:**
+   - UFW (Uncomplicated Firewall) installed and active
+   - All inbound ports blocked by default
+   - Only necessary ports explicitly opened
+   - Outbound traffic restricted where possible
+
+2. **Access Control:**
+   - Linux default user account disabled
+   - Login only possible with dedicated user account
+   - 16-character minimum password requirement
+   - Password includes uppercase, lowercase, numbers, and special characters
+   - SSH key-based authentication preferred where applicable
+
+3. **Intrusion Protection:**
+   - Fail2Ban installed and active
+   - Failed login attempts automatically blocked
+   - Temporary IP bans for repeated failures
+   - Monitoring of suspicious activity patterns
+
+4. **Process Isolation:**
+   - Bot process runs without sudo/root privileges
+   - Bot runs in isolated Python virtual environment (venv)
+   - Process has minimal required permissions
+   - Strict file permissions (600/644) on all data files
+
+5. **File Protection:**
+   - Files not encrypted at rest but protected by:
+     - Server file system permissions
+     - Access restricted to bot process and authorized administrators only
+   - No cloud synchronization
+   - No automatic backups (only local logs with 14-day rotation)
+
+**Encryption:**
+- Data files not encrypted at rest (acceptable for local JSON logs)
+- All remote access via Cloudflare Zero Trust uses TLS encryption
+- SSH connections use encrypted protocols
+
+**Summary of Security Layers:**
+```
+1. Firewall (UFW) - Network level
+2. Fail2Ban - Login attempt blocking
+3. Strong authentication - Account level
+4. Process isolation - Application level
+5. File permissions - Data level
+6. Cloudflare Zero Trust - Remote access
+```
 
 ### 5.2 Data Retention Schedule
 
@@ -259,14 +309,7 @@ The Bot integrates with these external APIs:
 - **Rate Limit:** 30 requests/minute
 - **Privacy:** See catfact.ninja privacy policy
 
-### 6.5 Nitrado API (Minecraft Server Management)
-- **Purpose:** Minecraft server control and status (!MCServer)
-- **Data Sent:** Server Service ID, API key (owner controlled)
-- **Rate Limit:** 3 requests/minute
-- **Privacy:** See Nitrado's privacy policy
-- **Important:** You must provide your own API credentials
-
-### 6.6 YouTube/yt-dlp (Music Feature)
+### 6.5 YouTube/yt-dlp (Music Feature)
 - **Purpose:** Music streaming and playback (!play, !join, etc.)
 - **Data Sent:** Search queries, video IDs
 - **Privacy:** YouTube can see your searches
@@ -334,6 +377,7 @@ You can object to data processing.
 
 **Contact Method:**
 - Discord DM to: Bot Owner (Dennis Plischke)
+- E-Mail to: dennisplischke755@gmail.com
 - Include: Your User ID, Request Type, Details
 
 **Response Time:** Within 30 days of request (DSGVO requirement)
@@ -351,7 +395,6 @@ To prevent abuse and ensure fair service:
 - OpenWeatherMap: 10 requests/minute per user
 - Dictionary: 20 requests/minute per user
 - CatFact: 30 requests/minute per user
-- Nitrado: 3 requests/minute
 
 **Command Cooldowns:**
 - Quiz: 10 seconds
@@ -414,6 +457,7 @@ You can reach out for:
 - Direct Message to bot owner
 
 **Alternative Contacts:**
+- E-Mail: dennisplischke755@gmail.com
 - GitHub Issues: https://github.com/MinecraftLetsPlay/Discord-Bot/issues (if repository is public)
 - Response time: Within 30 days (DSGVO legal requirement)
 
@@ -456,6 +500,7 @@ We review and update this policy:
 
 - **v1.0** → Initial policy
 - **v1.1** → Added complete feature overview, Art. 6 DSGVO basis, contact procedures (January 4, 2026)
+- **v1.2** → Added more contact methods and corrected some information. Described security measures.
 
 ---
 
