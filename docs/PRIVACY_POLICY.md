@@ -2,7 +2,7 @@
 
 **Last Updated:** January 4, 2026  
 **Effective Date:** January 4, 2026  
-**Version:** 1.1 - Updated with complete feature overview
+**Version:** 1.2 - Updated with complete feature overview
 
 ## 1. Data Controller
 
