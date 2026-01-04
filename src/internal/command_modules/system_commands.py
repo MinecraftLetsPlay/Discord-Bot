@@ -846,7 +846,8 @@ def setup_system_commands(bot):
         
         embed.add_field(
             name="📋 More Information",
-            value="For detailed privacy policy, use `/help` or contact the bot owner.",
+            value="For more details see: [Privacy Policy](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/PRIVACY_POLICY.md), [Terms of Service](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/TERMS_OF_SERVICE.md)\n"
+                  "Or contact the bot owner directly.",
             inline=False
         )
         
