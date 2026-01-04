@@ -226,11 +226,13 @@ Only Dennis Plischke and Robin Stiller (Co-developer) have access to the server.
    - Files not encrypted at rest but protected by:
      - Server file system permissions
      - Access restricted to bot process and authorized administrators only
+   - Logs are retained locally for 14 days
+      - Logs are accessible during this period for data access requests.
    - No cloud synchronization
-   - No automatic backups (only local logs with 14-day rotation)
 
 **Encryption:**
-- Data files not encrypted at rest (acceptable for local JSON logs)
+- Due to the low sensitivity of stored data (IDs only), encryption at rest is currently not applied.
+- Data is stored locally with restricted file permissions.
 - All remote access via Cloudflare Zero Trust uses TLS encryption
 - SSH connections use encrypted protocols
 
