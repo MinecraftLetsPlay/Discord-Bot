@@ -72,7 +72,7 @@ async def handle_public_commands(client, message, user_message):
             embed.add_field(name="[Minecraft Server]", value="Prefix: !MCServer, (vote) Shutdown, (vote) Restart, status, command", inline=False)
             embed.add_field(name="[Minigames]", value="!roll, !rps, !quiz, !hangman", inline=False)
             await message.channel.send(embed=embed)
-            logging.info("Displayed help message.")
+            logging.debug("Displayed help message.")
         except discord.Forbidden:
             logging.error("Missing permission to send help message.")
             await message.channel.send("⚠️ I don't have permission to send messages here.")
@@ -104,7 +104,7 @@ async def handle_public_commands(client, message, user_message):
             view.add_item(discord.ui.Button(label="API Wrapper Docs", url="https://discordpy.readthedocs.io/en/stable/"))
 
             await message.channel.send(embed=embed, view=view)
-            logging.info("Displayed info message.")
+            logging.debug("Displayed info message.")
         except discord.Forbidden:
             logging.error("Missing permission to send info message.")
             await message.channel.send("⚠️ I don't have permission to send messages here.")
@@ -124,7 +124,7 @@ async def handle_public_commands(client, message, user_message):
             rules_channel = discord.utils.get(message.guild.text_channels, name=rules_channel_name)
             if rules_channel:
                 await message.channel.send(f"Please read the rules here: {rules_channel.mention}")
-                logging.info("Displayed rules channel mention.")
+                logging.debug("Displayed rules channel mention.")
             else:
                 await message.channel.send("ℹ️ Sorry, I couldn't find the rules channel.")
                 logging.warning("Rules channel not found.")
@@ -180,7 +180,7 @@ async def handle_public_commands(client, message, user_message):
                 if user.avatar:
                     embed.set_thumbnail(url=user.avatar.url)
                 await message.channel.send(embed=embed)
-                logging.info(f"Displayed user info for {user.name}.")
+                logging.debug(f"Displayed user info for user {user.id}.")
             except discord.Forbidden:
                 logging.error("Missing permission to send user info.")
                 await message.channel.send("⚠️ I don't have permission to send messages here.")
@@ -223,7 +223,7 @@ async def handle_public_commands(client, message, user_message):
                 embed.set_thumbnail(url=guild.icon.url)
 
             await message.channel.send(embed=embed)
-            logging.info(f"Displayed server info for {guild.name}.")
+            logging.debug(f"Displayed server info for {guild.name}.")
         except discord.Forbidden:
             logging.error("Missing permission to send server info.")
             await message.channel.send("⚠️ I don't have permission to send messages here.")
@@ -276,7 +276,7 @@ async def handle_public_commands(client, message, user_message):
         try:
             if catfact:
                 await message.channel.send(catfact)
-                logging.info("Displayed a cat fact.")
+                logging.debug("Displayed a cat fact.")
             else:
                 await message.channel.send("⚠️ Sorry, I couldn't fetch a cat fact right now.")
                 logging.warning("Failed to fetch a cat fact.")

@@ -38,7 +38,6 @@ def run_discord_bot():
         logging.critical(f"Failed to load configuration: {e}")
         sys.exit(1)
     
-    # CRITICAL: Security Check - MUST NOT BE SKIPPED
     if not TOKEN:
         logging.critical("DISCORD_BOT_TOKEN is missing. Please set it in the .env file.")
         sys.exit(1)
@@ -52,13 +51,25 @@ def run_discord_bot():
     except Exception as e:
         logging.critical(f"Failed to setup Discord intents: {e}")
         sys.exit(1)
-
-    # Bot Creation
+        
+    # Bot Creation (FIRST!)
     try:
         bot = commands.Bot(command_prefix='!', intents=intents)
     except Exception as e:
         logging.critical(f"Failed to create bot instance: {e}")
         sys.exit(1)
+    
+    # Setup Slash Commands
+    try:
+        from internal.command_modules.system_commands import setup_system_commands
+        from internal.command_modules.utility_commands import setup_utility_commands
+    
+        setup_system_commands(bot)
+        setup_utility_commands(bot)
+    
+        logging.debug("Slash commands registered successfully.")
+    except Exception as e:
+        logging.warning(f"Failed to setup slash commands: {e}")
     
     # Component Tests
     async def run_component_tests():
@@ -191,28 +202,55 @@ def run_discord_bot():
             LoggingActivated = True
             is_logged = True
         
-        # Log user message
+        # Log user message (DSGVO-compliant)
         if LoggingActivated and is_logged:
-            username = str(message.author)
-            user_message = str(message.content)
-            if message.guild:
-                logging.info(f'{username}: "{user_message}" ({message.guild.name})')
-            else:
-                logging.info(f'📩 DM from {username}: "{user_message}"')
+            user_id = message.author.id
+            
+            # NEVER log DMs with content
+            if message.guild is None:
+                logging.info(f"DM received from user ID {user_id}")
+                await command_router.handle_command(bot, message)
+                return
+            
+            # Only log in guilds - use IDs, not usernames
+            channel_id = message.channel.id
+            guild_id = message.guild.id
+            
+            # Extract command name only (not full message)
+            command = message.content.split()[0] if message.content else "unknown"
+            
+            # Log command execution (DSGVO-safe)
+            logging.debug(
+                f"Command executed: User={user_id} | "
+                f"Guild={guild_id} | Channel={channel_id} | "
+                f"Command={command}"
+            )
+            
+            # Debug logging - nur wenn aktiviert!
+            if DebugModeActivated:
+                debug_logger = logging.getLogger('bot_debug')
+                debug_logger.debug(
+                    f"Full message from User {user_id}: {message.content}"
+                )
 
         # Command handling (send to router)
         try:
             response = await command_router.handle_command(bot, message)
             
             if response is not None:
-                if LoggingActivated and is_logged:
-                    logging.info(f'Bot replied: "{response}"')
+                if LoggingActivated and is_logged and message.guild:
+                    # Only log bot replies in guilds, never in DMs
+                    if DebugModeActivated:
+                        debug_logger = logging.getLogger('bot_debug')
+                        debug_logger.debug(f'Bot replied: "{response}"')
+                    else:
+                        logging.debug(f'Bot replied with response')
                 
                 # Send response
                 try:
                     await message.channel.send(response)
                 except discord.Forbidden:
-                    logging.error(f"No permission to send in {message.channel}")
+                    logging.error(f"No permission to send in channel ID {message.channel.id}")
                 except discord.HTTPException as e:
                     logging.error(f"Failed to send message: {e}")
         
@@ -281,12 +319,12 @@ def run_discord_bot():
         try:
             if action == "add":
                 await member.add_roles(role)
-                logging.info(f"Added role {role.name} to {member.name}")
+                logging.info(f"Added role {role.name} to {member.id}")
             elif action == "remove":
                 await member.remove_roles(role)
-                logging.info(f"Removed role {role.name} from {member.name}")
+                logging.info(f"Removed role {role.name} from {member.id}")
         except discord.Forbidden:
-            logging.error(f"No permission to modify roles for {member.name}")
+            logging.error(f"No permission to modify roles for {member.id}")
         except discord.HTTPException as e:
             logging.error(f"Failed to modify roles: {e}")
             

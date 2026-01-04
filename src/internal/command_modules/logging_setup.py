@@ -42,7 +42,7 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
         self.backupCount = backupCount
         self.last_rollover = None
         
-        # Create directory - can fail
+        # Create directory
         try:
             os.makedirs(os.path.dirname(filename), exist_ok=True)
         except PermissionError as e:
@@ -140,7 +140,7 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
 # Setup logging function
 def setup_logging():
     try:
-        # Load configuration - can fail
+        # Load configuration
         try:
             config = utils.load_config()
             debug_mode = config.get("DebugModeActivated", False)
@@ -150,7 +150,7 @@ def setup_logging():
             debug_mode = False
             log_directory = "logs"
         
-        # Validate log directory - can fail
+        # Validate log directory
         if not isinstance(log_directory, str) or not log_directory.strip():
             log_directory = "logs"
         
@@ -177,7 +177,7 @@ def setup_logging():
             except Exception as e:
                 print(f"⚠️ Error removing handler: {e}")
         
-        # Create formatter - can fail
+        # Create formatter
         try:
             formatter = logging.Formatter(
                 '%(asctime)s - %(module)s : %(levelname)s - %(message)s',
@@ -187,14 +187,14 @@ def setup_logging():
             print(f"⚠️ Error creating formatter, using default: {e}")
             formatter = logging.Formatter('%(levelname)s - %(message)s')
         
-        # File handler - can fail
+        # File handler
         try:
             log_file_base = os.path.join(log_directory, "bot.log")
             file_handler = CustomTimedRotatingFileHandler(
                 log_file_base,
                 when="midnight",
                 interval=1,
-                backupCount=10,
+                backupCount=14,
                 encoding="utf-8"
             )
             file_handler.setFormatter(formatter)
@@ -205,7 +205,7 @@ def setup_logging():
         except Exception as e:
             print(f"⚠️ Failed to setup file handler: {e}")
         
-        # Console handler - can fail
+        # Console handler
         try:
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(formatter)
@@ -216,7 +216,7 @@ def setup_logging():
         
         # Set root logger level
         try:
-            root_logger.setLevel(logging.INFO)
+            root_logger.setLevel(logging.DEBUG if debug_mode else logging.INFO)  # Dynamic logging
         except Exception as e:
             print(f"⚠️ Error setting root logger level: {e}")
         

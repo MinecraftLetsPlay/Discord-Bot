@@ -676,7 +676,7 @@ async def handle_calc_command(client, message, user_message: str) -> Optional[st
             try:
                 await send_help_message(message)
             except discord.Forbidden:
-                logging.error(f"No permission to send help message in {message.channel}")
+                logging.error(f"No permission to send help message in channel {message.channel.id}")
                 return "❌ I don't have permission to send messages here."
             except discord.HTTPException as e:
                 logging.error(f"Failed to send help message: {e}")
@@ -688,7 +688,7 @@ async def handle_calc_command(client, message, user_message: str) -> Optional[st
             try:
                 await send_calculation_result(message, expression, result)
             except discord.Forbidden:
-                logging.error(f"No permission to send embed in {message.channel}")
+                logging.error(f"No permission to send embed in channel {message.channel.id}")
                 return "❌ I don't have permission to send messages here."
             except discord.HTTPException as e:
                 logging.error(f"Failed to send result embed: {e}")
@@ -714,7 +714,7 @@ async def process_calculation(message, expression: str) -> Optional[str]:
                 try:
                     await message.channel.send("❌ No previous calculation found. Cannot use 'ans'.")
                 except discord.Forbidden:
-                    logging.error(f"No permission to send message in {message.channel}")
+                    logging.error(f"No permission to send message in channel {message.channel.id}")
                 return None
             expression = expression.replace('ans', str(LAST_RESULT[message.author.id]))
             logging.debug(f"Replaced 'ans' with: {LAST_RESULT[message.author.id]}")
@@ -756,7 +756,7 @@ async def process_calculation(message, expression: str) -> Optional[str]:
             logging.error(f"No permission to send message in {message.channel}")
         except discord.HTTPException as ex:
             logging.error(f"Failed to send error message: {ex}")
-        logging.warning(f"Calculator error for {message.author}: {str(e)}")
+            logging.warning(f"Calculator error for user {message.author.id}: {str(e)}")
         return None
     except discord.Forbidden:
         logging.error(f"No permission to send message in {message.channel}")

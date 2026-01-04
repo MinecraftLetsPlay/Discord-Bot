@@ -321,7 +321,7 @@ async def handle_minigames_commands(client, message, user_message):
                 return
 
         await safe_send(message, content=f"Game Over! The number was {number}")
-        logging.info(f"Game Over! The number was {number}")
+        logging.debug(f"Game Over! The number was {number}")
 
     # ----------------------------------------------------------------
     # Command: !hangman

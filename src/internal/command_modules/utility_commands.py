@@ -278,7 +278,7 @@ async def handle_utility_commands(client, message, user_message):
 
             # Send the embed message
             await safe_send(message, embed=embed)
-            logging.info(f"Displayed weather information for {city_name}, {country}.")
+            logging.debug(f"Displayed weather information for {city_name}, {country}.")
         else:
             await safe_send(message, content="⚠️ Could not retrieve weather information. Make sure the location is valid.")
             logging.warning("Could not retrieve weather information. Invalid location.")
@@ -342,7 +342,7 @@ async def handle_utility_commands(client, message, user_message):
 
             # Send the embed message
             await safe_send(message, embed=embed)
-            logging.info(f"Displayed city information for {city_name}, {country}.")
+            logging.debug(f"Displayed city information for {city_name}, {country}.")
         else:
             await safe_send(message, content="⚠️ Could not retrieve city information. Make sure the location is valid.")
             logging.warning("Could not retrieve city information. Invalid location.")
@@ -391,7 +391,7 @@ async def handle_utility_commands(client, message, user_message):
 
             # Send the embed message
             await safe_send(message, embed=embed)
-            logging.info(f"Displayed time information for {city_name}, {country}.")
+            logging.debug(f"Displayed time information for {city_name}, {country}.")
         else:
             await safe_send(message, content="⚠️ Could not retrieve time information. Make sure the location is valid.")
             logging.warning("Could not retrieve time information. Invalid location.")
@@ -449,14 +449,14 @@ async def handle_utility_commands(client, message, user_message):
                         self.total_votes -= 1
                         del self.user_votes[user_id]
                         await safe_interaction_send(interaction, content=f"Your vote for **{option}** has been removed!", ephemeral=True)
-                        logging.debug(f"User {interaction.user} removed their vote for {option}")
+                        logging.debug(f"User {interaction.user.id} removed their vote for {option}")
                     else:
                         # Remove previous vote if exists
                         if user_id in self.user_votes:
                             previous_option = self.user_votes[user_id]
                             self.votes[previous_option] -= 1
                             self.total_votes -= 1
-                            logging.debug(f"User {interaction.user} changed their vote from {previous_option} to {option}")
+                            logging.debug(f"User {interaction.user.id} changed their vote from {previous_option} to {option}")
 
 
                         # Add new vote
@@ -464,7 +464,7 @@ async def handle_utility_commands(client, message, user_message):
                         self.total_votes += 1
                         self.user_votes[user_id] = option
                         await safe_interaction_send(interaction, content=f"You voted for **{option}**!", ephemeral=True)
-                        logging.debug(f"User {interaction.user} voted for {option}")
+                        logging.debug(f"User {interaction.user.id} voted for {option}")
 
                     await self.update_poll_message(interaction.message)
 
@@ -485,7 +485,7 @@ async def handle_utility_commands(client, message, user_message):
         embed.set_footer(text="No votes yet")
         view = PollView(options)
         poll_message = await safe_send(message, embed=embed, view=view)
-        logging.info(f"Poll created by {message.author}: '{question}' with options: {', '.join(options)}")
+        logging.debug(f"Poll created by user {message.author.id} with {len(options)} options.")
         
     # -----------------------------------------------------------
     # Command: !reminder
@@ -575,14 +575,14 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Type", value=location_text, inline=True)
             await safe_send(message, embed=embed)
     
-            logging.debug(f"Reminder created by {message.author} for {reminder_datetime}: {reminder_text} ({reminder_type or 'user'})")
+            logging.debug(f"Reminder scheduled for user {message.author.id}: Type={reminder_type or 'user'}")
 
         except ValueError:
             await safe_send(message, content="❌ Invalid date/time format! Use DD.MM.YYYY HH:MM")
-            logging.warning(f"Invalid date/time format in reminder from {message.author}")
+            logging.warning(f"Invalid date/time format in reminder from user {message.author.id}")
         except Exception as e:
             await safe_send(message, content="❌ An error occurred while creating the reminder.")
-            logging.error(f"Error creating reminder from {message.author}: {e}")
+            logging.error(f"Error creating reminder from user {message.author.id}: {e}")
 
 # ----------------------------------------------------------------
 # Command: /download
@@ -622,7 +622,7 @@ def setup_utility_commands(bot):
                 file=discord.File(file_path),
                 ephemeral=True
             )
-            logging.info(f"File `{file_path}` sent to {interaction.user}.")
+            logging.info(f"File `{file_path}` sent to {interaction.user.id}.")
         else:
             await interaction.response.send_message(
                 f"⚠️ File `{filename}` not found in folder `{folder_key}`.",

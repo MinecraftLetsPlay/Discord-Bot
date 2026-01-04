@@ -311,7 +311,7 @@ async def handle_music_commands(client, message, user_message):
         save_server_config(guild_id, cfg)
     
         await message.channel.send(f"Music channel has been set to <#{message.channel.id}>.")
-        logging.info(f"Music channel set to {message.channel.id} for guild {guild_id} by {message.author}.")
+        logging.debug(f"Music channel set to {message.channel.id} for guild {guild_id} by user {message.author.id}.")
         
     # ----------------------------------------------------------------
     # Command: !join <channel_id>

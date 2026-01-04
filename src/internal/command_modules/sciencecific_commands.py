@@ -103,7 +103,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                             embed.set_image(url=data.get('url'))
                             embed.set_footer(text=f"Date: {data.get('date', '')} | Copyright: {data.get('copyright', 'NASA')}")
                             await safe_send(message, embed=embed)
-                            logging.info("Displayed APOD")
+                            logging.debug("Displayed APOD")
                         except (ValueError, aiohttp.ContentTypeError) as e:
                             logging.error(f"Failed to parse APOD response: {e}")
                             await safe_send(message, content="❌ Error parsing APOD data from NASA API.")
@@ -176,7 +176,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                 )
                                 embed.set_image(url=photo['img_src'])
                                 await safe_send(message, embed=embed)
-                                logging.info(f"Displayed Mars photo from {rover} on {date}")
+                                logging.debug(f"Displayed Mars photo from {rover} on {date}")
                             else:
                                 await safe_send(message, content=f"❌ No photos found for {rover.title()} on {date}.")
                         except (ValueError, aiohttp.ContentTypeError) as e:
@@ -260,7 +260,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                     inline=False
                                 )
                             await safe_send(message, embed=embed)
-                            logging.info("Displayed asteroid data")
+                            logging.debug("Displayed asteroid data")
                         except (ValueError, aiohttp.ContentTypeError) as e:
                             logging.error(f"Failed to parse asteroid response: {e}")
                             await safe_send(message, content="❌ Error parsing asteroid data from NASA API.")
@@ -395,7 +395,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                 )
 
             await safe_send(message, embed=embed)
-            logging.info("Displayed solar activity data")
+            logging.debug("Displayed solar activity data")
 
         except Exception as e:
             await safe_send(message, content="❌ Error while fetching solar activity data.")
@@ -467,7 +467,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                         data = list(reader)
                         total = int(data[0].get("total", 0))
                         await safe_send(message, content=f"🪐 There are currently **{total:,}** confirmed exoplanets in NASA's Exoplanet Archive.")
-                        logging.info("Displayed exoplanet count")
+                        logging.debug("Displayed exoplanet count")
                 return
 
             # Show nearest known exoplanets
@@ -557,7 +557,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                             )
 
                         await safe_send(message, embed=embed)
-                        logging.info("Displayed nearest unique exoplanets")
+                        logging.debug("Displayed nearest unique exoplanets")
                     return
 
             # Latest discovered exoplanets
@@ -648,7 +648,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                             )
 
                         await safe_send(message, embed=embed)
-                        logging.info("Displayed latest discovered unique exoplanets")
+                        logging.debug("Displayed latest discovered unique exoplanets")
                 return
 
             # Specific exoplanet search
@@ -727,7 +727,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                         embed.add_field(name="Habitable", value="✅ Possibly" if habitable else "❌ Unlikely")
 
                         await safe_send(message, embed=embed)
-                        logging.info(f"Displayed exoplanet data for '{planet_name}'")
+                        logging.debug(f"Displayed exoplanet data for '{planet_name}'")
                 return
         except Exception as e:
             await safe_send(message, content="❌ Error while fetching exoplanet data.")

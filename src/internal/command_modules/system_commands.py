@@ -133,7 +133,7 @@ def setup_system_commands(bot):
     async def shutdown(interaction: discord.Interaction):
         if is_authorized_global(interaction.user):
             await interaction.response.send_message("Shutting down the bot...")
-            log_.info(f"System: Shutdown command executed by: {interaction.user}")
+            log_.info(f"System: Shutdown command executed by: {interaction.user.id}")
             
             # Cleanup music before shutdown
             try:
@@ -150,7 +150,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"Permission denied for shutdown command. User: {interaction.user}")
+            log_.info(f"Permission denied for shutdown command. User: {interaction.user.id}")
 
     # -----------------------------------------------------------------
     # Command: /full_shutdown
@@ -196,7 +196,7 @@ def setup_system_commands(bot):
             try:
                 await bot.wait_for("reaction_add", timeout=30.0, check=check)
                 await interaction.followup.send("Shutting down the bot and the Raspberry Pi...")
-                log_.info(f"System: Full shutdown command executed by: {interaction.user}")
+                log_.info(f"System: Full shutdown command executed by: {interaction.user.id}")
                 
                 # Cleanup music before shutdown
                 try:
@@ -209,7 +209,7 @@ def setup_system_commands(bot):
                 os.system("sudo shutdown now")
             except asyncio.TimeoutError:
                 await interaction.followup.send("❌ Shutdown canceled due to no confirmation.")
-                log_.info(f"System: Full shutdown canceled. User: {interaction.user}")
+                log_.info(f"System: Full shutdown canceled. User: {interaction.user.id}")
         except Exception as e:
             await interaction.followup.send(f"❌ An error occurred: {e}")
             log_.error(f"System: Error in full_shutdown command: {e}")
@@ -233,11 +233,11 @@ def setup_system_commands(bot):
                 await interaction.response.send_message(
                     f"⚠️ The `!restart` command is on cooldown. Please wait {remaining_time} seconds before trying again.", ephemeral=True
                 )
-                log_.info(f"System: Restart command on cooldown for {remaining_time} seconds by: {interaction.user}")
+                log_.info(f"System: Restart command on cooldown for {remaining_time} seconds by: {interaction.user.id}")
             else:
                 last_restart_time = current_time
                 await interaction.response.send_message("Restarting the bot...")
-                log_.info(f"System: Restart command executed by: {interaction.user}")
+                log_.info(f"System: Restart command executed by: {interaction.user.id}")
                 
                 # Cleanup music before restart
                 try:
@@ -254,7 +254,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"Permission denied for restart command. User: {interaction.user}")
+            log_.info(f"Permission denied for restart command. User: {interaction.user.id}")
 
     # -----------------------------------------------------------------
     # Command: /log
@@ -299,10 +299,10 @@ def setup_system_commands(bot):
             if log_files:
                 latest_log_file = log_files[0]
                 await interaction.response.send_message(file=discord.File(latest_log_file))
-                log_.info(f"System: Latest log file sent to {interaction.channel.mention} for {interaction.user}")
+                log_.info(f"System: Latest log file sent to {interaction.channel.mention} for {interaction.user.id}")
             else:
                 await interaction.response.send_message("⚠️ No log files found.")
-                log_.info(f"System: No log files found. User: {interaction.user}")
+                log_.info(f"System: No log files found. User: {interaction.user.id}")
 
         else:
             embed = discord.Embed(
@@ -311,7 +311,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"Permission denied for log command. User: {interaction.user}")
+            log_.info(f"Permission denied for log command. User: {interaction.user.id}")
     
     # -----------------------------------------------------------------
     # Command: /debugmode
@@ -328,12 +328,12 @@ def setup_system_commands(bot):
                 utils.set_config_value("DebugModeActivated", True)
                 config = utils.load_config()
                 await interaction.response.send_message("✅ Debug mode has been enabled. Please restart the bot for changes to take effect.")
-                log_.info(f"System: Debug mode enabled by {interaction.user}")
+                log_.info(f"System: Debug mode enabled by {interaction.user.id}")
             elif action.lower() == 'off':
                 utils.set_config_value("DebugModeActivated", False)
                 config = utils.load_config()
                 await interaction.response.send_message("✅ Debug mode has been disabled. Please restart the bot for changes to take effect.")
-                log_.info(f"System: Debug mode disabled by {interaction.user}")
+                log_.info(f"System: Debug mode disabled by {interaction.user.id}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/debugmode on` or `/debugmode off`")
         else:
@@ -343,7 +343,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed)
-            log_.info(f"Permission denied for debugmode command. User: {interaction.user}")
+            log_.info(f"Permission denied for debugmode command. User: {interaction.user.id}")
 
     # -----------------------------------------------------------------
     # Command: /status
@@ -367,7 +367,7 @@ def setup_system_commands(bot):
                 color=0xff0000
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            log_.info(f"Permission denied for status command. User: {interaction.user}")
+            log_.info(f"Permission denied for status command. User: {interaction.user.id}")
             return
 
         # Normalize and map to discord.ActivityType
@@ -412,7 +412,7 @@ def setup_system_commands(bot):
             config = utils.load_config()
             
             await interaction.response.send_message(f"✅ Bot status set to: {t} {text_stripped}", ephemeral=True)
-            log_.info(f"System: Status set by {interaction.user} -> {t}: {text_stripped}")
+            log_.info(f"System: Status set by {interaction.user.id} -> {t}: {text_stripped}")
         except Exception as e:
             await interaction.response.send_message("❌ Failed to set status.", ephemeral=True)
             log_.error(f"System: Failed to set status: {e}")
@@ -491,7 +491,7 @@ def setup_system_commands(bot):
                     f"✅ **Channel {channel.mention} added to {list_name} list.**",
                     ephemeral=True
                 )
-                log_.info(f"System: Channel {channel.name} ({channel_id}) added to {list_name} list by {interaction.user}")
+                log_.debug(f"System: Channel {channel.name} ({channel_id}) added to {list_name} list by {interaction.user.id}")
 
         # --- REMOVE action ---
         elif action.lower() == "remove":
@@ -516,7 +516,7 @@ def setup_system_commands(bot):
                     f"✅ **Channel {channel.mention} removed from {list_name} list.**",
                     ephemeral=True
                 )
-                log_.info(f"System: Channel {channel.name} ({channel_id}) removed from {list_name} list by {interaction.user}")
+                log_.debug(f"System: Channel {channel.name} ({channel_id}) removed from {list_name} list by {interaction.user.id}")
 
         # --- LIST action ---
         elif action.lower() == "list":
@@ -580,7 +580,7 @@ def setup_system_commands(bot):
             )
             
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            log_.info(f"System: Logging configuration listed by {interaction.user}")
+            log_.info(f"System: Logging configuration listed by {interaction.user.id}")
 
         else:
             await interaction.response.send_message(
@@ -695,7 +695,7 @@ def setup_system_commands(bot):
             utils.save_server_config(interaction.guild.id, server_config)
 
             await interaction.response.send_message(f"✅ {user.mention} has been added to the whitelist.", ephemeral=True)
-            log_.info(f"System: {user.mention} (ID: {user_id}) has been added to the whitelist by {interaction.user}.")
+            log_.info(f"System: {user.mention} has been added to the whitelist by {interaction.user.id}.")
         except Exception as e:
             await interaction.response.send_message("❌ An error occurred while adding the user to the whitelist.", ephemeral=True)
             log_.error(f"Error adding user to whitelist: {e}")
@@ -732,7 +732,7 @@ def setup_system_commands(bot):
             utils.save_server_config(interaction.guild.id, server_config)
 
             await interaction.response.send_message(f"✅ {user.mention} has been removed from the whitelist.", ephemeral=True)
-            log_.info(f"System: {user.mention} (ID: {user_id}) has been removed from the whitelist by {interaction.user}.")
+            log_.info(f"System: {user.mention} has been removed from the whitelist by {interaction.user.id}.")
         except Exception as e:
             await interaction.response.send_message("❌ An error occurred while removing the user from the whitelist.", ephemeral=True)
             log_.error(f"Error removing user from whitelist: {e}")
@@ -757,12 +757,12 @@ def setup_system_commands(bot):
                 server_config["LoggingActivated"] = True
                 utils.save_server_config(interaction.guild.id, server_config)
                 await interaction.response.send_message("✅ Logging has been enabled for this server.", ephemeral=True)
-                log_.info(f"System: Logging enabled for server {interaction.guild.name} by {interaction.user}")
+                log_.info(f"System: Logging enabled for server {interaction.guild.name} by {interaction.user.id}")
             elif action.lower() == 'off':
                 server_config["LoggingActivated"] = False
                 utils.save_server_config(interaction.guild.id, server_config)
                 await interaction.response.send_message("✅ Logging has been disabled for this server.", ephemeral=True)
-                log_.info(f"System: Logging disabled for server {interaction.guild.name} by {interaction.user}")
+                log_.info(f"System: Logging disabled for server {interaction.guild.name} by {interaction.user.id}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`", ephemeral=True)
         else:
@@ -774,11 +774,11 @@ def setup_system_commands(bot):
                 utils.set_config_value("LoggingActivated", True)
                 config = utils.load_config()
                 await interaction.response.send_message("✅ Global logging has been enabled.", ephemeral=True)
-                log_.info(f"System: Global logging enabled by {interaction.user}")
+                log_.info(f"System: Global logging enabled by {interaction.user.id}")
             elif action.lower() == 'off':
                 utils.set_config_value("LoggingActivated", False)
                 config = utils.load_config()
                 await interaction.response.send_message("✅ Global logging has been disabled.", ephemeral=True)
-                log_.info(f"System: Global logging disabled by {interaction.user}")
+                log_.info(f"System: Global logging disabled by {interaction.user.id}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`", ephemeral=True)
