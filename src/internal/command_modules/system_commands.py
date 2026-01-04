@@ -782,3 +782,82 @@ def setup_system_commands(bot):
                 log_.info(f"System: Global logging disabled by {interaction.user.id}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`", ephemeral=True)
+
+    # -----------------------------------------------------------------
+    # Command: /dsgvo
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Display DSGVO (GDPR) privacy information
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="dsgvo", description="Display DSGVO/GDPR privacy information about this bot")
+    async def dsgvo(interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="🛡️ DSGVO / GDPR Privacy Information",
+            description="This bot operates under strict German and EU data protection laws.",
+            color=0x0099ff
+        )
+        
+        embed.add_field(
+            name="📍 Server Location",
+            value="Germany 🇩🇪\nAll data is processed and stored in Germany, subject to German data protection laws.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📊 Data Collection",
+            value="**What we log:**\n"
+                  "• User IDs (not usernames)\n"
+                  "• Command names (not content)\n"
+                  "• Channel IDs\n"
+                  "• Guild IDs\n\n"
+                  "**What we DON'T log:**\n"
+                  "• Direct Messages (DMs)\n"
+                  "• Message content\n"
+                  "• Personal usernames",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="⏰ Data Retention",
+            value="Logs are automatically deleted after **14 days**.\n"
+                  "No long-term data storage.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🔐 Your Rights (DSGVO Art. 15-22)",
+            value="You have the right to:\n"
+                  "• **Access** your data\n"
+                  "• **Correct** your data\n"
+                  "• **Delete** your data\n"
+                  "• **Restrict** processing\n"
+                  "• **Object** to processing\n\n"
+                  "Contact the bot owner for requests.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🔍 Debug Mode",
+            value="In debug mode, message content is temporarily logged for debugging purposes only.\n"
+                  "This requires elevated permissions.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📋 More Information",
+            value="For detailed privacy policy, use `/help` or contact the bot owner.",
+            inline=False
+        )
+        
+        embed.set_footer(text="DSGVO = German Data Protection Act | Last updated: 2026-01-04")
+        
+        try:
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+            log_.debug(f"DSGVO information displayed to user {interaction.user.id} in guild {interaction.guild.id if interaction.guild else 'DM'}")
+        except discord.Forbidden:
+            await interaction.response.send_message("❌ Missing permission to send DSGVO information.", ephemeral=True)
+            log_.error("Missing permission to send DSGVO embed.")
+        except discord.HTTPException as e:
+            await interaction.response.send_message("⚠️ Failed to send DSGVO information.", ephemeral=True)
+            log_.error(f"Failed to send DSGVO embed: {e}")
