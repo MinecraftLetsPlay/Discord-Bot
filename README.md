@@ -11,7 +11,7 @@ Designed for **private server use** with sophisticated permission handling and l
 ### 📂 Source Files  
 
 - `main.py` – 📝 Entry point
-- `bot.py` – 🔧 Main bot initialization and event handling 
+- `bot.py` – 🔧 Main bot initialization and event handling
 - `command_router.py` – 🚦 Command routing system  
 
 ### 🗂️ Command Modules  
@@ -22,7 +22,6 @@ Designed for **private server use** with sophisticated permission handling and l
 - `public_commands.py` – 🔓 Public commands - Help, Info, Serverinfo etc.
 - `system_commands.py` – 🖥️ Admin controls, logging configuration and system commands.
 - `calculator.py` – ➗ Advanced text-based calculator with eqaution solving.
-- `mcserver_commands.py` – ⛏️ Minecraft-Server controls. (Nitrado API)
 - `Sciencecific_commands.py` - 🔬 Sciencecific commands - Exoplanets, Sun activity etc.
 - `music_commands.py` - 🎵 Music commands / voice channel controls - !join / leave !play etc.
 - `player-py` - 📻 Plays the music and houses the code to search for the song
@@ -35,8 +34,6 @@ Designed for **private server use** with sophisticated permission handling and l
 ---
 
 ## 🚧 Features Under Development  
-
-
 
 ---
 
@@ -87,8 +84,6 @@ Designed for **private server use** with sophisticated permission handling and l
 - **NASA API** → <https://api.nasa.gov/planetary>
 → Mars Rover photos, asteroides, astronomy picture of the day, space weather and exoplanets.
 
-- **Nitrado API** → <https://api.nitrado.net/services/> → game server management
-
 ## 🛠️ Setup  
 
 **Important!** <br>
@@ -122,11 +117,9 @@ Permission is granted to view the source code for **personal reference and educa
 
 - File access and authorization logic have been optimized and unified.
 
-
-
 ### Version 1.1
 
-- Music-Bot feature is now fully implemented
+- Music-Bot feature is now fully implemented.
 
 - Renamed commands to command_modules and added a new subfolder called music.
 
@@ -139,6 +132,26 @@ Permission is granted to view the source code for **personal reference and educa
 - Updated public_commands and command_router to include the new commands.
 
 - Updated requirements.txt
+
+### Version 1.2
+
+- Huge security and code structure update.
+
+- New security system implemented for calculator.py
+
+- Prevented path traversal in utility_commands.py
+
+- Added many Excpet blocks and hardened error handling.
+
+- Removed all emojis from logging messages to make it more machine readable.
+
+- Removed mcserver_commands.py and all imports / assosiated code.
+
+- Added rate_limiter.py and enforced rate limits for commands ans API requests.
+
+- Made the bot DSGVO compliant and added TOS & Privacy Policy.
+
+- Added /dsgvo command for legal insight.
 
 ---
 
