@@ -73,13 +73,22 @@ The Bot provides the following comprehensive features:
 - **Rate Limiting:** Protection against abuse
 - **Error Handling:** Graceful error recovery
 
+### 2.9 Feature Availability Disclaimer
+
+The features listed above are provided as currently available. **Features may be added, modified, removed, or suspended at any time** without prior notice. While we strive to maintain stability, no feature is guaranteed to remain available indefinitely. Changes may occur due to:
+- Technical limitations or compatibility issues
+- Third-party API changes or discontinuation
+- Security or stability concerns
+- Resource constraints
+- Regulatory requirements
+
 ---
 
 ## 3. Use License
 
 We grant you a limited, non-exclusive, non-transferable license to use the Bot. You agree NOT to:
 
-- Modify, reverse-engineer, or decompile the Bot
+- Modify, reverse-engineer, or decompile the Bot, except where explicitly permitted by applicable law (including EU Directive 2009/24/EC for interoperability)
 - Use the Bot for illegal purposes
 - Attempt to gain unauthorized access to systems
 - Spam, flood, or abuse the Bot
@@ -347,9 +356,13 @@ We are NOT liable for:
 ## 11. Limitation of Liability
 
 **Maximum Liability:**  
-To the fullest extent permitted by law, our total liability shall not exceed **$0 (the Bot is free).
+To the maximum extent permitted by applicable law, our total liability shall not exceed zero (0 USD). This limitation does not apply to liabilities that cannot be limited under applicable law, including but not limited to:
+- Gross negligence or wilful misconduct
+- Liability for death or personal injury
+- Mandatory statutory consumer rights
+- Liabilities under German law (DSGVO violations, etc.)
 
-In other words: **You use this Bot at your own risk, and we accept no liability.**
+**In summary:** You use this Bot at your own risk. We accept no liability except where required by law.
 
 ---
 
@@ -535,7 +548,7 @@ GitHub Issues (if public repository available)
 
 ---
 
-**Version:** 1.1  
+**Version:** 1.2
 **Status:** Active  
 **Language:** English (German translation available upon request)  
 **Last Updated:** January 4, 2026  

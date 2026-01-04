@@ -143,7 +143,45 @@ Your data is **NOT** used for:
 - Selling or trading with other services
 
 ---
+## 5. Legal Basis for Data Processing (DSGVO Article 6)
 
+Under German and EU data protection law (DSGVO), we can only process your personal data if we have a legal basis. Here are ours:
+
+### Article 6(1)(b) DSGVO - Performance of a Contract
+
+**What:** When you use the Bot, you enter an implicit contract.
+
+**Why we process:** To fulfill this contract by:
+- Processing your commands
+- Storing your configurations
+- Executing requested actions (reminders, music, games, etc.)
+
+**Duration:** As long as you use the Bot and for 14 days after
+
+### Article 6(1)(f) DSGVO - Legitimate Interests
+
+**What:** We have a legitimate interest in:
+- Security and abuse prevention (blocking hackers, spam bots)
+- System stability (monitoring errors, performance)
+- Legal compliance (documenting usage for disputes)
+- Service improvement (understanding which features work)
+
+**Why this is legitimate:** Your interests don't override ours because:
+- We don't profile or make decisions about you
+- We only store anonymous command names and IDs
+- We delete data after 14 days
+- We don't use data for marketing or targeting
+
+**Your right:** You can object to this processing at any time (see Article 21 in Section 7).
+
+### What This Means for You
+
+- We have legal permission to log your commands
+- We have legal permission to detect abuse
+- We cannot use this data for purposes beyond what's stated
+- You have rights to object, access, or delete your data
+
+---
 ## 5. Data Storage and Security
 
 ### 5.1 Storage Location
@@ -360,12 +398,31 @@ As of January 2026: No security breaches reported
 
 **Data Controller:**
 Dennis Plischke  
-Discord: Bot Owner (@MinecraftLetsPlay)
+Germany 🇩🇪
 
-**Questions or Concerns:**
-- Discord: Message the bot owner
-- Type: `/dsgvo` for privacy information in Discord
-- Include: User ID and specific request
+**Contact Methods for Privacy Inquiries:**
+
+You can reach out for:
+- Data access requests (DSGVO Article 15)
+- Deletion requests (DSGVO Article 17)
+- Complaints about data processing
+- General privacy questions
+
+**Primary Contact (Discord):**
+- Discord Username: @MinecraftLetsPlay2912
+- Type `/dsgvo` in-bot for privacy information
+- Direct Message to bot owner
+
+**Alternative Contacts:**
+- GitHub Issues: https://github.com/MinecraftLetsPlay/Discord-Bot/issues (if repository is public)
+- Response time: Within 30 days (DSGVO legal requirement)
+
+**Data Subject Access:**
+- Include your User ID in requests
+- Briefly describe what you're requesting
+- We may ask for verification
+
+**Important:** This is a hobby bot run by one person. While we respond as quickly as possible, allow up to 14 days for processing during busy times.
 
 ---
 
@@ -377,10 +434,28 @@ We review and update this policy:
 - When data handling changes
 - When legal requirements change
 
-**Your rights:**
-- We'll announce significant changes
-- Continued use = acceptance of changes
+### How You'll Be Notified
+
+**Major Changes** (Significant changes to your rights or data handling):
+- Will be announced in Discord bot status
+- Posted in MCLP server announcements
+- Effective after 30 days notice
+
+**Minor Changes** (Clarifications, formatting, minor additions):
+- Updated on GitHub without advance notice
+- Effective immediately
+
+### Your Rights When We Change Terms
+
 - Right to withdraw consent and stop using Bot
+- Right to request deletion of data before accepting changes
+- Continued use of Bot = acceptance of new policy
+- Right to review version history (GitHub)
+
+### Version History
+
+- **v1.0** → Initial policy
+- **v1.1** → Added complete feature overview, Art. 6 DSGVO basis, contact procedures (January 4, 2026)
 
 ---
 
@@ -398,7 +473,7 @@ We review and update this policy:
 | DM Content      |    NO     |       NO        |      N/A       | Never logged          |
 | Timestamps      |    YES    |       YES       |    14 days     | When events occurred  |
 | Config Data     |    YES    |       NO        | Until deletion | Server/User settings  |
-| API Responses   | ⚠️Minimal |      NO         |     N/A       | Service-specific      |
+| API Responses   |  Minimal  |      NO         |     N/A        | Service-specific      |
 
 ---
 
@@ -421,7 +496,7 @@ A: You can stop using the Bot anytime. Your data will be deleted after 14 days.
 
 ---
 
-**Version:** 1.1  
+**Version:** 1.2
 **Status:** Active  
 **Language:** English (German equivalent available upon request)  
 **Last Updated:** January 4, 2026  
