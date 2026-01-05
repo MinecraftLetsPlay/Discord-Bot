@@ -20,7 +20,6 @@ The MCLP Discord Bot ("Bot") is a comprehensive Discord application providing:
 - Utility tools (weather, reminders, polls, downloads)
 - Moderation and server management
 - Science and astronomy data
-- Minecraft server integration
 - System administration
 
 This privacy policy explains how we collect, use, store, and protect your data under DSGVO/GDPR compliance.
