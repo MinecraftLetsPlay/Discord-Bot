@@ -466,7 +466,7 @@ By using this Bot, you agree to be bound by German law.
 ### 16.1 Informal Resolution (Recommended)
 
 For disputes:
-1. Contact bot owner via Discord
+1. Contact bot owner via Discord or E-mail
 2. Provide detailed description of issue
 3. Allow 14 days for response
 4. Attempt good-faith resolution
@@ -502,7 +502,7 @@ These Terms constitute the entire agreement between you and the Bot operator reg
 **For Questions About These Terms:**
 
 - **Discord:** Message the bot owner (Dennis Plischke)
-- **Server:** MCLP (MinecraftLetsPlay Discord) [text](https://discord.com/invite/tssKYweM3h)
+- **Server:** MCLP (MinecraftLetsPlay Discord) [Invite](https://discord.com/invite/tssKYweM3h)
 - **E-Mail:** Dennisplischke755@gmail.com
 - **Response Time:** 14 days
 

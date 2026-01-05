@@ -269,6 +269,7 @@ You have the right to know what personal data we hold about you.
 
 **To request:**
 - Contact bot owner via Discord
+- Alternative: E-Mail to: dennisplischke755@gmail.com
 - Provide your User ID
 - Will receive data within 30 days
 
