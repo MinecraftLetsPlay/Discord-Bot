@@ -1,8 +1,8 @@
 # Privacy Policy - MCLP Discord Bot
 
-**Last Updated:** January 4, 2026  
-**Effective Date:** January 4, 2026  
-**Version:** 1.2 - Updated with complete feature overview
+**Last Updated:** January 5, 2026  
+**Effective Date:** January 5, 2026  
+**Version:** 1.3 - Clarified mandatory logging and security summary
 
 ## 1. Data Controller
 
@@ -29,22 +29,39 @@ This privacy policy explains how we collect, use, store, and protect your data u
 
 ## 3. What Data We Collect
 
-### 3.1 Automatically Collected Data (Standard Logging)
+### 3.1 Command Execution Logging (Controllable)
 
-When you use the Bot, we collect:
+When you use the Bot, we optionally collect command execution data:
 
 - **User IDs** (Discord unique identifier, NOT your username)
 - **Guild IDs** (Server identifiers)
 - **Channel IDs** (Channel identifiers)
 - **Command Names** (Which commands executed, NOT parameters)
 - **Timestamps** (When commands were executed)
-- **Error Messages** (For debugging purposes only)
 
 **Example:** When you type `!weather London`:
 - Logged: User ID, Guild ID, Channel ID, Command "!weather"
 - NOT Logged: "London" or any message content
 
-### 3.2 Data We Do NOT Collect (Standard Mode)
+**Control:** You can disable this via `/logging off` (entire server) or `/logging_channel` (specific channels only)
+
+### 3.2 Operational Logging (Mandatory - Cannot be disabled)
+
+The Bot always logs for security and stability purposes:
+
+- **Error Messages** (For debugging and monitoring purposes)
+- **System Events** (Bot startup, shutdown, crashes)
+- **Security Events** (Permission denials, abuse attempts)
+- **Warnings and Exceptions** (Application issues)
+
+These cannot be disabled while using the bot. They are essential for:
+- Detecting bugs and fixing issues
+- Preventing abuse and attacks
+- Monitoring bot health and uptime
+
+**Storage Duration:** 14 days (same as command execution logs)
+
+### 3.3 Data We Do NOT Collect (Standard Mode)
 
 The Bot **explicitly does NOT** collect or log:
 
@@ -57,7 +74,7 @@ The Bot **explicitly does NOT** collect or log:
 - Location data
 - Browsing history or metadata
 
-### 3.3 Special Mode: Debug Logging
+### 3.4 Special Mode: Debug Logging
 
 When Debug Mode is activated (Global Whitelist Only):
 
@@ -172,7 +189,7 @@ Under German and EU data protection law (DSGVO), we can only process your person
 - We delete data after 14 days
 - We don't use data for marketing or targeting
 
-**Your right:** You can object to this processing at any time (see Article 21 in Section 7).
+**Your right:** You can object to this processing (see Article 21 in Section 7), but operational logging cannot be disabled while using the bot.
 
 ### What This Means for You
 
@@ -186,100 +203,26 @@ Under German and EU data protection law (DSGVO), we can only process your person
 
 ### 5.1 Storage Location
 
-**Primary Location:** Germany 🇩🇪
+- Stored on a self-hosted server located in Germany 🇩🇪
+- Data is kept in local JSON files (no cloud sync)
+- Access is limited to the bot owner and co-developer
 
-**Storage Method:** Local JSON files on German server (Raspberry Pi)
+### 5.2 Protective Measures (Summary)
 
-**Access Control:**
-Only Dennis Plischke and Robin Stiller (Co-developer) have access to the server.
-- Direct access via keyboard, mouse, and monitor
-- Remote tunnel access secured by Cloudflare Zero Trust and Cloudflare Access
+We protect the server with layered controls (network hardening, restricted accounts, and process isolation). We avoid publishing exact configurations to reduce attack surface.
+Data is never shared with third parties, and remote access is encrypted.
 
-**Server-Level Security Measures:**
-
-1. **Firewall Protection:**
-   - UFW (Uncomplicated Firewall) installed and active
-   - All inbound ports blocked by default
-   - Only necessary ports explicitly opened
-   - Outbound traffic restricted where possible
-
-2. **Access Control:**
-   - Linux default user account disabled
-   - Login only possible with dedicated user account
-   - 16-character minimum password requirement
-   - Password includes uppercase, lowercase, numbers, and special characters
-   - SSH key-based authentication preferred where applicable
-
-3. **Intrusion Protection:**
-   - Fail2Ban installed and active
-   - Failed login attempts automatically blocked
-   - Temporary IP bans for repeated failures
-   - Monitoring of suspicious activity patterns
-
-4. **Process Isolation:**
-   - Bot process runs without sudo/root privileges
-   - Bot runs in isolated Python virtual environment (venv)
-   - Process has minimal required permissions
-   - Strict file permissions (600/644) on all data files
-
-5. **File Protection:**
-   - Files not encrypted at rest but protected by:
-     - Server file system permissions
-     - Access restricted to bot process and authorized administrators only
-   - Logs are retained locally for 14 days
-      - Logs are accessible during this period for data access requests.
-   - No cloud synchronization
-
-**Encryption:**
-- Due to the low sensitivity of stored data (IDs only), encryption at rest is currently not applied.
-- Data is stored locally with restricted file permissions.
-- All remote access via Cloudflare Zero Trust uses TLS encryption
-- SSH connections use encrypted protocols
-
-**Summary of Security Layers:**
-```
-1. Firewall (UFW) - Network level
-2. Fail2Ban - Login attempt blocking
-3. Strong authentication - Account level
-4. Process isolation - Application level
-5. File permissions - Data level
-6. Cloudflare Zero Trust - Remote access
-```
-
-### 5.2 Data Retention Schedule
+### 5.3 Data Retention Schedule
 
 **Automatic Deletion (14 Days):**
 - All command logs deleted after 14 days
 - Debug logs deleted after 14 days
 - Old rotation logs purged automatically
-- No manual intervention required
 
 **Configuration Data Retention:**
-- Server configs kept indefinitely (needed for operation)
-- Can be deleted via `/logging off` or server deletion
+- Server configs kept while the bot is in the server (removed when the server removes the bot or upon owner request)
 - Reaction role data kept until manually removed
 - Quiz/Hangman data kept for game functionality
-
-### 5.3 Security Measures
-
-- Access restricted to bot process and developer
-- No cloud synchronization
-- No third-party storage providers
-- Local file-based with atomic read/write operations
-- Rate limiting to prevent abuse
-- Input validation on all commands
-- No SQL databases (JSON only, prevents injection)
-
-### 5.4 Potential Vulnerabilities & Mitigations
-
-**Risk:** Server compromise
-- **Mitigation:** Only runs on trusted German server
-
-**Risk:** Accidental data exposure
-- **Mitigation:** 14-day auto-deletion limits damage
-
-**Risk:** Developer key compromise
-- **Mitigation:** No sensitive data in logs
 
 ---
 
@@ -343,22 +286,32 @@ You have the right to request deletion of your data.
 **What gets deleted:**
 - All log entries mentioning your User ID
 - Your server whitelists/configurations
-- Your reminder data
-- Your poll votes
 
 **What doesn't get deleted:**
 - Quiz answers already submitted (game functionality)
 - Reaction role assignments (unless you leave server)
+- Votes (You can simply revoke your vote when the poll is active)
 
 **Timeframe:** 7 days of request
 
-### Article 18: Right to Restrict Processing
-You can request that we stop processing your data.
+### Important Note: Mandatory Operational Logging vs. Controllable Command Logging
 
-**Effect:**
-- Bot won't log your commands
-- Can still use the bot (no command execution)
-- Use `/logging off` per server
+**Mandatory Operational Logging (Cannot be disabled):**
+- Error messages, warnings, system events
+- Essential for bot security and stability
+- Continues regardless of `/logging` settings
+- Retention: 14 days
+
+**Controllable Command Execution Logging (Can be disabled):**
+- User IDs, Guild IDs, Channel IDs, command names, timestamps
+- Disabled via `/logging off` (entire server) or `/logging_channel` (specific channels)
+- Retention: 14 days (if enabled)
+
+**If you do not consent to mandatory operational logging,** please stop using the bot or remove it from your server.
+
+### Article 18: Right to Restrict Processing
+Because operational logging is required for the bot to function and for security purposes, we cannot disable it while keeping the bot usable.
+You can restrict processing by discontinuing use or removing the bot from your server.
 
 ### Article 19: Right to Data Portability
 You have the right to receive your data in machine-readable format.
@@ -368,12 +321,7 @@ You have the right to receive your data in machine-readable format.
 - Text file of your command history
 
 ### Article 21: Right to Object
-You can object to data processing.
-
-**To exercise your right:**
-1. Contact bot owner via Discord
-2. Specify which processing you object to
-3. We'll cease processing within 14 days
+Operational logging cannot be switched off for individual users or servers. If you object to this processing, the practical remedy is to stop using the bot or remove it from your server.
 
 ### To Exercise Your Rights
 
@@ -483,7 +431,7 @@ We review and update this policy:
 ### How You'll Be Notified
 
 **Major Changes** (Significant changes to your rights or data handling):
-- Will be announced in Discord bot status
+- Will be announced on the Bot's GitHub page.
 - Posted in MCLP server announcements
 - Effective after 30 days notice
 
@@ -503,24 +451,31 @@ We review and update this policy:
 - **v1.0** → Initial policy
 - **v1.1** → Added complete feature overview, Art. 6 DSGVO basis, contact procedures (January 4, 2026)
 - **v1.2** → Added more contact methods and corrected some information. Described security measures.
+- **v1.3** → Clarified mandatory operational logging and summarized security measures (January 5, 2026)
 
 ---
 
 ## Appendix A: Complete Data Categories
 
-| Data Type       | Collected | Logged          | Retained       | Purpose               |
-|-----------------|-----------|-----------------|----------------|-----------------------|
-| User ID         |    YES    |       YES       |    14 days     | Command tracking      |
-| Username        |    NO     | NO (debug: YES) |      N/A       | Privacy protection    |
-| Guild ID        |    YES    |       YES       |    14 days     | Server identification |
-| Channel ID      |    YES    |       YES       |    14 days     | Context for logs      |
-| Command Name    |    YES    |       YES       |    14 days     | Usage tracking        |
-| Command Args    |    NO     | NO (debug: YES) |      N/A       | Privacy protection    |
-| Message Content |    NO     | NO (debug: YES) |      N/A       | Privacy protection    |
-| DM Content      |    NO     |       NO        |      N/A       | Never logged          |
-| Timestamps      |    YES    |       YES       |    14 days     | When events occurred  |
-| Config Data     |    YES    |       NO        | Until deletion | Server/User settings  |
-| API Responses   |  Minimal  |      NO         |     N/A        | Service-specific      |
+| Data Type         | Collected | Command Logging | Operational Logging | Retention      | Purpose                   |
+|-------------------|-----------|-----------------|---------------------|----------------|---------------------------|
+| User ID           |    YES    |  YES (control)  | YES (always)        |    14 days     | Command tracking          |
+| Guild ID          |    YES    |  YES (control)  | YES (always)        |    14 days     | Server identification     |
+| Channel ID        |    YES    |  YES (control)  | Limited             |    14 days     | Context for logs          |
+| Command Name      |    YES    |  YES (control)  | NO                  |    14 days     | Usage tracking            |
+| Timestamps        |    YES    |  YES (control)  | YES (always)        |    14 days     | When events occurred      |
+| Error Messages    |    NO     |       NO        | YES (always)        |    14 days     | Bot stability             |
+| Warnings/Events   |    NO     |       NO        | YES (always)        |    14 days     | Security monitoring       |
+| Username          |    NO     | NO (debug: YES) | NO (debug: YES)     |    14 days     | Usage tracking / Security |
+| Command Args      |    NO     | NO (debug: YES) | NO (debug: YES)     |    14 days     | Usage tracking / Security |
+| Message Content   |    NO     | NO (debug: YES) | NO (debug: YES)     |    14 days     | Usage tracking / Security |
+| DM Content        |    NO     |       NO        | NO                  |      N/A       | Never logged              |
+| Config Data       |    YES    |       NO        | NO                  | Until deletion | Server/User settings      |
+
+**Legend:**
+- **Command Logging (Control)**: Can be disabled with `/logging off` or `/logging_channel`
+- **Operational Logging (Always)**: Cannot be disabled - essential for security and stability
+- **Debug: YES**: Only logged when Debug Mode is active (owner/co-dev only)
 
 ---
 
@@ -529,22 +484,25 @@ We review and update this policy:
 **Q: Do you sell my data?**
 A: Absolutely not. We have no commercial use for your data.
 
-**Q: Can I opt-out of logging?**
-A: Yes, use `/logging off` to disable logging per server.
+**Q: Can I opt-out of command logging?**
+A: Yes. Use `/logging off` to disable command execution logging for the entire server, or `/logging_channel` to disable it for specific channels only.
+
+**Q: Can I opt-out of operational logging (errors, warnings)?**
+A: No. Operational logging (errors, warnings, security events) is mandatory and cannot be disabled. If you disagree, remove the bot or stop using it.
 
 **Q: How do I delete my data?**
-A: Submit a data deletion request to the bot owner.
+A: Submit a data deletion request to the bot owner. Command logs are automatically deleted after 14 days.
 
 **Q: Is my music history logged?**
-A: No. Music playback doesn't create logs.
+A: No. Music playback doesn't create command logs. Only operational logs (errors/warnings) apply.
 
 **Q: What if I disagree with this policy?**
-A: You can stop using the Bot anytime. Your data will be deleted after 14 days.
+A: You can stop using the Bot anytime. Your data will be deleted after 14 days (automatically).
 
 ---
 
-**Version:** 1.2
+**Version:** 1.3
 **Status:** Active  
 **Language:** English (German equivalent available upon request)  
-**Last Updated:** January 4, 2026  
+**Last Updated:** January 5, 2026  
 **Compliance:** DSGVO/GDPR Article 13 & 14

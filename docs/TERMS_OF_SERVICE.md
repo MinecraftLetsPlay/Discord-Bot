@@ -1,8 +1,8 @@
 # Terms of Service - MCLP Discord Bot
 
-**Last Updated:** January 4, 2026  
-**Effective Date:** January 4, 2026  
-**Version:** 1.2 - Updated with complete feature overview
+**Last Updated:** January 5, 2026  
+**Effective Date:** January 5, 2026  
+**Version:** 1.3 - Clarified logging and enforcement details
 
 ---
 
@@ -54,7 +54,7 @@ The Bot provides the following comprehensive features:
 - **Exoplanets:** Habitable exoplanet finder (`!exoplanet`)
 
 ### 2.6 System & Admin Commands
-- **Logging Control:** Enable/disable per-server
+- **Logging Control:** Configure logging channel filters (operational logging cannot be disabled)
 - **Bot Status:** Set custom bot activity/status
 - **Debug Mode:** Advanced debugging (owner only)
 - **System Logs:** Access log files (`/log`)
@@ -108,7 +108,6 @@ If you add the Bot to your server, you are responsible for:
 - Setting up logging channel restrictions (`/logging_channel`)
 - Not using the Bot to violate Discord ToS
 - Respecting rate limits and cooldowns
-- Backing up important configurations
 
 **Global Administrative Commands (Owner Only):**
 
@@ -173,8 +172,7 @@ Moderation commands (!kick, !ban, !timeout):
 
 - May only be used by whitelisted administrators
 - Must comply with Discord's Community Guidelines
-- Abuse may result in bot ban
-- Repeated abuse may result in global blacklist
+- Abuse may result in a request to remove the bot from your server; automated bans/blacklists are not implemented yet
 - Appeals can be submitted to bot owner
 
 ---
@@ -183,20 +181,41 @@ Moderation commands (!kick, !ban, !timeout):
 
 ### 6.1 Automatic Logging
 
-The Bot automatically logs:
-- Command execution (name only, not parameters)
+The Bot automatically logs two categories of data:
+
+**Category 1: Command Execution Logging (Can be controlled)**
+- Command names only (not parameters or message content)
 - User IDs and Guild IDs
 - Channel IDs for context
-- Errors and system events
-- Timestamps of all activities
+- Timestamps of all command executions
+- *This can be disabled per server via `/logging off` or `/logging_channel`*
+
+**Category 2: Operational Logging (Cannot be disabled)**
+- Error messages and exceptions
+- System events and warnings
+- Security-related activities
+- Application crashes and recovery
+- *This mandatory logging ensures bot stability and security*
 
 ### 6.2 Your Consent
 
-By using the Bot, you consent to this logging. You can:
-- Disable logging per server (`/logging off`)
-- Request deletion of logs (see Privacy Policy)
-- Use the Bot in DMs (no logging in DMs)
-- Restrict logging to specific channels (`/logging_channel`)
+By using the Bot, you consent to:
+
+**Mandatory Operational Logging** (Cannot be disabled):
+- Error messages, warnings, and system events
+- These are essential for bot stability and security
+- Will continue to be logged regardless of `/logging` settings
+
+**Command Execution Logging** (Can be controlled):
+- Command names, User IDs, Guild IDs, Channel IDs, Timestamps
+- You can control this with:
+  - `/logging off` - Disables command logging for entire server
+  - `/logging_channel` - Restricts command logging to specific channels only
+
+**Important Clarification:**
+- The `/logging on|off` command only affects **command execution logging**, NOT operational logging
+- Errors and warnings will always be logged for security and stability
+- If you disable command logging, operational logs still provide bot health monitoring
 
 ### 6.3 Debug Mode
 
@@ -365,17 +384,19 @@ This limitation does not apply to liabilities that cannot be limited under appli
 
 ### 12.1 We May Terminate
 
-We reserve the right to terminate or ban:
+We reserve the right to ask you to remove the Bot or to manually block further use if:
 
-- Servers that abuse the Bot
-- Users who repeatedly violate these Terms
-- Accounts engaging in illegal activity
-- Users violating Discord ToS
-- Servers attempting unauthorized access
+- Servers abuse the Bot
+- Users repeatedly violate these Terms
+- Accounts engage in illegal activity
+- Users violate Discord ToS
+- Servers attempt unauthorized access
+
+Automated bans or blacklists are not implemented at this time; enforcement is manual.
 
 ### 12.2 Immediate Termination
 
-Immediate termination may occur for:
+We may immediately request removal or apply a manual block for:
 - Hacking or unauthorized access attempts
 - Harassment or threats
 - Illegal activity
@@ -391,9 +412,10 @@ You can:
 - Stop using the Bot without notice
 
 **Effect of Termination:**
-- All server configurations deleted
-- Bot access removed
-- Logs deleted per retention policy (14 days)
+- Bot access ends once the bot is removed or a manual block is applied
+- Server configurations are deleted
+- Other server-realated data like reactionroles are deleted
+- Logs follow the standard 14-day retention policy
 
 ---
 
@@ -494,18 +516,19 @@ GitHub Issues (if public repository available)
 
 ## Appendix A: Quick Summary - What You Can/Cannot Do
 
-| What You CAN Do                      | What You CANNOT Do         |
-|--------------------------------------|----------------------------|
-| Use Bot for fun                      | Hack or exploit            |
-| Request features                     | Spam or flood              |
-| Report bugs responsibly              | Abuse rate limits          |
-| Play music you own                   | Pirate copyrighted music   |
-| Configure per server                 | Modify Bot code            |
-| Delete your data                     | Steal other's data         |
-| Disable logging                      | Bypass security measures   |
-| Use moderation tools (if authorized) | Abuse moderation commands  |
-| Create polls/reminders               | Use for harassment         |
-| Play games with friends              | Cheat or exploit           |
+| What You CAN Do                      | What You CANNOT Do             |
+|--------------------------------------|--------------------------------|
+| Use Bot for fun                      | Hack or exploit                |
+| Request features                     | Spam or flood                  |
+| Report bugs responsibly              | Abuse rate limits              |
+| Play music you own                   | Pirate copyrighted music       |
+| Configure per server                 | Modify Bot code                |
+| Delete your data                     | Steal other's data             |
+| Request data deletion                | Circumvent operational logging |
+| Use moderation tools (if authorized) | Abuse moderation commands      |
+| Create polls/reminders               | Use for harassment             |
+| Play games with friends              | Cheat or exploit               |
+| Filter logging channels              | Disable error/warning logs     |
 
 ---
 
@@ -542,8 +565,8 @@ GitHub Issues (if public repository available)
 
 ---
 
-**Version:** 1.2
+**Version:** 1.3
 **Status:** Active  
 **Language:** English (German translation available upon request)  
-**Last Updated:** January 4, 2026  
+**Last Updated:** January 5, 2026  
 **Compliance:** German Law, DSGVO, Discord ToS

@@ -756,12 +756,12 @@ def setup_system_commands(bot):
             if action.lower() == 'on':
                 server_config["LoggingActivated"] = True
                 utils.save_server_config(interaction.guild.id, server_config)
-                await interaction.response.send_message("✅ Logging has been enabled for this server.", ephemeral=True)
+                await interaction.response.send_message("✅ Command logging has been enabled for this server. (Operational logging like errors cannot be disabled)", ephemeral=True)
                 log_.info(f"System: Logging enabled for server {interaction.guild.name} by {interaction.user.id}")
             elif action.lower() == 'off':
                 server_config["LoggingActivated"] = False
                 utils.save_server_config(interaction.guild.id, server_config)
-                await interaction.response.send_message("✅ Logging has been disabled for this server.", ephemeral=True)
+                await interaction.response.send_message("✅ Command logging has been disabled for this server. (Operational logging like errors remains active)", ephemeral=True)
                 log_.info(f"System: Logging disabled for server {interaction.guild.name} by {interaction.user.id}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`", ephemeral=True)
@@ -773,12 +773,12 @@ def setup_system_commands(bot):
             if action.lower() == 'on':
                 utils.set_config_value("LoggingActivated", True)
                 config = utils.load_config()
-                await interaction.response.send_message("✅ Global logging has been enabled.", ephemeral=True)
+                await interaction.response.send_message("✅ Global command logging has been enabled. (Operational logging like errors cannot be disabled)", ephemeral=True)
                 log_.info(f"System: Global logging enabled by {interaction.user.id}")
             elif action.lower() == 'off':
                 utils.set_config_value("LoggingActivated", False)
                 config = utils.load_config()
-                await interaction.response.send_message("✅ Global logging has been disabled.", ephemeral=True)
+                await interaction.response.send_message("✅ Global command logging has been disabled. (Operational logging like errors remains active)", ephemeral=True)
                 log_.info(f"System: Global logging disabled by {interaction.user.id}")
             else:
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`", ephemeral=True)
