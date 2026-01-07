@@ -117,6 +117,32 @@ def rotate_logs():
 rotate_logs()
 
 # ----------------------------------------------------------------
+# Helper: Blacklist Check for Slash Commands
+# ----------------------------------------------------------------
+
+# Check if user or server is blacklisted
+async def check_blacklist(interaction: discord.Interaction) -> bool:
+    # Check user blacklist
+    if utils.is_user_blacklisted(interaction.user.id):
+        await interaction.response.send_message(
+            "❌ You are blacklisted from using this bot.",
+            ephemeral=True
+        )
+        log_.warning(f"Blocked command from blacklisted user {interaction.user.id}")
+        return True
+    
+    # Check server blacklist
+    if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
+        await interaction.response.send_message(
+            "❌ This server is blacklisted.",
+            ephemeral=True
+        )
+        log_.warning(f"Blocked command in blacklisted server {interaction.guild.id}")
+        return True
+    
+    return False
+
+# ----------------------------------------------------------------
 # Main Command Handler for [System Commands]
 # ----------------------------------------------------------------
 
@@ -131,6 +157,11 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="shutdown", description="Shut down the bot")
     async def shutdown(interaction: discord.Interaction):
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
         if is_authorized_global(interaction.user):
             await interaction.response.send_message("Shutting down the bot...")
             log_.info(f"System: Shutdown command executed by: {interaction.user.id}")
@@ -161,7 +192,12 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="full_shutdown", description="Shut down the bot and the Raspberry Pi")
     async def full_shutdown(interaction: discord.Interaction):
-        # Authorization check first
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if not is_authorized_global(interaction.user):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -224,6 +260,11 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="restart", description="Restart the bot")
     async def restart(interaction: discord.Interaction):
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
         global last_restart_time
 
         if is_authorized_global(interaction.user):
@@ -268,6 +309,15 @@ def setup_system_commands(bot):
     async def log(interaction: discord.Interaction):
         # Ensure log_directory is a string
         directory = log_directory if isinstance(log_directory, str) else "logs"
+    
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
+            await interaction.response.send_message("❌ This server is blacklisted.", ephemeral=True)
+            log_.warning(f"Permission denied for log command in blacklisted server. Guild: {interaction.guild.id}")
+            return
     
         if is_authorized_global(interaction.user):
 
@@ -324,6 +374,12 @@ def setup_system_commands(bot):
     @bot.tree.command(name="debugmode", description="Enable or disable debug mode")
     async def debugmode(interaction: discord.Interaction, action: str):
         global config
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if is_authorized_global(interaction.user):
             if action.lower() == 'on':
                 utils.set_config_value("DebugModeActivated", True)
@@ -360,7 +416,12 @@ def setup_system_commands(bot):
     )
     async def status(interaction: discord.Interaction, status_type: str, text: str):
         global config
-        # Permission check
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if not is_authorized_global(interaction.user):
             embed = discord.Embed(
                 title="❌ Permission denied",
@@ -436,7 +497,12 @@ def setup_system_commands(bot):
         if interaction.guild is None:
             await interaction.response.send_message("❌ **This command can only be used in a server.**", ephemeral=True)
             return
-
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ **Permission denied.**", ephemeral=True)
             return
@@ -605,7 +671,12 @@ def setup_system_commands(bot):
         if interaction.guild is None:
             await interaction.response.send_message("❌ This command can only be used in a server.", ephemeral=True)
             return
-
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -676,7 +747,12 @@ def setup_system_commands(bot):
         if interaction.guild is None:
             await interaction.response.send_message("❌ This command can only be used in a server.", ephemeral=True)
             return
-
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -713,7 +789,12 @@ def setup_system_commands(bot):
         if interaction.guild is None:
             await interaction.response.send_message("❌ This command can only be used in a server.", ephemeral=True)
             return
-
+        
+        # Check blacklist first
+        if await check_blacklist(interaction):
+            return
+        
+        # Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -747,9 +828,14 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="logging", description="Enable or disable logging")
     async def logging(interaction: discord.Interaction, action: str):
+        # Check blacklist FIRST
+        if await check_blacklist(interaction):
+            return
+        
         global config
         # If used inside a guild, operate on server config
         if interaction.guild is not None:
+            # Authorization check
             if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
                 await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
                 return
@@ -793,6 +879,10 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="privacy", description="Privacy & data protection information (DSGVO/GDPR)")
     async def privacy(interaction: discord.Interaction):
+        # Check blacklist FIRST
+        if await check_blacklist(interaction):
+            return
+        
         embed = discord.Embed(
             title="🛡️ Privacy & Data Protection",
             description="This bot complies with DSGVO/GDPR and German data protection laws.",
@@ -870,6 +960,10 @@ def setup_system_commands(bot):
         target_id="User ID or Server ID (optional for list)"
     )
     async def blacklist(interaction: discord.Interaction, action: str, target_type: str, target_id: str = ""):
+        # Check blacklist FIRST
+        if await check_blacklist(interaction):
+            return
+        
         global config
     
         # Owner-only
