@@ -1,8 +1,8 @@
 # Privacy Policy - MCLP Discord Bot
 
-**Last Updated:** January 5, 2026  
+**Last Updated:** January 7, 2026  
 **Effective Date:** January 5, 2026  
-**Version:** 1.3 - Clarified mandatory logging and security summary
+**Version:** 1.4 - Added blacklist system documentation
 
 ## 1. Data Controller
 
@@ -99,9 +99,19 @@ The Bot stores local configuration files:
 - Debug Mode status
 - Bot status and activity
 - Global whitelist (User IDs)
+- Global blacklist (User IDs) - for enforcement purposes
+- Global server blacklist (Server IDs) - for enforcement purposes
 - Download folder paths
 - Log file location
 - Logging activation status
+
+**Blacklist Data Details:**
+- User blacklist: Discord User IDs (numeric identifiers)
+- Server blacklist: Discord Server IDs (numeric identifiers)
+- No personal information (usernames, emails, etc.) is stored in blacklists
+- Blacklist entries are stored purely for enforcement of Terms of Service
+- Management: Owner and Co-developer only
+- Purpose: Prevent abuse and enforce compliance with Terms of Service
 
 **Server-Specific Configuration (per_guild/{guild_id}.json):**
 - Server whitelist (User IDs)
@@ -117,7 +127,62 @@ The Bot stores local configuration files:
 
 **None of these files contain personal message content or usernames.**
 
-### 3.5 Music Feature Data
+---
+
+## 3.6 Blacklist Data Processing
+
+### 3.6.1 What Blacklist Data Is Collected
+
+The Bot stores User IDs and Server IDs in global blacklists for enforcement purposes:
+
+**User Blacklist:**
+- Discord User IDs (numeric identifiers only)
+- No username, email, or personal information
+
+**Server Blacklist:**
+- Discord Server IDs (numeric identifiers only)
+- No server name or other identifying information
+
+### 3.6.2 Why Blacklist Data Is Collected
+
+Blacklists are maintained to:
+- Enforce compliance with Terms of Service
+- Prevent abuse and protect service integrity
+- Block users/servers that violate Terms
+- Protect other users from harassment or threats
+- Prevent hacking attempts or unauthorized access
+
+### 3.6.3 Who Manages Blacklists
+
+- **Bot Owner:** Dennis Plischke
+- **Co-developer:** Robin Stiller
+
+Only these two individuals can add/remove IDs from blacklists.
+
+### 3.6.4 Blacklist Retention
+
+- Blacklist data is retained indefinitely until manually removed
+- Users and servers can appeal blacklist status
+- See Terms of Service Section 6.5.4 for appeal process
+- Upon successful appeal, ID is removed from blacklist
+
+### 3.6.5 Blacklist Legal Basis (DSGVO Article 6(1)(f))
+
+**Legitimate Interest:**
+The Bot operator has a legitimate interest in maintaining blacklists because:
+- Protects service integrity and availability
+- Prevents abuse, spam, and harassment
+- Protects other users from harm
+- Necessary for security and enforcement
+
+**No Override of User Rights:**
+- Blacklist data is minimal (IDs only)
+- No profiling or decision-making based on behavior (only enforcement)
+- Users can request erasure (right to be forgotten) - see Section 7, Article 17
+
+---
+
+## 3.7 Music Feature Data
 
 When using music commands (!play, !pause, etc.):
 
@@ -452,25 +517,28 @@ We review and update this policy:
 - **v1.1** → Added complete feature overview, Art. 6 DSGVO basis, contact procedures (January 4, 2026)
 - **v1.2** → Added more contact methods and corrected some information. Described security measures.
 - **v1.3** → Clarified mandatory operational logging and summarized security measures (January 5, 2026)
+- **v1.4** → Added blacklist system documentation and data processing details (January 7, 2026)
 
 ---
 
 ## Appendix A: Complete Data Categories
 
-| Data Type         | Collected | Command Logging | Operational Logging | Retention      | Purpose                   |
-|-------------------|-----------|-----------------|---------------------|----------------|---------------------------|
-| User ID           |    YES    |  YES (control)  | YES (always)        |    14 days     | Command tracking          |
-| Guild ID          |    YES    |  YES (control)  | YES (always)        |    14 days     | Server identification     |
-| Channel ID        |    YES    |  YES (control)  | Limited             |    14 days     | Context for logs          |
-| Command Name      |    YES    |  YES (control)  | NO                  |    14 days     | Usage tracking            |
-| Timestamps        |    YES    |  YES (control)  | YES (always)        |    14 days     | When events occurred      |
-| Error Messages    |    NO     |       NO        | YES (always)        |    14 days     | Bot stability             |
-| Warnings/Events   |    NO     |       NO        | YES (always)        |    14 days     | Security monitoring       |
-| Username          |    NO     | NO (debug: YES) | NO (debug: YES)     |    14 days     | Usage tracking / Security |
-| Command Args      |    NO     | NO (debug: YES) | NO (debug: YES)     |    14 days     | Usage tracking / Security |
-| Message Content   |    NO     | NO (debug: YES) | NO (debug: YES)     |    14 days     | Usage tracking / Security |
-| DM Content        |    NO     |       NO        | NO                  |      N/A       | Never logged              |
-| Config Data       |    YES    |       NO        | NO                  | Until deletion | Server/User settings      |
+| Data Type          | Collected | Command Logging | Operational Logging | Retention      | Purpose                   |
+|--------------------|-----------|-----------------|---------------------|----------------|---------------------------|
+| User ID            |    YES    |  YES (control)  |     YES (always)    |    14 days     | Command tracking          |
+| Guild ID           |    YES    |  YES (control)  |     YES (always)    |    14 days     | Server identification     |
+| Channel ID         |    YES    |  YES (control)  |     Limited         |    14 days     | Context for logs          |
+| Command Name       |    YES    |  YES (control)  |        NO           |    14 days     | Usage tracking            |
+| Timestamps         |    YES    |  YES (control)  |     YES (always)    |    14 days     | When events occurred      |
+| Error Messages     |    NO     |       NO        |     YES (always)    |    14 days     | Bot stability             |
+| Warnings/Events    |    NO     |       NO        |     YES (always)    |    14 days     | Security monitoring       |
+| Username           |    NO     | NO (debug: YES) |    NO (debug: YES)  |    14 days     | Usage tracking / Security |
+| Command Args       |    NO     | NO (debug: YES) |    NO (debug: YES)  |    14 days     | Usage tracking / Security |
+| Message Content    |    NO     | NO (debug: YES) |    NO (debug: YES)  |    14 days     | Usage tracking / Security |
+| DM Content         |    NO     |       NO        |        NO           |      N/A       | Never logged              |
+| Config Data        |    YES    |       NO        |        NO           | Until deletion | Server/User settings      |
+| Blacklist User ID  |    YES    |       NO        |        NO           |  Until appeal  | Enforcement of ToS        |
+| Blacklist Server ID|    YES    |       NO        |        NO           |  Until appeal  | Enforcement of ToS        |
 
 **Legend:**
 - **Command Logging (Control)**: Can be disabled with `/logging off` or `/logging_channel`
@@ -499,10 +567,19 @@ A: No. Music playback doesn't create command logs. Only operational logs (errors
 **Q: What if I disagree with this policy?**
 A: You can stop using the Bot anytime. Your data will be deleted after 14 days (automatically).
 
+**Q: Can I be blacklisted?**
+A: Yes, if you violate the Terms of Service. Blacklisting blocks you from all Bot features. You can appeal via email to dennisplischke755@gmail.com.
+
+**Q: What data is stored if I'm blacklisted?**
+A: Only your User ID (numeric identifier). No personal information like username or email is stored in the blacklist.
+
+**Q: Who manages the blacklist?**
+A: Only the bot owner (Dennis Plischke) and co-developer (Robin Stiller) can add/remove users or servers from blacklists.
+
 ---
 
-**Version:** 1.3
+**Version:** 1.4
 **Status:** Active  
 **Language:** English (German equivalent available upon request)  
-**Last Updated:** January 5, 2026  
+**Last Updated:** January 7, 2026  
 **Compliance:** DSGVO/GDPR Article 13 & 14

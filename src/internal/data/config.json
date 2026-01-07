@@ -3,10 +3,11 @@
     "761212453727895564",
     "831902298938015745"
   ],
+  "server-blacklist": [],
+  "user-blacklist": [],
   "log_file_location": "/home/dennis/Desktop/Storage/Logs",
   "download_folders": {
-    "documents": "/home/dennis/Desktop/Storage/Documents",
-    "logs": "/home/dennis/Desktop/Storage/Logs"
+    "documents": "/home/dennis/Desktop/Storage/Documents"
   },
   "LoggingActivated": true,
   "DebugModeActivated": false,

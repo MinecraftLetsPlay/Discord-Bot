@@ -176,7 +176,8 @@ def setup_system_commands(bot):
 
         try:
             # Send confirmation as normal message so we get a Message object
-            confirm_msg = await interaction.channel.send(
+            channel = interaction.channel
+            confirm_msg = await channel.send(
                 f"{interaction.user.mention}, react with ✅ to confirm shutdown (30s)."
             )
             
@@ -784,81 +785,193 @@ def setup_system_commands(bot):
                 await interaction.response.send_message("ℹ️ Usage: `/logging on` or `/logging off`", ephemeral=True)
 
     # -----------------------------------------------------------------
-    # Command: /dsgvo
+    # Command: /privacy
     # Category: System Commands
     # Type: Full Command
-    # Description: Display DSGVO (GDPR) privacy information
+    # Description: Display privacy and data protection information
     # -----------------------------------------------------------------
     
-    @bot.tree.command(name="dsgvo", description="Display DSGVO/GDPR privacy information about this bot")
-    async def dsgvo(interaction: discord.Interaction):
+    @bot.tree.command(name="privacy", description="Privacy & data protection information (DSGVO/GDPR)")
+    async def privacy(interaction: discord.Interaction):
         embed = discord.Embed(
-            title="🛡️ DSGVO / GDPR Privacy Information",
-            description="This bot operates under strict German and EU data protection laws.",
+            title="🛡️ Privacy & Data Protection",
+            description="This bot complies with DSGVO/GDPR and German data protection laws.",
             color=0x0099ff
         )
         
         embed.add_field(
-            name="📍 Server Location",
-            value="Germany 🇩🇪\nAll data is processed and stored in Germany, subject to German data protection laws.",
+            name="📊 What We Log",
+            value="**Controllable Command Logging:**\n"
+                  "• User ID, Guild ID, Channel ID\n"
+                  "• Command names (not parameters)\n"
+                  "→ Can be disabled with `/logging off`\n\n"
+                  "**Mandatory Operational Logging:**\n"
+                  "• Errors, warnings, system events\n"
+                  "→ Cannot be disabled (required for security)",
             inline=False
         )
         
         embed.add_field(
-            name="📊 Data Collection",
-            value="**What we log:**\n"
-                  "• User IDs (not usernames)\n"
-                  "• Command names (not content)\n"
-                  "• Channel IDs\n"
-                  "• Guild IDs\n\n"
-                  "**What we DON'T log:**\n"
-                  "• Direct Messages (DMs)\n"
+            name="❌ What We DON'T Log",
+            value="• Direct Messages (DMs)\n"
                   "• Message content\n"
-                  "• Personal usernames",
+                  "• Usernames\n"
+                  "• Personal information",
             inline=False
         )
         
         embed.add_field(
             name="⏰ Data Retention",
-            value="Logs are automatically deleted after **14 days**.\n"
-                  "No long-term data storage.",
+            value="Logs automatically deleted after **14 days**",
             inline=False
         )
         
         embed.add_field(
-            name="🔐 Your Rights (DSGVO Art. 15-22)",
-            value="You have the right to:\n"
-                  "• **Access** your data\n"
-                  "• **Correct** your data\n"
-                  "• **Delete** your data\n"
-                  "• **Restrict** processing\n"
-                  "• **Object** to processing\n\n"
-                  "Contact the bot owner for requests.",
+            name="🔐 Your Rights",
+            value="• Access your data (Art. 15)\n"
+                  "• Correct your data (Art. 16)\n"
+                  "• Delete your data (Art. 17)\n"
+                  "• Object to processing (Art. 21)\n\nContact: `dennisplischke755@gmail.com`",
             inline=False
         )
         
         embed.add_field(
-            name="🔍 Debug Mode",
-            value="In debug mode, message content is temporarily logged for debugging purposes only.\n"
-                  "This requires elevated permissions.",
+            name="📚 More Information",
+            value="[Privacy Policy](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/PRIVACY_POLICY.md) | "
+                  "[Terms of Service](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/TERMS_OF_SERVICE.md) |\n "
+                  "[Dsgvo](https://dsgvo-gesetz.de/) | "
+                  "[Gdpr](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng)",
             inline=False
         )
         
-        embed.add_field(
-            name="📋 More Information",
-            value="For more details see: [Privacy Policy](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/PRIVACY_POLICY.md), [Terms of Service](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/TERMS_OF_SERVICE.md)\n"
-                  "Or contact the bot owner directly.",
-            inline=False
-        )
-        
-        embed.set_footer(text="DSGVO = German Data Protection Act | Last updated: 2026-01-04")
+        embed.set_footer(text="Location: Germany 🇩🇪 | Updated: 2026-01-07")
         
         try:
             await interaction.response.send_message(embed=embed, ephemeral=False)
-            log_.debug(f"DSGVO information displayed to user {interaction.user.id} in guild {interaction.guild.id if interaction.guild else 'DM'}")
+            log_.debug(f"Privacy information displayed to user {interaction.user.id} in guild {interaction.guild.id if interaction.guild else 'DM'}")
         except discord.Forbidden:
-            await interaction.response.send_message("❌ Missing permission to send DSGVO information.", ephemeral=True)
-            log_.error("Missing permission to send DSGVO embed.")
+            await interaction.response.send_message("❌ Missing permission to send privacy information.", ephemeral=True)
+            log_.error("Missing permission to send privacy embed.")
         except discord.HTTPException as e:
-            await interaction.response.send_message("⚠️ Failed to send DSGVO information.", ephemeral=True)
-            log_.error(f"Failed to send DSGVO embed: {e}")
+            await interaction.response.send_message("⚠️ Failed to send privacy information.", ephemeral=True)
+            log_.error(f"Failed to send privacy embed: {e}")
+
+    # -----------------------------------------------------------------
+    # Command: /blacklist
+    # Category: System Commands
+    # Type: Full Command
+    # Description: Manage global blacklists (Owner only)
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="blacklist", description="Manage global blacklists - users & servers (Owner only)")
+    @app_commands.describe(
+        action="add, remove, or list",
+        target_type="user or server",
+        target_id="User ID or Server ID (optional for list)"
+    )
+    async def blacklist(interaction: discord.Interaction, action: str, target_type: str, target_id: str = ""):
+        global config
+    
+        # Owner-only
+        if not is_authorized_global(interaction.user):
+            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            return
+    
+        action = action.lower()
+        target_type = target_type.lower()
+    
+        if target_type not in ["user", "server"]:
+            await interaction.response.send_message("❌ Type must be 'user' or 'server'", ephemeral=True)
+            return
+    
+        # Handle different actions
+        if action == "add":
+            if not target_id:
+                await interaction.response.send_message("❌ You must provide a target ID to add.", ephemeral=True)
+                return
+            
+            if target_type == "user":
+                success = utils.add_user_to_blacklist(int(target_id))
+                if success:
+                    await interaction.response.send_message(f"✅ User `{target_id}` added to blacklist.", ephemeral=True)
+                    log_.warning(f"System: User {target_id} blacklisted by {interaction.user.id}")
+                else:
+                    await interaction.response.send_message(f"ℹ️ User `{target_id}` is already blacklisted.", ephemeral=True)
+            
+            else:  # server
+                success = utils.add_server_to_blacklist(int(target_id))
+                if success:
+                    await interaction.response.send_message(f"✅ Server `{target_id}` added to blacklist.", ephemeral=True)
+                    log_.warning(f"System: Server {target_id} blacklisted by {interaction.user.id}")
+                else:
+                    await interaction.response.send_message(f"ℹ️ Server `{target_id}` is already blacklisted.", ephemeral=True)
+    
+        elif action == "remove":
+            if not target_id:
+                await interaction.response.send_message("❌ You must provide a target ID to remove.", ephemeral=True)
+                return
+            
+            if target_type == "user":
+                success = utils.remove_user_from_blacklist(int(target_id))
+                if success:
+                    await interaction.response.send_message(f"✅ User `{target_id}` removed from blacklist.", ephemeral=True)
+                    log_.warning(f"System: User {target_id} un-blacklisted by {interaction.user.id}")
+                else:
+                    await interaction.response.send_message(f"ℹ️ User `{target_id}` is not in blacklist.", ephemeral=True)
+            
+            else:  # server
+                success = utils.remove_server_from_blacklist(int(target_id))
+                if success:
+                    await interaction.response.send_message(f"✅ Server `{target_id}` removed from blacklist.", ephemeral=True)
+                    log_.warning(f"System: Server {target_id} un-blacklisted by {interaction.user.id}")
+                else:
+                    await interaction.response.send_message(f"ℹ️ Server `{target_id}` is not in blacklist.", ephemeral=True)
+    
+        elif action == "list":
+            if target_type == "user":
+                user_blacklist = utils.get_user_blacklist()
+                embed = discord.Embed(title="🚫 Blacklisted Users", color=discord.Color.red())
+                
+                if user_blacklist:
+                    # Split into chunks of 50 for embed field limits
+                    blacklist_text = "\n".join([f"`{uid}`" for uid in user_blacklist])
+                    if len(blacklist_text) > 1024:
+                        # If too long, just show count
+                        embed.add_field(name=f"Total Blacklisted Users ({len(user_blacklist)})", 
+                                      value="Too many to display. Use database tools for full list.", 
+                                      inline=False)
+                    else:
+                        embed.add_field(name=f"Total Blacklisted Users ({len(user_blacklist)})", 
+                                      value=blacklist_text, 
+                                      inline=False)
+                else:
+                    embed.add_field(name="Blacklisted Users", value="None", inline=False)
+            
+            else:  # server
+                server_blacklist = utils.get_server_blacklist()
+                embed = discord.Embed(title="🚫 Blacklisted Servers", color=discord.Color.red())
+                
+                if server_blacklist:
+                    blacklist_text = "\n".join([f"`{sid}`" for sid in server_blacklist])
+                    if len(blacklist_text) > 1024:
+                        embed.add_field(name=f"Total Blacklisted Servers ({len(server_blacklist)})", 
+                                      value="Too many to display. Use database tools for full list.", 
+                                      inline=False)
+                    else:
+                        embed.add_field(name=f"Total Blacklisted Servers ({len(server_blacklist)})", 
+                                      value=blacklist_text, 
+                                      inline=False)
+                else:
+                    embed.add_field(name="Blacklisted Servers", value="None", inline=False)
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+        else:
+            await interaction.response.send_message(
+                "ℹ️ Usage: `/blacklist add|remove|list user|server [id]`\n"
+                "Examples:\n"
+                "• `/blacklist add user 12345`\n"
+                "• `/blacklist remove server 67890`\n"
+                "• `/blacklist list user`",
+                ephemeral=True
+            )

@@ -124,6 +124,14 @@ def run_discord_bot():
             logging.info(f"Debug mode activated: {DebugModeActivated}")
             logging.info("-" * 26)
             print()
+            
+            # Load and display blacklist status
+            user_blacklist = utils.get_user_blacklist()
+            server_blacklist = utils.get_server_blacklist()
+            logging.info(f"Global blacklists loaded and enforced:")
+            logging.info(f"   • Blacklisted users: {len(user_blacklist)}")
+            logging.info(f"   • Blacklisted servers: {len(server_blacklist)}")
+            print()
         except Exception as e:
             logging.error(f"Error logging startup info: {e}")
 
@@ -179,10 +187,49 @@ def run_discord_bot():
         except Exception as e:
             logging.error(f"Error loading bot status: {e}")
 
+    # Slash Command Error Handler (Blacklist Check)
+    @bot.tree.error
+    async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
+        
+        # Check user blacklist
+        if utils.is_user_blacklisted(interaction.user.id):
+            logging.warning(f"Blocked slash command from blacklisted user {interaction.user.id}")
+            try:
+                await interaction.response.send_message(
+                    "❌ You are blacklisted from using this bot.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass  # Already responded
+            return
+        
+        # Check server blacklist
+        if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
+            logging.warning(f"Blocked slash command in blacklisted server {interaction.guild.id}")
+            try:
+                await interaction.response.send_message(
+                    "❌ This server is blacklisted.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass  # Already responded
+            return
+        
+        # Handle other errors (re-raise if not blacklist)
+        raise error
+
     @bot.event
     async def on_message(message):
         # Check to prevent bot responding to itself
         if message.author == bot.user:
+            return
+        
+        if utils.is_user_blacklisted(message.author.id):
+            logging.warning(f"Blocked message from blacklisted user {message.author.id}")
+            return
+        
+        if message.guild and utils.is_server_blacklisted(message.guild.id):
+            logging.warning(f"Blocked message in blacklisted server {message.guild.id}")
             return
         
         # Config loading

@@ -114,6 +114,11 @@ def load_json_file(rel_path: str) -> dict:
 # Global authorization uses global config
 def is_authorized_global(user):
     try:
+        # FIRST: Check blacklist (overrides whitelist)
+        if is_user_blacklisted(user.id):
+            logging.debug(f"User {user.id} is blacklisted - authorization denied")
+            return False
+        
         cfg = load_config()
         whitelist = cfg.get("whitelist", []) or []
         user_id = str(user.id)
@@ -134,6 +139,16 @@ def is_authorized_global(user):
 def is_authorized_server(user, guild_id: int):
     try:
         _validate_guild_id(guild_id)
+        
+        # FIRST: Check blacklist (overrides whitelist)
+        if is_user_blacklisted(user.id):
+            logging.debug(f"User {user.id} is blacklisted - server authorization denied")
+            return False
+        
+        # SECOND: Check server blacklist
+        if is_server_blacklisted(guild_id):
+            logging.debug(f"Server {guild_id} is blacklisted - authorization denied")
+            return False
         
         import discord
         
@@ -175,6 +190,113 @@ def is_authorized_server(user, guild_id: int):
     except Exception as e:
         logging.error(f"Error checking server authorization for guild {guild_id}: {e}")
         return False
+    
+# Loads global blacklist and checks user
+def is_user_blacklisted(user_id: int) -> bool:
+    try:
+        cfg = load_config()
+        user_blacklist = cfg.get("user-blacklist", []) or []
+        user_id_str = str(user_id)
+        return user_id_str in user_blacklist
+    except Exception as e:
+        logging.error(f"Error checking user blacklist: {e}")
+        return False
+
+# Loads global blacklist and checks server
+def is_server_blacklisted(guild_id: int) -> bool:
+    try:
+        _validate_guild_id(guild_id)
+        cfg = load_config()
+        server_blacklist = cfg.get("server-blacklist", []) or []
+        guild_id_str = str(guild_id)
+        return guild_id_str in server_blacklist
+    except Exception as e:
+        logging.error(f"Error checking server blacklist: {e}")
+        return False
+
+# To add a user to the global blacklist
+def add_user_to_blacklist(user_id: int) -> bool:
+    try:
+        cfg = load_config()
+        user_blacklist = cfg.get("user-blacklist", []) or []
+        user_id_str = str(user_id)
+        
+        if user_id_str not in user_blacklist:
+            user_blacklist.append(user_id_str)
+            set_config_value("user-blacklist", user_blacklist)
+            return True
+        return False
+    except Exception as e:
+        logging.error(f"Error adding user to blacklist: {e}")
+        return False
+
+# To remove a user from the global blacklist
+def remove_user_from_blacklist(user_id: int) -> bool:
+    try:
+        cfg = load_config()
+        user_blacklist = cfg.get("user-blacklist", []) or []
+        user_id_str = str(user_id)
+        
+        if user_id_str in user_blacklist:
+            user_blacklist.remove(user_id_str)
+            set_config_value("user-blacklist", user_blacklist)
+            return True
+        return False
+    except Exception as e:
+        logging.error(f"Error removing user from blacklist: {e}")
+        return False
+
+# To add a server to the global blacklist
+def add_server_to_blacklist(guild_id: int) -> bool:
+    try:
+        _validate_guild_id(guild_id)
+        cfg = load_config()
+        server_blacklist = cfg.get("server-blacklist", []) or []
+        guild_id_str = str(guild_id)
+        
+        if guild_id_str not in server_blacklist:
+            server_blacklist.append(guild_id_str)
+            set_config_value("server-blacklist", server_blacklist)
+            return True
+        return False
+    except Exception as e:
+        logging.error(f"Error adding server to blacklist: {e}")
+        return False
+
+# To remove a server from the global blacklist
+def remove_server_from_blacklist(guild_id: int) -> bool:
+    try:
+        _validate_guild_id(guild_id)
+        cfg = load_config()
+        server_blacklist = cfg.get("server-blacklist", []) or []
+        guild_id_str = str(guild_id)
+        
+        if guild_id_str in server_blacklist:
+            server_blacklist.remove(guild_id_str)
+            set_config_value("server-blacklist", server_blacklist)
+            return True
+        return False
+    except Exception as e:
+        logging.error(f"Error removing server from blacklist: {e}")
+        return False
+
+# Read entire blacklists
+def get_user_blacklist() -> list:
+    try:
+        cfg = load_config()
+        return cfg.get("user-blacklist", []) or []
+    except Exception as e:
+        logging.error(f"Error getting user blacklist: {e}")
+        return []
+
+def get_server_blacklist() -> list:
+    try:
+        cfg = load_config()
+        return cfg.get("server-blacklist", []) or []
+    except Exception as e:
+        logging.error(f"Error getting server blacklist: {e}")
+        return []
+    
 
 # --------------------------
 # Global config
@@ -234,6 +356,7 @@ def get_config_value(key: str, guild_id: Optional[int] = None, default=None):
 def _default_server_config() -> dict:
     return {
         "whitelist": [],
+        "blacklist": [],
         "LoggingActivated": True,
         "logging_config": {
             "log_all_by_default": True,

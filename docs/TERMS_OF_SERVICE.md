@@ -1,8 +1,8 @@
 # Terms of Service - MCLP Discord Bot
 
-**Last Updated:** January 5, 2026  
+**Last Updated:** January 7, 2026  
 **Effective Date:** January 5, 2026  
-**Version:** 1.3 - Clarified logging and enforcement details
+**Version:** 1.4 - Added blacklist system documentation
 
 ---
 
@@ -117,8 +117,9 @@ The following commands are restricted to the bot owner (Dennis Plischke) and co-
 - `/debugmode` - Activate debug logging mode
 - `/log` - Access system logs
 - `/logging` - Global logging configuration
+- `/blacklist` - Manage global blacklists (users and servers)
 
-These commands require server-level access and are used only for maintenance and debugging.
+These commands require server-level access and are used only for maintenance, debugging, and enforcement of these Terms.
 
 ### 4.2 All Users
 
@@ -227,7 +228,64 @@ Debug Mode (Global Whitelist Only):
 - Logs still deleted after 14 days
 - Requires server-level access to activate
 
-### 6.4 Rate Limiting & Cooldowns
+---
+
+## 6.5 Blacklist System
+
+### 6.5.1 Purpose
+
+The Bot maintains global blacklists to enforce compliance with these Terms and protect service integrity:
+
+- **User Blacklist:** Globally blocks specific user IDs from using any Bot features
+- **Server Blacklist:** Globally blocks specific server IDs from using any Bot features
+
+### 6.5.2 Blacklist Enforcement
+
+**How Blacklists Work:**
+- Blacklisted users cannot execute any Bot commands (prefix or slash)
+- Blacklisted servers cannot use the Bot in any way
+- Blacklist checks happen before command execution
+- No commands are processed for blacklisted users/servers
+
+**Data Storage:**
+- User IDs and Server IDs in blacklists are stored in global configuration
+- Stored as plaintext IDs (not usernames or server names)
+- DSGVO-compliant storage (IDs only, no personal data)
+
+### 6.5.3 Blacklist Management
+
+**Who Can Manage Blacklists:**
+- Bot owner (Dennis Plischke)
+- Co-developer (Robin Stiller)
+
+**Management Commands:**
+- `/blacklist add user|server <id>` - Add to blacklist
+- `/blacklist remove user|server <id>` - Remove from blacklist
+- `/blacklist list user|server` - View blacklist
+
+**Reasons for Blacklisting:**
+- Violation of these Terms of Service
+- Harassment or threats via Bot
+- Illegal activity
+- Unauthorized access attempts or hacking
+- Abuse of Bot features or rate limit evasion
+- Spam or DDoS attacks
+- Hosting illegal content
+- Other severe violations
+
+### 6.5.4 Blacklist Appeals
+
+Users or server administrators who believe they have been blacklisted incorrectly may appeal:
+
+1. **Contact:** Email dennisplischke755@gmail.com with subject "Blacklist Appeal"
+2. **Information:** Include User ID or Server ID, and reason for appeal
+3. **Review:** Owner will review within 14 days
+4. **Decision:** Appeal will be accepted or denied with explanation
+5. **Removal:** If appeal approved, ID will be removed from blacklist
+
+---
+
+## 6.6 Rate Limiting & Cooldowns
 
 The Bot enforces rate limits to ensure fair service:
 
@@ -392,7 +450,8 @@ We reserve the right to ask you to remove the Bot or to manually block further u
 - Users violate Discord ToS
 - Servers attempt unauthorized access
 
-Automated bans or blacklists are not implemented at this time; enforcement is manual.
+**Enforcement Mechanism:**
+Automated blacklisting system is now implemented. Users and servers in violation may be added to global blacklists, resulting in immediate and complete blocking from all Bot features.
 
 ### 12.2 Immediate Termination
 
@@ -565,8 +624,8 @@ GitHub Issues (if public repository available)
 
 ---
 
-**Version:** 1.3
+**Version:** 1.4
 **Status:** Active  
 **Language:** English (German translation available upon request)  
-**Last Updated:** January 5, 2026  
+**Last Updated:** January 7, 2026  
 **Compliance:** German Law, DSGVO, Discord ToS
