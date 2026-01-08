@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 import zoneinfo
-from datetime import datetime
+from datetime import datetime, timezone
 from logging.handlers import TimedRotatingFileHandler
 from internal import utils
 
@@ -28,10 +28,10 @@ def now_local():
         if LOCAL_TZ:
             return datetime.now(LOCAL_TZ)
         else:
-            return datetime.utcnow()
+            return datetime.now(timezone.utc)
     except Exception as e:
         print(f"⚠️ Error getting local time: {e}")
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
 
 # Custom Timed Rotating File Handler with error handling
 class CustomTimedRotatingFileHandler(logging.FileHandler):

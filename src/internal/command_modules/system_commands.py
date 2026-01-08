@@ -79,7 +79,7 @@ handler = CustomTimedRotatingFileHandler(
     log_file,
     when="midnight",
     interval=1,
-    backupCount=10,
+    backupCount=14,
     encoding="utf-8"
 )
 
