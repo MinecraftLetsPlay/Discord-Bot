@@ -927,8 +927,8 @@ def setup_system_commands(bot):
         
         embed.add_field(
             name="📚 More Information",
-            value="[Privacy Policy](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/PRIVACY_POLICY.md) | "
-                  "[Terms of Service](https://github.com/MinecraftLetsPlay/Discord-Bot/blob/main/docs/TERMS_OF_SERVICE.md) |\n "
+            value="[Privacy Policy](https://rd-code-forge.net/mclp/privacy.html) | "
+                  "[Terms of Service](https://rd-code-forge.net/mclp/tos.html) |\n "
                   "[Dsgvo](https://dsgvo-gesetz.de/) | "
                   "[Gdpr](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng)",
             inline=False

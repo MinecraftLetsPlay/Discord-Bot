@@ -473,7 +473,8 @@ You can reach out for:
 
 **Alternative Contacts:**
 - E-Mail: dennisplischke755@gmail.com
-- GitHub Issues: https://github.com/MinecraftLetsPlay/Discord-Bot/issues (if repository is public)
+- GitHub Issues: https://github.com/MinecraftLetsPlay/Discord-Bot/issues
+- GitHub Discussion: https://github.com/MinecraftLetsPlay/Discord-Bot/discussions
 - Response time: Within 30 days (DSGVO legal requirement)
 
 **Data Subject Access:**
