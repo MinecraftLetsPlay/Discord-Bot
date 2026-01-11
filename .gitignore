@@ -3,13 +3,13 @@
 __pycache__/
 .venv/
 /src/internal/data/servers/
-console_to_discord.py
 
 # Miscellaneous
 .DS_Store 
 Lavalink/
 ideas.txt
 logs/
+tools/
 
 # IDE Folders
 .idea/
