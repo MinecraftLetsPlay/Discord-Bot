@@ -92,30 +92,6 @@ log_.basicConfig(
     ]
 )
 
-# Function to handle deletion of old files
-def rotate_logs():
-    directory = log_directory if isinstance(log_directory, str) else "logs"
-
-    # Get all new-style logfiles (bot.log-TIMESTAMP.txt)
-    log_files = sorted(
-        [f for f in os.listdir(directory)
-        if f.startswith('bot.log-') and f.endswith('.txt')],
-        key=lambda x: os.path.getmtime(os.path.join(directory, x))
-    )
-
-    # Delete old files if more than 10
-    if len(log_files) > 10:
-        files_to_delete = log_files[:len(log_files) - 10]
-        for file in files_to_delete:
-            file_path = os.path.join(directory, file)
-            try:
-                os.remove(file_path)
-                log_.info(f"Deleted old log file: {file_path}")
-            except Exception as e:
-                log_.error(f"Failed to delete log file {file_path}: {e}")
-
-rotate_logs()
-
 # ----------------------------------------------------------------
 # Helper: Blacklist Check for Slash Commands
 # ----------------------------------------------------------------
