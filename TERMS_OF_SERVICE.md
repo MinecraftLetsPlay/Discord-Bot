@@ -1,8 +1,8 @@
 # Terms of Service - MCLP Discord Bot
 
-**Last Updated:** January 7, 2026  
+**Last Updated:** January 13, 2026  
 **Effective Date:** January 5, 2026  
-**Version:** 1.4 - Added blacklist system documentation
+**Version:** 1.5 - Added broadcast-system documentation
 
 ---
 
@@ -87,7 +87,7 @@ The Bot includes an **optional Broadcast System** for announcing updates and cha
 **Important Notes:**
 - Broadcast system is completely optional and voluntary
 - Servers must explicitly enable announcements to receive broadcasts
-- Admin must actively run the broadcast tool (not automatic)
+- Bot-Owner must actively run the broadcast tool (not automatic)
 - Only reaches servers that have announcements enabled
 - Respects server configurations and authorization settings
 
@@ -662,8 +662,8 @@ GitHub Issues (if public repository available)
 
 ---
 
-**Version:** 1.4
+**Version:** 1.5
 **Status:** Active  
 **Language:** English (German translation available upon request)  
-**Last Updated:** January 7, 2026  
+**Last Updated:** January 18, 2026  
 **Compliance:** German Law, DSGVO, Discord ToS
