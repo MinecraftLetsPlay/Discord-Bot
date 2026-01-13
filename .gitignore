@@ -3,14 +3,16 @@
 __pycache__/
 .venv/
 /src/internal/data/servers/
+*.pyc
 
 # Miscellaneous
-.DS_Store 
-Lavalink/
 ideas.txt
+broadcast.log
+tools/broadcast-system/announcements/
 logs/
-tools/
+*.log
 
 # IDE Folders
 .idea/
 .vscode/
+.DS_Store

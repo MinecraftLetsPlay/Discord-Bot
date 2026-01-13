@@ -44,7 +44,8 @@ See [Privacy Policy](./docs/PRIVACY_POLICY.md) and [Terms of Service](./docs/TER
 
 | Version | Status  | Support                    |
 |---------|---------|----------------------------|
-| 1.4.x   | Current | Receiving security updates |
+| 1.5.x   | Current | Receiving security updates |
+| 1.4.x   | EOL     | No longer supported        |
 | 1.3.x   | EOL     | No longer supported        |
 | < 1.3   | EOL     | No longer supported        |
 

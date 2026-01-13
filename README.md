@@ -46,6 +46,7 @@ Designed for **private server use** with sophisticated permission handling and l
 - Comprehensive logging system with rotation
 - DSGVO/GDPR compliant data handling
 - Rate limiting and cooldowns  
+- **Optional Broadcast System** for announcements and updates
 
 ---
 
@@ -87,27 +88,26 @@ Designed for **private server use** with sophisticated permission handling and l
 
 ## Legal & Compliance
 
-### Terms of Service
-
-The bot operates under strict [Terms of Service](./docs/TERMS_OF_SERVICE.md) that cover:
+The bot operates under strict [Terms of Service](./TERMS_OF_SERVICE.md) that cover:
 - Usage rights and limitations
 - Acceptable use policies
 - Logging and monitoring practices
 - Blacklist system and enforcement
+- **Broadcast System (optional announcements)**
 - Data retention and deletion rights
 
-**Current Version:** 1.4 (Last Updated: January 7, 2026)
+**Current Version:** 1.5 (Last Updated: January 13, 2026)
 
 ### Privacy Policy
 
-Your data is protected under our [Privacy Policy](./docs/PRIVACY_POLICY.md) compliant with **DSGVO/GDPR**:
+Your data is protected under our [Privacy Policy](./PRIVACY_POLICY.md) compliant with **DSGVO/GDPR**:
 - What data is collected and why
 - How data is stored and protected
 - Your rights regarding your data
 - Blacklist data handling
 - Complete data categories with retention periods
 
-**Current Version:** 1.4 (Last Updated: January 7, 2026)
+**Current Version:** 1.5 (Last Updated: January 13, 2026)
 
 ### Data Protection
 
@@ -137,6 +137,25 @@ See [`license.txt`](./license.txt)
 ---
 
 ## Changelog
+
+### Version 1.5 - Broadcast System Release
+
+- Added optional Broadcast System for announcements and updates
+- New command `!update-channel` to enable announcements in a channel
+- Broadcast tool (`tools/broadcast-system/`) with message loading and delivery
+- Configuration stored in server configs (`announcements` setting)
+- Detailed error messages for missing announcement files
+- Updated Terms of Service to document Broadcast System
+- Updated documentation regarding notification methods
+
+### Version 1.4 - Blacklist System & Logging Refinement
+
+- Global user and server blacklist system
+- Blacklist enforced on all command types (prefix and slash)
+- Blacklist hierarchy: Blacklist > Whitelist (blacklist is absolute)
+- Automatic blacklist status display on bot startup
+- Comprehensive blacklist documentation in TOS & Privacy Policy
+- Appeal process for incorrectly blacklisted users/servers
 
 ### Version 1.3 - Logging & Documentation Update
 
@@ -179,7 +198,15 @@ See [`license.txt`](./license.txt)
 
 ---
 
-## Recent Features (v1.4+)
+## Recent Features (v1.5+)
+
+- Optional Broadcast System for announcements and updates
+- Server admins can enable announcements via `!update-channel`
+- External broadcast tool with file loading and multi-channel delivery
+- Detailed error reporting for missing announcement files
+- Full documentation in Terms of Service
+
+## Previous Features (v1.4)
 
 - Global user and server blacklist system
 - Blacklist enforced on all command types (prefix and slash)

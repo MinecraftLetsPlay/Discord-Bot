@@ -8,13 +8,21 @@
 # make sure you have a compatible version installed.
 ###################################################
 
-
-#Versions 
-
+# Core Bot & API
 discord.py==2.6.4
-python-dotenv==1.2.1
-yt-dlp==2025.12.8
 PyNaCl==1.6.2
-redis==7.1.0
-spotipy==2.25.2
-requests==2.32.5
+
+# Environment & Configuration
+python-dotenv==1.2.1
+
+# HTTP & Async
+aiohttp==3.13.2
+
+# Music & Streaming
+yt-dlp==2025.12.8
+
+# Advanced Math & Calculator
+sympy==1.14.0
+
+# Timezone Handling
+pytz==2025.2

@@ -67,7 +67,37 @@ The Bot provides the following comprehensive features:
 - **Rate Limiting:** Protection against abuse
 - **Error Handling:** Graceful error recovery
 
-### 2.8 Feature Availability Disclaimer
+### 2.8 Broadcast System (Optional)
+
+The Bot includes an **optional Broadcast System** for announcing updates and changes:
+
+**How It Works:**
+- Server administrators can enable announcements via `!update-channel` command
+- Stores announcement channel in server configuration (`announcements` data)
+- Runs as an external tool (`tools/broadcast-system/broadcast.py`)
+- Requires the bot token to operate (outside of Discord Bot)
+- Sends messages to all configured announcement channels
+
+**Configuration:**
+- **Enabling:** Server admin uses `!update-channel` in desired channel
+- **Storage:** Announcement channel ID stored in server config
+- **Optional:** Servers can disable by not running the `!update-channel` command.
+- **Data:** Uses existing server configuration architecture
+
+**Important Notes:**
+- Broadcast system is completely optional and voluntary
+- Servers must explicitly enable announcements to receive broadcasts
+- Admin must actively run the broadcast tool (not automatic)
+- Only reaches servers that have announcements enabled
+- Respects server configurations and authorization settings
+
+**Use Cases:**
+- Announcing bot updates and new features
+- Communicating breaking changes or deprecations
+- Notifying about scheduled maintenance
+- Sharing important information with multiple servers
+
+### 2.9 Feature Availability Disclaimer
 
 The features listed above are provided as currently available. **Features may be added, modified, removed, or suspended at any time** without prior notice.
 While we strive to maintain stability, no feature is guaranteed to remain available indefinitely. Changes may occur due to:
@@ -487,10 +517,18 @@ We may modify these Terms at any time. Changes become effective upon posting.
 - Right to stop using the Bot
 - Right to request account deletion before changes apply
 
-**Notification:**
-- Significant changes will be announced in Discord
-- Check back regularly for updates
-- Minor clarifications may be made without notice
+**Notification Methods (in order of preference):**
+1. **Broadcast System:** Significant changes announced via Bot's optional Broadcast System to servers that have enabled announcements
+2. **Discord:** Announcements in official MCLP Discord server
+3. **GitHub:** Updates may be posted in the repository
+4. **Documentation:** Check back regularly for updates in Terms/Privacy Policy
+
+**Important Notes:**
+- Significant changes will be announced using **at least one method above**
+- If you have enabled announcements (`!update-channel`), you'll receive broadcasts directly
+- If you haven't enabled announcements, check Discord or GitHub regularly
+- Minor clarifications may be made without formal notice
+- Servers without announcements enabled may not receive notifications—opt-in via `!update-channel` to stay informed
 
 ---
 
