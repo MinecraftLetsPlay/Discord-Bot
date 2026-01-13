@@ -6,10 +6,11 @@ import os
 import logging
 from discord import app_commands
 from datetime import datetime, timezone, timedelta
-from internal import utils
-from internal import rate_limiter
 from dotenv import load_dotenv
 from discord.ui import Button, View
+from internal import rate_limiter
+from internal import utils
+from internal.utils import is_authorized_global, is_authorized_server
 
 # Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
@@ -583,6 +584,31 @@ async def handle_utility_commands(client, message, user_message):
         except Exception as e:
             await safe_send(message, content="❌ An error occurred while creating the reminder.")
             logging.error(f"Error creating reminder from user {message.author.id}: {e}")
+            
+    # -----------------------------------------------------------
+    # Command: !update-channel
+    # Category: Utility Commands
+    # Type: Full Command
+    # Description: Set update channel to recieve bot updates
+    # -----------------------------------------------------------
+    
+    if user_message.startswith("!update-channel"):
+        if not message.guild:
+            return
+        
+        # Check if user has admin permissions
+        if not message.author.guild_permissions.administrator:
+            await message.channel.send("❌ You need administrator permissions to set the music channel.")
+            return
+    
+        guild_id = message.guild.id
+        cfg = utils.load_server_config(guild_id)
+    
+        cfg["music_channel_id"] = message.channel.id
+        utils.save_server_config(guild_id, cfg)
+    
+        await message.channel.send(f"Music channel has been set to <#{message.channel.id}>.")
+        logging.debug(f"Music channel set to {message.channel.id} for guild {guild_id} by user {message.author.id}.")
 
 # ----------------------------------------------------------------
 # Command: /download

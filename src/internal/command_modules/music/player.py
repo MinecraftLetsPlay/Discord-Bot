@@ -3,9 +3,9 @@ import discord.ext.commands
 import asyncio
 import logging
 import yt_dlp
-from yt_dlp.utils import DownloadError, ExtractorError
 import os
 import shutil
+from yt_dlp.utils import DownloadError, ExtractorError
 from typing import Any, TypedDict, IO, cast
 
 # Copyright (c) 2026 Dennis Plischke.

@@ -1,8 +1,8 @@
 import logging
 import inspect
+from typing import Any, Awaitable, Callable, Dict, List, Tuple, Union
 from internal import utils
 from internal import rate_limiter
-from typing import Any, Awaitable, Callable, Dict, List, Tuple, Union
 from internal.command_modules.calculator import handle_calc_command
 from internal.command_modules.minigames import handle_minigames_commands
 from internal.command_modules.utility_commands import handle_utility_commands
