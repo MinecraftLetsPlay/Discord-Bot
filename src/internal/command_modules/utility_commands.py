@@ -598,17 +598,25 @@ async def handle_utility_commands(client, message, user_message):
         
         # Check if user has admin permissions
         if not message.author.guild_permissions.administrator:
-            await message.channel.send("❌ You need administrator permissions to set the music channel.")
+            await message.channel.send("❌ You need administrator permissions to set the update channel.")
             return
     
         guild_id = message.guild.id
         cfg = utils.load_server_config(guild_id)
     
-        cfg["music_channel_id"] = message.channel.id
+        # Initialize announcements config if not exists
+        if "announcements" not in cfg:
+            cfg["announcements"] = {
+                "enabled": True,
+                "channel_id": None
+            }
+        
+        cfg["announcements"]["enabled"] = True
+        cfg["announcements"]["channel_id"] = message.channel.id
         utils.save_server_config(guild_id, cfg)
     
-        await message.channel.send(f"Music channel has been set to <#{message.channel.id}>.")
-        logging.debug(f"Music channel set to {message.channel.id} for guild {guild_id} by user {message.author.id}.")
+        await message.channel.send(f"Update channel has been set to <#{message.channel.id}>.")
+        logging.debug(f"Update channel set to {message.channel.id} for guild {guild_id} by user {message.author.id}.")
 
 # ----------------------------------------------------------------
 # Command: /download
