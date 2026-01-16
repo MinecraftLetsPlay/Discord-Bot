@@ -1,8 +1,8 @@
 # Privacy Policy - MCLP Discord Bot
 
-**Last Updated:** January 7, 2026  
+**Last Updated:** January 16, 2026  
 **Effective Date:** January 5, 2026  
-**Version:** 1.4 - Added blacklist system documentation
+**Version:** 1.5 - Added emergency lockdown system documentation
 
 ## 1. Data Controller
 
@@ -182,7 +182,90 @@ The Bot operator has a legitimate interest in maintaining blacklists because:
 
 ---
 
-## 3.7 Music Feature Data
+### 3.6 Blacklist Data Processing
+
+### 3.6.1 What Blacklist Data Is Collected
+
+The Bot stores User IDs and Server IDs in global blacklists for enforcement purposes:
+
+**User Blacklist:**
+- Discord User IDs (numeric identifiers only)
+- No username, email, or personal information
+
+**Server Blacklist:**
+- Discord Server IDs (numeric identifiers only)
+- No server name or other identifying information
+
+### 3.6.2 Why Blacklist Data Is Collected
+
+Blacklists are maintained to:
+- Enforce compliance with Terms of Service
+- Prevent abuse and protect service integrity
+- Block users/servers that violate Terms
+- Protect other users from harassment or threats
+- Prevent hacking attempts or unauthorized access
+
+### 3.6.3 Who Manages Blacklists
+
+- **Bot Owner:** Dennis Plischke
+- **Co-developer:** Robin Stiller
+
+Only these two individuals can add/remove IDs from blacklists.
+
+### 3.6.4 Blacklist Retention
+
+- Blacklist data is retained indefinitely until manually removed
+- Users and servers can appeal blacklist status
+- See Terms of Service Section 6.5.4 for appeal process
+- Upon successful appeal, ID is removed from blacklist
+
+### 3.6.5 Blacklist Legal Basis (DSGVO Article 6(1)(f))
+
+**Legitimate Interest:**
+The Bot operator has a legitimate interest in maintaining blacklists because:
+- Protects service integrity and availability
+- Prevents abuse, spam, and harassment
+- Protects other users from harm
+- Necessary for security and enforcement
+
+**No Override of User Rights:**
+- Blacklist data is minimal (IDs only)
+- No profiling or decision-making based on behavior (only enforcement)
+- Users can request erasure (right to be forgotten) - see Section 7, Article 17
+
+### 3.7 Emergency Lockdown System Data
+
+When emergency lockdown mode is activated via `/emergency-lockdown`, the Bot stores:
+
+**Data Stored:**
+- User ID of the person who activated lockdown
+- Timestamp of when lockdown was activated
+- Lockdown status (active/inactive)
+- Bot activity status changes
+
+**What Gets Logged:**
+- Critical log entry: "EMERGENCY LOCKDOWN activated by {user_id}"
+- All blocked interactions during lockdown
+- Authorization checks (failed/successful)
+
+**Duration:**
+- Lockdown data persists until `/emergency-reset` is executed
+- Log entries retained for 14 days (same as other operational logs)
+- No permanent records of lockdown state
+
+**Purpose:**
+- Security measure against spam attacks or abuse
+- Temporary restriction of bot functionality
+- Audit trail for emergency measures
+- Automatic reset capability
+
+**Legal Basis (DSGVO Article 6(1)(f)):**
+- Legitimate interest in service protection
+- Prevents abuse and protects other users
+- Minimal data collection (IDs only)
+- Temporary and reversible measure
+
+### 3.8 Music Feature Data
 
 When using music commands (!play, !pause, etc.):
 
@@ -201,6 +284,8 @@ When using music commands (!play, !pause, etc.):
 - YouTube receives your search query
 - Your IP may be visible to YouTube
 - See YouTube's Privacy Policy for their practices
+
+---
 
 ---
 
@@ -579,8 +664,8 @@ A: Only the bot owner (Dennis Plischke) and co-developer (Robin Stiller) can add
 
 ---
 
-**Version:** 1.4
+**Version:** 1.5
 **Status:** Active  
 **Language:** English (German equivalent available upon request)  
-**Last Updated:** January 7, 2026  
+**Last Updated:** January 16, 2026  
 **Compliance:** DSGVO/GDPR Article 13 & 14

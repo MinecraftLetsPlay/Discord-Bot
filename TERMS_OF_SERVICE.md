@@ -1,8 +1,8 @@
 # Terms of Service - MCLP Discord Bot
 
-**Last Updated:** January 13, 2026  
+**Last Updated:** January 16, 2026  
 **Effective Date:** January 5, 2026  
-**Version:** 1.5 - Added broadcast-system documentation
+**Version:** 1.6 - Added emergency commands documentation
 
 ---
 
@@ -59,15 +59,36 @@ The Bot provides the following comprehensive features:
 - **Debug Mode:** Advanced debugging (owner only)
 - **System Logs:** Access log files (`/log`)
 - **Shutdown:** Emergency bot shutdown
-- **Restart** Restart the bot
+- **Restart:** Restart the bot
+- **Blacklist Management:** Global user and server blacklists (owner only)
 
-### 2.7 Advanced Features
+### 2.7 Emergency Commands (Global Whitelist Only)
+- **Emergency Lockdown** (`/emergency-lockdown`): Restrict bot to authorized users (whitelist) only
+  - Blocks ALL guild interactions
+  - Only accepts commands from whitelist users via DM
+  - Changes bot status to show "🚨 Emergency Lockdown Active"
+  - Used during bot attacks or abuse situations
+- **Emergency Cooldown** (`/emergency-cooldown`): Activate global command cooldown
+  - Sets 1-300 second cooldown across ALL commands
+  - Affects all users equally
+  - Used to prevent spam or abuse attacks
+  - Changes bot status to show cooldown duration
+- **Emergency Reset** (`/emergency-reset`): Deactivate emergency measures
+  - Deactivates emergency lockdown and/or global cooldown
+  - Restores bot status to normal
+  - Only authorized users (whitelist) can execute
+- **Emergency Status** (`/emergency-status`): Check emergency system status
+  - Shows current lockdown and cooldown state
+  - Displays activation timestamps
+  - Only authorized users (whitelist) can view
+
+### 2.8 Advanced Features
 - **Calculator:** `!calc` with equation solving, sympy integration
 - **Command Router:** Intelligent command routing
 - **Rate Limiting:** Protection against abuse
 - **Error Handling:** Graceful error recovery
 
-### 2.8 Broadcast System (Optional)
+### 2.9 Broadcast System (Optional)
 
 The Bot includes an **optional Broadcast System** for announcing updates and changes:
 
@@ -97,7 +118,7 @@ The Bot includes an **optional Broadcast System** for announcing updates and cha
 - Notifying about scheduled maintenance
 - Sharing important information with multiple servers
 
-### 2.9 Feature Availability Disclaimer
+### 2.10 Feature Availability Disclaimer
 
 The features listed above are provided as currently available. **Features may be added, modified, removed, or suspended at any time** without prior notice.
 While we strive to maintain stability, no feature is guaranteed to remain available indefinitely. Changes may occur due to:
@@ -662,8 +683,8 @@ GitHub Issues (if public repository available)
 
 ---
 
-**Version:** 1.5
+**Version:** 1.6
 **Status:** Active  
 **Language:** English (German translation available upon request)  
-**Last Updated:** January 18, 2026  
+**Last Updated:** January 16, 2026  
 **Compliance:** German Law, DSGVO, Discord ToS
