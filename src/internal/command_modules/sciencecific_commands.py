@@ -175,6 +175,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                     color=discord.Color.red()
                                 )
                                 embed.set_image(url=photo['img_src'])
+                                embed.set_footer(text="Data source: NASA Mars Rover Photos API")
                                 await safe_send(message, embed=embed)
                                 logging.debug(f"Displayed Mars photo from {rover} on {date}")
                             else:
@@ -259,6 +260,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                     ),
                                     inline=False
                                 )
+                            embed.set_footer(text="Data source: NASA Near-Earth Object API")
                             await safe_send(message, embed=embed)
                             logging.debug("Displayed asteroid data")
                         except (ValueError, aiohttp.ContentTypeError) as e:
@@ -556,6 +558,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                 inline=False
                             )
 
+                        embed.set_footer(text="Data source: NASA Exoplanet Archive")
                         await safe_send(message, embed=embed)
                         logging.debug("Displayed nearest unique exoplanets")
                     return
@@ -647,6 +650,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                                 inline=False
                             )
 
+                        embed.set_footer(text="Data source: NASA Exoplanet Archive")
                         await safe_send(message, embed=embed)
                         logging.debug("Displayed latest discovered unique exoplanets")
                 return
@@ -725,6 +729,7 @@ async def handle_sciencecific_commands(client, message, user_message):
                         embed.add_field(name="Mass", value=f"{p.get('pl_bmasse', 'N/A')} M⊕")
                         embed.add_field(name="Temperature", value=temp_str)
                         embed.add_field(name="Habitable", value="✅ Possibly" if habitable else "❌ Unlikely")
+                        embed.set_footer(text="Data source: NASA Exoplanet Archive")
 
                         await safe_send(message, embed=embed)
                         logging.debug(f"Displayed exoplanet data for '{planet_name}'")

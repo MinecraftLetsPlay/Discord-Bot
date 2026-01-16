@@ -276,6 +276,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Humidity", value=f"{humidity}%", inline=False)
             embed.add_field(name="Pressure", value=f"{pressure} hPa", inline=False)
             embed.add_field(name="Wind", value=f"{wind_speed} m/s, {wind_deg}° ({wind_dir})", inline=False)
+            embed.set_footer(text="Data source: OpenWeatherMap API")
 
             # Send the embed message
             await safe_send(message, embed=embed)
@@ -340,6 +341,7 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Local Date/Time (City)", value=local_time_formatted, inline=False)
             embed.add_field(name="Sunrise", value=sunrise_time, inline=False)
             embed.add_field(name="Sunset", value=sunset_time, inline=False)
+            embed.set_footer(text="Data source: OpenWeatherMap API")
 
             # Send the embed message
             await safe_send(message, embed=embed)
@@ -389,10 +391,11 @@ async def handle_utility_commands(client, message, user_message):
             embed.add_field(name="Timezone Offset", value=timezone_offset_formatted, inline=False)
             embed.add_field(name="UTC Date/Time", value=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), inline=False)
             embed.add_field(name="Your Date/Time", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+            embed.set_footer(text="Data source: OpenWeatherMap API")
 
             # Send the embed message
             await safe_send(message, embed=embed)
-            logging.debug(f"Displayed time information for {city_name}, {country}.")
+            logging.debug(f"Displayed time information for {city_name}, {country}.")        
         else:
             await safe_send(message, content="⚠️ Could not retrieve time information. Make sure the location is valid.")
             logging.warning("Could not retrieve time information. Invalid location.")
