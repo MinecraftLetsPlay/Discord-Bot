@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from internal import utils
 from internal.utils import is_authorized_global, is_authorized_server
 from internal.command_modules.logging_setup import CustomTimedRotatingFileHandler
+from internal import rate_limiter
 
 # Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
@@ -1045,3 +1046,188 @@ def setup_system_commands(bot):
                 "• `/blacklist list user`",
                 ephemeral=True
             )
+
+    # -----------------------------------------------------------------
+    # Command: /emergency-lockdown
+    # Category: Emergency Commands
+    # Type: Full Command
+    # Description: Restrict bot interaction to only owner DMs
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="emergency-lockdown", description="🚨 Restrict bot to owner DMs only")
+    @utils.emergency_lockdown_check()
+    async def emergency_lockdown(interaction: discord.Interaction):
+        # Activate emergency lockdown mode
+        from internal import rate_limiter
+        
+        # Authorization check BEFORE allowing any changes
+        if not is_authorized_global(interaction.user):
+            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            return
+        
+        # Check if already in lockdown (only the activating owner can toggle)
+        if rate_limiter.emergency_lockdown_mode:
+            await interaction.response.send_message(
+                "⚠️ Emergency lockdown is already **ACTIVE**!\n"
+                "Use `/emergency-reset` to deactivate first.",
+                ephemeral=True
+            )
+            return
+        
+        # Activate lockdown mode
+        rate_limiter.emergency_lockdown_mode = True
+        rate_limiter.emergency_lockdown_owner_id = interaction.user.id
+        rate_limiter.emergency_lockdown_time = datetime.now()
+        
+        # Change bot status to show lockdown
+        try:
+            activity = discord.Activity(
+                type=discord.ActivityType.playing,
+                name="🚨 Emergency Lockdown Active"
+            )
+            await bot.change_presence(activity=activity, status=discord.Status.dnd)
+        except Exception as e:
+            log_.warning(f"Could not change bot status: {e}")
+        
+        await interaction.response.send_message(
+            "🚨 **EMERGENCY LOCKDOWN ACTIVATED**\n"
+            "├─ Bot now responds ONLY to authorized users (whitelist)\n"
+            "├─ All other interactions blocked\n"
+            "├─ Bot status changed to show lockdown\n"
+            "└─ Use `/emergency-reset` to deactivate",
+            ephemeral=True
+        )
+        log_.critical(f"EMERGENCY LOCKDOWN activated by {interaction.user.id}")
+
+    # -----------------------------------------------------------------
+    # Command: /emergency-reset
+    # Category: Emergency Commands
+    # Type: Full Command
+    # Description: Deactivate emergency lockdown and/or global cooldown
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="emergency-reset", description="🔓 Deactivate emergency lockdown/cooldown")
+    @utils.emergency_lockdown_check()
+    async def emergency_reset(interaction: discord.Interaction):
+        # Deactivate emergency lockdown and global cooldown
+        from internal import rate_limiter
+        
+        # Emergency reset requires global authorization (uses whitelist from config.json)
+        # During lockdown: ANY authorized user can reset (Dennis or Co-Developer)
+        if not is_authorized_global(interaction.user):
+            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            return
+        
+        lockdown_was_active = rate_limiter.emergency_lockdown_mode
+        cooldown_was_active = rate_limiter.global_cooldown.is_active
+        
+        # Deactivate both lockdown and global cooldown
+        rate_limiter.emergency_lockdown_mode = False
+        rate_limiter.global_cooldown.deactivate()
+        
+        # Reset bot status to normal
+        try:
+            activity = discord.Activity(
+                type=discord.ActivityType.watching,
+                name="over MCLP"
+            )
+            await bot.change_presence(activity=activity, status=discord.Status.online)
+        except Exception as e:
+            log_.warning(f"Could not reset bot status: {e}")
+        
+        status_msg = ""
+        if lockdown_was_active:
+            status_msg += "✅ Emergency lockdown **DEACTIVATED**\n"
+        if cooldown_was_active:
+            status_msg += "✅ Global cooldown **DEACTIVATED**\n"
+        if not lockdown_was_active and not cooldown_was_active:
+            status_msg = "ℹ️ No emergency measures were active"
+        
+        await interaction.response.send_message(status_msg, ephemeral=True)
+        log_.warning(f"Emergency reset by {interaction.user.id}")
+
+    # -----------------------------------------------------------------
+    # Command: /emergency-cooldown
+    # Category: Emergency Commands
+    # Type: Full Command
+    # Description: Activate global cooldown to prevent spam/attacks
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="emergency-cooldown", description="🚨 Activate global command cooldown")
+    @utils.emergency_lockdown_check()
+    async def emergency_cooldown(interaction: discord.Interaction, duration: int = 60):
+        # Activate global cooldown to limit command usage
+        from internal import rate_limiter
+        
+        if not is_authorized_global(interaction.user):
+            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            return
+        
+        # Validate duration
+        if not 1 <= duration <= 300:
+            await interaction.response.send_message(
+                "❌ Cooldown must be between 1-300 seconds",
+                ephemeral=True
+            )
+            return
+        
+        rate_limiter.global_cooldown.activate(
+            cooldown_seconds=duration,
+            reason=f"Owner ({interaction.user.id}) activated emergency cooldown"
+        )
+        
+        # Change bot status to show cooldown
+        try:
+            activity = discord.Activity(
+                type=discord.ActivityType.playing,
+                name=f"⏸️ Global Cooldown: {duration}s"
+            )
+            await bot.change_presence(activity=activity, status=discord.Status.idle)
+        except Exception as e:
+            log_.warning(f"Could not change bot status: {e}")
+        
+        await interaction.response.send_message(
+            f"🚨 **GLOBAL COOLDOWN ACTIVATED**\n"
+            f"├─ Duration: {duration}s per command\n"
+            f"├─ All users affected\n"
+            f"├─ Bot status changed to show cooldown\n"
+            f"└─ Use `/emergency-reset` to deactivate",
+            ephemeral=True
+        )
+        log_.critical(f"Global cooldown activated ({duration}s) by {interaction.user.id}")
+
+    # -----------------------------------------------------------------
+    # Command: /emergency-status
+    # Category: Emergency Commands
+    # Type: Full Command
+    # Description: Check emergency lockdown/cooldown status
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="emergency-status", description="Check emergency system status")
+    @utils.emergency_lockdown_check()
+    async def emergency_status(interaction: discord.Interaction):
+        # Check emergency system status
+        from internal import rate_limiter
+        
+        if not is_authorized_global(interaction.user):
+            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            return
+        
+        lockdown_status = (
+            f"🔴 **ON** (Owner: <@{rate_limiter.emergency_lockdown_owner_id}>)\n"
+            f"├─ Active since: {rate_limiter.emergency_lockdown_time.strftime('%H:%M:%S') if rate_limiter.emergency_lockdown_time else 'Unknown'}"
+            if rate_limiter.emergency_lockdown_mode
+            else "🟢 **OFF**"
+        )
+        
+        cooldown_status = rate_limiter.global_cooldown.get_status()
+        
+        embed = discord.Embed(
+            title="🚨 Emergency System Status",
+            color=discord.Color.red() if rate_limiter.emergency_lockdown_mode else discord.Color.green()
+        )
+        embed.add_field(name="Emergency Lockdown", value=lockdown_status, inline=False)
+        embed.add_field(name="Global Cooldown", value=cooldown_status, inline=False)
+        embed.set_footer(text="Use /emergency-reset to deactivate all emergency measures")
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)

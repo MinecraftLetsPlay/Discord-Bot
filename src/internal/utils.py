@@ -4,6 +4,9 @@ import logging
 import threading
 import tempfile
 from typing import Optional
+from functools import wraps
+import discord
+from discord import app_commands
 
 # Copyright (c) 2026 Dennis Plischke.
 # All rights reserved.
@@ -459,3 +462,35 @@ def load_hangman() -> dict:
 
 def load_quiz() -> dict:
     return _atomic_read(_abs_path("quiz.json")) or {}
+
+
+# ================================================================
+# Emergency Lockdown Check Decorator
+# ================================================================
+
+def emergency_lockdown_check():
+    # Decorator to enforce emergency lockdown checks on commands.
+    async def predicate(interaction: discord.Interaction) -> bool:
+        from internal import rate_limiter
+        
+        # EMERGENCY LOCKDOWN: Block EVERYTHING except DMs from authorized users
+        if rate_limiter.emergency_lockdown_mode:
+            # Block all guild interactions
+            if interaction.guild is not None:
+                await interaction.response.send_message(
+                    "🔒 Bot is in emergency lockdown. Only DMs from authorized users are accepted.",
+                    ephemeral=True
+                )
+                return False
+            
+            # In DM, check if user is authorized
+            if not is_authorized_global(interaction.user):
+                await interaction.response.send_message(
+                    "🔒 You are not authorized to interact during emergency lockdown.",
+                    ephemeral=True
+                )
+                return False
+        
+        return True
+    
+    return app_commands.check(predicate)

@@ -1,7 +1,7 @@
 import time
 import asyncio
 import logging
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, List
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -99,6 +99,59 @@ class CommandCooldown:
         return max(0.0, cooldown_seconds - elapsed)
 
 
+class GlobalCooldown:
+    # Global emergency cooldown for all commands
+    def __init__(self):
+        self.is_active = False
+        self.cooldown_seconds = 0
+        self.last_command_time: Dict[int, float] = {}  # user_id -> last_command_time
+        self.activated_at = None
+        self.reason = ""
+
+    def activate(self, cooldown_seconds: int = 60, reason: str = "Emergency cooldown activated"):
+        # Activate global cooldown
+        self.is_active = True
+        self.cooldown_seconds = max(1, min(cooldown_seconds, 300))  # Clamp between 1-300 seconds
+        self.activated_at = time.time()
+        self.reason = reason
+        logger.warning(f"🚨 GLOBAL COOLDOWN ACTIVATED: {cooldown_seconds}s | Reason: {reason}")
+
+    def deactivate(self):
+        # Deactivate global cooldown
+        self.is_active = False
+        self.last_command_time.clear()
+        duration = time.time() - self.activated_at if self.activated_at else 0
+        logger.info(f"✅ Global cooldown deactivated (was active for {duration:.0f}s)")
+        self.activated_at = None
+
+    def check_allowed(self, user_id: int) -> Tuple[bool, float]:
+        # Check if user can execute command under global cooldown
+        if not self.is_active:
+            return True, 0.0
+
+        now = time.time()
+        if user_id in self.last_command_time:
+            elapsed = now - self.last_command_time[user_id]
+            if elapsed < self.cooldown_seconds:
+                return False, self.cooldown_seconds - elapsed
+
+        self.last_command_time[user_id] = now
+        return True, 0.0
+
+    def get_status(self) -> str:
+        # Get global cooldown status
+        if not self.is_active:
+            return "🟢 Global cooldown: **OFF**"
+        
+        duration = time.time() - self.activated_at if self.activated_at else 0
+        return (
+            f"🔴 Global cooldown: **ON**\n"
+            f"├─ Duration: {self.cooldown_seconds}s per command\n"
+            f"├─ Active for: {duration:.0f}s\n"
+            f"└─ Reason: {self.reason}"
+        )
+
+
 # ----------------------------------------------------------------
 # Global API Rate Limiters
 # ----------------------------------------------------------------
@@ -114,6 +167,14 @@ api_limiter_nitrado = RateLimiter(max_requests=3, time_window=60)
 # ----------------------------------------------------------------
 
 command_cooldown = CommandCooldown()
+
+# Global emergency cooldown (for spam/attack protection)
+global_cooldown = GlobalCooldown()
+
+# Emergency lockdown mode variables
+emergency_lockdown_mode = False
+emergency_lockdown_owner_id = None
+emergency_lockdown_time = None
 
 # Command cooldown configuration (in seconds)
 # Aligned with API rate limits to prevent conflicts

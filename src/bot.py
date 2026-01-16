@@ -7,6 +7,7 @@ import asyncio
 import time
 from dotenv import load_dotenv
 from discord.ext import commands
+from discord import app_commands
 from internal import utils
 from internal import command_router
 
@@ -107,6 +108,59 @@ def run_discord_bot():
     # BOT EVENTS
     # ------------------------------------------------------------
 
+    # Slash Command Error Handler
+    @bot.tree.error
+    async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+        # Handle slash command errors
+        
+        # Check user blacklist
+        if utils.is_user_blacklisted(interaction.user.id):
+            logging.warning(f"Blocked command from blacklisted user {interaction.user.id}")
+            try:
+                await interaction.response.send_message(
+                    "❌ You are blacklisted from using this bot.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+            return
+        
+        # Check server blacklist
+        if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
+            logging.warning(f"Blocked command in blacklisted server {interaction.guild.id}")
+            try:
+                await interaction.response.send_message(
+                    "❌ This server is blacklisted.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+            return
+        
+        # Handle check failures (including emergency lockdown check)
+        if isinstance(error, app_commands.CheckFailure):
+            # Check already handled by the @app_commands.check decorator
+            return
+        
+        # Standard error handling
+        if isinstance(error, app_commands.MissingPermissions):
+            try:
+                await interaction.response.send_message(
+                    "❌ You don't have permission to use this command.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+        else:
+            logging.error(f"Slash command error: {error}")
+            try:
+                await interaction.response.send_message(
+                    "❌ An error occurred while executing the command.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+
     @bot.event
     async def on_ready():
         try:
@@ -187,37 +241,6 @@ def run_discord_bot():
         except Exception as e:
             logging.error(f"Error loading bot status: {e}")
 
-    # Slash Command Error Handler (Blacklist Check)
-    @bot.tree.error
-    async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
-        
-        # Check user blacklist
-        if utils.is_user_blacklisted(interaction.user.id):
-            logging.warning(f"Blocked slash command from blacklisted user {interaction.user.id}")
-            try:
-                await interaction.response.send_message(
-                    "❌ You are blacklisted from using this bot.",
-                    ephemeral=True
-                )
-            except discord.InteractionResponded:
-                pass  # Already responded
-            return
-        
-        # Check server blacklist
-        if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
-            logging.warning(f"Blocked slash command in blacklisted server {interaction.guild.id}")
-            try:
-                await interaction.response.send_message(
-                    "❌ This server is blacklisted.",
-                    ephemeral=True
-                )
-            except discord.InteractionResponded:
-                pass  # Already responded
-            return
-        
-        # Handle other errors (re-raise if not blacklist)
-        raise error
-
     @bot.event
     async def on_message(message):
         # Check to prevent bot responding to itself
@@ -231,6 +254,23 @@ def run_discord_bot():
         if message.guild and utils.is_server_blacklisted(message.guild.id):
             logging.warning(f"Blocked message in blacklisted server {message.guild.id}")
             return
+        
+        # Emergency Lockdown Check - only authorized users (whitelist) can use
+        from internal import rate_limiter
+        if rate_limiter.emergency_lockdown_mode:
+            if message.guild is not None:  # Not a DM
+                return  # Ignore all guild messages
+            # Check if user is in whitelist (authorized)
+            if not utils.is_authorized_global(message.author):
+                await message.reply("🔒 Bot is in emergency lockdown. Only authorized users can interact.")
+                return
+        
+        # Global Cooldown Check
+        if rate_limiter.global_cooldown.is_active and message.content.startswith('!'):
+            allowed, remaining = rate_limiter.global_cooldown.check_allowed(message.author.id)
+            if not allowed:
+                await message.reply(f"⏸️ Global cooldown active. Wait {remaining:.0f}s")
+                return
         
         # Config loading
         try:
