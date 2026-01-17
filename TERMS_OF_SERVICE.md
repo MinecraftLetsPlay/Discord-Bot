@@ -63,14 +63,14 @@ The Bot provides the following comprehensive features:
 - **Blacklist Management:** Global user and server blacklists (owner only)
 
 ### 2.7 Emergency Commands (Global Whitelist Only)
-- **Emergency Lockdown** (`/emergency-lockdown`): Restrict bot to authorized users (whitelist) only
+- **Emergency Lockdown** (`/emergency-lockdown`): Restrict bot to authorized users (global whitelist) only
   - Blocks ALL guild interactions
-  - Only accepts commands from whitelist users via DM
+  - Only accepts commands from global whitelist users via DM
   - Changes bot status to show "🚨 Emergency Lockdown Active"
   - Used during bot attacks or abuse situations
 - **Emergency Cooldown** (`/emergency-cooldown`): Activate global command cooldown
   - Sets 1-300 second cooldown across ALL commands
-  - Affects all users equally
+  - Affects all users equally (Special system commnds like `/log` are not rate-limited)
   - Used to prevent spam or abuse attacks
   - Changes bot status to show cooldown duration
 - **Emergency Reset** (`/emergency-reset`): Deactivate emergency measures

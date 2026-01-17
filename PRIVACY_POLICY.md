@@ -233,23 +233,24 @@ The Bot operator has a legitimate interest in maintaining blacklists because:
 - No profiling or decision-making based on behavior (only enforcement)
 - Users can request erasure (right to be forgotten) - see Section 7, Article 17
 
-### 3.7 Emergency Lockdown System Data
+### 3.7 Emergency System Data
 
-When emergency lockdown mode is activated via `/emergency-lockdown`, the Bot stores:
+When emergency lockdown mode or emergency cooldown mode is activated via `/emergency-lockdown` or `/emergency-cooldown`, the Bot stores:
 
 **Data Stored:**
-- User ID of the person who activated lockdown
-- Timestamp of when lockdown was activated
-- Lockdown status (active/inactive)
+- User ID of the person who activated the measure
+- Timestamp of when the measure was activated
+- Status of the measure (active/inactive)
 - Bot activity status changes
 
 **What Gets Logged:**
-- Critical log entry: "EMERGENCY LOCKDOWN activated by {user_id}"
-- All blocked interactions during lockdown
+- Critical log entry like: "EMERGENCY LOCKDOWN activated by {user_id}"
+- All blocked interactions during lockdown (UserID)
+- All blocked interactions during cooldown (UserID)
 - Authorization checks (failed/successful)
 
 **Duration:**
-- Lockdown data persists until `/emergency-reset` is executed
+- Lockdown or Cooldown data persists until `/emergency-reset` is executed
 - Log entries retained for 14 days (same as other operational logs)
 - No permanent records of lockdown state
 
