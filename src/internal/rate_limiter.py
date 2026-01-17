@@ -114,14 +114,14 @@ class GlobalCooldown:
         self.cooldown_seconds = max(1, min(cooldown_seconds, 300))  # Clamp between 1-300 seconds
         self.activated_at = time.time()
         self.reason = reason
-        logger.warning(f"🚨 GLOBAL COOLDOWN ACTIVATED: {cooldown_seconds}s | Reason: {reason}")
+        logger.warning(f"GLOBAL COOLDOWN ACTIVATED: {cooldown_seconds}s | Reason: {reason}")
 
     def deactivate(self):
         # Deactivate global cooldown
         self.is_active = False
         self.last_command_time.clear()
         duration = time.time() - self.activated_at if self.activated_at else 0
-        logger.info(f"✅ Global cooldown deactivated (was active for {duration:.0f}s)")
+        logger.info(f"Global cooldown deactivated (was active for {duration:.0f}s)")
         self.activated_at = None
 
     def check_allowed(self, user_id: int) -> Tuple[bool, float]:

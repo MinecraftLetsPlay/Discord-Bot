@@ -120,6 +120,56 @@ async def check_blacklist(interaction: discord.Interaction) -> bool:
     return False
 
 # ----------------------------------------------------------------
+# Helper: Emergency checks for Lockdown / Cooldown
+# ----------------------------------------------------------------
+
+# Check if either Lockdown or Cooldown is active
+
+async def check_emergency_measures(interaction: discord.Interaction) -> bool:
+    from internal import rate_limiter
+    
+    # Emergency lockdown: Block EVERYTHING except DMs from authorized users
+    if rate_limiter.emergency_lockdown_mode:
+        if interaction.guild is not None:  # Not a DM - Block
+            try:
+                await interaction.response.send_message(
+                    "🔒 Bot is in emergency lockdown. Only DMs from authorized users are accepted.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+            log_.warning(f"Blocked slash command in guild during lockdown from user {interaction.user.id}")
+            return True
+        
+        # In DM: Check if user is authorized (whitelist)
+        if not utils.is_authorized_global(interaction.user):
+            try:
+                await interaction.response.send_message(
+                    "🔒 You are not authorized to interact during emergency lockdown.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+            log_.warning(f"Blocked unauthorized DM command during lockdown from user {interaction.user.id}")
+            return True
+    
+    # Global cooldown: Check if user can execute command
+    if rate_limiter.global_cooldown.is_active:
+        allowed, remaining = rate_limiter.global_cooldown.check_allowed(interaction.user.id)
+        if not allowed:
+            try:
+                await interaction.response.send_message(
+                    f"⏸️ Global cooldown active. Wait {remaining:.0f}s before next command.",
+                    ephemeral=True
+                )
+            except discord.InteractionResponded:
+                pass
+            log_.debug(f"Slash command blocked by global cooldown for user {interaction.user.id}: {remaining:.0f}s remaining")
+            return True
+    
+    return False  # All checks passed
+
+# ----------------------------------------------------------------
 # Main Command Handler for [System Commands]
 # ----------------------------------------------------------------
 
@@ -135,10 +185,7 @@ def setup_system_commands(bot):
     @bot.tree.command(name="shutdown", description="Shut down the bot")
     async def shutdown(interaction: discord.Interaction):
         
-        # Check blacklist first
-        if await check_blacklist(interaction):
-            return
-        
+        # Authorization check
         if is_authorized_global(interaction.user):
             await interaction.response.send_message("Shutting down the bot...")
             log_.info(f"System: Shutdown command executed by: {interaction.user.id}")
@@ -169,10 +216,6 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="full_shutdown", description="Shut down the bot and the Raspberry Pi")
     async def full_shutdown(interaction: discord.Interaction):
-        
-        # Check blacklist first
-        if await check_blacklist(interaction):
-            return
         
         # Authorization check
         if not is_authorized_global(interaction.user):
@@ -237,13 +280,10 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="restart", description="Restart the bot")
     async def restart(interaction: discord.Interaction):
-        
-        # Check blacklist first
-        if await check_blacklist(interaction):
-            return
-        
-        global last_restart_time
 
+        global last_restart_time
+        
+        # Authorization check
         if is_authorized_global(interaction.user):
             current_time = datetime.now()
 
@@ -286,16 +326,7 @@ def setup_system_commands(bot):
     async def log(interaction: discord.Interaction):
         # Ensure log_directory is a string
         directory = log_directory if isinstance(log_directory, str) else "logs"
-    
-        # Check blacklist first
-        if await check_blacklist(interaction):
-            return
         
-        if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
-            await interaction.response.send_message("❌ This server is blacklisted.", ephemeral=True)
-            log_.warning(f"Permission denied for log command in blacklisted server. Guild: {interaction.guild.id}")
-            return
-    
         if is_authorized_global(interaction.user):
 
             # Make sure it's a text channel
@@ -352,10 +383,6 @@ def setup_system_commands(bot):
     async def debugmode(interaction: discord.Interaction, action: str):
         global config
         
-        # Check blacklist first
-        if await check_blacklist(interaction):
-            return
-        
         # Authorization check
         if is_authorized_global(interaction.user):
             if action.lower() == 'on':
@@ -393,10 +420,6 @@ def setup_system_commands(bot):
     )
     async def status(interaction: discord.Interaction, status_type: str, text: str):
         global config
-        
-        # Check blacklist first
-        if await check_blacklist(interaction):
-            return
         
         # Authorization check
         if not is_authorized_global(interaction.user):
@@ -475,11 +498,15 @@ def setup_system_commands(bot):
             await interaction.response.send_message("❌ **This command can only be used in a server.**", ephemeral=True)
             return
         
-        # Check blacklist first
+        # 1. Emergency checks (Lockdown + Cooldown)
+        if await check_emergency_measures(interaction):
+            return
+        
+        # 2. Blacklist check
         if await check_blacklist(interaction):
             return
         
-        # Authorization check
+        # 3. Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ **Permission denied.**", ephemeral=True)
             return
@@ -512,7 +539,7 @@ def setup_system_commands(bot):
             target_list = logging_config.get("disabled_channels", []) or []
             list_name = "🚫 Disabled"
 
-        # --- ADD action ---
+        # ADD action
         if action.lower() == "add":
             if channel_id in target_list:
                 await interaction.response.send_message(
@@ -537,7 +564,7 @@ def setup_system_commands(bot):
                 )
                 log_.debug(f"System: Channel {channel.name} ({channel_id}) added to {list_name} list by {interaction.user.id}")
 
-        # --- REMOVE action ---
+        # REMOVE action
         elif action.lower() == "remove":
             if channel_id not in target_list:
                 await interaction.response.send_message(
@@ -562,7 +589,7 @@ def setup_system_commands(bot):
                 )
                 log_.debug(f"System: Channel {channel.name} ({channel_id}) removed from {list_name} list by {interaction.user.id}")
 
-        # --- LIST action ---
+        # LIST action
         elif action.lower() == "list":
             enabled = logging_config.get("enabled_channels", []) or []
             disabled = logging_config.get("disabled_channels", []) or []
@@ -649,11 +676,15 @@ def setup_system_commands(bot):
             await interaction.response.send_message("❌ This command can only be used in a server.", ephemeral=True)
             return
         
-        # Check blacklist first
+        # 1. Emergency checks (Lockdown + Cooldown)
+        if await check_emergency_measures(interaction):
+            return
+        
+        # 2. Blacklist check
         if await check_blacklist(interaction):
             return
         
-        # Authorization check
+        # 3. Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -725,11 +756,15 @@ def setup_system_commands(bot):
             await interaction.response.send_message("❌ This command can only be used in a server.", ephemeral=True)
             return
         
-        # Check blacklist first
+        # 1. Emergency checks (Lockdown + Cooldown)
+        if await check_emergency_measures(interaction):
+            return
+        
+        # 2. Blacklist check
         if await check_blacklist(interaction):
             return
         
-        # Authorization check
+        # 3. Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -767,11 +802,15 @@ def setup_system_commands(bot):
             await interaction.response.send_message("❌ This command can only be used in a server.", ephemeral=True)
             return
         
-        # Check blacklist first
+        # 1. Emergency checks (Lockdown + Cooldown)
+        if await check_emergency_measures(interaction):
+            return
+        
+        # 2. Blacklist check
         if await check_blacklist(interaction):
             return
         
-        # Authorization check
+        # 3. Authorization check
         if not is_authorized_server(interaction.user, guild_id=interaction.guild.id):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
@@ -805,7 +844,12 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="logging", description="Enable or disable logging")
     async def logging(interaction: discord.Interaction, action: str):
-        # Check blacklist FIRST
+        
+        # 1. Emergency checks (Lockdown + Cooldown)
+        if await check_emergency_measures(interaction):
+            return
+        
+        # 2. Blacklist check
         if await check_blacklist(interaction):
             return
         
@@ -856,7 +900,12 @@ def setup_system_commands(bot):
     
     @bot.tree.command(name="privacy", description="Privacy & data protection information (DSGVO/GDPR)")
     async def privacy(interaction: discord.Interaction):
-        # Check blacklist FIRST
+        
+        # 1. Emergency checks (Lockdown + Cooldown)
+        if await check_emergency_measures(interaction):
+            return
+        
+        # 2. Blacklist check
         if await check_blacklist(interaction):
             return
         
@@ -937,10 +986,6 @@ def setup_system_commands(bot):
         target_id="User ID or Server ID (optional for list)"
     )
     async def blacklist(interaction: discord.Interaction, action: str, target_type: str, target_id: str = ""):
-        # Check blacklist FIRST
-        if await check_blacklist(interaction):
-            return
-        
         global config
     
         # Owner-only
@@ -1099,52 +1144,7 @@ def setup_system_commands(bot):
         )
         log_.critical(f"EMERGENCY LOCKDOWN activated by {interaction.user.id}")
 
-    # -----------------------------------------------------------------
-    # Command: /emergency-reset
-    # Category: Emergency Commands
-    # Type: Full Command
-    # Description: Deactivate emergency lockdown and/or global cooldown
-    # -----------------------------------------------------------------
     
-    @bot.tree.command(name="emergency-reset", description="🔓 Deactivate emergency lockdown/cooldown")
-    @utils.emergency_lockdown_check()
-    async def emergency_reset(interaction: discord.Interaction):
-        # Deactivate emergency lockdown and global cooldown
-        from internal import rate_limiter
-        
-        # Emergency reset requires global authorization (uses whitelist from config.json)
-        # During lockdown: ANY authorized user can reset (Dennis or Co-Developer)
-        if not is_authorized_global(interaction.user):
-            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
-            return
-        
-        lockdown_was_active = rate_limiter.emergency_lockdown_mode
-        cooldown_was_active = rate_limiter.global_cooldown.is_active
-        
-        # Deactivate both lockdown and global cooldown
-        rate_limiter.emergency_lockdown_mode = False
-        rate_limiter.global_cooldown.deactivate()
-        
-        # Reset bot status to normal
-        try:
-            activity = discord.Activity(
-                type=discord.ActivityType.watching,
-                name="over MCLP"
-            )
-            await bot.change_presence(activity=activity, status=discord.Status.online)
-        except Exception as e:
-            log_.warning(f"Could not reset bot status: {e}")
-        
-        status_msg = ""
-        if lockdown_was_active:
-            status_msg += "✅ Emergency lockdown **DEACTIVATED**\n"
-        if cooldown_was_active:
-            status_msg += "✅ Global cooldown **DEACTIVATED**\n"
-        if not lockdown_was_active and not cooldown_was_active:
-            status_msg = "ℹ️ No emergency measures were active"
-        
-        await interaction.response.send_message(status_msg, ephemeral=True)
-        log_.warning(f"Emergency reset by {interaction.user.id}")
 
     # -----------------------------------------------------------------
     # Command: /emergency-cooldown
@@ -1213,6 +1213,7 @@ def setup_system_commands(bot):
             await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
             return
         
+        # Build status embed
         lockdown_status = (
             f"🔴 **ON** (Owner: <@{rate_limiter.emergency_lockdown_owner_id}>)\n"
             f"├─ Active since: {rate_limiter.emergency_lockdown_time.strftime('%H:%M:%S') if rate_limiter.emergency_lockdown_time else 'Unknown'}"
@@ -1231,3 +1232,77 @@ def setup_system_commands(bot):
         embed.set_footer(text="Use /emergency-reset to deactivate all emergency measures")
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
+        
+    # -----------------------------------------------------------------
+    # Command: /emergency-reset
+    # Category: Emergency Commands
+    # Type: Full Command
+    # Description: Deactivate emergency lockdown and/or global cooldown
+    # -----------------------------------------------------------------
+    
+    @bot.tree.command(name="emergency-reset", description="🔓 Deactivate emergency lockdown/cooldown")
+    @utils.emergency_lockdown_check()
+    async def emergency_reset(interaction: discord.Interaction):
+        from internal import rate_limiter
+        
+        if not is_authorized_global(interaction.user):
+            await interaction.response.send_message("❌ Permission denied.", ephemeral=True)
+            return
+        
+        # SAVE state BEFORE deactivating
+        lockdown_was_active = rate_limiter.emergency_lockdown_mode
+        cooldown_was_active = rate_limiter.global_cooldown.is_active
+        
+        # NOW deactivate BOTH properly - reset ALL lockdown state
+        rate_limiter.emergency_lockdown_mode = False
+        rate_limiter.emergency_lockdown_owner_id = None
+        rate_limiter.emergency_lockdown_time = None
+        
+        # Log lockdown deactivation
+        if lockdown_was_active:
+            log_.info(" Emergency lockdown deactivated")
+        
+        # Only deactivate cooldown if it was active
+        if cooldown_was_active:
+            rate_limiter.global_cooldown.deactivate()
+        
+        # Restore original bot status from config
+        try:
+            bot_status = utils.get_config_value("BotStatus", default=None)
+            
+            if bot_status and isinstance(bot_status, dict) and "type" in bot_status and "text" in bot_status:
+                status_type = bot_status["type"].lower()
+                status_text = bot_status["text"]
+                
+                mapping = {
+                    "playing": discord.ActivityType.playing,
+                    "listening": discord.ActivityType.listening,
+                    "watching": discord.ActivityType.watching,
+                    "competing": discord.ActivityType.competing
+                }
+                
+                if status_type not in mapping:
+                    log_.warning(f"Invalid status type in config: {status_type}")
+                else:
+                    try:
+                        await bot.change_presence(
+                            activity=discord.Activity(type=mapping[status_type], name=status_text)
+                        )
+                        log_.info(f"Bot status set: {status_type} {status_text}")
+                    except discord.HTTPException as e:
+                        log_.warning(f"Failed to set bot status: {e}")
+            else:
+                log_.info("No saved bot status found in config.")
+        except Exception as e:
+            log_.error(f"Error loading bot status: {e}")
+        
+        status_msg = ""
+        if lockdown_was_active:
+            status_msg += "✅ Emergency lockdown **DEACTIVATED**\n"
+        if cooldown_was_active:
+            status_msg += "✅ Global cooldown **DEACTIVATED**\n"
+        if not lockdown_was_active and not cooldown_was_active:
+            status_msg = "ℹ️ No emergency measures were active"
+        
+        await interaction.response.send_message(status_msg, ephemeral=True)
+        log_.warning(f"Emergency reset by {interaction.user.id}")

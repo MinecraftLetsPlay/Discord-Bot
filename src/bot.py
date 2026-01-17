@@ -111,38 +111,13 @@ def run_discord_bot():
     # Slash Command Error Handler
     @bot.tree.error
     async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-        # Handle slash command errors
+        # Handle slash command errors globally
         
-        # Check user blacklist
-        if utils.is_user_blacklisted(interaction.user.id):
-            logging.warning(f"Blocked command from blacklisted user {interaction.user.id}")
-            try:
-                await interaction.response.send_message(
-                    "❌ You are blacklisted from using this bot.",
-                    ephemeral=True
-                )
-            except discord.InteractionResponded:
-                pass
-            return
-        
-        # Check server blacklist
-        if interaction.guild and utils.is_server_blacklisted(interaction.guild.id):
-            logging.warning(f"Blocked command in blacklisted server {interaction.guild.id}")
-            try:
-                await interaction.response.send_message(
-                    "❌ This server is blacklisted.",
-                    ephemeral=True
-                )
-            except discord.InteractionResponded:
-                pass
-            return
-        
-        # Handle check failures (including emergency lockdown check)
+        # Ignore CheckFailure errors - these are handled in the commands themselves
         if isinstance(error, app_commands.CheckFailure):
-            # Check already handled by the @app_commands.check decorator
             return
         
-        # Standard error handling
+        # Handle missing permissions
         if isinstance(error, app_commands.MissingPermissions):
             try:
                 await interaction.response.send_message(
@@ -151,15 +126,17 @@ def run_discord_bot():
                 )
             except discord.InteractionResponded:
                 pass
-        else:
-            logging.error(f"Slash command error: {error}")
-            try:
-                await interaction.response.send_message(
-                    "❌ An error occurred while executing the command.",
-                    ephemeral=True
-                )
-            except discord.InteractionResponded:
-                pass
+            return
+        
+        # Log and report other errors
+        logging.error(f"Slash command error: {error}", exc_info=True)
+        try:
+            await interaction.response.send_message(
+                "❌ An error occurred while executing the command.",
+                ephemeral=True
+            )
+        except discord.InteractionResponded:
+            pass
 
     @bot.event
     async def on_ready():

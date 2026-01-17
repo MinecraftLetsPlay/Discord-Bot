@@ -56,6 +56,9 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
             current_file = f"{self.base_filename}-{timestamp}.txt"
             super().__init__(current_file, encoding=encoding)
             self.last_rollover = now_local().date()
+            
+            # Run cleanup immediately on startup (if too many old logs exist)
+            self._cleanup_old_logs()
         except (TypeError, ValueError) as e:
             raise ValueError(f"Invalid filename format: {e}")
         except IOError as e:
@@ -122,12 +125,21 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
             )
             
             # Remove oldest files if exceeding backupCount
-            if len(log_files) > self.backupCount:
-                for old_file in log_files[:-self.backupCount]:
+            # Keep exactly backupCount files (not more)
+            files_to_delete = len(log_files) - self.backupCount
+            
+            if files_to_delete > 0:
+                deleted_count = 0
+                for old_file in log_files[:files_to_delete]:
                     try:
                         os.remove(os.path.join(log_dir, old_file))
+                        deleted_count += 1
+                        print(f" Deleted old log: {old_file}")
                     except OSError as e:
-                        print(f"⚠️ Could not delete old log file {old_file}: {e}", file=sys.stderr)
+                        print(f" Could not delete old log file {old_file}: {e}", file=sys.stderr)
+                
+                if deleted_count > 0:
+                    print(f"✅ Cleanup: Removed {deleted_count} old log files (keeping {self.backupCount})")
         
         except Exception as e:
             print(f"⚠️ Error during log cleanup: {e}", file=sys.stderr)
