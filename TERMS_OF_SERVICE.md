@@ -76,11 +76,9 @@ The Bot provides the following comprehensive features:
 - **Emergency Reset** (`/emergency-reset`): Deactivate emergency measures
   - Deactivates emergency lockdown and/or global cooldown
   - Restores bot status to normal
-  - Only authorized users (whitelist) can execute
 - **Emergency Status** (`/emergency-status`): Check emergency system status
   - Shows current lockdown and cooldown state
   - Displays activation timestamps
-  - Only authorized users (whitelist) can view
 
 ### 2.8 Advanced Features
 - **Calculator:** `!calc` with equation solving, sympy integration
