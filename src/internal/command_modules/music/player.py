@@ -59,8 +59,7 @@ class FFmpegParams(TypedDict, total=False):
 
 # Helper to detect Node.js runtime
 def get_js_runtime() -> str | None:
-    # Auto-detect JavaScript runtime for yt-dlp
-    # Try Node.js first (most common)
+    # Check common Node.js executable names
     node_candidates = ["node", "node.exe", "nodejs"]
     for candidate in node_candidates:
         runtime = shutil.which(candidate)
@@ -68,35 +67,77 @@ def get_js_runtime() -> str | None:
             return runtime
     return None
 
-YTDLP_OPTIONS: YtDlpParams = {
-    "format": "bestaudio[ext=m4a]/bestaudio",  # Prefer m4a for better compatibility
-    "noplaylist": True,
-    "quiet": True,
-    "default_search": "ytsearch",
-    "extract_flat": False,
-    "skip_download": True,
-    "nocheckcertificate": True,
-    "retries": 5,  # Increased retries for Pi stability
-    "fragment_retries": 5,  # More resilient to network issues
-    "concurrent_fragment_downloads": 1,
-    "http_chunk_size": 1048576,  # Smaller chunks for Raspberry Pi (1MB instead of 10MB)
-    "socket_timeout": 30,  # Add explicit socket timeout
-    "extractor_args": {
-        "youtube": {
-            "player_client": ["web", "tv", "android"],  # More flexible clients
-            "skip": ["hls", "dash"],  # Avoid problematic formats on Pi
-        }
-    },
-    "match_filter": {"!is_live": True, "duration": lambda d: d <= 600},
-    # YouTube Bot Detection Bypass
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    # JavaScript Runtime for signature solving
-    "js_interpreter": get_js_runtime(),  # Auto-detect Node.js
-}
+def get_youtube_cookies_path() -> str | None:
+    # Get path to YouTube cookies file if it exists
+    # Check common cookie file locations
+    cookie_paths = [
+        os.path.expanduser("~/.config/yt-dlp/cookies.txt"),
+        os.path.expanduser("~/.ytdlp/cookies.txt"),
+        os.path.expanduser("~/yt-dlp-cookies.txt"),
+        "cookies.txt"
+    ]
+    for path in cookie_paths:
+        if os.path.isfile(path):
+            return path
+    return None
+
+# Build yt-dlp options with cookie support
+def build_ytdlp_options() -> YtDlpParams:
+    # Base yt-dlp options
+    options: YtDlpParams = {
+        "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "noplaylist": True,
+        "quiet": True,
+        "default_search": "ytsearch",
+        "extract_flat": False,
+        "skip_download": True,
+        "nocheckcertificate": True,
+        "retries": 10,  # Increased retries for YouTube bot detection
+        "fragment_retries": 10,
+        "concurrent_fragment_downloads": 1,
+        "http_chunk_size": 1048576,  # 1MB for Raspberry Pi
+        "socket_timeout": 30,
+        # Better YouTube handling
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["web", "tv"],  # Removed android (requires PO Token)
+                "skip": ["hls", "dash"],
+            }
+        },
+        "match_filter": {"!is_live": True, "duration": lambda d: d <= 600},
+        # User-Agent to avoid bot detection
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        # JavaScript Runtime
+        "js_interpreter": get_js_runtime(),
+        # Age-gate bypass
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["web", "tv"],
+                "skip": ["hls", "dash"],
+            }
+        },
+    }
+    
+    # Add cookies if available
+    cookies_path = get_youtube_cookies_path()
+    if cookies_path:
+        options["cookiefile"] = cookies_path
+        logging.info(f"Using YouTube cookies from: {cookies_path}")
+    else:
+        logging.warning(
+            "No YouTube cookies found. To fix bot detection errors:\n"
+            "  1. Export cookies: yt-dlp --cookies-from-browser firefox\n"
+            "  2. Save as: ~/.config/yt-dlp/cookies.txt\n"
+            "  3. Restart bot"
+        )
+    
+    return options
+
+YTDLP_OPTIONS = build_ytdlp_options()
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 10 -rw_timeout 20000000",
-    "options": "-vn -q:a 5",  # -q:a 5 for better quality/speed balance on Pi
+    "options": "-vn -q:a 5",
 }
 
 
