@@ -57,6 +57,17 @@ class FFmpegParams(TypedDict, total=False):
 # yt-dlp Options
 # ----------------------------------------------------------------
 
+# Helper to detect Node.js runtime
+def get_js_runtime() -> str | None:
+    # Auto-detect JavaScript runtime for yt-dlp
+    # Try Node.js first (most common)
+    node_candidates = ["node", "node.exe", "nodejs"]
+    for candidate in node_candidates:
+        runtime = shutil.which(candidate)
+        if runtime:
+            return runtime
+    return None
+
 YTDLP_OPTIONS: YtDlpParams = {
     "format": "bestaudio[ext=m4a]/bestaudio",  # Prefer m4a for better compatibility
     "noplaylist": True,
@@ -72,11 +83,15 @@ YTDLP_OPTIONS: YtDlpParams = {
     "socket_timeout": 30,  # Add explicit socket timeout
     "extractor_args": {
         "youtube": {
-            "player_client": ["web", "tv"],  # More flexible clients
+            "player_client": ["web", "tv", "android"],  # More flexible clients
             "skip": ["hls", "dash"],  # Avoid problematic formats on Pi
         }
     },
-    "match_filter": {"!is_live": True, "duration": lambda d: d <= 600}
+    "match_filter": {"!is_live": True, "duration": lambda d: d <= 600},
+    # YouTube Bot Detection Bypass
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    # JavaScript Runtime for signature solving
+    "js_interpreter": get_js_runtime(),  # Auto-detect Node.js
 }
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
@@ -125,19 +140,34 @@ def get_ffmpeg_options() -> FFmpegParams:
 
 # Extract audio information using yt-dlp
 def extract_audio(query: str):
-    
-# Extract audio information from a query using yt-dlp with error handling.
+    """Extract audio information from a query using yt-dlp with error handling."""
 
     try:
         with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
             try:
                 info = ydl.extract_info(query, download=False)
             except DownloadError as e:
+                error_str = str(e)
+                # YouTube Bot Detection - provide helpful message
+                if "Sign in to confirm you're not a bot" in error_str:
+                    raise PlayerError(
+                        "YouTube blocked this video (bot detection). "
+                        "Please try another video or wait a few minutes. "
+                        "Ensure Node.js is installed for better YouTube access."
+                    )
                 # Video not found, age-restricted, or removed
-                raise PlayerError(f"Cannot download: {str(e)[:100]}")
+                raise PlayerError(f"Cannot download: {error_str[:100]}")
             except ExtractorError as e:
+                error_str = str(e)
+                # Signature solving issues
+                if "Signature solving failed" in error_str or "n challenge solving failed" in error_str:
+                    raise PlayerError(
+                        "YouTube signature solving failed. "
+                        "Ensure Node.js is installed: `npm install -g node` "
+                        "or check: https://github.com/yt-dlp/yt-dlp/wiki/EJS"
+                    )
                 # Extractor-specific error (wrong platform, auth required, etc.)
-                raise PlayerError(f"Extractor error: {str(e)[:100]}")
+                raise PlayerError(f"Extractor error: {error_str[:100]}")
             except (TimeoutError, Exception) as e:
                 # Network timeout or connection error
                 raise PlayerError(f"Network timeout while searching: {str(e)[:100]}")
