@@ -59,85 +59,60 @@ class FFmpegParams(TypedDict, total=False):
 
 # Helper to detect Node.js runtime
 def get_js_runtime() -> str | None:
-    # Check common Node.js executable names
+    # Detect JavaScript runtime for yt-dlp for signature solving
+    # Try explicit paths first (Raspberry Pi specific)
+    explicit_paths = [
+        "/usr/bin/node",
+        "/usr/local/bin/node",
+        "/opt/nodejs/bin/node",
+        "/home/dennis/.local/bin/node",
+    ]
+    
+    for path in explicit_paths:
+        if os.path.isfile(path) and os.access(path, os.X_OK):
+            logging.info(f"✅ Found Node.js at: {path}")
+            return path
+    
+    # Try shutil.which as fallback
     node_candidates = ["node", "node.exe", "nodejs"]
     for candidate in node_candidates:
         runtime = shutil.which(candidate)
         if runtime:
+            logging.info(f"✅ Found Node.js at: {runtime}")
             return runtime
+    
+    logging.warning("⚠️ No JavaScript runtime found! YouTube support will be limited")
     return None
 
-def get_youtube_cookies_path() -> str | None:
-    # Get path to YouTube cookies file if it exists
-    # Check common cookie file locations
-    cookie_paths = [
-        os.path.expanduser("~/.config/yt-dlp/cookies.txt"),
-        os.path.expanduser("~/.ytdlp/cookies.txt"),
-        os.path.expanduser("~/yt-dlp-cookies.txt"),
-        "cookies.txt"
-    ]
-    for path in cookie_paths:
-        if os.path.isfile(path):
-            return path
-    return None
-
-# Build yt-dlp options with cookie support
-def build_ytdlp_options() -> YtDlpParams:
-    # Base yt-dlp options
-    options: YtDlpParams = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "noplaylist": True,
-        "quiet": True,
-        "default_search": "ytsearch",
-        "extract_flat": False,
-        "skip_download": True,
-        "nocheckcertificate": True,
-        "retries": 10,  # Increased retries for YouTube bot detection
-        "fragment_retries": 10,
-        "concurrent_fragment_downloads": 1,
-        "http_chunk_size": 1048576,  # 1MB for Raspberry Pi
-        "socket_timeout": 30,
-        # Better YouTube handling
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["web", "tv"],  # Removed android (requires PO Token)
-                "skip": ["hls", "dash"],
-            }
-        },
-        "match_filter": {"!is_live": True, "duration": lambda d: d <= 600},
-        # User-Agent to avoid bot detection
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        # JavaScript Runtime
-        "js_interpreter": get_js_runtime(),
-        # Age-gate bypass
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["web", "tv"],
-                "skip": ["hls", "dash"],
-            }
-        },
-    }
-    
-    # Add cookies if available
-    cookies_path = get_youtube_cookies_path()
-    if cookies_path:
-        options["cookiefile"] = cookies_path
-        logging.info(f"Using YouTube cookies from: {cookies_path}")
-    else:
-        logging.warning(
-            "No YouTube cookies found. To fix bot detection errors:\n"
-            "  1. Export cookies: yt-dlp --cookies-from-browser firefox\n"
-            "  2. Save as: ~/.config/yt-dlp/cookies.txt\n"
-            "  3. Restart bot"
-        )
-    
-    return options
-
-YTDLP_OPTIONS = build_ytdlp_options()
+YTDLP_OPTIONS: YtDlpParams = {
+    "format": "bestaudio[ext=m4a]/bestaudio",  # Prefer m4a for better compatibility
+    "noplaylist": True,
+    "quiet": True,
+    "default_search": "ytsearch",
+    "extract_flat": False,
+    "skip_download": True,
+    "nocheckcertificate": True,
+    "retries": 5,  # Increased retries for Pi stability
+    "fragment_retries": 5,  # More resilient to network issues
+    "concurrent_fragment_downloads": 1,
+    "http_chunk_size": 1048576,  # Smaller chunks for Raspberry Pi (1MB instead of 10MB)
+    "socket_timeout": 30,  # Add explicit socket timeout
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["web", "tv"],  # More flexible clients
+            "skip": ["hls", "dash"],  # Avoid problematic formats on Pi
+        }
+    },
+    "match_filter": {"!is_live": True, "duration": lambda d: d <= 600},
+    # JavaScript Runtime for signature solving
+    "js_interpreter": get_js_runtime(),
+    # Use Chromium cookies for authentication
+    "cookies_from_browser": ["chromium"],
+}
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 10 -rw_timeout 20000000",
-    "options": "-vn -q:a 5",
+    "options": "-vn -q:a 5",  # -q:a 5 for better quality/speed balance on Pi
 }
 
 
@@ -181,34 +156,19 @@ def get_ffmpeg_options() -> FFmpegParams:
 
 # Extract audio information using yt-dlp
 def extract_audio(query: str):
-    """Extract audio information from a query using yt-dlp with error handling."""
+    
+# Extract audio information from a query using yt-dlp with error handling.
 
     try:
         with yt_dlp.YoutubeDL(cast(Any, YTDLP_OPTIONS)) as ydl:
             try:
                 info = ydl.extract_info(query, download=False)
             except DownloadError as e:
-                error_str = str(e)
-                # YouTube Bot Detection - provide helpful message
-                if "Sign in to confirm you're not a bot" in error_str:
-                    raise PlayerError(
-                        "YouTube blocked this video (bot detection). "
-                        "Please try another video or wait a few minutes. "
-                        "Ensure Node.js is installed for better YouTube access."
-                    )
                 # Video not found, age-restricted, or removed
-                raise PlayerError(f"Cannot download: {error_str[:100]}")
+                raise PlayerError(f"Cannot download: {str(e)[:100]}")
             except ExtractorError as e:
-                error_str = str(e)
-                # Signature solving issues
-                if "Signature solving failed" in error_str or "n challenge solving failed" in error_str:
-                    raise PlayerError(
-                        "YouTube signature solving failed. "
-                        "Ensure Node.js is installed: `npm install -g node` "
-                        "or check: https://github.com/yt-dlp/yt-dlp/wiki/EJS"
-                    )
                 # Extractor-specific error (wrong platform, auth required, etc.)
-                raise PlayerError(f"Extractor error: {error_str[:100]}")
+                raise PlayerError(f"Extractor error: {str(e)[:100]}")
             except (TimeoutError, Exception) as e:
                 # Network timeout or connection error
                 raise PlayerError(f"Network timeout while searching: {str(e)[:100]}")
