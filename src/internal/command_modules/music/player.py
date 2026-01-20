@@ -70,7 +70,7 @@ def get_js_runtime() -> str | None:
     
     for path in explicit_paths:
         if os.path.isfile(path) and os.access(path, os.X_OK):
-            logging.info(f"✅ Found Node.js at: {path}")
+            logging.debug(f" Found Node.js at: {path}")
             return path
     
     # Try shutil.which as fallback
@@ -78,10 +78,10 @@ def get_js_runtime() -> str | None:
     for candidate in node_candidates:
         runtime = shutil.which(candidate)
         if runtime:
-            logging.info(f"✅ Found Node.js at: {runtime}")
+            logging.debug(f" Found Node.js at: {runtime}")
             return runtime
     
-    logging.warning("⚠️ No JavaScript runtime found! YouTube support will be limited")
+    logging.warning(" No JavaScript runtime found! YouTube support will be limited")
     return None
 
 YTDLP_OPTIONS: YtDlpParams = {
@@ -217,7 +217,7 @@ async def play_next(guild: discord.Guild):
     state["current"] = song
     state["playing"] = True
     
-    # ✅ WICHTIG: Immer guild.voice_client verwenden, nicht state["voice_client"]
+    # Get voice client
     vc = guild.voice_client
     if not vc:
         logging.warning(f"No active voice connection for guild {guild.id}")
