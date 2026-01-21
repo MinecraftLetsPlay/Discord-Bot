@@ -134,7 +134,7 @@ class CustomTimedRotatingFileHandler(logging.FileHandler):
                     try:
                         os.remove(os.path.join(log_dir, old_file))
                         deleted_count += 1
-                        print(f" Deleted old log: {old_file}")
+                        print(f"Deleted old log: {old_file}")
                     except OSError as e:
                         print(f" Could not delete old log file {old_file}: {e}", file=sys.stderr)
                 

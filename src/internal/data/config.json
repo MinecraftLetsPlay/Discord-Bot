@@ -10,7 +10,7 @@
     "documents": "/home/dennis/Desktop/Storage/Documents"
   },
   "LoggingActivated": true,
-  "DebugModeActivated": false,
+  "DebugModeActivated": true,
   "BotStatus": {
     "type": "listening",
     "text": "Listening to your commands."

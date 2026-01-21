@@ -261,7 +261,20 @@ async def component_test():
         status = "🟧"
         messages.append(f"Warning: FFmpeg check failed: {e}")
 
-    # Test 2: Check music channel config
+    # Test 2: Check if Node.js is available (NEW)
+    try:
+        from internal.command_modules.music.player import get_js_runtime
+        node_exec = get_js_runtime()
+        if node_exec:
+            messages.append(f"Node.js found: {node_exec}")
+        else:
+            status = "🟧"
+            messages.append("Warning: Node.js not found (YouTube age-restricted videos may fail).")
+    except Exception as e:
+        status = "🟧"
+        messages.append(f"Warning: Node.js check failed: {e}")
+
+    # Test 3: Check music channel config
     try:
         from internal.utils import load_config
         cfg = load_config()
@@ -269,8 +282,8 @@ async def component_test():
     except Exception as e:
         status = "🟧"
         messages.append(f"Warning: Config load failed: {e}")
-    
-    # Test 3: Check if player.py module is functional
+
+    # Test 4: Check if player.py module is functional
     try:
         test_guild_id = 0  # Dummy guild ID for testing
         state = player.get_guild_state(test_guild_id)

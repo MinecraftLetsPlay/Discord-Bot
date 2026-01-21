@@ -48,7 +48,7 @@ def run_discord_bot():
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
-        intents.presences = True
+        intents.presences = intents.presences
     except Exception as e:
         logging.critical(f"Failed to setup Discord intents: {e}")
         sys.exit(1)

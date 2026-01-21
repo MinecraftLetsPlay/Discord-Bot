@@ -5,6 +5,7 @@ import logging
 import yt_dlp
 import os
 import shutil
+import platform
 from yt_dlp.utils import DownloadError, ExtractorError
 from typing import Any, TypedDict, IO, cast
 
@@ -17,6 +18,17 @@ from typing import Any, TypedDict, IO, cast
 # Error handling for ffmpeg and yt-dlp operations included
 # ================================================================
 
+# ================================================================
+# PLATFORM DETECTION
+# ================================================================
+
+PLATFORM = platform.system()
+ARCH = platform.machine()
+IS_PI = ARCH in ["armv7l", "armv6l", "aarch64"] or os.path.exists("/boot/firmware/config.txt")
+IS_WINDOWS = PLATFORM == "Windows"
+
+logging.info(f"Platform: {PLATFORM} | Architecture: {ARCH} | Is Pi: {IS_PI}")
+
 # ----------------------------------------------------------------
 # Helper Functions and Initial Setup
 # ----------------------------------------------------------------
@@ -26,7 +38,7 @@ FFMPEG_TIMEOUT = 10.0
 
 bot_loop = None
 music_state = {}
-max_queue_size = 50
+max_queue_size = 20 if IS_PI else 50
 
 class PlayerError(Exception):
     """Raised when playback prerequisites are missing (e.g., ffmpeg)."""
@@ -39,7 +51,9 @@ def get_guild_state(guild_id: int):
             "current": None,
             "voice_client": None,
             "playing": False,
-            "repeat_mode": "off"  # off, one, or all
+            "repeat_mode": "off",  # off, one, or all
+            "error_count": 0,  # Track consecutive playback errors
+            "last_error_time": None
         }
     return music_state[guild_id]
 
@@ -65,12 +79,11 @@ def get_js_runtime() -> str | None:
         "/usr/bin/node",
         "/usr/local/bin/node",
         "/opt/nodejs/bin/node",
-        "/home/dennis/.local/bin/node",
     ]
     
     for path in explicit_paths:
         if os.path.isfile(path) and os.access(path, os.X_OK):
-            logging.debug(f" Found Node.js at: {path}")
+            logging.debug(f"Found Node.js at: {path}")
             return path
     
     # Try shutil.which as fallback
@@ -78,36 +91,35 @@ def get_js_runtime() -> str | None:
     for candidate in node_candidates:
         runtime = shutil.which(candidate)
         if runtime:
-            logging.debug(f" Found Node.js at: {runtime}")
+            logging.debug(f"Found Node.js in PATH: {runtime}")
             return runtime
     
-    logging.warning(" No JavaScript runtime found! YouTube support will be limited")
+    logging.warning("No JavaScript runtime found! YouTube support will be limited")
     return None
 
 YTDLP_OPTIONS: YtDlpParams = {
-    "format": "bestaudio[ext=m4a]/bestaudio",  # Prefer m4a for better compatibility
+    "format": "251/250/249/140/opus/m4a/aac/best[ext=m4a]/best[ext=webm]/best[ext=mp4]/best/bestaudio[ext=opus]/bestaudio[ext=m4a]/bestaudio",  # Audio-only formats with fallbacks
+    "skip": ["dash", "hls"],
     "noplaylist": True,
-    "quiet": True,
+    "quiet": False,  # Keep warnings/errors visible for debugging
     "default_search": "ytsearch",
     "extract_flat": False,
-    "skip_download": True,
+    "skip_download": True,  # Don't download, just get the URL
     "nocheckcertificate": True,
-    "retries": 5,  # Increased retries for Pi stability
-    "fragment_retries": 5,  # More resilient to network issues
+    "retries": 5,
+    "fragment_retries": 5,
     "concurrent_fragment_downloads": 1,
-    "http_chunk_size": 1048576,  # Smaller chunks for Raspberry Pi (1MB instead of 10MB)
-    "socket_timeout": 30,  # Add explicit socket timeout
+    "http_chunk_size": 524288 if IS_PI else 1048576,  # 512KB on Pi, 1MB on desktop
+    "socket_timeout": 45 if IS_PI else 30,  # Longer timeout for Pi
     "extractor_args": {
         "youtube": {
-            "player_client": ["web", "tv"],  # More flexible clients
-            "skip": ["hls", "dash"],  # Avoid problematic formats on Pi
+            "player_client": ["web"],  # Only web client for stability
         }
     },
     "match_filter": {"!is_live": True, "duration": lambda d: d <= 600},
-    # JavaScript Runtime for signature solving
-    "js_interpreter": get_js_runtime(),
-    # Use Chromium cookies for authentication
-    "cookies_from_browser": ["chromium"],
+    "js_runtimes": {"node": {}},
+    "cookies_from_browser": ["chrome", "chromium", "opera"],  # YouTube authentication
+    "logger": logging.getLogger("yt_dlp"),  # Use own logger
 }
 
 BASE_FFMPEG_OPTIONS: FFmpegParams = {
@@ -123,24 +135,56 @@ def resolve_ffmpeg_executable() -> str:
     env_path = os.getenv("FFMPEG_PATH")
     if env_path:
         if os.path.isfile(env_path):
+            logging.debug(f"Using FFMPEG_PATH: {env_path}")
             return env_path
         else:
-            raise PlayerError(f"FFMPEG_PATH is set to '{env_path}' but file not found. Check the path.")
+            raise PlayerError(f"FFMPEG_PATH is set to '{env_path}' but file not found.")
+    
+    # Pi-specific paths
+    if IS_PI:
+        pi_paths = [
+            "/usr/bin/ffmpeg",
+            "/usr/local/bin/ffmpeg",
+            "/opt/ffmpeg/bin/ffmpeg",
+        ]
+        for path in pi_paths:
+            if os.path.isfile(path):
+                logging.debug(f"Found Pi ffmpeg: {path}")
+                return path
+    
+    # Windows-specific paths
+    if IS_WINDOWS:
+        windows_paths = [
+            "C:\\ffmpeg\\bin\\ffmpeg.exe",
+            "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
+        ]
+        for path in windows_paths:
+            if os.path.isfile(path):
+                logging.debug(f"Found Windows ffmpeg: {path}")
+                return path
     
     # Check PATH for ffmpeg
-    for candidate in ("ffmpeg", "ffmpeg.exe"):
+    for candidate in ("ffmpeg.exe" if IS_WINDOWS else "ffmpeg",):
         resolved = shutil.which(candidate)
         if resolved:
+            logging.debug(f"Found ffmpeg in PATH: {resolved}")
             return resolved
     
-    # Detailed error message with instructions
-    error_msg = (
-        "ffmpeg not found. Please install ffmpeg:\n"
-        "  - Linux: sudo apt install ffmpeg\n"
-        "  - macOS: brew install ffmpeg\n"
-        "  - Windows: Download from https://ffmpeg.org/download.html\n"
-        "  - Or set FFMPEG_PATH environment variable"
-    )
+    # Platform-specific error message
+    if IS_PI:
+        error_msg = (
+            "ffmpeg not found on Raspberry Pi. Install with:\n"
+            "  sudo apt update && sudo apt install ffmpeg\n"
+            "  Or set FFMPEG_PATH environment variable"
+        )
+    else:
+        error_msg = (
+            "ffmpeg not found. Please install ffmpeg:\n"
+            "  Windows: Download from https://ffmpeg.org/download.html\n"
+            "  Linux: sudo apt install ffmpeg\n"
+            "  Or set FFMPEG_PATH environment variable"
+        )
+    
     raise PlayerError(error_msg)
 
 
@@ -176,8 +220,15 @@ def extract_audio(query: str):
             if not info:
                 raise PlayerError("No results found.")
 
+            # Handle both direct results and search results with entries
             if "entries" in info:
+                if not info["entries"]:
+                    raise PlayerError("No results found in search entries.")
                 info = info["entries"][0]
+            
+            # Ensure we have the required fields
+            if not info.get("title"):
+                raise PlayerError("Song title not found in results.")
 
             return {
                 "title": info.get("title"),
@@ -253,9 +304,19 @@ async def play_next(guild: discord.Guild):
                 error_str = str(error).lower()
                 # Ignore harmless reconnect messages from FFmpeg
                 if "connection reset" in error_str or "io error" in error_str:
-                    logging.warning(f"Network blip during playback (expected on unstable connections): {error}")
+                    logging.warning(f"Network blip during playback: {error}")
                 else:
                     logging.error(f"Playback error: {error}")
+                    state["error_count"] = state.get("error_count", 0) + 1
+                    # Stop after 5 consecutive errors
+                    if state["error_count"] >= 5:
+                        logging.error(f"Too many consecutive errors ({state['error_count']}). Stopping playback.")
+                        state["playing"] = False
+                        state["error_count"] = 0
+                        return
+            else:
+                state["error_count"] = 0  # Reset on success
+            
             loop.call_soon_threadsafe(asyncio.create_task, play_next(guild))
         
         voice_client.play(source, after=after_play)
@@ -374,10 +435,7 @@ async def stop(guild_id: int):
             # Give FFmpeg time to gracefully stop
             if voice_client.is_playing() or voice_client.is_paused():
                 voice_client.stop()
-                
-                # Wait for FFmpeg to terminate properly
-                import asyncio
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)  # Wait for FFmpeg to terminate
                 
         except Exception as e:
             logging.error(f"Error stopping playback: {e}")
@@ -398,10 +456,7 @@ async def disconnect(guild_id: int):
             # Stop playback first
             if voice_client.is_playing() or voice_client.is_paused():
                 voice_client.stop()
-                
-                # Give FFmpeg time to terminate
-                import asyncio
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)  # Wait for FFmpeg to terminate
             
             # Disconnect
             await voice_client.disconnect(force=True)
