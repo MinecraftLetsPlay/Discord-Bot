@@ -24,15 +24,13 @@ class BroadcastLoader:
     def __init__(self, config_path: Optional[str] = None):
         # Initialize loader with config path
         if config_path is None:
-            # Auto-detect: go up from broadcast-system to project root
-            # Path: .../Discord-Bot/tools/broadcast-system/loader.py
-            # Need: .../Discord-Bot/src/internal/data
+            # Auto-detect paths to read configs
             current_dir = Path(__file__).parent
-            project_root = current_dir.parent.parent  # Go up 2 levels: broadcast-system -> tools -> Discord-Bot
+            project_root = current_dir.parent.parent  # Go up 2 levels to get root (Discord-Bot/)
             config_path = str(project_root / "src" / "internal" / "data")
         
         self.config_path = Path(config_path)
-        self.servers_dir = self.config_path / "servers"
+        self.servers_dir = self.config_path / "servers" # Append servers to get ./data/servers
         
         if not self.servers_dir.exists():
             raise FileNotFoundError(f"Servers directory not found at {self.servers_dir}")
